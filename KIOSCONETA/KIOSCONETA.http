@@ -1,0 +1,6 @@
+@KIOSCONETA_HostAddress = http://localhost:5286
+
+GET {{KIOSCONETA_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
