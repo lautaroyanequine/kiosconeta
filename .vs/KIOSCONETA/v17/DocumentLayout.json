@@ -3,24 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|c:\\users\\cecotras\\desktop\\cas\\app\\kiosconeta\\kiosconeta\\controllers\\valuescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|solutionrelative:kiosconeta\\controllers\\valuescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\cecotras\\desktop\\cas\\app\\kiosconeta\\domain\\entities\\tipodegasto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\tipodegasto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\cecotras\\desktop\\cas\\app\\kiosconeta\\infraestructure\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\cecotras\\desktop\\cas\\app\\kiosconeta\\application\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\cecotras\\desktop\\cas\\app\\kiosconeta\\domain\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\cecotras\\desktop\\cas\\app\\kiosconeta\\domain\\entities\\metododepago.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\metododepago.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|c:\\users\\cecotras\\desktop\\cas\\app\\kiosconeta\\kiosconeta\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|solutionrelative:kiosconeta\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\cecotras\\desktop\\cas\\app\\kiosconeta\\infraestructure\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -35,67 +31,53 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ValuesController.cs",
-              "DocumentMoniker": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\KIOSCONETA\\Controllers\\ValuesController.cs",
-              "RelativeDocumentMoniker": "KIOSCONETA\\Controllers\\ValuesController.cs",
-              "ToolTip": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\KIOSCONETA\\Controllers\\ValuesController.cs",
-              "RelativeToolTip": "KIOSCONETA\\Controllers\\ValuesController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Title": "TipoDeGasto.cs",
+              "DocumentMoniker": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Entities\\TipoDeGasto.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\TipoDeGasto.cs",
+              "ToolTip": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Entities\\TipoDeGasto.cs",
+              "RelativeToolTip": "Domain\\Entities\\TipoDeGasto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-18T14:15:56.631Z",
+              "WhenOpened": "2025-07-25T15:28:07.061Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Class1.cs",
-              "DocumentMoniker": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\Class1.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Class1.cs",
-              "ToolTip": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\Class1.cs",
-              "RelativeToolTip": "Infraestructure\\Class1.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Title": "MetodoDePago.cs",
+              "DocumentMoniker": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Entities\\MetodoDePago.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\MetodoDePago.cs",
+              "ToolTip": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Entities\\MetodoDePago.cs",
+              "RelativeToolTip": "Domain\\Entities\\MetodoDePago.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-18T14:11:37.608Z",
+              "WhenOpened": "2025-07-25T15:15:12.057Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "Class1.cs",
-              "DocumentMoniker": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Application\\Class1.cs",
-              "RelativeDocumentMoniker": "Application\\Class1.cs",
-              "ToolTip": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Application\\Class1.cs",
-              "RelativeToolTip": "Application\\Class1.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-18T14:11:11.348Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Class1.cs",
-              "DocumentMoniker": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Class1.cs",
-              "RelativeDocumentMoniker": "Domain\\Class1.cs",
-              "ToolTip": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Class1.cs",
-              "RelativeToolTip": "Domain\\Class1.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-18T14:10:00.932Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\KIOSCONETA\\Program.cs",
               "RelativeDocumentMoniker": "KIOSCONETA\\Program.cs",
               "ToolTip": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\KIOSCONETA\\Program.cs",
               "RelativeToolTip": "KIOSCONETA\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAUwBkAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-18T13:41:45.547Z",
+              "WhenOpened": "2025-07-25T14:30:16.374Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\Persistence\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\Persistence\\AppDbContext.cs",
+              "RelativeToolTip": "Infraestructure\\Persistence\\AppDbContext.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAowDEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-25T14:05:53.885Z"
             }
           ]
         }
