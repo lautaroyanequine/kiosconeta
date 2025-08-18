@@ -10,19 +10,44 @@ namespace Infraestructure.Persistence
         public AppDbContext()
         {
         }
+        public DbSet<MetodoDePago> MetodosDePago { get; set; } //son colecciones
+        public DbSet<TipoDeGasto> TiposDeGasto { get; set; } //son colecciones
+        public DbSet<Categoria> Categorias { get; set; }
+        public DbSet<Permiso> Permisos { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Turno> Turnos { get; set; }
+        public DbSet<Kiosco> Kioscos { get; set; }
+        public DbSet<Empleado> Empleados { get; set; }
+
+
+
+
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
         }
-        public DbSet<MetodoDePago> MetodosDePago { get; set; } //son colecciones
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=localhost;Database=Restaurante;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
+            optionsBuilder.UseSqlServer(@"Server=localhost;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             new MetodoDePagoConfiguration(modelBuilder.Entity<MetodoDePago>());
+            new TipoDeGastoConfiguration(modelBuilder.Entity<TipoDeGasto>());
+            new CategoriaConfiguration(modelBuilder.Entity<Categoria>());
+            new PermisoConfiguration(modelBuilder.Entity<Permiso>());
+            new UsuarioConfiguration(modelBuilder.Entity<Usuario>());
+            new TurnoConfiguration(modelBuilder.Entity<Turno>());
+            new KioscoConfiguration(modelBuilder.Entity<Kiosco>());
+            new EmpleadoConfiguration(modelBuilder.Entity<Empleado>());
+
+
+
+
+
+
+
 
             base.OnModelCreating(modelBuilder);
 

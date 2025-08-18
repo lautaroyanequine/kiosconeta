@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\KIOSCONETA\\KIOSCONETA.csproj": {}
+    "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\KIOSCONETA.csproj": {}
   },
   "projects": {
-    "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Application\\Application.csproj": {
+    "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Application\\Application.csproj",
+        "projectUniqueName": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Application.csproj",
         "projectName": "Application",
-        "projectPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Application\\Application.csproj",
-        "packagesPath": "C:\\Users\\cecotras\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Application\\obj\\",
+        "projectPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Application.csproj",
+        "packagesPath": "C:\\Users\\lauta\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\cecotras\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lauta\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,8 +32,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Domain.csproj"
+              "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Domain.csproj"
               }
             }
           }
@@ -69,24 +69,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Domain.csproj": {
+    "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Domain.csproj",
+        "projectUniqueName": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\Domain.csproj",
-        "packagesPath": "C:\\Users\\cecotras\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Domain\\obj\\",
+        "projectPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Domain.csproj",
+        "packagesPath": "C:\\Users\\lauta\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\cecotras\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lauta\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -134,24 +134,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\Infraestructure.csproj": {
+    "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Infraestructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\Infraestructure.csproj",
+        "projectUniqueName": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Infraestructure.csproj",
         "projectName": "Infraestructure",
-        "projectPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\Infraestructure.csproj",
-        "packagesPath": "C:\\Users\\cecotras\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\obj\\",
+        "projectPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Infraestructure.csproj",
+        "packagesPath": "C:\\Users\\lauta\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\cecotras\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lauta\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -166,8 +166,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Application\\Application.csproj"
+              "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Application.csproj"
               }
             }
           }
@@ -190,13 +190,13 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": {
               "target": "Package",
-              "version": "[8.0.18, )"
+              "version": "[9.0.8, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.18, )"
+              "version": "[9.0.8, )"
             }
           },
           "imports": [
@@ -215,24 +215,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\KIOSCONETA\\KIOSCONETA.csproj": {
+    "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\KIOSCONETA.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\KIOSCONETA\\KIOSCONETA.csproj",
+        "projectUniqueName": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\KIOSCONETA.csproj",
         "projectName": "KIOSCONETA",
-        "projectPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\KIOSCONETA\\KIOSCONETA.csproj",
-        "packagesPath": "C:\\Users\\cecotras\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\KIOSCONETA\\obj\\",
+        "projectPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\KIOSCONETA.csproj",
+        "packagesPath": "C:\\Users\\lauta\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\cecotras\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lauta\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -247,8 +247,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\Infraestructure.csproj": {
-                "projectPath": "C:\\Users\\cecotras\\Desktop\\cas\\APP\\KIOSCONETA\\Infraestructure\\Infraestructure.csproj"
+              "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Infraestructure.csproj": {
+                "projectPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Infraestructure.csproj"
               }
             }
           }
@@ -269,9 +269,15 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[6.6.2, )"
+              "version": "[9.0.3, )"
             }
           },
           "imports": [
@@ -293,7 +299,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

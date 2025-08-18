@@ -1,12 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infraestructure.Persistence.Config
 {
@@ -16,11 +10,11 @@ namespace Infraestructure.Persistence.Config
         {
             entityBuilder.ToTable("MetodoDePago");
             entityBuilder.Property(m => m.MetodoDePagoID).ValueGeneratedOnAdd();
-            entityBuilder.Property(foren => foren.Nombre).HasMaxLength(50);
-          /*  entityBuilder
-                .HasMany<Mercaderia>(tm => tm.Mercaderias)
-                .WithOne(m => m.TipoMercaderia)
-                .HasForeignKey(m => m.TipoMercaderiaId);*/
+            entityBuilder.Property(m => m.Nombre).HasMaxLength(50);
+            /*  entityBuilder
+                  .HasMany<Mercaderia>(tm => tm.Mercaderias)
+                  .WithOne(m => m.TipoMercaderia)
+                  .HasForeignKey(m => m.TipoMercaderiaId);*/
         }
 
     }
