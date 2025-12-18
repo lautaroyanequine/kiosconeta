@@ -21,6 +21,11 @@ namespace Infraestructure.Persistence.Config
             .WithOne(e => e.Kiosco)
             .HasForeignKey(e => e.KioscoID)
             .OnDelete(DeleteBehavior.Cascade);
+            entityBuilder // KioscoConfiguration
+            .HasMany(k => k.Empleados)
+            .WithOne(e => e.Kiosco)
+            .HasForeignKey(e => e.KioscoID)
+            .OnDelete(DeleteBehavior.Cascade);
 
 
         }

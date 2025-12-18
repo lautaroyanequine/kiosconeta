@@ -14,7 +14,7 @@ namespace Domain.Entities
         public int UsuarioID { get; set; }
         public Usuario Usuario { get; set; }
         public int KioscoID { get; set; }
-        public Kiosco Kiosco { get; set; }  
-       
+        public Kiosco Kiosco { get; set; }
+        public IList<Gasto> Gastos { get; set; }
     }
 }
