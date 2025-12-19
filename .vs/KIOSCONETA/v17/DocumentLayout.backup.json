@@ -54,8 +54,7 @@
               "RelativeToolTip": "Infraestructure\\Persistence\\Config\\CierreTurnoConfiguration.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-18T01:17:54.536Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-18T01:17:54.536Z"
             },
             {
               "$type": "Document",
@@ -80,8 +79,7 @@
               "RelativeToolTip": "Domain\\Entities\\Empleado.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-18T01:17:12.874Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-18T01:17:12.874Z"
             },
             {
               "$type": "Document",
@@ -93,8 +91,7 @@
               "RelativeToolTip": "Domain\\Entities\\Kiosco.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-18T01:08:29.116Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-18T01:08:29.116Z"
             },
             {
               "$type": "Document",
@@ -106,8 +103,7 @@
               "RelativeToolTip": "Domain\\Entities\\Gasto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-18T01:08:19.605Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-18T01:08:19.605Z"
             },
             {
               "$type": "Document",
@@ -119,8 +115,7 @@
               "RelativeToolTip": "Domain\\Entities\\TipoDeGasto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-18T01:08:07.758Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-18T01:08:07.758Z"
             },
             {
               "$type": "Document",
@@ -132,8 +127,7 @@
               "RelativeToolTip": "Infraestructure\\Persistence\\Config\\KioscoConfiguration.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-18T00:51:52.723Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-18T00:51:52.723Z"
             }
           ]
         }

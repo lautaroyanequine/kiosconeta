@@ -3,16 +3,40 @@
   "WorkspaceRootPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\config\\gastoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\config\\gastoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\config\\empleadopermisoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\config\\empleadopermisoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\config\\cierreturnoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\config\\cierreturnoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\domain\\entities\\empleadopermiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\empleadopermiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\domain\\entities\\gasto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\gasto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\domain\\entities\\permiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\permiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\domain\\entities\\empleado.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\empleado.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\config\\empleadoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\config\\empleadoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\config\\gastoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\config\\gastoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\domain\\entities\\cierreturno.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\cierreturno.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\config\\cierreturnoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\config\\cierreturnoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\domain\\entities\\tipodegasto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -21,10 +45,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\domain\\entities\\kiosco.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\kiosco.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\domain\\entities\\gasto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\gasto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\config\\kioscoconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -38,15 +58,106 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EmpleadoPermisoConfiguration.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\Config\\EmpleadoPermisoConfiguration.cs",
+              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\Config\\EmpleadoPermisoConfiguration.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\Config\\EmpleadoPermisoConfiguration.cs",
+              "RelativeToolTip": "Infraestructure\\Persistence\\Config\\EmpleadoPermisoConfiguration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T00:03:15.007Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Permiso.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Permiso.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Permiso.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Permiso.cs",
+              "RelativeToolTip": "Domain\\Entities\\Permiso.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T00:02:21.23Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "EmpleadoPermiso.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\EmpleadoPermiso.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\EmpleadoPermiso.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\EmpleadoPermiso.cs",
+              "RelativeToolTip": "Domain\\Entities\\EmpleadoPermiso.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T00:00:43.024Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
+              "Title": "EmpleadoConfiguration.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\Config\\EmpleadoConfiguration.cs",
+              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\Config\\EmpleadoConfiguration.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\Config\\EmpleadoConfiguration.cs",
+              "RelativeToolTip": "Infraestructure\\Persistence\\Config\\EmpleadoConfiguration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-19T00:00:08.147Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Gasto.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Gasto.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Gasto.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Gasto.cs",
+              "RelativeToolTip": "Domain\\Entities\\Gasto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-18T01:08:19.605Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "CierreTurno.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\CierreTurno.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\CierreTurno.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\CierreTurno.cs",
+              "RelativeToolTip": "Domain\\Entities\\CierreTurno.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-18T23:58:54.755Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Empleado.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Empleado.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Empleado.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Empleado.cs",
+              "RelativeToolTip": "Domain\\Entities\\Empleado.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-18T01:17:12.874Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "CierreTurnoConfiguration.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\Config\\CierreTurnoConfiguration.cs",
               "RelativeDocumentMoniker": "Infraestructure\\Persistence\\Config\\CierreTurnoConfiguration.cs",
@@ -54,11 +165,12 @@
               "RelativeToolTip": "Infraestructure\\Persistence\\Config\\CierreTurnoConfiguration.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-18T01:17:54.536Z"
+              "WhenOpened": "2025-12-18T01:17:54.536Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 6,
               "Title": "GastoConfiguration.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\Config\\GastoConfiguration.cs",
               "RelativeDocumentMoniker": "Infraestructure\\Persistence\\Config\\GastoConfiguration.cs",
@@ -71,19 +183,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Empleado.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Empleado.cs",
-              "RelativeDocumentMoniker": "Domain\\Entities\\Empleado.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Empleado.cs",
-              "RelativeToolTip": "Domain\\Entities\\Empleado.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-18T01:17:12.874Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 10,
               "Title": "Kiosco.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Kiosco.cs",
               "RelativeDocumentMoniker": "Domain\\Entities\\Kiosco.cs",
@@ -95,19 +195,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Gasto.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Gasto.cs",
-              "RelativeDocumentMoniker": "Domain\\Entities\\Gasto.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Gasto.cs",
-              "RelativeToolTip": "Domain\\Entities\\Gasto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAApAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-18T01:08:19.605Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 9,
               "Title": "TipoDeGasto.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\TipoDeGasto.cs",
               "RelativeDocumentMoniker": "Domain\\Entities\\TipoDeGasto.cs",
@@ -119,7 +207,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 11,
               "Title": "KioscoConfiguration.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\Config\\KioscoConfiguration.cs",
               "RelativeDocumentMoniker": "Infraestructure\\Persistence\\Config\\KioscoConfiguration.cs",
