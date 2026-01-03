@@ -1,11 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infraestructure.Persistence.Config
 {
@@ -14,9 +9,34 @@ namespace Infraestructure.Persistence.Config
         public EmpleadoConfiguration(EntityTypeBuilder<Empleado> entityBuilder)
         {
             entityBuilder.ToTable("Empleado");
-            entityBuilder.Property(m => m.EmpleadoID).ValueGeneratedOnAdd();
-            entityBuilder.Property(m => m.Nombre).HasMaxLength(50);
 
+            entityBuilder.HasKey(e => e.EmpleadoId);
+
+            entityBuilder.Property(e => e.EmpleadoId)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            // Empleado (1) -> CierreTurnoEmpleado (N)
+            entityBuilder.HasMany(e => e.CierreTurnoEmpleados)
+                .WithOne(cte => cte.Empleado)
+                .HasForeignKey(cte => cte.EmpleadoId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entityBuilder.HasMany(e => e.Ventas)
+            .WithOne(v => v.Empleado)
+            .HasForeignKey(v => v.EmpleadoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            entityBuilder.HasMany(e => e.Gastos)
+                .WithOne(g => g.Empleado)
+                .HasForeignKey(g => g.EmpleadoId)
+                .OnDelete(DeleteBehavior.Restrict);
+                            entityBuilder.HasMany(e => e.CierreTurnoEmpleados)
+                    .WithOne(cte => cte.Empleado)
+                    .HasForeignKey(cte => cte.EmpleadoId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

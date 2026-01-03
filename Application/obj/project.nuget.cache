@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "k6RHhwxHLKQ=",
+  "dgSpecHash": "MOPXvwLNPf0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Application.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\fedeg\\OneDrive\\Desktop\\APPKIOSCONETA\\kiosconeta\\Application\\Application.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\fedeg\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.22\\microsoft.windowsdesktop.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\fedeg\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.22\\microsoft.netcore.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\fedeg\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.22\\microsoft.aspnetcore.app.ref.8.0.22.nupkg.sha512"
+  ],
   "logs": []
 }

@@ -11,10 +11,14 @@ namespace Infraestructure.Persistence.Config
             entityBuilder.ToTable("MetodoDePago");
             entityBuilder.Property(m => m.MetodoDePagoID).ValueGeneratedOnAdd();
             entityBuilder.Property(m => m.Nombre).HasMaxLength(50);
+            entityBuilder.HasMany(m => m.Ventas)
+               .WithOne(v => v.MetodoPago)
+               .HasForeignKey(v => v.MetodoPagoId)
+               .OnDelete(DeleteBehavior.Restrict);
             /*  entityBuilder
-                  .HasMany<Mercaderia>(tm => tm.Mercaderias)
-                  .WithOne(m => m.TipoMercaderia)
-                  .HasForeignKey(m => m.TipoMercaderiaId);*/
+                              .HasMany<Mercaderia>(tm => tm.Mercaderias)
+                              .WithOne(m => m.TipoMercaderia)
+                              .HasForeignKey(m => m.TipoMercaderiaId);*/
         }
 
     }
