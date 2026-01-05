@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KIOSCONETA")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8932cf23d04266f8f43eb42501b31eb0f6bf6197")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+39e15c126d128b2c33877a1907522322ccefbfd2")]
 [assembly: System.Reflection.AssemblyProductAttribute("KIOSCONETA")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KIOSCONETA")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

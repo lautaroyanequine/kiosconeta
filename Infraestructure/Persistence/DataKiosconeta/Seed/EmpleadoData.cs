@@ -16,7 +16,7 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
                 new Empleado
                 {
                     EmpleadoId = 1,
-                    Nombre = "Lujan Morienega",
+                    Nombre = "Luchi <3",
                     KioscoID = 1,
                     Activo = true
                 }

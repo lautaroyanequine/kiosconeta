@@ -86,13 +86,16 @@ namespace Infraestructure.Persistence
             // =========================
             new VentaConfiguration(modelBuilder.Entity<Venta>());
             new GastoConfiguration(modelBuilder.Entity<Gasto>());
-            new CierreTurnoConfiguration(modelBuilder.Entity<CierreTurno>())
+            new CierreTurnoConfiguration(modelBuilder.Entity<CierreTurno>());
 
 
             //DATA
             KioscoData.Seed(modelBuilder.Entity<Kiosco>());
             TurnoData.Seed(modelBuilder.Entity<Turno>());
             MetodoPagoData.Seed(modelBuilder.Entity<MetodoDePago>());
+            CategoriaData.Seed(modelBuilder.Entity<Categoria>());
+            EmpleadoData.Seed(modelBuilder.Entity<Empleado>());
+            ProductoData.Seed(modelBuilder.Entity<Producto>());
 
 
             base.OnModelCreating(modelBuilder);
