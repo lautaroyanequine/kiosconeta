@@ -9,8 +9,8 @@ namespace Application.Interfaces.Querys
 {
     public interface IMetodoDePagoQuery
     {
-        MetodoDePago GetMetodoDePago(Guid metodoDePagoId);
-        public List<MetodoDePago> GetList(string? fecha);
+        MetodoDePago GetMetodoDePago(int metodoDePagoId);
+        public List<MetodoDePago> GetList();
 
     }
 }

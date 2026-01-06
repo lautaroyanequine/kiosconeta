@@ -28,12 +28,12 @@ namespace Infraestructure.Querys
                 .ToList();
         }
 
-        public MetodoDePago GetMetodoDePago(Guid metodoDePagoId)
+        public MetodoDePago GetMetodoDePago(int metodoDePagoId)
         {
-            var MetoodoDePaago = _context.MetodosDePago
-                .Include(cm => cm.MetodoDePagoID)
-                .FirstOrDefault(C => C.ComandaId == comandaId);
-            return Comanda;
+            var metodoDePago = _context.MetodosDePago
+                .FirstOrDefault(m => m.MetodoDePagoID == metodoDePagoId);
+
+            return metodoDePago;
         }
     }
 }
