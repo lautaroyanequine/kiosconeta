@@ -46,8 +46,8 @@ namespace Infraestructure.Persistence
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=localhost;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
-           // optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
+           optionsBuilder.UseSqlServer(@"Server=localhost;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
+         //  optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
 
         }
 
@@ -90,6 +90,7 @@ namespace Infraestructure.Persistence
 
 
             //DATA
+            UsuarioData.Seed(modelBuilder.Entity<Usuario>());
             KioscoData.Seed(modelBuilder.Entity<Kiosco>());
             TurnoData.Seed(modelBuilder.Entity<Turno>());
             MetodoPagoData.Seed(modelBuilder.Entity<MetodoDePago>());

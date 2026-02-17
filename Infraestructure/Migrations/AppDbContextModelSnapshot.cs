@@ -38,6 +38,28 @@ namespace Infraestructure.Migrations
                     b.HasKey("CategoriaID");
 
                     b.ToTable("Categoria", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            CategoriaID = 1,
+                            Nombre = "Bebidas"
+                        },
+                        new
+                        {
+                            CategoriaID = 2,
+                            Nombre = "Golosinas"
+                        },
+                        new
+                        {
+                            CategoriaID = 3,
+                            Nombre = "Cigarrillos"
+                        },
+                        new
+                        {
+                            CategoriaID = 4,
+                            Nombre = "Comida"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.CierreTurno", b =>
@@ -131,6 +153,16 @@ namespace Infraestructure.Migrations
                     b.HasIndex("UsuarioID");
 
                     b.ToTable("Empleado", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            EmpleadoId = 1,
+                            Activo = true,
+                            KioscoID = 1,
+                            Nombre = "Luchi <3",
+                            UsuarioID = 1
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.EmpleadoPermiso", b =>
@@ -241,6 +273,15 @@ namespace Infraestructure.Migrations
                     b.HasIndex("UsuarioID");
 
                     b.ToTable("Kiosco", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            KioscoID = 1,
+                            Direccion = "845 2595",
+                            Nombre = "Kiosconeta 1",
+                            UsuarioID = 1
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.MetodoDePago", b =>
@@ -259,6 +300,23 @@ namespace Infraestructure.Migrations
                     b.HasKey("MetodoDePagoID");
 
                     b.ToTable("MetodoDePago", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            MetodoDePagoID = 1,
+                            Nombre = "Efectivo"
+                        },
+                        new
+                        {
+                            MetodoDePagoID = 2,
+                            Nombre = "Mercado Pago"
+                        },
+                        new
+                        {
+                            MetodoDePagoID = 3,
+                            Nombre = "Débito"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Permiso", b =>
@@ -306,12 +364,10 @@ namespace Infraestructure.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Descripcion")
-                        .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("Distribuidor")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -327,7 +383,6 @@ namespace Infraestructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Imagen")
-                        .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
@@ -363,6 +418,908 @@ namespace Infraestructure.Migrations
                     b.HasIndex("KioscoId");
 
                     b.ToTable("Producto", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            ProductoId = 1,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790895000017",
+                            Descripcion = "Gaseosa Coca Cola sabor original 500ml",
+                            Distribuidor = "Coca-Cola FEMSA",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Coca Cola 500ml",
+                            PrecioCosto = 1100m,
+                            PrecioVenta = 2000m,
+                            StockActual = 50,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 2,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790895000024",
+                            Descripcion = "Gaseosa Coca Cola sabor original 1.5 litros",
+                            Distribuidor = "Coca-Cola FEMSA",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Coca Cola 1.5L",
+                            PrecioCosto = 2000m,
+                            PrecioVenta = 3500m,
+                            StockActual = 30,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 3,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790310980316",
+                            Descripcion = "Gaseosa Pepsi sabor original 500ml",
+                            Distribuidor = "PepsiCo",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Pepsi 500ml",
+                            PrecioCosto = 950m,
+                            PrecioVenta = 1800m,
+                            StockActual = 40,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 4,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790895001090",
+                            Descripcion = "Gaseosa Sprite lima-limón 500ml",
+                            Distribuidor = "Coca-Cola FEMSA",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Sprite 500ml",
+                            PrecioCosto = 950m,
+                            PrecioVenta = 1800m,
+                            StockActual = 35,
+                            StockMinimo = 8,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 5,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790895001083",
+                            Descripcion = "Gaseosa Fanta sabor naranja 500ml",
+                            Distribuidor = "Coca-Cola FEMSA",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Fanta Naranja 500ml",
+                            PrecioCosto = 950m,
+                            PrecioVenta = 1800m,
+                            StockActual = 30,
+                            StockMinimo = 8,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 6,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790310980323",
+                            Descripcion = "Gaseosa 7UP lima-limón 500ml",
+                            Distribuidor = "PepsiCo",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "7UP 500ml",
+                            PrecioCosto = 950m,
+                            PrecioVenta = 1800m,
+                            StockActual = 25,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 7,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7798062541016",
+                            Descripcion = "Agua mineral sin gas 500ml",
+                            Distribuidor = "Danone",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Agua Villavicencio 500ml",
+                            PrecioCosto = 600m,
+                            PrecioVenta = 1200m,
+                            StockActual = 60,
+                            StockMinimo = 15,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 8,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7791813001147",
+                            Descripcion = "Agua mineral sin gas Ser 500ml",
+                            Distribuidor = "PepsiCo",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Agua Ser 500ml",
+                            PrecioCosto = 550m,
+                            PrecioVenta = 1100m,
+                            StockActual = 50,
+                            StockMinimo = 12,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 9,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "5099337012015",
+                            Descripcion = "Bebida energizante Monster original lata 473ml",
+                            Distribuidor = "Coca-Cola FEMSA",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Monster Energy Original 473ml",
+                            PrecioCosto = 2200m,
+                            PrecioVenta = 3800m,
+                            StockActual = 24,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 10,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "9002490100070",
+                            Descripcion = "Bebida energizante Red Bull lata 250ml",
+                            Distribuidor = "Red Bull",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Red Bull 250ml",
+                            PrecioCosto = 2500m,
+                            PrecioVenta = 4200m,
+                            StockActual = 18,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 11,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790895005821",
+                            Descripcion = "Jugo Cepita sabor naranja caja 200ml",
+                            Distribuidor = "Coca-Cola FEMSA",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Jugo Cepita Naranja 200ml",
+                            PrecioCosto = 500m,
+                            PrecioVenta = 950m,
+                            StockActual = 40,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 12,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790895006804",
+                            Descripcion = "Bebida isotónica Powerade Mountain Blast 500ml",
+                            Distribuidor = "Coca-Cola FEMSA",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Powerade Azul 500ml",
+                            PrecioCosto = 1100m,
+                            PrecioVenta = 2000m,
+                            StockActual = 20,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 13,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790310980422",
+                            Descripcion = "Bebida isotónica Gatorade Cool Blue 500ml",
+                            Distribuidor = "PepsiCo",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Gatorade Azul 500ml",
+                            PrecioCosto = 1100m,
+                            PrecioVenta = 2000m,
+                            StockActual = 20,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 14,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790310980521",
+                            Descripcion = "Infusión Lipton Ice Tea sabor durazno 500ml",
+                            Distribuidor = "PepsiCo",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Té Lipton Durazno 500ml",
+                            PrecioCosto = 900m,
+                            PrecioVenta = 1700m,
+                            StockActual = 24,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 15,
+                            Activo = true,
+                            CategoriaId = 1,
+                            CodigoBarra = "7790435000190",
+                            Descripcion = "Cerveza Quilmes Cristal lata 473ml",
+                            Distribuidor = "Quilmes",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Cerveza Quilmes Lata 473ml",
+                            PrecioCosto = 1300m,
+                            PrecioVenta = 2400m,
+                            StockActual = 36,
+                            StockMinimo = 12,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 16,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7790580054878",
+                            Descripcion = "Alfajor triple Guaymallen chocolate",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Alfajor Guaymallen Chocolate",
+                            PrecioCosto = 200m,
+                            PrecioVenta = 500m,
+                            StockActual = 100,
+                            StockMinimo = 20,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 17,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7790580054885",
+                            Descripcion = "Alfajor triple Guaymallen dulce de leche",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Alfajor Guaymallen Leche",
+                            PrecioCosto = 200m,
+                            PrecioVenta = 500m,
+                            StockActual = 100,
+                            StockMinimo = 20,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 18,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7622210449443",
+                            Descripcion = "Alfajor Milka chocolate con leche",
+                            Distribuidor = "Mondelez",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Alfajor Milka",
+                            PrecioCosto = 500m,
+                            PrecioVenta = 1000m,
+                            StockActual = 50,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 19,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7791240003459",
+                            Descripcion = "Alfajor Jorgito dulce de leche",
+                            Distribuidor = "Jorgito",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Alfajor Jorgito",
+                            PrecioCosto = 180m,
+                            PrecioVenta = 400m,
+                            StockActual = 80,
+                            StockMinimo = 20,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 20,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7622210421609",
+                            Descripcion = "Tableta chocolate Milka con leche 100g",
+                            Distribuidor = "Mondelez",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Chocolate Milka 100g",
+                            PrecioCosto = 800m,
+                            PrecioVenta = 1500m,
+                            StockActual = 30,
+                            StockMinimo = 8,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 21,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7622300861032",
+                            Descripcion = "Chocolate suizo Toblerone con miel y almendras 100g",
+                            Distribuidor = "Mondelez",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Chocolate Toblerone 100g",
+                            PrecioCosto = 1200m,
+                            PrecioVenta = 2200m,
+                            StockActual = 20,
+                            StockMinimo = 5,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 22,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "",
+                            Descripcion = "Caramelo de menta Menthoplus individual",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Caramelo Menthoplus",
+                            PrecioCosto = 30m,
+                            PrecioVenta = 80m,
+                            StockActual = 300,
+                            StockMinimo = 100,
+                            Suelto = true
+                        },
+                        new
+                        {
+                            ProductoId = 23,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7790580007157",
+                            Descripcion = "Confites de chocolate Rocklets tubo",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Rocklets Tubo",
+                            PrecioCosto = 350m,
+                            PrecioVenta = 700m,
+                            StockActual = 40,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 24,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7622210358110",
+                            Descripcion = "Chicle Beldent sabor menta blister",
+                            Distribuidor = "Mondelez",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Chicle Beldent Menta",
+                            PrecioCosto = 200m,
+                            PrecioVenta = 450m,
+                            StockActual = 60,
+                            StockMinimo = 15,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 25,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7622210358127",
+                            Descripcion = "Chicle Beldent sabor frutas blister",
+                            Distribuidor = "Mondelez",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Chicle Beldent Frutas",
+                            PrecioCosto = 200m,
+                            PrecioVenta = 450m,
+                            StockActual = 60,
+                            StockMinimo = 15,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 26,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7790580030162",
+                            Descripcion = "Gomitas frutales Arcor bolsa 100g",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Gomitas Arcor Frutales",
+                            PrecioCosto = 250m,
+                            PrecioVenta = 600m,
+                            StockActual = 50,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 27,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7790580010263",
+                            Descripcion = "Paleta Cabsha cubierta de chocolate",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Paleta Cabsha Chocolate",
+                            PrecioCosto = 120m,
+                            PrecioVenta = 300m,
+                            StockActual = 60,
+                            StockMinimo = 15,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 28,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7790580004545",
+                            Descripcion = "Bombón Bon o Bon relleno de maní 16g",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Bon o Bon Chocolate",
+                            PrecioCosto = 100m,
+                            PrecioVenta = 250m,
+                            StockActual = 80,
+                            StockMinimo = 20,
+                            Suelto = true
+                        },
+                        new
+                        {
+                            ProductoId = 29,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "",
+                            Descripcion = "Chupetín Arcor sabores surtidos",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Chupetín Arcor",
+                            PrecioCosto = 50m,
+                            PrecioVenta = 120m,
+                            StockActual = 150,
+                            StockMinimo = 30,
+                            Suelto = true
+                        },
+                        new
+                        {
+                            ProductoId = 30,
+                            Activo = true,
+                            CategoriaId = 2,
+                            CodigoBarra = "7791813110231",
+                            Descripcion = "Oblea Noel de vainilla",
+                            Distribuidor = "Noel",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Oblea Noel",
+                            PrecioCosto = 80m,
+                            PrecioVenta = 200m,
+                            StockActual = 60,
+                            StockMinimo = 15,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 31,
+                            Activo = true,
+                            CategoriaId = 3,
+                            CodigoBarra = "7798073860011",
+                            Descripcion = "Cigarrillos Marlboro Red paquete x20",
+                            Distribuidor = "Philip Morris",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Marlboro Rojo x20",
+                            PrecioCosto = 1500m,
+                            PrecioVenta = 2000m,
+                            StockActual = 50,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 32,
+                            Activo = true,
+                            CategoriaId = 3,
+                            CodigoBarra = "7798073860028",
+                            Descripcion = "Cigarrillos Marlboro Gold paquete x20",
+                            Distribuidor = "Philip Morris",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Marlboro Gold x20",
+                            PrecioCosto = 1500m,
+                            PrecioVenta = 2000m,
+                            StockActual = 50,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 33,
+                            Activo = true,
+                            CategoriaId = 3,
+                            CodigoBarra = "7798073870019",
+                            Descripcion = "Cigarrillos Red Point Box paquete x20",
+                            Distribuidor = "BAT",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Red Point Box 20",
+                            PrecioCosto = 1500m,
+                            PrecioVenta = 2100m,
+                            StockActual = 40,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 34,
+                            Activo = true,
+                            CategoriaId = 3,
+                            CodigoBarra = "7798073880017",
+                            Descripcion = "Cigarrillos Lucky Strike Red paquete x20",
+                            Distribuidor = "BAT",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Lucky Strike Rojo x20",
+                            PrecioCosto = 1500m,
+                            PrecioVenta = 2000m,
+                            StockActual = 40,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 35,
+                            Activo = true,
+                            CategoriaId = 3,
+                            CodigoBarra = "7798073890015",
+                            Descripcion = "Cigarrillos Camel paquete x20",
+                            Distribuidor = "Japan Tobacco",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Camel Azul x20",
+                            PrecioCosto = 1500m,
+                            PrecioVenta = 2000m,
+                            StockActual = 30,
+                            StockMinimo = 8,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 36,
+                            Activo = true,
+                            CategoriaId = 3,
+                            CodigoBarra = "7798073900019",
+                            Descripcion = "Cigarrillos Nevada Blue paquete x20",
+                            Distribuidor = "Philip Morris",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Nevada Blue x20",
+                            PrecioCosto = 1200m,
+                            PrecioVenta = 1700m,
+                            StockActual = 35,
+                            StockMinimo = 8,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 37,
+                            Activo = true,
+                            CategoriaId = 3,
+                            CodigoBarra = "0070330700014",
+                            Descripcion = "Encendedor BIC maxi colores surtidos",
+                            Distribuidor = "BIC",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Encendedor BIC",
+                            PrecioCosto = 400m,
+                            PrecioVenta = 800m,
+                            StockActual = 30,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 38,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7791813110248",
+                            Descripcion = "Papas fritas Lays sabor original 100g",
+                            Distribuidor = "PepsiCo",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Papas Lays Original 100g",
+                            PrecioCosto = 700m,
+                            PrecioVenta = 1300m,
+                            StockActual = 30,
+                            StockMinimo = 8,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 39,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7791813110255",
+                            Descripcion = "Papas fritas Lays sabor queso 100g",
+                            Distribuidor = "PepsiCo",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Papas Lays Queso 100g",
+                            PrecioCosto = 700m,
+                            PrecioVenta = 1300m,
+                            StockActual = 25,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 40,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7791813110262",
+                            Descripcion = "Snack de maíz Cheetos sabor queso 50g",
+                            Distribuidor = "PepsiCo",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Cheetos 50g",
+                            PrecioCosto = 500m,
+                            PrecioVenta = 950m,
+                            StockActual = 30,
+                            StockMinimo = 8,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 41,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7791813110279",
+                            Descripcion = "Chips de maíz Doritos sabor Nacho Cheese 100g",
+                            Distribuidor = "PepsiCo",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Doritos Nacho 100g",
+                            PrecioCosto = 700m,
+                            PrecioVenta = 1300m,
+                            StockActual = 25,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 42,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7793045001279",
+                            Descripcion = "Maní con cobertura de chocolate Georgalos 40g",
+                            Distribuidor = "Georgalos",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Maní con Chocolate Georgalos",
+                            PrecioCosto = 300m,
+                            PrecioVenta = 600m,
+                            StockActual = 40,
+                            StockMinimo = 10,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 43,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "",
+                            Descripcion = "Pancho con salchicha y pan",
+                            Distribuidor = "",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Pancho Simple",
+                            PrecioCosto = 400m,
+                            PrecioVenta = 1500m,
+                            StockActual = 30,
+                            StockMinimo = 5,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 44,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "",
+                            Descripcion = "Pancho con salchicha, pan, ketchup y mayonesa",
+                            Distribuidor = "",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Pancho Completo",
+                            PrecioCosto = 600m,
+                            PrecioVenta = 2200m,
+                            StockActual = 30,
+                            StockMinimo = 5,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 45,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "",
+                            Descripcion = "Sandwich de miga con jamón cocido y queso",
+                            Distribuidor = "",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Sandwich de Miga Jamón y Queso",
+                            PrecioCosto = 500m,
+                            PrecioVenta = 1800m,
+                            StockActual = 20,
+                            StockMinimo = 5,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 46,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7622210064097",
+                            Descripcion = "Galletitas Oreo con relleno de crema 97g",
+                            Distribuidor = "Mondelez",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Galletitas Oreo 97g",
+                            PrecioCosto = 600m,
+                            PrecioVenta = 1100m,
+                            StockActual = 30,
+                            StockMinimo = 8,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 47,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7790580041136",
+                            Descripcion = "Galletitas Pepitos chocolate 100g",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Galletitas Pepitos 100g",
+                            PrecioCosto = 400m,
+                            PrecioVenta = 800m,
+                            StockActual = 35,
+                            StockMinimo = 8,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 48,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7622210368928",
+                            Descripcion = "Galletitas de agua Ritz 170g",
+                            Distribuidor = "Mondelez",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Galletitas Ritz 170g",
+                            PrecioCosto = 700m,
+                            PrecioVenta = 1300m,
+                            StockActual = 25,
+                            StockMinimo = 6,
+                            Suelto = false
+                        },
+                        new
+                        {
+                            ProductoId = 49,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7790580022373",
+                            Descripcion = "Turrón de maní Arcor 25g",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Turrón Mani Arcor",
+                            PrecioCosto = 150m,
+                            PrecioVenta = 350m,
+                            StockActual = 60,
+                            StockMinimo = 15,
+                            Suelto = true
+                        },
+                        new
+                        {
+                            ProductoId = 50,
+                            Activo = true,
+                            CategoriaId = 4,
+                            CodigoBarra = "7790580099748",
+                            Descripcion = "Snack de maíz Chizitos queso 50g",
+                            Distribuidor = "Arcor",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Imagen = "",
+                            KioscoId = 1,
+                            Nombre = "Chizitos 50g",
+                            PrecioCosto = 450m,
+                            PrecioVenta = 900m,
+                            StockActual = 30,
+                            StockMinimo = 8,
+                            Suelto = false
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductoVenta", b =>
@@ -440,6 +1397,23 @@ namespace Infraestructure.Migrations
                     b.HasKey("TurnoID");
 
                     b.ToTable("Turno", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            TurnoID = 1,
+                            Nombre = "Mañana"
+                        },
+                        new
+                        {
+                            TurnoID = 2,
+                            Nombre = "Tarde"
+                        },
+                        new
+                        {
+                            TurnoID = 3,
+                            Nombre = "Noche"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Usuario", b =>
@@ -468,6 +1442,15 @@ namespace Infraestructure.Migrations
                     b.HasKey("UsuarioID");
 
                     b.ToTable("Usuario", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UsuarioID = 1,
+                            Email = "admin@kiosconeta.com",
+                            Nombre = "Admin",
+                            Password = "1234"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Venta", b =>

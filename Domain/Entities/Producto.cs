@@ -13,13 +13,13 @@
         public int CategoriaId { get; set; }
         public Categoria Categoria { get; set; }
 
-        public string Distribuidor { get; set; }
+        public string? Distribuidor { get; set; }
 
         public string CodigoBarra { get; set; }
 
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
 
-        public string Imagen { get; set; }
+        public string? Imagen { get; set; }
 
         public int StockActual { get; set; }
         public int StockMinimo { get; set; }

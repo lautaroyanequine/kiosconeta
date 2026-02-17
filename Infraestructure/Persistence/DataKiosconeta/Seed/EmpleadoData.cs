@@ -18,6 +18,7 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
                     EmpleadoId = 1,
                     Nombre = "Luchi <3",
                     KioscoID = 1,
+                    UsuarioID=1,
                     Activo = true
                 }
             );

@@ -116,7 +116,6 @@ C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\KIOSCONETA\obj\Debug\net8.0\staticwe
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\KIOSCONETA\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\KIOSCONETA\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\KIOSCONETA\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\KIOSCONETA\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\KIOSCONETA\obj\Debug\net8.0\KIOSCONETA.csproj.Up2Date
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\KIOSCONETA\obj\Debug\net8.0\KIOSCONETA.dll
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\KIOSCONETA\obj\Debug\net8.0\refint\KIOSCONETA.dll
@@ -396,3 +395,4 @@ C:\Users\fedeg\OneDrive\Desktop\APPKIOSCONETA\kiosconeta\KIOSCONETA\obj\Debug\ne
 C:\Users\fedeg\OneDrive\Desktop\APPKIOSCONETA\kiosconeta\KIOSCONETA\obj\Debug\net8.0\KIOSCONETA.pdb
 C:\Users\fedeg\OneDrive\Desktop\APPKIOSCONETA\kiosconeta\KIOSCONETA\obj\Debug\net8.0\KIOSCONETA.genruntimeconfig.cache
 C:\Users\fedeg\OneDrive\Desktop\APPKIOSCONETA\kiosconeta\KIOSCONETA\obj\Debug\net8.0\ref\KIOSCONETA.dll
+C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\KIOSCONETA\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

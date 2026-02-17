@@ -1,11 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infraestructure.Persistence.DataKiosconeta.Seed
 {
@@ -14,6 +9,11 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
         public static void Seed(EntityTypeBuilder<Producto> entity)
         {
             entity.HasData(
+
+                // =============================================
+                // CATEGORÍA 1 - BEBIDAS (IDs 1-20)
+                // =============================================
+
                 new Producto
                 {
                     ProductoId = 1,
@@ -22,62 +22,914 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
                     PrecioVenta = 2000,
                     CategoriaId = 1,
                     CodigoBarra = "7790895000017",
+                    Descripcion = "Gaseosa Coca Cola sabor original 500ml",
+                    Distribuidor = "Coca-Cola FEMSA",
+                    Imagen = "",
                     StockActual = 50,
                     StockMinimo = 10,
                     KioscoId = 1,
-                    Activo = true
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
                 },
                 new Producto
                 {
                     ProductoId = 2,
+                    Nombre = "Coca Cola 1.5L",
+                    PrecioCosto = 2000,
+                    PrecioVenta = 3500,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790895000024",
+                    Descripcion = "Gaseosa Coca Cola sabor original 1.5 litros",
+                    Distribuidor = "Coca-Cola FEMSA",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 3,
+                    Nombre = "Pepsi 500ml",
+                    PrecioCosto = 950,
+                    PrecioVenta = 1800,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790310980316",
+                    Descripcion = "Gaseosa Pepsi sabor original 500ml",
+                    Distribuidor = "PepsiCo",
+                    Imagen = "",
+                    StockActual = 40,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 4,
+                    Nombre = "Sprite 500ml",
+                    PrecioCosto = 950,
+                    PrecioVenta = 1800,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790895001090",
+                    Descripcion = "Gaseosa Sprite lima-limón 500ml",
+                    Distribuidor = "Coca-Cola FEMSA",
+                    Imagen = "",
+                    StockActual = 35,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 5,
+                    Nombre = "Fanta Naranja 500ml",
+                    PrecioCosto = 950,
+                    PrecioVenta = 1800,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790895001083",
+                    Descripcion = "Gaseosa Fanta sabor naranja 500ml",
+                    Distribuidor = "Coca-Cola FEMSA",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 6,
+                    Nombre = "7UP 500ml",
+                    PrecioCosto = 950,
+                    PrecioVenta = 1800,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790310980323",
+                    Descripcion = "Gaseosa 7UP lima-limón 500ml",
+                    Distribuidor = "PepsiCo",
+                    Imagen = "",
+                    StockActual = 25,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 7,
+                    Nombre = "Agua Villavicencio 500ml",
+                    PrecioCosto = 600,
+                    PrecioVenta = 1200,
+                    CategoriaId = 1,
+                    CodigoBarra = "7798062541016",
+                    Descripcion = "Agua mineral sin gas 500ml",
+                    Distribuidor = "Danone",
+                    Imagen = "",
+                    StockActual = 60,
+                    StockMinimo = 15,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 8,
+                    Nombre = "Agua Ser 500ml",
+                    PrecioCosto = 550,
+                    PrecioVenta = 1100,
+                    CategoriaId = 1,
+                    CodigoBarra = "7791813001147",
+                    Descripcion = "Agua mineral sin gas Ser 500ml",
+                    Distribuidor = "PepsiCo",
+                    Imagen = "",
+                    StockActual = 50,
+                    StockMinimo = 12,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 9,
+                    Nombre = "Monster Energy Original 473ml",
+                    PrecioCosto = 2200,
+                    PrecioVenta = 3800,
+                    CategoriaId = 1,
+                    CodigoBarra = "5099337012015",
+                    Descripcion = "Bebida energizante Monster original lata 473ml",
+                    Distribuidor = "Coca-Cola FEMSA",
+                    Imagen = "",
+                    StockActual = 24,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 10,
+                    Nombre = "Red Bull 250ml",
+                    PrecioCosto = 2500,
+                    PrecioVenta = 4200,
+                    CategoriaId = 1,
+                    CodigoBarra = "9002490100070",
+                    Descripcion = "Bebida energizante Red Bull lata 250ml",
+                    Distribuidor = "Red Bull",
+                    Imagen = "",
+                    StockActual = 18,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 11,
+                    Nombre = "Jugo Cepita Naranja 200ml",
+                    PrecioCosto = 500,
+                    PrecioVenta = 950,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790895005821",
+                    Descripcion = "Jugo Cepita sabor naranja caja 200ml",
+                    Distribuidor = "Coca-Cola FEMSA",
+                    Imagen = "",
+                    StockActual = 40,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 12,
+                    Nombre = "Powerade Azul 500ml",
+                    PrecioCosto = 1100,
+                    PrecioVenta = 2000,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790895006804",
+                    Descripcion = "Bebida isotónica Powerade Mountain Blast 500ml",
+                    Distribuidor = "Coca-Cola FEMSA",
+                    Imagen = "",
+                    StockActual = 20,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 13,
+                    Nombre = "Gatorade Azul 500ml",
+                    PrecioCosto = 1100,
+                    PrecioVenta = 2000,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790310980422",
+                    Descripcion = "Bebida isotónica Gatorade Cool Blue 500ml",
+                    Distribuidor = "PepsiCo",
+                    Imagen = "",
+                    StockActual = 20,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 14,
+                    Nombre = "Té Lipton Durazno 500ml",
+                    PrecioCosto = 900,
+                    PrecioVenta = 1700,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790310980521",
+                    Descripcion = "Infusión Lipton Ice Tea sabor durazno 500ml",
+                    Distribuidor = "PepsiCo",
+                    Imagen = "",
+                    StockActual = 24,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 15,
+                    Nombre = "Cerveza Quilmes Lata 473ml",
+                    PrecioCosto = 1300,
+                    PrecioVenta = 2400,
+                    CategoriaId = 1,
+                    CodigoBarra = "7790435000190",
+                    Descripcion = "Cerveza Quilmes Cristal lata 473ml",
+                    Distribuidor = "Quilmes",
+                    Imagen = "",
+                    StockActual = 36,
+                    StockMinimo = 12,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+
+                // =============================================
+                // CATEGORÍA 2 - GOLOSINAS (IDs 16-40)
+                // =============================================
+
+                new Producto
+                {
+                    ProductoId = 16,
                     Nombre = "Alfajor Guaymallen Chocolate",
                     PrecioCosto = 200,
                     PrecioVenta = 500,
                     CategoriaId = 2,
+                    CodigoBarra = "7790580054878",
+                    Descripcion = "Alfajor triple Guaymallen chocolate",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
                     StockActual = 100,
                     StockMinimo = 20,
                     KioscoId = 1,
-                    Activo = true
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
                 },
-                  new Producto
-                  {
-                      ProductoId = 3,
-                      Nombre = "Red point box 20",
-                      PrecioCosto = 1500,
-                      PrecioVenta = 2100,
-                      CategoriaId = 2,
-                      StockActual = 100,
-                      StockMinimo = 20,
-                      KioscoId = 1,
-                      Activo = true
-                  },
-                    new Producto
-                    {
-                        ProductoId = 2,
-                        Nombre = "Alfajor Guaymallen leche",
-                        PrecioCosto = 200,
-                        PrecioVenta = 500,
-                        CategoriaId = 2,
-                        StockActual = 100,
-                        StockMinimo = 20,
-                        KioscoId = 1,
-                        Activo = true
-                    },
-                      new Producto
-                      {
-                          ProductoId = 4,
-                          Nombre = "Pancho simple",
-                          PrecioCosto = 400,
-                          PrecioVenta = 1500,
-                          CategoriaId = 2,
-                          StockActual = 100,
-                          StockMinimo = 20,
-                          KioscoId = 1,
-                          Activo = true
-                      }
+                new Producto
+                {
+                    ProductoId = 17,
+                    Nombre = "Alfajor Guaymallen Leche",
+                    PrecioCosto = 200,
+                    PrecioVenta = 500,
+                    CategoriaId = 2,
+                    CodigoBarra = "7790580054885",
+                    Descripcion = "Alfajor triple Guaymallen dulce de leche",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 100,
+                    StockMinimo = 20,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 18,
+                    Nombre = "Alfajor Milka",
+                    PrecioCosto = 500,
+                    PrecioVenta = 1000,
+                    CategoriaId = 2,
+                    CodigoBarra = "7622210449443",
+                    Descripcion = "Alfajor Milka chocolate con leche",
+                    Distribuidor = "Mondelez",
+                    Imagen = "",
+                    StockActual = 50,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 19,
+                    Nombre = "Alfajor Jorgito",
+                    PrecioCosto = 180,
+                    PrecioVenta = 400,
+                    CategoriaId = 2,
+                    CodigoBarra = "7791240003459",
+                    Descripcion = "Alfajor Jorgito dulce de leche",
+                    Distribuidor = "Jorgito",
+                    Imagen = "",
+                    StockActual = 80,
+                    StockMinimo = 20,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 20,
+                    Nombre = "Chocolate Milka 100g",
+                    PrecioCosto = 800,
+                    PrecioVenta = 1500,
+                    CategoriaId = 2,
+                    CodigoBarra = "7622210421609",
+                    Descripcion = "Tableta chocolate Milka con leche 100g",
+                    Distribuidor = "Mondelez",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 21,
+                    Nombre = "Chocolate Toblerone 100g",
+                    PrecioCosto = 1200,
+                    PrecioVenta = 2200,
+                    CategoriaId = 2,
+                    CodigoBarra = "7622300861032",
+                    Descripcion = "Chocolate suizo Toblerone con miel y almendras 100g",
+                    Distribuidor = "Mondelez",
+                    Imagen = "",
+                    StockActual = 20,
+                    StockMinimo = 5,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 22,
+                    Nombre = "Caramelo Menthoplus",
+                    PrecioCosto = 30,
+                    PrecioVenta = 80,
+                    CategoriaId = 2,
+                    CodigoBarra = "",
+                    Descripcion = "Caramelo de menta Menthoplus individual",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 300,
+                    StockMinimo = 100,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = true,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 23,
+                    Nombre = "Rocklets Tubo",
+                    PrecioCosto = 350,
+                    PrecioVenta = 700,
+                    CategoriaId = 2,
+                    CodigoBarra = "7790580007157",
+                    Descripcion = "Confites de chocolate Rocklets tubo",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 40,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 24,
+                    Nombre = "Chicle Beldent Menta",
+                    PrecioCosto = 200,
+                    PrecioVenta = 450,
+                    CategoriaId = 2,
+                    CodigoBarra = "7622210358110",
+                    Descripcion = "Chicle Beldent sabor menta blister",
+                    Distribuidor = "Mondelez",
+                    Imagen = "",
+                    StockActual = 60,
+                    StockMinimo = 15,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 25,
+                    Nombre = "Chicle Beldent Frutas",
+                    PrecioCosto = 200,
+                    PrecioVenta = 450,
+                    CategoriaId = 2,
+                    CodigoBarra = "7622210358127",
+                    Descripcion = "Chicle Beldent sabor frutas blister",
+                    Distribuidor = "Mondelez",
+                    Imagen = "",
+                    StockActual = 60,
+                    StockMinimo = 15,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 26,
+                    Nombre = "Gomitas Arcor Frutales",
+                    PrecioCosto = 250,
+                    PrecioVenta = 600,
+                    CategoriaId = 2,
+                    CodigoBarra = "7790580030162",
+                    Descripcion = "Gomitas frutales Arcor bolsa 100g",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 50,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 27,
+                    Nombre = "Paleta Cabsha Chocolate",
+                    PrecioCosto = 120,
+                    PrecioVenta = 300,
+                    CategoriaId = 2,
+                    CodigoBarra = "7790580010263",
+                    Descripcion = "Paleta Cabsha cubierta de chocolate",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 60,
+                    StockMinimo = 15,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 28,
+                    Nombre = "Bon o Bon Chocolate",
+                    PrecioCosto = 100,
+                    PrecioVenta = 250,
+                    CategoriaId = 2,
+                    CodigoBarra = "7790580004545",
+                    Descripcion = "Bombón Bon o Bon relleno de maní 16g",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 80,
+                    StockMinimo = 20,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = true,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 29,
+                    Nombre = "Chupetín Arcor",
+                    PrecioCosto = 50,
+                    PrecioVenta = 120,
+                    CategoriaId = 2,
+                    CodigoBarra = "",
+                    Descripcion = "Chupetín Arcor sabores surtidos",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 150,
+                    StockMinimo = 30,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = true,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 30,
+                    Nombre = "Oblea Noel",
+                    PrecioCosto = 80,
+                    PrecioVenta = 200,
+                    CategoriaId = 2,
+                    CodigoBarra = "7791813110231",
+                    Descripcion = "Oblea Noel de vainilla",
+                    Distribuidor = "Noel",
+                    Imagen = "",
+                    StockActual = 60,
+                    StockMinimo = 15,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+
+                // =============================================
+                // CATEGORÍA 3 - CIGARRILLOS (IDs 31-45)
+                // =============================================
+
+                new Producto
+                {
+                    ProductoId = 31,
+                    Nombre = "Marlboro Rojo x20",
+                    PrecioCosto = 1500,
+                    PrecioVenta = 2000,
+                    CategoriaId = 3,
+                    CodigoBarra = "7798073860011",
+                    Descripcion = "Cigarrillos Marlboro Red paquete x20",
+                    Distribuidor = "Philip Morris",
+                    Imagen = "",
+                    StockActual = 50,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 32,
+                    Nombre = "Marlboro Gold x20",
+                    PrecioCosto = 1500,
+                    PrecioVenta = 2000,
+                    CategoriaId = 3,
+                    CodigoBarra = "7798073860028",
+                    Descripcion = "Cigarrillos Marlboro Gold paquete x20",
+                    Distribuidor = "Philip Morris",
+                    Imagen = "",
+                    StockActual = 50,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 33,
+                    Nombre = "Red Point Box 20",
+                    PrecioCosto = 1500,
+                    PrecioVenta = 2100,
+                    CategoriaId = 3,
+                    CodigoBarra = "7798073870019",
+                    Descripcion = "Cigarrillos Red Point Box paquete x20",
+                    Distribuidor = "BAT",
+                    Imagen = "",
+                    StockActual = 40,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 34,
+                    Nombre = "Lucky Strike Rojo x20",
+                    PrecioCosto = 1500,
+                    PrecioVenta = 2000,
+                    CategoriaId = 3,
+                    CodigoBarra = "7798073880017",
+                    Descripcion = "Cigarrillos Lucky Strike Red paquete x20",
+                    Distribuidor = "BAT",
+                    Imagen = "",
+                    StockActual = 40,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 35,
+                    Nombre = "Camel Azul x20",
+                    PrecioCosto = 1500,
+                    PrecioVenta = 2000,
+                    CategoriaId = 3,
+                    CodigoBarra = "7798073890015",
+                    Descripcion = "Cigarrillos Camel paquete x20",
+                    Distribuidor = "Japan Tobacco",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 36,
+                    Nombre = "Nevada Blue x20",
+                    PrecioCosto = 1200,
+                    PrecioVenta = 1700,
+                    CategoriaId = 3,
+                    CodigoBarra = "7798073900019",
+                    Descripcion = "Cigarrillos Nevada Blue paquete x20",
+                    Distribuidor = "Philip Morris",
+                    Imagen = "",
+                    StockActual = 35,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 37,
+                    Nombre = "Encendedor BIC",
+                    PrecioCosto = 400,
+                    PrecioVenta = 800,
+                    CategoriaId = 3,
+                    CodigoBarra = "0070330700014",
+                    Descripcion = "Encendedor BIC maxi colores surtidos",
+                    Distribuidor = "BIC",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+
+                // =============================================
+                // CATEGORÍA 4 - COMIDA (IDs 38-60)
+                // =============================================
+
+                new Producto
+                {
+                    ProductoId = 38,
+                    Nombre = "Papas Lays Original 100g",
+                    PrecioCosto = 700,
+                    PrecioVenta = 1300,
+                    CategoriaId = 4,
+                    CodigoBarra = "7791813110248",
+                    Descripcion = "Papas fritas Lays sabor original 100g",
+                    Distribuidor = "PepsiCo",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 39,
+                    Nombre = "Papas Lays Queso 100g",
+                    PrecioCosto = 700,
+                    PrecioVenta = 1300,
+                    CategoriaId = 4,
+                    CodigoBarra = "7791813110255",
+                    Descripcion = "Papas fritas Lays sabor queso 100g",
+                    Distribuidor = "PepsiCo",
+                    Imagen = "",
+                    StockActual = 25,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 40,
+                    Nombre = "Cheetos 50g",
+                    PrecioCosto = 500,
+                    PrecioVenta = 950,
+                    CategoriaId = 4,
+                    CodigoBarra = "7791813110262",
+                    Descripcion = "Snack de maíz Cheetos sabor queso 50g",
+                    Distribuidor = "PepsiCo",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 41,
+                    Nombre = "Doritos Nacho 100g",
+                    PrecioCosto = 700,
+                    PrecioVenta = 1300,
+                    CategoriaId = 4,
+                    CodigoBarra = "7791813110279",
+                    Descripcion = "Chips de maíz Doritos sabor Nacho Cheese 100g",
+                    Distribuidor = "PepsiCo",
+                    Imagen = "",
+                    StockActual = 25,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 42,
+                    Nombre = "Maní con Chocolate Georgalos",
+                    PrecioCosto = 300,
+                    PrecioVenta = 600,
+                    CategoriaId = 4,
+                    CodigoBarra = "7793045001279",
+                    Descripcion = "Maní con cobertura de chocolate Georgalos 40g",
+                    Distribuidor = "Georgalos",
+                    Imagen = "",
+                    StockActual = 40,
+                    StockMinimo = 10,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 43,
+                    Nombre = "Pancho Simple",
+                    PrecioCosto = 400,
+                    PrecioVenta = 1500,
+                    CategoriaId = 4,
+                    CodigoBarra = "",
+                    Descripcion = "Pancho con salchicha y pan",
+                    Distribuidor = "",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 5,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 44,
+                    Nombre = "Pancho Completo",
+                    PrecioCosto = 600,
+                    PrecioVenta = 2200,
+                    CategoriaId = 4,
+                    CodigoBarra = "",
+                    Descripcion = "Pancho con salchicha, pan, ketchup y mayonesa",
+                    Distribuidor = "",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 5,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 45,
+                    Nombre = "Sandwich de Miga Jamón y Queso",
+                    PrecioCosto = 500,
+                    PrecioVenta = 1800,
+                    CategoriaId = 4,
+                    CodigoBarra = "",
+                    Descripcion = "Sandwich de miga con jamón cocido y queso",
+                    Distribuidor = "",
+                    Imagen = "",
+                    StockActual = 20,
+                    StockMinimo = 5,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 46,
+                    Nombre = "Galletitas Oreo 97g",
+                    PrecioCosto = 600,
+                    PrecioVenta = 1100,
+                    CategoriaId = 4,
+                    CodigoBarra = "7622210064097",
+                    Descripcion = "Galletitas Oreo con relleno de crema 97g",
+                    Distribuidor = "Mondelez",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 47,
+                    Nombre = "Galletitas Pepitos 100g",
+                    PrecioCosto = 400,
+                    PrecioVenta = 800,
+                    CategoriaId = 4,
+                    CodigoBarra = "7790580041136",
+                    Descripcion = "Galletitas Pepitos chocolate 100g",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 35,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 48,
+                    Nombre = "Galletitas Ritz 170g",
+                    PrecioCosto = 700,
+                    PrecioVenta = 1300,
+                    CategoriaId = 4,
+                    CodigoBarra = "7622210368928",
+                    Descripcion = "Galletitas de agua Ritz 170g",
+                    Distribuidor = "Mondelez",
+                    Imagen = "",
+                    StockActual = 25,
+                    StockMinimo = 6,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 49,
+                    Nombre = "Turrón Mani Arcor",
+                    PrecioCosto = 150,
+                    PrecioVenta = 350,
+                    CategoriaId = 4,
+                    CodigoBarra = "7790580022373",
+                    Descripcion = "Turrón de maní Arcor 25g",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 60,
+                    StockMinimo = 15,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = true,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                },
+                new Producto
+                {
+                    ProductoId = 50,
+                    Nombre = "Chizitos 50g",
+                    PrecioCosto = 450,
+                    PrecioVenta = 900,
+                    CategoriaId = 4,
+                    CodigoBarra = "7790580099748",
+                    Descripcion = "Snack de maíz Chizitos queso 50g",
+                    Distribuidor = "Arcor",
+                    Imagen = "",
+                    StockActual = 30,
+                    StockMinimo = 8,
+                    KioscoId = 1,
+                    Activo = true,
+                    Suelto = false,
+                    FechaCreacion = new DateTime(2025, 1, 1)
+                }
             );
         }
     }
-
-
 }
