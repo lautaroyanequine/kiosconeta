@@ -75,19 +75,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// ========== REPOSITORIES ==========
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();              // ← NUEVO
+// // ========== REPOSITORIES ==========
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IMetodoDePagoRepository, MetodoDePagoRepository>();
 builder.Services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();
+builder.Services.AddScoped<IVentaRepository, VentaRepository>();              // ← NUEVO
 
 // ========== SERVICES ==========
-builder.Services.AddScoped<IAuthService, AuthService>();                    // ← NUEVO
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IMetodoDePagoService, MetodoDePagoService>();
 builder.Services.AddScoped<IEmpleadoService, EmpleadoService>();
+builder.Services.AddScoped<IVentaService, VentaService>();
 
 // ========== CORS ==========
 builder.Services.AddCors(options =>

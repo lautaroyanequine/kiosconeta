@@ -11,7 +11,6 @@ C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\Infraestructure\obj\Debug\net8.0\Inf
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\Infraestructure\obj\Debug\net8.0\Infraestructure.AssemblyInfoInputs.cache
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\Infraestructure\obj\Debug\net8.0\Infraestructure.AssemblyInfo.cs
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\Infraestructure\obj\Debug\net8.0\Infraestructure.csproj.CoreCompileInputs.cache
-C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\Infraestructure\obj\Debug\net8.0\EFCoreSqlServerNetTopologySuite.cs
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\Infraestructure\obj\Debug\net8.0\Infraestructure.sourcelink.json
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\Infraestructure\obj\Debug\net8.0\Infraest.B0D41582.Up2Date
 C:\Users\lauta\Desktop\APPKIOSCO\kiosconeta\Infraestructure\obj\Debug\net8.0\Infraestructure.dll

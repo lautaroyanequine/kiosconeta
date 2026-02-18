@@ -3,60 +3,84 @@
   "WorkspaceRootPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217040750_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Infraestructure\\Migrations\\20260217040750_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\repository\\cierreturnorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\repository\\cierreturnorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\datakiosconeta\\seed\\empleadodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\datakiosconeta\\seed\\empleadodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\services\\icierreturnoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\services\\icierreturnoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217040524_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Infraestructure\\Migrations\\20260217040524_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\repository\\icierreturnorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\repository\\icierreturnorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\dtos\\cierreturno\\cierreturnodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\dtos\\cierreturno\\cierreturnodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\datakiosconeta\\seed\\kioscodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\datakiosconeta\\seed\\kioscodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\repository\\iventarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\repository\\iventarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\datakiosconeta\\seed\\usuariodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\datakiosconeta\\seed\\usuariodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\repository\\iproductorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\repository\\iproductorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217040118_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Infraestructure\\Migrations\\20260217040118_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\repository\\imetododepagorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\repository\\imetododepagorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\datakiosconeta\\seed\\productodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\datakiosconeta\\seed\\productodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\repository\\iempleadorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\repository\\iempleadorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\datakiosconeta\\seed\\metododepagodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\datakiosconeta\\seed\\metododepagodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\repository\\icategoriarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\repository\\icategoriarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\kiosconeta\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|solutionrelative:kiosconeta\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\repository\\iauthrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\repository\\iauthrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\kiosconeta\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|solutionrelative:kiosconeta\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217034002_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Infraestructure\\Migrations\\20260217034002_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\repository\\ventarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\repository\\ventarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\datakiosconeta\\seed\\categoriadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\datakiosconeta\\seed\\categoriadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\kiosconeta\\controllers\\ventacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|solutionrelative:kiosconeta\\controllers\\ventacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\services\\iventaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\services\\iventaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\services\\iventaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\services\\iventaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\dtos\\venta\\ventadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\dtos\\venta\\ventadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\domain\\entities\\producto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D7E0427C-39EB-423E-9F4A-AD0393DB9D84}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\producto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\kiosconeta\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|solutionrelative:kiosconeta\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\datakiosconeta\\seed\\categoriadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\datakiosconeta\\seed\\categoriadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\kiosconeta\\controllers\\productocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -67,20 +91,12 @@
       "RelativeMoniker": "D:0:0:{738FA9FA-48FF-4EAC-B9D8-7C52C1B042F7}|KIOSCONETA\\KIOSCONETA.csproj|solutionrelative:kiosconeta\\kiosconeta.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\services\\productoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\services\\productoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\services\\iproductoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\services\\iproductoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\repository\\productorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\repository\\productorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\interfaces\\repository\\iproductorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|solutionrelative:application\\interfaces\\repository\\iproductorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1B06B7E0-1164-40DA-9E7D-125BCEDA0C37}|Application\\Application.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\application\\dtos\\producto\\productoresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -97,6 +113,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\persistence\\datakiosconeta\\seed\\turnodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\persistence\\datakiosconeta\\seed\\turnodata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|c:\\users\\lauta\\desktop\\appkiosco\\kiosconeta\\infraestructure\\migrations\\20260218001521_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F33C532C-C45F-41C3-BD80-3F4DBAD17B65}|Infraestructure\\Infraestructure.csproj|solutionrelative:infraestructure\\migrations\\20260218001521_a.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -115,253 +135,45 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "20260217040750_a.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217040750_a.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Migrations\\20260217040750_a.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217040750_a.cs",
-              "RelativeToolTip": "Infraestructure\\Migrations\\20260217040750_a.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Title": "CierreTurnoRepository.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Repository\\CierreTurnoRepository.cs",
+              "RelativeDocumentMoniker": "Infraestructure\\Repository\\CierreTurnoRepository.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Repository\\CierreTurnoRepository.cs",
+              "RelativeToolTip": "Infraestructure\\Repository\\CierreTurnoRepository.cs",
+              "ViewState": "AgIAAG0AAAAAAAAAAAAQwIYAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T04:07:51.073Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "20260217040524_a.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217040524_a.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Migrations\\20260217040524_a.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217040524_a.cs",
-              "RelativeToolTip": "Infraestructure\\Migrations\\20260217040524_a.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T04:05:25.098Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "UsuarioData.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\UsuarioData.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\UsuarioData.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\UsuarioData.cs",
-              "RelativeToolTip": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\UsuarioData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T04:04:05.847Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "KioscoData.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\KioscoData.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\KioscoData.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\KioscoData.cs",
-              "RelativeToolTip": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\KioscoData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAhAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T16:19:16.595Z",
+              "WhenOpened": "2026-02-18T23:16:06.73Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "EmpleadoData.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\EmpleadoData.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\EmpleadoData.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\EmpleadoData.cs",
-              "RelativeToolTip": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\EmpleadoData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAgAAAAAAAAAA==",
+              "Title": "ICierreTurnoService.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Services\\ICierreTurnoService.cs",
+              "RelativeDocumentMoniker": "Application\\Interfaces\\Services\\ICierreTurnoService.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Services\\ICierreTurnoService.cs",
+              "RelativeToolTip": "Application\\Interfaces\\Services\\ICierreTurnoService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T16:37:20.907Z",
+              "WhenOpened": "2026-02-18T23:15:29.129Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "20260217040118_a.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217040118_a.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Migrations\\20260217040118_a.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217040118_a.cs",
-              "RelativeToolTip": "Infraestructure\\Migrations\\20260217040118_a.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "ICierreTurnoRepository.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\ICierreTurnoRepository.cs",
+              "RelativeDocumentMoniker": "Application\\Interfaces\\Repository\\ICierreTurnoRepository.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\ICierreTurnoRepository.cs",
+              "RelativeToolTip": "Application\\Interfaces\\Repository\\ICierreTurnoRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T04:01:18.459Z",
+              "WhenOpened": "2026-02-18T23:15:11.039Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AppDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\AppDbContext.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\AppDbContext.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\AppDbContext.cs",
-              "RelativeToolTip": "Infraestructure\\Persistence\\AppDbContext.cs",
-              "ViewState": "AgIAAFAAAAAAAAAAAAAowFwAAAAOAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T16:23:14.558Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "ProductoData.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\ProductoData.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\ProductoData.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\ProductoData.cs",
-              "RelativeToolTip": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\ProductoData.cs",
-              "ViewState": "AgIAAHADAAAAAAAAAAAowKYDAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T03:17:53.618Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "Producto.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Producto.cs",
-              "RelativeDocumentMoniker": "Domain\\Entities\\Producto.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Producto.cs",
-              "RelativeToolTip": "Domain\\Entities\\Producto.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAcwBMAAAAWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T03:27:26.3Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "20260217034002_a.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217034002_a.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Migrations\\20260217034002_a.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260217034002_a.cs",
-              "RelativeToolTip": "Infraestructure\\Migrations\\20260217034002_a.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T03:40:03.174Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "CategoriaData.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\CategoriaData.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\CategoriaData.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\CategoriaData.cs",
-              "RelativeToolTip": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\CategoriaData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAArAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T16:35:10.707Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "MetodoDePagoData.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\MetodoDePagoData.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\MetodoDePagoData.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\MetodoDePagoData.cs",
-              "RelativeToolTip": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\MetodoDePagoData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T16:22:10.832Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Program.cs",
-              "RelativeDocumentMoniker": "KIOSCONETA\\Program.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Program.cs",
-              "RelativeToolTip": "KIOSCONETA\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T03:08:01.582Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "ProductoService.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Services\\ProductoService.cs",
-              "RelativeDocumentMoniker": "Application\\Services\\ProductoService.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Services\\ProductoService.cs",
-              "RelativeToolTip": "Application\\Services\\ProductoService.cs",
-              "ViewState": "AgIAAMQAAAAAAAAAAAAqwNAAAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T03:05:06.739Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\appsettings.json",
-              "RelativeDocumentMoniker": "KIOSCONETA\\appsettings.json",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\appsettings.json",
-              "RelativeToolTip": "KIOSCONETA\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-02-17T03:45:28.753Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "KIOSCONETA",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\KIOSCONETA.csproj",
-              "RelativeDocumentMoniker": "KIOSCONETA\\KIOSCONETA.csproj",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\KIOSCONETA.csproj",
-              "RelativeToolTip": "KIOSCONETA\\KIOSCONETA.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-02-17T03:05:37.53Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "ProductoController.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Controllers\\ProductoController.cs",
-              "RelativeDocumentMoniker": "KIOSCONETA\\Controllers\\ProductoController.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Controllers\\ProductoController.cs",
-              "RelativeToolTip": "KIOSCONETA\\Controllers\\ProductoController.cs",
-              "ViewState": "AgIAADwAAAAAAAAAAAAIwDwBAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T03:06:24.421Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "IProductoService.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Services\\IProductoService.cs",
-              "RelativeDocumentMoniker": "Application\\Interfaces\\Services\\IProductoService.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Services\\IProductoService.cs",
-              "RelativeToolTip": "Application\\Interfaces\\Services\\IProductoService.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAA8wAgAAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T02:59:30.293Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "ProductoRepository.cs",
-              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Repository\\ProductoRepository.cs",
-              "RelativeDocumentMoniker": "Infraestructure\\Repository\\ProductoRepository.cs",
-              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Repository\\ProductoRepository.cs",
-              "RelativeToolTip": "Infraestructure\\Repository\\ProductoRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKoAAAAuAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T02:54:38.036Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 5,
               "Title": "IProductoRepository.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\IProductoRepository.cs",
               "RelativeDocumentMoniker": "Application\\Interfaces\\Repository\\IProductoRepository.cs",
@@ -374,7 +186,272 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IVentaRepository.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\IVentaRepository.cs",
+              "RelativeDocumentMoniker": "Application\\Interfaces\\Repository\\IVentaRepository.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\IVentaRepository.cs",
+              "RelativeToolTip": "Application\\Interfaces\\Repository\\IVentaRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T22:57:59.704Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CierreTurnoDTO.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\DTOs\\CierreTurno\\CierreTurnoDTO.cs",
+              "RelativeDocumentMoniker": "Application\\DTOs\\CierreTurno\\CierreTurnoDTO.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\DTOs\\CierreTurno\\CierreTurnoDTO.cs",
+              "RelativeToolTip": "Application\\DTOs\\CierreTurno\\CierreTurnoDTO.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAAowEkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T23:14:30.716Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "IMetodoDePagoRepository.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\IMetodoDePagoRepository.cs",
+              "RelativeDocumentMoniker": "Application\\Interfaces\\Repository\\IMetodoDePagoRepository.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\IMetodoDePagoRepository.cs",
+              "RelativeToolTip": "Application\\Interfaces\\Repository\\IMetodoDePagoRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T23:14:43.126Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "IEmpleadoRepository.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\IEmpleadoRepository.cs",
+              "RelativeDocumentMoniker": "Application\\Interfaces\\Repository\\IEmpleadoRepository.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\IEmpleadoRepository.cs",
+              "RelativeToolTip": "Application\\Interfaces\\Repository\\IEmpleadoRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T23:14:43.021Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ICategoriaRepository.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\ICategoriaRepository.cs",
+              "RelativeDocumentMoniker": "Application\\Interfaces\\Repository\\ICategoriaRepository.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\ICategoriaRepository.cs",
+              "RelativeToolTip": "Application\\Interfaces\\Repository\\ICategoriaRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T23:14:42.853Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "IAuthRepository.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\IAuthRepository.cs",
+              "RelativeDocumentMoniker": "Application\\Interfaces\\Repository\\IAuthRepository.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Repository\\IAuthRepository.cs",
+              "RelativeToolTip": "Application\\Interfaces\\Repository\\IAuthRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T23:14:42.763Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "VentaRepository.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Repository\\VentaRepository.cs",
+              "RelativeDocumentMoniker": "Infraestructure\\Repository\\VentaRepository.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Repository\\VentaRepository.cs",
+              "RelativeToolTip": "Infraestructure\\Repository\\VentaRepository.cs",
+              "ViewState": "AgIAAMMAAAAAAAAAAAAAwMwAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T23:01:47.995Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "VentaController.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Controllers\\VentaController.cs",
+              "RelativeDocumentMoniker": "KIOSCONETA\\Controllers\\VentaController.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Controllers\\VentaController.cs",
+              "RelativeToolTip": "KIOSCONETA\\Controllers\\VentaController.cs",
+              "ViewState": "AgIAAK4AAAAAAAAAAAAAwNIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T23:00:47.848Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "IVentaService.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Services\\IVentaService.cs",
+              "RelativeDocumentMoniker": "Application\\Services\\IVentaService.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Services\\IVentaService.cs",
+              "RelativeToolTip": "Application\\Services\\IVentaService.cs",
+              "ViewState": "AgIAAFUAAAAAAAAAAAAmwLsAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T23:00:02.955Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Program.cs",
+              "RelativeDocumentMoniker": "KIOSCONETA\\Program.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Program.cs",
+              "RelativeToolTip": "KIOSCONETA\\Program.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAADgv1sAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-17T03:08:01.582Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "IVentaService.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Services\\IVentaService.cs",
+              "RelativeDocumentMoniker": "Application\\Interfaces\\Services\\IVentaService.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Services\\IVentaService.cs",
+              "RelativeToolTip": "Application\\Interfaces\\Services\\IVentaService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T22:59:09.45Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "VentaDTO.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\DTOs\\Venta\\VentaDTO.cs",
+              "RelativeDocumentMoniker": "Application\\DTOs\\Venta\\VentaDTO.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\DTOs\\Venta\\VentaDTO.cs",
+              "RelativeToolTip": "Application\\DTOs\\Venta\\VentaDTO.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAAswEQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T22:57:25.918Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\AppDbContext.cs",
+              "RelativeToolTip": "Infraestructure\\Persistence\\AppDbContext.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAswCIAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T00:16:11.609Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "20260218001521_a.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260218001521_a.cs",
+              "RelativeDocumentMoniker": "Infraestructure\\Migrations\\20260218001521_a.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Migrations\\20260218001521_a.cs",
+              "RelativeToolTip": "Infraestructure\\Migrations\\20260218001521_a.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T00:15:21.684Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Producto.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Producto.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Producto.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Domain\\Entities\\Producto.cs",
+              "RelativeToolTip": "Domain\\Entities\\Producto.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAA0wBMAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-17T03:27:26.3Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "CategoriaData.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\CategoriaData.cs",
+              "RelativeDocumentMoniker": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\CategoriaData.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\CategoriaData.cs",
+              "RelativeToolTip": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\CategoriaData.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-04T16:35:10.707Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\appsettings.json",
+              "RelativeDocumentMoniker": "KIOSCONETA\\appsettings.json",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\appsettings.json",
+              "RelativeToolTip": "KIOSCONETA\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-02-17T03:45:28.753Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "KIOSCONETA.csproj",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\KIOSCONETA.csproj",
+              "RelativeDocumentMoniker": "KIOSCONETA\\KIOSCONETA.csproj",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\KIOSCONETA.csproj",
+              "RelativeToolTip": "KIOSCONETA\\KIOSCONETA.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-02-17T03:05:37.53Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 20,
+              "Title": "ProductoController.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Controllers\\ProductoController.cs",
+              "RelativeDocumentMoniker": "KIOSCONETA\\Controllers\\ProductoController.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\KIOSCONETA\\Controllers\\ProductoController.cs",
+              "RelativeToolTip": "KIOSCONETA\\Controllers\\ProductoController.cs",
+              "ViewState": "AgIAADwAAAAAAAAAAAAIwDwBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-17T03:06:24.421Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "IProductoService.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Services\\IProductoService.cs",
+              "RelativeDocumentMoniker": "Application\\Interfaces\\Services\\IProductoService.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Interfaces\\Services\\IProductoService.cs",
+              "RelativeToolTip": "Application\\Interfaces\\Services\\IProductoService.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAA8wAgAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-17T02:59:30.293Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "ProductoRepository.cs",
+              "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Repository\\ProductoRepository.cs",
+              "RelativeDocumentMoniker": "Infraestructure\\Repository\\ProductoRepository.cs",
+              "ToolTip": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Repository\\ProductoRepository.cs",
+              "RelativeToolTip": "Infraestructure\\Repository\\ProductoRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKoAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-17T02:54:38.036Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
               "Title": "ProductoResponseDTO.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\DTOs\\Producto\\ProductoResponseDTO.cs",
               "RelativeDocumentMoniker": "Application\\DTOs\\Producto\\ProductoResponseDTO.cs",
@@ -382,12 +459,11 @@
               "RelativeToolTip": "Application\\DTOs\\Producto\\ProductoResponseDTO.cs",
               "ViewState": "AgIAAAcAAAAAAAAAAAA1wAcAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T02:48:30.62Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-17T02:48:30.62Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 25,
               "Title": "UpdateProductoDTO.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\DTOs\\Producto\\UpdateProductoDTO.cs",
               "RelativeDocumentMoniker": "Application\\DTOs\\Producto\\UpdateProductoDTO.cs",
@@ -395,12 +471,11 @@
               "RelativeToolTip": "Application\\DTOs\\Producto\\UpdateProductoDTO.cs",
               "ViewState": "AgIAAAcAAAAAAAAAAAA1wA4AAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T02:48:00.412Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-17T02:48:00.412Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 26,
               "Title": "CreateProductoDTO.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\DTOs\\Producto\\CreateProductoDTO.cs",
               "RelativeDocumentMoniker": "Application\\DTOs\\Producto\\CreateProductoDTO.cs",
@@ -408,12 +483,11 @@
               "RelativeToolTip": "Application\\DTOs\\Producto\\CreateProductoDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-17T02:47:07.302Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-17T02:47:07.302Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 27,
               "Title": "TurnoData.cs",
               "DocumentMoniker": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Persistence\\DataKiosconeta\\Seed\\TurnoData.cs",
               "RelativeDocumentMoniker": "Infraestructure\\Persistence\\DataKiosconeta\\Seed\\TurnoData.cs",
