@@ -3749,23 +3749,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\lauta\\.nuget\\packages\\": {},
+    "C:\\Users\\fedeg\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Infraestructure.csproj",
+      "projectUniqueName": "C:\\APPKIOSCONETA\\kiosconeta\\Infraestructure\\Infraestructure.csproj",
       "projectName": "Infraestructure",
-      "projectPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\Infraestructure.csproj",
-      "packagesPath": "C:\\Users\\lauta\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Infraestructure\\obj\\",
+      "projectPath": "C:\\APPKIOSCONETA\\kiosconeta\\Infraestructure\\Infraestructure.csproj",
+      "packagesPath": "C:\\Users\\fedeg\\.nuget\\packages\\",
+      "outputPath": "C:\\APPKIOSCONETA\\kiosconeta\\Infraestructure\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\lauta\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\fedeg\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3780,8 +3780,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Application.csproj": {
-              "projectPath": "C:\\Users\\lauta\\Desktop\\APPKIOSCO\\kiosconeta\\Application\\Application.csproj"
+            "C:\\APPKIOSCONETA\\kiosconeta\\Application\\Application.csproj": {
+              "projectPath": "C:\\APPKIOSCONETA\\kiosconeta\\Application\\Application.csproj"
             }
           }
         }
@@ -3796,7 +3796,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -3833,7 +3833,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

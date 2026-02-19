@@ -1,211 +1,205 @@
 ﻿using Application.DTOs.Venta;
-using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
-using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Application.Services
+namespace KIOSCONETA.Controllers
 {
-    public class VentaService : IVentaService
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]  // ← Todos los endpoints requieren autenticación
+    public class VentasController : ControllerBase
     {
-        private readonly IVentaRepository _ventaRepository;
-        private readonly IProductoRepository _productoRepository;
-        private readonly IEmpleadoRepository _empleadoRepository;
-        private readonly IMetodoDePagoRepository _metodoDePagoRepository;
+        private readonly IVentaService _ventaService;
 
-        public VentaService(
-            IVentaRepository ventaRepository,
-            IProductoRepository productoRepository,
-            IEmpleadoRepository empleadoRepository,
-            IMetodoDePagoRepository metodoDePagoRepository)
+        public VentasController(IVentaService ventaService)
         {
-            _ventaRepository = ventaRepository;
-            _productoRepository = productoRepository;
-            _empleadoRepository = empleadoRepository;
-            _metodoDePagoRepository = metodoDePagoRepository;
+            _ventaService = ventaService;
         }
 
-        // ========== CONSULTAS ==========
+        // ========== GET - CONSULTAS ==========
 
-        public async Task<VentaResponseDTO?> GetByIdAsync(int id)
+        /// <summary>
+        /// Obtener todas las ventas
+        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetAll()
         {
-            var venta = await _ventaRepository.GetByIdAsync(id);
-            if (venta == null) return null;
-
-            return MapToResponseDTO(venta);
-        }
-
-        public async Task<IEnumerable<VentaResponseDTO>> GetAllAsync()
-        {
-            var ventas = await _ventaRepository.GetAllAsync();
-            return ventas.Select(MapToResponseDTO);
-        }
-
-        public async Task<IEnumerable<VentaResponseDTO>> GetByKioscoIdAsync(int kioscoId)
-        {
-            var ventas = await _ventaRepository.GetByKioscoIdAsync(kioscoId);
-            return ventas.Select(MapToResponseDTO);
-        }
-
-        public async Task<IEnumerable<VentaResponseDTO>> GetByEmpleadoIdAsync(int empleadoId)
-        {
-            var ventas = await _ventaRepository.GetByEmpleadoIdAsync(empleadoId);
-            return ventas.Select(MapToResponseDTO);
-        }
-
-        public async Task<IEnumerable<VentaResponseDTO>> GetByFechaAsync(DateTime fechaDesde, DateTime fechaHasta)
-        {
-            var ventas = await _ventaRepository.GetByFechaAsync(fechaDesde, fechaHasta);
-            return ventas.Select(MapToResponseDTO);
-        }
-
-        public async Task<IEnumerable<VentaResponseDTO>> GetVentasDelDiaAsync(int kioscoId)
-        {
-            var ventas = await _ventaRepository.GetVentasDelDiaAsync(kioscoId);
-            return ventas.Select(MapToResponseDTO);
-        }
-
-        public async Task<IEnumerable<VentaResponseDTO>> GetConFiltrosAsync(int kioscoId, VentaFiltrosDTO filtros)
-        {
-            var ventas = await _ventaRepository.GetConFiltrosAsync(kioscoId, filtros);
-            return ventas.Select(MapToResponseDTO);
-        }
-
-        // ========== COMANDOS ==========
-
-        public async Task<VentaResponseDTO> CreateAsync(CreateVentaDTO dto)
-        {
-            // ─── VALIDACIONES ───────────────────────────
-
-            if (dto.Productos == null || !dto.Productos.Any())
-                throw new InvalidOperationException("La venta debe tener al menos un producto");
-
-            // Validar empleado activo
-            var empleado = await _empleadoRepository.GetByIdAsync(dto.EmpleadoId);
-            if (empleado == null)
-                throw new KeyNotFoundException($"Empleado con ID {dto.EmpleadoId} no encontrado");
-            if (!empleado.Activo)
-                throw new InvalidOperationException("El empleado está inactivo");
-
-            // Validar método de pago
-            var metodoPago = await _metodoDePagoRepository.GetByIdAsync(dto.MetodoPagoId);
-            if (metodoPago == null)
-                throw new KeyNotFoundException($"Método de pago con ID {dto.MetodoPagoId} no encontrado");
-
-            // ─── VALIDAR Y PREPARAR PRODUCTOS ──────────
-
-            var productosVenta = new List<ProductoVenta>();
-            decimal totalVenta = 0;
-            decimal costoTotal = 0;
-
-            foreach (var productoDto in dto.Productos)
+            try
             {
-                if (productoDto.Cantidad <= 0)
-                    throw new InvalidOperationException("La cantidad debe ser mayor a 0");
-
-                var producto = await _productoRepository.GetByIdAsync(productoDto.ProductoId);
-                if (producto == null)
-                    throw new KeyNotFoundException($"Producto con ID {productoDto.ProductoId} no encontrado");
-
-                if (!producto.Activo)
-                    throw new InvalidOperationException($"El producto '{producto.Nombre}' está inactivo");
-
-                // Validar stock suficiente
-                if (producto.StockActual < productoDto.Cantidad)
-                    throw new InvalidOperationException(
-                        $"Stock insuficiente para '{producto.Nombre}'. " +
-                        $"Disponible: {producto.StockActual}, Solicitado: {productoDto.Cantidad}");
-
-                // Calcular subtotal
-                var subtotal = producto.PrecioVenta * productoDto.Cantidad;
-                var subtotalCosto = producto.PrecioCosto * productoDto.Cantidad;
-
-                totalVenta += subtotal;
-                costoTotal += subtotalCosto;
-
-                // Crear ProductoVenta
-                productosVenta.Add(new ProductoVenta
-                {
-                    ProductoId = producto.ProductoId,
-                    Cantidad = productoDto.Cantidad,
-                    PrecioUnitario = producto.PrecioVenta  // Guardar precio al momento de la venta
-                });
+                var ventas = await _ventaService.GetAllAsync();
+                return Ok(ventas);
             }
-
-            // ─── CREAR VENTA ────────────────────────────
-
-            var numeroVenta = await _ventaRepository.GetSiguienteNumeroVentaAsync(empleado.KioscoID);
-
-            var venta = new Venta
+            catch (Exception ex)
             {
-                EmpleadoId = dto.EmpleadoId,
-                MetodoPagoId = dto.MetodoPagoId,
-                TurnoId = dto.TurnoId,
-                CierreTurnoId = 1, // TODO: Implementar lógica de cierre de turno
-                Detalles = dto.Detalles,
-                Total = totalVenta,
-                PrecioCosto = costoTotal,
-                NumeroVenta = numeroVenta,
-                ProductoVentas = productosVenta,
-                Fecha = DateTime.Now,
-                Anulada = false
-            };
-
-            var creada = await _ventaRepository.CreateAsync(venta);
-            return MapToResponseDTO(creada);
+                return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message });
+            }
         }
 
-        public async Task<bool> AnularVentaAsync(int ventaId)
+        /// <summary>
+        /// Obtener venta por ID
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<VentaResponseDTO>> GetById(int id)
         {
-            var venta = await _ventaRepository.GetByIdAsync(ventaId);
-            if (venta == null)
-                throw new KeyNotFoundException($"Venta con ID {ventaId} no encontrada");
+            try
+            {
+                var venta = await _ventaService.GetByIdAsync(id);
+                if (venta == null)
+                    return NotFound(new { message = $"Venta con ID {id} no encontrada" });
 
-            if (venta.Anulada)
-                throw new InvalidOperationException("La venta ya está anulada");
-
-            return await _ventaRepository.AnularVentaAsync(ventaId);
+                return Ok(venta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener venta", error = ex.Message });
+            }
         }
 
-        // ========== MAPEO ==========
-
-        private VentaResponseDTO MapToResponseDTO(Venta venta)
+        /// <summary>
+        /// Obtener ventas de un kiosco
+        /// </summary>
+        [HttpGet("kiosco/{kioscoId}")]
+        public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByKiosco(int kioscoId)
         {
-            var ganancia = venta.Total - venta.PrecioCosto;
-            var margenGanancia = venta.Total > 0
-                ? (ganancia / venta.Total) * 100
-                : 0;
-
-            return new VentaResponseDTO
+            try
             {
-                VentaId = venta.VentaId,
-                Fecha = venta.Fecha,
-                Total = venta.Total,
-                PrecioCosto = venta.PrecioCosto,
-                Ganancia = ganancia,
-                MargenGanancia = Math.Round(margenGanancia, 2),
-                Detalles = venta.Detalles,
-                Anulada = venta.Anulada,
-                NumeroVenta = venta.NumeroVenta,
+                var ventas = await _ventaService.GetByKioscoIdAsync(kioscoId);
+                return Ok(ventas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message });
+            }
+        }
 
-                EmpleadoId = venta.EmpleadoId,
-                EmpleadoNombre = venta.Empleado?.Nombre ?? "",
+        /// <summary>
+        /// Obtener ventas del día de un kiosco
+        /// </summary>
+        [HttpGet("kiosco/{kioscoId}/hoy")]
+        public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetVentasDelDia(int kioscoId)
+        {
+            try
+            {
+                var ventas = await _ventaService.GetVentasDelDiaAsync(kioscoId);
+                return Ok(ventas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener ventas del día", error = ex.Message });
+            }
+        }
 
-                MetodoPagoId = venta.MetodoPagoId,
-                MetodoPagoNombre = venta.MetodoPago?.Nombre ?? "",
+        /// <summary>
+        /// Obtener ventas de un empleado
+        /// </summary>
+        [HttpGet("empleado/{empleadoId}")]
+        public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByEmpleado(int empleadoId)
+        {
+            try
+            {
+                var ventas = await _ventaService.GetByEmpleadoIdAsync(empleadoId);
+                return Ok(ventas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message });
+            }
+        }
 
-                TurnoId = venta.TurnoId,
-                TurnoNombre = venta.Turno?.Nombre ?? "",
+        /// <summary>
+        /// Obtener ventas por rango de fechas
+        /// </summary>
+        [HttpGet("fecha")]
+        public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByFecha(
+            [FromQuery] DateTime fechaDesde,
+            [FromQuery] DateTime fechaHasta)
+        {
+            try
+            {
+                var ventas = await _ventaService.GetByFechaAsync(fechaDesde, fechaHasta);
+                return Ok(ventas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message });
+            }
+        }
 
-                Productos = venta.ProductoVentas?.Select(pv => new ProductoVentaResponseDTO
-                {
-                    ProductoVentaId = pv.ProductoVentaId,
-                    ProductoId = pv.ProductoId,
-                    ProductoNombre = pv.Producto?.Nombre ?? "",
-                    Cantidad = pv.Cantidad,
-                    PrecioUnitario = pv.PrecioUnitario,
-                    Subtotal = pv.Cantidad * pv.PrecioUnitario
-                }).ToList() ?? new List<ProductoVentaResponseDTO>()
-            };
+        /// <summary>
+        /// Buscar ventas con filtros
+        /// </summary>
+        [HttpPost("kiosco/{kioscoId}/buscar")]
+        public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> Buscar(
+            int kioscoId,
+            [FromBody] VentaFiltrosDTO filtros)
+        {
+            try
+            {
+                var ventas = await _ventaService.GetConFiltrosAsync(kioscoId, filtros);
+                return Ok(ventas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al buscar ventas", error = ex.Message });
+            }
+        }
+
+        // ========== POST - CREAR ==========
+
+        /// <summary>
+        /// Registrar nueva venta
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult<VentaResponseDTO>> Create([FromBody] CreateVentaDTO dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var venta = await _ventaService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = venta.VentaId }, venta);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al crear venta", error = ex.Message });
+            }
+        }
+
+        // ========== DELETE - ANULAR ==========
+
+        /// <summary>
+        /// Anular venta (devuelve stock)
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Anular(int id)
+        {
+            try
+            {
+                await _ventaService.AnularVentaAsync(id);
+                return Ok(new { message = "Venta anulada correctamente. Stock devuelto." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al anular venta", error = ex.Message });
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using Application.Interfaces.Services;
 using Application.Services;
 using Infraestructure.Persistence;
 using Infraestructure.Repository;
+using Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -75,13 +76,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// // ========== REPOSITORIES ==========
+// // =================== REPOSITORIES ==========
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IMetodoDePagoRepository, MetodoDePagoRepository>();
 builder.Services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();
-builder.Services.AddScoped<IVentaRepository, VentaRepository>();              // ← NUEVO
+builder.Services.AddScoped<IVentaRepository, VentaRepository>();
+builder.Services.AddScoped<ICierreTurnoRepository, CierreTurnoRepository>();
+builder.Services.AddScoped<IGastoRepository, GastoRepository>();
+builder.Services.AddScoped<ITipoDeGastoRepository, TipoDeGastoRepository>();
+builder.Services.AddScoped<IProductoVentaRepository, ProductoVentaRepository>();
 
 // ========== SERVICES ==========
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -90,6 +95,10 @@ builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IMetodoDePagoService, MetodoDePagoService>();
 builder.Services.AddScoped<IEmpleadoService, EmpleadoService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
+builder.Services.AddScoped<ICierreTurnoService, CierreTurnoService>();
+builder.Services.AddScoped<IGastoService, GastoService>();
+builder.Services.AddScoped<ITipoDeGastoService, TipoDeGastoService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // ========== CORS ==========
 builder.Services.AddCors(options =>
