@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infraestructure.Persistence.Config
+namespace Infrastructure.Persistence.Configurations
 {
     public class CierreTurnoConfiguration
     {
@@ -10,13 +10,16 @@ namespace Infraestructure.Persistence.Config
         {
             entityBuilder.HasKey(ct => ct.CierreTurnoId);
 
-            entityBuilder.Property(ct => ct.Fecha)
+            // ───────────── FECHAS ─────────────
+
+            entityBuilder.Property(ct => ct.FechaApertura)
                 .IsRequired();
 
-            entityBuilder.Property(ct => ct.CantidadVentas)
-                .IsRequired();
+            entityBuilder.Property(ct => ct.FechaCierre);
 
-                entityBuilder.Property(ct => ct.MontoEsperado)
+            // ───────────── MONTOS ─────────────
+
+            entityBuilder.Property(ct => ct.MontoEsperado)
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
@@ -28,32 +31,43 @@ namespace Infraestructure.Persistence.Config
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
-            entityBuilder.Property(ct => ct.Efectivo)
+            entityBuilder.Property(ct => ct.EfectivoInicial)
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
-            entityBuilder.Property(ct => ct.Virtual)
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-            entityBuilder.HasMany(c => c.cierreTurnoEmpleados)
-                .WithOne(cte => cte.CierreTurno)
-                .HasForeignKey(cte => cte.CierreTurnoId)
-                .OnDelete(DeleteBehavior.Restrict);
+            entityBuilder.Property(ct => ct.EfectivoFinal)
+                .HasColumnType("decimal(18,2)");
 
+            entityBuilder.Property(ct => ct.VirtualFinal)
+                .HasColumnType("decimal(18,2)");
+
+            
+
+            entityBuilder.Property(ct => ct.CantidadVentas)
+                .IsRequired();
+
+            entityBuilder.Property(ct => ct.Estado)
+                .IsRequired()
+                .HasConversion<int>();
 
             entityBuilder.Property(ct => ct.Observaciones)
                 .HasMaxLength(500);
 
-            entityBuilder.Property(ct => ct.Estado)
-                .IsRequired();
-
+            // ───────────── RELACIONES ─────────────
 
             entityBuilder.HasMany(ct => ct.Ventas)
                 .WithOne(v => v.CierreTurno)
                 .HasForeignKey(v => v.CierreTurnoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            
+            entityBuilder.HasMany(ct => ct.CierreTurnoEmpleados)
+                .WithOne(cte => cte.CierreTurno)
+                .HasForeignKey(cte => cte.CierreTurnoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ───────────── ÍNDICE ÚTIL ─────────────
+
+            entityBuilder.HasIndex(ct => new { ct.KioscoId, ct.Estado });
         }
     }
 }

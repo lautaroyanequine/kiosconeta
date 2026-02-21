@@ -76,13 +76,19 @@ namespace Infraestructure.Migrations
                     b.Property<decimal>("Diferencia")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("Efectivo")
+                    b.Property<decimal>("EfectivoFinal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("EfectivoInicial")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Estado")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Fecha")
+                    b.Property<DateTime>("FechaApertura")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaCierre")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("KioscoId")
@@ -99,12 +105,12 @@ namespace Infraestructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<decimal>("Virtual")
+                    b.Property<decimal>("VirtualFinal")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("CierreTurnoId");
 
-                    b.HasIndex("KioscoId");
+                    b.HasIndex("KioscoId", "Estado");
 
                     b.ToTable("CierresTurno");
                 });
@@ -1523,7 +1529,7 @@ namespace Infraestructure.Migrations
             modelBuilder.Entity("Domain.Entities.CierreTurnoEmpleado", b =>
                 {
                     b.HasOne("Domain.Entities.CierreTurno", "CierreTurno")
-                        .WithMany("cierreTurnoEmpleados")
+                        .WithMany("CierreTurnoEmpleados")
                         .HasForeignKey("CierreTurnoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1690,9 +1696,9 @@ namespace Infraestructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.CierreTurno", b =>
                 {
-                    b.Navigation("Ventas");
+                    b.Navigation("CierreTurnoEmpleados");
 
-                    b.Navigation("cierreTurnoEmpleados");
+                    b.Navigation("Ventas");
                 });
 
             modelBuilder.Entity("Domain.Entities.Empleado", b =>

@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Infraestructure.Persistence.Config;
 using Infraestructure.Persistence.DataKiosconeta.Seed;
+using Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 

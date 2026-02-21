@@ -21,7 +21,7 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
-                .Include(ct => ct.cierreTurnoEmpleados)
+                .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Include(ct => ct.Ventas)
                 .ThenInclude(v => v.MetodoPago)
@@ -32,9 +32,9 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
-                .Include(ct => ct.cierreTurnoEmpleados)
+                .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
-                .OrderByDescending(ct => ct.Fecha)
+                .OrderByDescending(ct => ct.FechaApertura)
                 .ToListAsync();
         }
 
@@ -42,10 +42,10 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
-                .Include(ct => ct.cierreTurnoEmpleados)
+                .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Where(ct => ct.KioscoId == kioscoId)
-                .OrderByDescending(ct => ct.Fecha)
+                .OrderByDescending(ct => ct.FechaApertura)
                 .ToListAsync();
         }
 
@@ -53,7 +53,7 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
-                .Include(ct => ct.cierreTurnoEmpleados)
+                .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Include(ct => ct.Ventas)
                 .ThenInclude(v => v.MetodoPago)
@@ -65,12 +65,12 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
-                .Include(ct => ct.cierreTurnoEmpleados)
+                .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Where(ct => ct.KioscoId == kioscoId
-                          && ct.Fecha >= fechaDesde
-                          && ct.Fecha <= fechaHasta)
-                .OrderByDescending(ct => ct.Fecha)
+                          && ct.FechaApertura >= fechaDesde
+                          && ct.FechaApertura <= fechaHasta)
+                .OrderByDescending(ct => ct.FechaApertura)
                 .ToListAsync();
         }
 

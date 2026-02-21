@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infraestructure.Migrations
 {
     /// <inheritdoc />
-    public partial class a : Migration
+    public partial class s : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -123,16 +123,18 @@ namespace Infraestructure.Migrations
                 {
                     CierreTurnoId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CantidadVentas = table.Column<int>(type: "int", nullable: false),
+                    FechaApertura = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FechaCierre = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    KioscoId = table.Column<int>(type: "int", nullable: false),
+                    EfectivoInicial = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    EfectivoFinal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    VirtualFinal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MontoEsperado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MontoReal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Diferencia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    Efectivo = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Virtual = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Estado = table.Column<int>(type: "int", nullable: false)
+                    CantidadVentas = table.Column<int>(type: "int", nullable: false),
+                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -512,9 +514,9 @@ namespace Infraestructure.Migrations
                 values: new object[] { 50, true, 4, "7790580099748", "Snack de maíz Chizitos queso 50g", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Chizitos 50g", 450m, 900m, 30, 8 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CierresTurno_KioscoId",
+                name: "IX_CierresTurno_KioscoId_Estado",
                 table: "CierresTurno",
-                column: "KioscoId");
+                columns: new[] { "KioscoId", "Estado" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_CierreTurnoEmpleado_EmpleadoId",
