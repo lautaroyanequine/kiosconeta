@@ -77,6 +77,23 @@ namespace KIOSCONETA.Controllers
         }
 
         /// <summary>
+        /// Verificar si hay un turno abierto (para validación rápida)
+        /// </summary>
+        [HttpGet("kiosco/{kioscoId}/tiene-abierto")]
+        public async Task<ActionResult<bool>> TieneTurnoAbierto(int kioscoId)
+        {
+            try
+            {
+                var turno = await _cierreTurnoService.GetTurnoAbiertoAsync(kioscoId);
+                return Ok(new { tieneAbierto = turno != null, turno });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al verificar turno", error = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Obtener cierres por rango de fechas
         /// </summary>
         [HttpGet("kiosco/{kioscoId}/fecha")]
@@ -126,14 +143,14 @@ namespace KIOSCONETA.Controllers
         /// Cerrar el turno actual
         /// </summary>
         [HttpPost("cerrar")]
-        public async Task<ActionResult<CierreTurnoResponseDTO>> CerrarTurno([FromBody] CerrarTurnoDTO dto)
+        public async Task<ActionResult<CierreTurnoResponseDTO>> CerrarTurno(int kioscoId,[FromBody] CerrarTurnoDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var cierre = await _cierreTurnoService.CerrarTurnoAsync(dto);
+                var cierre = await _cierreTurnoService.CerrarTurnoAsync(kioscoId,dto);
                 return Ok(cierre);
             }
             catch (KeyNotFoundException ex)

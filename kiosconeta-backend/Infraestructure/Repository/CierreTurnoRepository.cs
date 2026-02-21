@@ -24,6 +24,7 @@ namespace Infraestructure.Repository
                 .Include(ct => ct.cierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Include(ct => ct.Ventas)
+                .ThenInclude(v => v.MetodoPago)
                 .FirstOrDefaultAsync(ct => ct.CierreTurnoId == id);
         }
 
@@ -55,6 +56,7 @@ namespace Infraestructure.Repository
                 .Include(ct => ct.cierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Include(ct => ct.Ventas)
+                .ThenInclude(v => v.MetodoPago)
                 .FirstOrDefaultAsync(ct => ct.KioscoId == kioscoId
                                         && ct.Estado == EstadoCierre.Abierto);
         }

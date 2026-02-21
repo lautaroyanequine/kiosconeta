@@ -12,6 +12,6 @@ namespace Application.Interfaces.Services
 
         // Comandos
         Task<CierreTurnoResponseDTO> AbrirTurnoAsync(AbrirTurnoDTO dto);
-        Task<CierreTurnoResponseDTO> CerrarTurnoAsync(CerrarTurnoDTO dto);
+        Task<CierreTurnoResponseDTO> CerrarTurnoAsync(int kioscoId, CerrarTurnoDTO dto);
     }
 }

@@ -11,17 +11,20 @@ namespace Application.Services
         private readonly IProductoRepository _productoRepository;
         private readonly IEmpleadoRepository _empleadoRepository;
         private readonly IMetodoDePagoRepository _metodoDePagoRepository;
+        private readonly ICierreTurnoRepository _cierreTurnoRepository;  // ← NUEVO
 
         public VentaService(
             IVentaRepository ventaRepository,
             IProductoRepository productoRepository,
             IEmpleadoRepository empleadoRepository,
-            IMetodoDePagoRepository metodoDePagoRepository)
+            IMetodoDePagoRepository metodoDePagoRepository,
+            ICierreTurnoRepository cierreTurnoRepository)  // ← NUEVO
         {
             _ventaRepository = ventaRepository;
             _productoRepository = productoRepository;
             _empleadoRepository = empleadoRepository;
             _metodoDePagoRepository = metodoDePagoRepository;
+            _cierreTurnoRepository = cierreTurnoRepository;  // ← NUEVO
         }
 
         // ========== CONSULTAS ==========
@@ -91,6 +94,16 @@ namespace Application.Services
             if (metodoPago == null)
                 throw new KeyNotFoundException($"Método de pago con ID {dto.MetodoPagoId} no encontrado");
 
+            // ─── OBTENER O CREAR TURNO ABIERTO ─────────
+
+            var turnoAbierto = await _cierreTurnoRepository.GetTurnoAbiertoAsync(empleado.KioscoID);
+
+            if (turnoAbierto == null)
+            {
+                throw new InvalidOperationException(
+                    "No hay ningún turno abierto. Por favor, abra un turno antes de registrar ventas.");
+            }
+
             // ─── VALIDAR Y PREPARAR PRODUCTOS ──────────
 
             var productosVenta = new List<ProductoVenta>();
@@ -127,7 +140,7 @@ namespace Application.Services
                 {
                     ProductoId = producto.ProductoId,
                     Cantidad = productoDto.Cantidad,
-                    PrecioUnitario = producto.PrecioVenta  // Guardar precio al momento de la venta
+                    PrecioUnitario = producto.PrecioVenta
                 });
             }
 
@@ -140,7 +153,7 @@ namespace Application.Services
                 EmpleadoId = dto.EmpleadoId,
                 MetodoPagoId = dto.MetodoPagoId,
                 TurnoId = dto.TurnoId,
-                CierreTurnoId = 1, // TODO: Implementar lógica de cierre de turno
+                CierreTurnoId = turnoAbierto.CierreTurnoId,  // ← USAR TURNO ABIERTO
                 Detalles = dto.Detalles,
                 Total = totalVenta,
                 PrecioCosto = costoTotal,
