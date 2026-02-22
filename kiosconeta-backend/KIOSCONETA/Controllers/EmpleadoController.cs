@@ -1,11 +1,15 @@
 ﻿using Application.DTOs.Empleado;
 using Application.Interfaces.Services;
+using KIOSCONETA.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KIOSCONETA.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class EmpleadosController : ControllerBase
     {
         private readonly IEmpleadoService _empleadoService;
@@ -17,10 +21,9 @@ namespace KIOSCONETA.Controllers
 
         // ========== GET - CONSULTAS ==========
 
-        /// <summary>
         /// Obtener todos los empleados
-        /// </summary>
         [HttpGet]
+        [RequierePermiso("empelados.ver")]
         public async Task<ActionResult<IEnumerable<EmpleadoResponseDTO>>> GetAll()
         {
             try
@@ -34,9 +37,7 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener empleado por ID
-        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<EmpleadoResponseDTO>> GetById(int id)
         {
@@ -54,9 +55,7 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener empleados de un kiosco
-        /// </summary>
         [HttpGet("kiosco/{kioscoId}")]
         public async Task<ActionResult<IEnumerable<EmpleadoResponseDTO>>> GetByKiosco(int kioscoId)
         {
@@ -71,9 +70,7 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener empleados activos de un kiosco
-        /// </summary>
         [HttpGet("kiosco/{kioscoId}/activos")]
         public async Task<ActionResult<IEnumerable<EmpleadoResponseDTO>>> GetActivos(int kioscoId)
         {
@@ -90,10 +87,9 @@ namespace KIOSCONETA.Controllers
 
         // ========== POST - CREAR ==========
 
-        /// <summary>
         /// Crear nuevo empleado
-        /// </summary>
         [HttpPost]
+        [RequierePermiso("empelados.crear")]
         public async Task<ActionResult<EmpleadoResponseDTO>> Create([FromBody] CreateEmpleadoDTO dto)
         {
             try
@@ -116,10 +112,9 @@ namespace KIOSCONETA.Controllers
 
         // ========== PUT - ACTUALIZAR ==========
 
-        /// <summary>
         /// Actualizar empleado
-        /// </summary>
         [HttpPut("{id}")]
+        [RequierePermiso("empelados.editar")]
         public async Task<ActionResult<EmpleadoResponseDTO>> Update(int id, [FromBody] UpdateEmpleadoDTO dto)
         {
             try
@@ -149,9 +144,7 @@ namespace KIOSCONETA.Controllers
 
         // ========== PATCH - ACCIONES ESPECIALES ==========
 
-        /// <summary>
         /// Activar o desactivar un empleado
-        /// </summary>
         [HttpPatch("{id}/toggle-activo")]
         public async Task<ActionResult> ToggleActivo(int id, [FromQuery] bool activo)
         {
@@ -170,9 +163,7 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Asignar permiso a un empleado
-        /// </summary>
         [HttpPost("permisos/asignar")]
         public async Task<ActionResult<EmpleadoResponseDTO>> AsignarPermiso([FromBody] AsignarPermisoDTO dto)
         {
@@ -195,9 +186,7 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Quitar permiso a un empleado
-        /// </summary>
         [HttpPost("permisos/quitar")]
         public async Task<ActionResult<EmpleadoResponseDTO>> QuitarPermiso([FromBody] AsignarPermisoDTO dto)
         {

@@ -16,19 +16,46 @@ namespace KIOSCONETA.Controllers
             _authService = authService;
         }
 
+        // ════════════════════════════════════════════════
+        // LOGIN ADMIN (Email + Password)
+        // ════════════════════════════════════════════════
+
         /// <summary>
-        /// Login - obtener token JWT
+        /// Login del administrador con email y contraseña
         /// </summary>
-        [HttpPost("login")]
-        [AllowAnonymous]  // ← Este endpoint NO requiere token
-        public async Task<ActionResult<AuthResponseDTO>> Login([FromBody] LoginDTO dto)
+        [HttpPost("login-admin")]
+        [AllowAnonymous]
+        public async Task<ActionResult<AuthResponseDTO>> LoginAdmin([FromBody] LoginAdminDTO dto)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                var response = await _authService.LoginAdminAsync(dto);
+                return Ok(response);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al iniciar sesión", error = ex.Message });
+            }
+        }
 
-                var response = await _authService.LoginAsync(dto);
+        // ════════════════════════════════════════════════
+        // LOGIN EMPLEADO (ID/Legajo + PIN)
+        // ════════════════════════════════════════════════
+
+        /// <summary>
+        /// Login de empleado con ID o legajo y PIN
+        /// </summary>
+        [HttpPost("login-empleado")]
+        [AllowAnonymous]
+        public async Task<ActionResult<AuthResponseDTO>> LoginEmpleado([FromBody] LoginEmpleadoDTO dto)
+        {
+            try
+            {
+                var response = await _authService.LoginEmpleadoAsync(dto);
                 return Ok(response);
             }
             catch (UnauthorizedAccessException ex)
@@ -46,19 +73,38 @@ namespace KIOSCONETA.Controllers
         }
 
         /// <summary>
-        /// Registro - crear nueva cuenta
+        /// Obtener lista de empleados disponibles para login (sin PIN, solo para mostrar en UI)
+        /// </summary>
+        [HttpGet("empleados-login/{kioscoId}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<EmpleadoLoginDTO>>> GetEmpleadosParaLogin(int kioscoId)
+        {
+            try
+            {
+                var empleados = await _authService.GetEmpleadosParaLoginAsync(kioscoId);
+                return Ok(empleados);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener empleados", error = ex.Message });
+            }
+        }
+
+        // ════════════════════════════════════════════════
+        // REGISTRO (Crear kiosco + admin)
+        // ════════════════════════════════════════════════
+
+        /// <summary>
+        /// Registrar nuevo kiosco con su administrador
         /// </summary>
         [HttpPost("register")]
-        [AllowAnonymous]  // ← Este endpoint NO requiere token
+        [AllowAnonymous]
         public async Task<ActionResult<AuthResponseDTO>> Register([FromBody] RegisterDTO dto)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
                 var response = await _authService.RegisterAsync(dto);
-                return CreatedAtAction(nameof(Login), response);
+                return CreatedAtAction(nameof(Register), response);
             }
             catch (InvalidOperationException ex)
             {
@@ -66,25 +112,53 @@ namespace KIOSCONETA.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error al registrar usuario", error = ex.Message });
+                return StatusCode(500, new { message = "Error al registrar", error = ex.Message });
             }
         }
 
+        // ════════════════════════════════════════════════
+        // CAMBIAR CREDENCIALES
+        // ════════════════════════════════════════════════
+
         /// <summary>
-        /// Cambiar contraseña (requiere token)
+        /// Cambiar contraseña del administrador
         /// </summary>
         [HttpPost("cambiar-password")]
-        [Authorize]  // ← Este endpoint SÍ requiere token
+        [Authorize]
         public async Task<ActionResult> CambiarPassword([FromBody] CambiarPasswordDTO dto)
         {
             try
             {
-                await _authService.CambiarPasswordAsync(dto);
-                return Ok(new { message = "Contraseña actualizada correctamente" });
+                var usuarioId = int.Parse(User.FindFirst("UsuarioID")?.Value ?? "0");
+                await _authService.CambiarPasswordAsync(usuarioId, dto);
+                return Ok(new { message = "Contraseña cambiada exitosamente" });
             }
-            catch (KeyNotFoundException ex)
+            catch (UnauthorizedAccessException ex)
             {
-                return NotFound(new { message = ex.Message });
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al cambiar contraseña", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Cambiar PIN de un empleado (el propio empleado)
+        /// </summary>
+        [HttpPost("cambiar-pin")]
+        [Authorize]
+        public async Task<ActionResult> CambiarPin([FromBody] CambiarPinDTO dto)
+        {
+            try
+            {
+                // Verificar que el empleado está cambiando su propio PIN
+                var empleadoId = int.Parse(User.FindFirst("EmpleadoId")?.Value ?? "0");
+                if (dto.EmpleadoId != empleadoId)
+                    return Forbid();
+
+                await _authService.CambiarPinAsync(dto);
+                return Ok(new { message = "PIN cambiado exitosamente" });
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -96,7 +170,34 @@ namespace KIOSCONETA.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error al cambiar contraseña", error = ex.Message });
+                return StatusCode(500, new { message = "Error al cambiar PIN", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Asignar/resetear PIN de un empleado (solo admin)
+        /// </summary>
+        [HttpPost("asignar-pin")]
+        [Authorize]
+        public async Task<ActionResult> AsignarPin([FromQuery] int empleadoId, [FromQuery] string pin)
+        {
+            try
+            {
+                // Verificar que es admin
+                var esAdmin = bool.Parse(User.FindFirst("EsAdmin")?.Value ?? "false");
+                if (!esAdmin)
+                    return Forbid();
+
+                await _authService.AsignarPinAsync(empleadoId, pin);
+                return Ok(new { message = "PIN asignado exitosamente" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al asignar PIN", error = ex.Message });
             }
         }
 
@@ -104,20 +205,19 @@ namespace KIOSCONETA.Controllers
         /// Verificar si el token es válido
         /// </summary>
         [HttpGet("verificar")]
-        [Authorize]  // ← Si llega acá, el token es válido
+        [Authorize]
         public ActionResult Verificar()
         {
-            // Leer datos del token actual
-            var usuarioId = User.FindFirst("UsuarioID")?.Value;
-            var nombre = User.FindFirst("Nombre")?.Value;
-            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            var empleadoId = User.FindFirst("EmpleadoId")?.Value;
+            var nombre = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+            var esAdmin = User.FindFirst("EsAdmin")?.Value;
 
             return Ok(new
             {
-                message = "Token válido",
-                usuarioId,
+                valido = true,
+                empleadoId,
                 nombre,
-                email
+                esAdmin = bool.Parse(esAdmin ?? "false")
             });
         }
     }

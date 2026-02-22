@@ -98,7 +98,8 @@ namespace Infraestructure.Persistence
             CategoriaData.Seed(modelBuilder.Entity<Categoria>());
             EmpleadoData.Seed(modelBuilder.Entity<Empleado>());
             ProductoData.Seed(modelBuilder.Entity<Producto>());
-
+            PermisoData.Seed(modelBuilder.Entity<Permiso>());
+            EmpleadoPermisoData.Seed(modelBuilder.Entity<EmpleadoPermiso>());
 
             base.OnModelCreating(modelBuilder);
 

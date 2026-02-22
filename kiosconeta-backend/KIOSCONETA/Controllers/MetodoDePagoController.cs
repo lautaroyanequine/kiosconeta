@@ -1,11 +1,14 @@
 ﻿using Application.DTOs.MetodoDePago;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KIOSCONETA.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class MetodosDePagoController : ControllerBase
     {
         private readonly IMetodoDePagoService _metodoDePagoService;

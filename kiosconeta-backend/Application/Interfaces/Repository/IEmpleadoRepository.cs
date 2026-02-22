@@ -20,6 +20,9 @@ namespace Application.Interfaces.Repository
         Task<bool> TieneVentasAsync(int id);
         Task<int> ContarVentasAsync(int id);
 
+        Task<Empleado?> GetByLegajoAsync(string legajo);
+        Task<Empleado?> GetByUsuarioIdAsync(int usuarioId);
+
         // Permisos
         Task<IEnumerable<EmpleadoPermiso>> GetPermisosAsync(int empleadoId);
         Task<bool> TienePermisoAsync(int empleadoId, int permisoId);

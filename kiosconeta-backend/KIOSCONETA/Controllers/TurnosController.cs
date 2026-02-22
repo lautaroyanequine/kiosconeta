@@ -1,9 +1,13 @@
 ﻿using Application.DTOs.CierreTurno;
 using Application.Interfaces.Services;
+using KIOSCONETA.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+
 public class TurnosController : ControllerBase
 {
     private readonly ICierreTurnoService _cierreTurnoService;
@@ -16,6 +20,7 @@ public class TurnosController : ControllerBase
     // ===================== GET =====================
 
     [HttpGet("{id}")]
+    [RequierePermiso("turnos.ver_todos")]
     public async Task<ActionResult<CierreTurnoResponseDTO>> GetById(int id)
     {
         var cierre = await _cierreTurnoService.GetByIdAsync(id);
@@ -27,6 +32,7 @@ public class TurnosController : ControllerBase
     }
 
     [HttpGet("kiosco/{kioscoId}")]
+    
     public async Task<ActionResult<IEnumerable<CierreTurnoResponseDTO>>> GetByKiosco(int kioscoId)
     {
         var cierres = await _cierreTurnoService.GetByKioscoIdAsync(kioscoId);
@@ -34,6 +40,7 @@ public class TurnosController : ControllerBase
     }
 
     [HttpGet("kiosco/{kioscoId}/actual")]
+
     public async Task<ActionResult<TurnoActualDTO>> GetTurnoActual(int kioscoId)
     {
         var turno = await _cierreTurnoService.GetTurnoAbiertoAsync(kioscoId);
@@ -71,6 +78,7 @@ public class TurnosController : ControllerBase
     // ===================== POST =====================
 
     [HttpPost("abrir")]
+    [RequierePermiso("turno.abrir")]
     public async Task<ActionResult<CierreTurnoResponseDTO>>
         AbrirTurno([FromBody] AbrirTurnoDTO dto)
     {
@@ -91,6 +99,7 @@ public class TurnosController : ControllerBase
     }
 
     [HttpPost("kiosco/{kioscoId}/cerrar")]
+    [RequierePermiso("turnos.cerrar")]
     public async Task<ActionResult<CierreTurnoResponseDTO>>
         CerrarTurno(int kioscoId, [FromBody] CerrarTurnoDTO dto)
     {

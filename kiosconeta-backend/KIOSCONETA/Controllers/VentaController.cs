@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Venta;
 using Application.Interfaces.Services;
+using KIOSCONETA.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,11 +19,11 @@ namespace KIOSCONETA.Controllers
         }
 
         // ========== GET - CONSULTAS ==========
-
-        /// <summary>
         /// Obtener todas las ventas
-        /// </summary>
+
         [HttpGet]
+        [RequierePermiso("productos.ver_todas")]
+
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetAll()
         {
             try
@@ -36,10 +37,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener venta por ID
-        /// </summary>
+        
         [HttpGet("{id}")]
+        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<VentaResponseDTO>> GetById(int id)
         {
             try
@@ -56,10 +57,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener ventas de un kiosco
-        /// </summary>
         [HttpGet("kiosco/{kioscoId}")]
+        [RequierePermiso("productos.ver")]
+
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByKiosco(int kioscoId)
         {
             try
@@ -73,10 +74,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener ventas del día de un kiosco
-        /// </summary>
         [HttpGet("kiosco/{kioscoId}/hoy")]
+        [RequierePermiso("productos.ver")]
+
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetVentasDelDia(int kioscoId)
         {
             try
@@ -90,10 +91,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener ventas de un empleado
-        /// </summary>
         [HttpGet("empleado/{empleadoId}")]
+        [RequierePermiso("productos.ver_por_empleado")]
+
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByEmpleado(int empleadoId)
         {
             try
@@ -107,10 +108,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener ventas por rango de fechas
-        /// </summary>
         [HttpGet("fecha")]
+        [RequierePermiso("productos.ver")]
+
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByFecha(
             [FromQuery] DateTime fechaDesde,
             [FromQuery] DateTime fechaHasta)
@@ -126,10 +127,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Buscar ventas con filtros
-        /// </summary>
         [HttpPost("kiosco/{kioscoId}/buscar")]
+        [RequierePermiso("productos.ver")]
+
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> Buscar(
             int kioscoId,
             [FromBody] VentaFiltrosDTO filtros)
@@ -147,10 +148,10 @@ namespace KIOSCONETA.Controllers
 
         // ========== POST - CREAR ==========
 
-        /// <summary>
         /// Registrar nueva venta
-        /// </summary>
         [HttpPost]
+        [RequierePermiso("ventas.crear")]
+
         public async Task<ActionResult<VentaResponseDTO>> Create([FromBody] CreateVentaDTO dto)
         {
             try
@@ -177,10 +178,10 @@ namespace KIOSCONETA.Controllers
 
         // ========== DELETE - ANULAR ==========
 
-        /// <summary>
         /// Anular venta (devuelve stock)
-        /// </summary>
         [HttpDelete("{id}")]
+        [RequierePermiso("ventas.anular")]
+
         public async Task<ActionResult> Anular(int id)
         {
             try

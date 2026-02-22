@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Dashboard;
 using Application.Interfaces.Services;
+using KIOSCONETA.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,7 @@ namespace KIOSCONETA.Controllers
         /// Obtener dashboard general del kiosco
         /// </summary>
         [HttpGet("kiosco/{kioscoId}")]
+        [RequierePermiso("reportes.dashboard_completo")]
         public async Task<ActionResult<DashboardResponseDTO>> GetDashboard(int kioscoId)
         {
             try

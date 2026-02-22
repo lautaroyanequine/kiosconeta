@@ -1,14 +1,16 @@
 ﻿using Application.DTOs.Producto;
 using Application.Interfaces.Services;
+using KIOSCONETA.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KIOSCONETA.Controllers
 {
-    /// <summary>
     /// Controlador de API para gestión de Productos
-    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class ProductosController : ControllerBase
     {
         private readonly IProductoService _productoService;
@@ -20,10 +22,9 @@ namespace KIOSCONETA.Controllers
 
         // ========== GET - CONSULTAS ==========
 
-        /// <summary>
         /// Obtener todos los productos
-        /// </summary>
         [HttpGet]
+        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetAll()
         {
             try
@@ -37,10 +38,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener producto por ID
-        /// </summary>
         [HttpGet("{id}")]
+        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<ProductoResponseDTO>> GetById(int id)
         {
             try
@@ -58,10 +58,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener productos por kiosco
-        /// </summary>
+        
         [HttpGet("kiosco/{kioscoId}")]
+        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetByKiosco(int kioscoId)
         {
             try
@@ -75,10 +75,11 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
+        
         /// Obtener productos activos de un kiosco
-        /// </summary>
+        
         [HttpGet("kiosco/{kioscoId}/activos")]
+        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetActivos(int kioscoId)
         {
             try
@@ -92,10 +93,11 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
+        
         /// Obtener productos por categoría
-        /// </summary>
+        
         [HttpGet("categoria/{categoriaId}")]
+        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetByCategoria(int categoriaId)
         {
             try
@@ -109,10 +111,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener productos con bajo stock
-        /// </summary>
+        
         [HttpGet("kiosco/{kioscoId}/bajo-stock")]
+        [RequierePermiso("productos.ver_stock_bajo")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetBajoStock(int kioscoId)
         {
             try
@@ -126,10 +128,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener productos próximos a vencer
-        /// </summary>
+        
         [HttpGet("kiosco/{kioscoId}/proximos-vencer")]
+        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetProximosAVencer(int kioscoId)
         {
             try
@@ -143,10 +145,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Buscar producto por código de barras
-        /// </summary>
         [HttpGet("codigo-barra/{codigoBarra}")]
+        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<ProductoResponseDTO>> GetByCodigoBarra(string codigoBarra)
         {
             try
@@ -164,10 +165,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Buscar productos (por nombre, código o descripción)
-        /// </summary>
         [HttpGet("kiosco/{kioscoId}/search")]
+        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> Search(int kioscoId, [FromQuery] string query)
         {
             try
@@ -186,10 +186,10 @@ namespace KIOSCONETA.Controllers
 
         // ========== POST - CREAR ==========
 
-        /// <summary>
         /// Crear un nuevo producto
-        /// </summary>
         [HttpPost]
+        [RequierePermiso("productos.crear")]
+
         public async Task<ActionResult<ProductoResponseDTO>> Create([FromBody] CreateProductoDTO dto)
         {
             try
@@ -212,10 +212,9 @@ namespace KIOSCONETA.Controllers
 
         // ========== PUT - ACTUALIZAR ==========
 
-        /// <summary>
         /// Actualizar un producto existente
-        /// </summary>
         [HttpPut("{id}")]
+        [RequierePermiso("productos.editar")]
         public async Task<ActionResult<ProductoResponseDTO>> Update(int id, [FromBody] UpdateProductoDTO dto)
         {
             try
@@ -245,10 +244,9 @@ namespace KIOSCONETA.Controllers
 
         // ========== DELETE - ELIMINAR ==========
 
-        /// <summary>
         /// Eliminar (desactivar) un producto
-        /// </summary>
         [HttpDelete("{id}")]
+        [RequierePermiso("productos.eliminar")]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -268,10 +266,9 @@ namespace KIOSCONETA.Controllers
 
         // ========== PATCH - ACCIONES ESPECIALES ==========
 
-        /// <summary>
         /// Activar o desactivar un producto
-        /// </summary>
         [HttpPatch("{id}/toggle-activo")]
+        [RequierePermiso("productos.activar_desactivar")]
         public async Task<ActionResult> ToggleActivo(int id, [FromQuery] bool activo)
         {
             try
@@ -289,10 +286,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Actualizar stock de un producto (suma o resta)
-        /// </summary>
         [HttpPatch("{id}/stock")]
+        [RequierePermiso("productos.editar")]
         public async Task<ActionResult> ActualizarStock(int id, [FromQuery] int cantidad)
         {
             try

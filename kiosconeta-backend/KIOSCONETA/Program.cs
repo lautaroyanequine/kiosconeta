@@ -87,6 +87,7 @@ builder.Services.AddScoped<ICierreTurnoRepository, CierreTurnoRepository>();
 builder.Services.AddScoped<IGastoRepository, GastoRepository>();
 builder.Services.AddScoped<ITipoDeGastoRepository, TipoDeGastoRepository>();
 builder.Services.AddScoped<IProductoVentaRepository, ProductoVentaRepository>();
+builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();     // ← NUEVO
 
 // ========== SERVICES ==========
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -99,6 +100,7 @@ builder.Services.AddScoped<ICierreTurnoService, CierreTurnoService>();
 builder.Services.AddScoped<IGastoService, GastoService>();
 builder.Services.AddScoped<ITipoDeGastoService, TipoDeGastoService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IPermisoService, PermisoService>();            // ← NUEVO
 
 // ========== CORS ==========
 builder.Services.AddCors(options =>

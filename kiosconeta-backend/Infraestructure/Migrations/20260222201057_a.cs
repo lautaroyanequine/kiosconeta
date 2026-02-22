@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infraestructure.Migrations
 {
     /// <inheritdoc />
-    public partial class s : Migration
+    public partial class a : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -154,8 +154,12 @@ namespace Infraestructure.Migrations
                     EmpleadoId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Legajo = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Telefono = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    PIN = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    EsAdmin = table.Column<bool>(type: "bit", nullable: false),
+                    UsuarioID = table.Column<int>(type: "int", nullable: true),
                     Activo = table.Column<bool>(type: "bit", nullable: false),
-                    UsuarioID = table.Column<int>(type: "int", nullable: false),
                     KioscoID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -399,6 +403,59 @@ namespace Infraestructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Permiso",
+                columns: new[] { "PermisoID", "Descripcion", "Nombre" },
+                values: new object[,]
+                {
+                    { 1, "Ver listado de productos", "productos.ver" },
+                    { 2, "Crear nuevos productos", "productos.crear" },
+                    { 3, "Editar productos existentes", "productos.editar" },
+                    { 4, "Eliminar productos", "productos.eliminar" },
+                    { 5, "Activar o desactivar productos", "productos.activar_desactivar" },
+                    { 6, "Ajustar stock manualmente", "productos.ajustar_stock" },
+                    { 7, "Ver productos con stock bajo", "productos.ver_stock_bajo" },
+                    { 8, "Editar precios de venta y costo", "productos.editar_precios" },
+                    { 9, "Ver categorías", "categorias.ver" },
+                    { 10, "Crear categorías", "categorias.crear" },
+                    { 11, "Editar categorías", "categorias.editar" },
+                    { 12, "Eliminar categorías", "categorias.eliminar" },
+                    { 13, "Crear ventas (usar POS)", "ventas.crear" },
+                    { 14, "Ver todas las ventas del kiosco", "ventas.ver_todas" },
+                    { 15, "Ver solo sus propias ventas", "ventas.ver_propias" },
+                    { 16, "Ver detalle completo de ventas", "ventas.ver_detalle" },
+                    { 17, "Anular ventas", "ventas.anular" },
+                    { 18, "Ver ventas por empleado", "ventas.ver_por_empleado" },
+                    { 19, "Registrar gastos", "gastos.crear" },
+                    { 20, "Ver todos los gastos", "gastos.ver_todos" },
+                    { 21, "Ver solo sus propios gastos", "gastos.ver_propios" },
+                    { 22, "Editar gastos", "gastos.editar" },
+                    { 23, "Eliminar gastos", "gastos.eliminar" },
+                    { 24, "Crear y editar tipos de gasto", "gastos.gestionar_tipos" },
+                    { 25, "Abrir turnos", "turnos.abrir" },
+                    { 26, "Cerrar turnos", "turnos.cerrar" },
+                    { 27, "Ver todos los turnos del kiosco", "turnos.ver_todos" },
+                    { 28, "Ver solo su turno actual", "turnos.ver_propio" },
+                    { 29, "Ver historial de turnos", "turnos.ver_historial" },
+                    { 30, "Ajustar diferencias en cierres", "turnos.ajustar" },
+                    { 31, "Ver listado de empleados", "empleados.ver" },
+                    { 32, "Crear nuevos empleados", "empleados.crear" },
+                    { 33, "Editar empleados", "empleados.editar" },
+                    { 34, "Eliminar empleados", "empleados.eliminar" },
+                    { 35, "Asignar y quitar permisos a empleados", "empleados.asignar_permisos" },
+                    { 36, "Ver estadísticas de rendimiento", "empleados.ver_rendimiento" },
+                    { 37, "Ver dashboard completo", "reportes.dashboard_completo" },
+                    { 38, "Ver dashboard básico del día", "reportes.dashboard_basico" },
+                    { 39, "Ver reportes de ventas", "reportes.ventas" },
+                    { 40, "Ver reportes de productos", "reportes.productos" },
+                    { 41, "Ver reportes financieros", "reportes.financiero" },
+                    { 42, "Ver métodos de pago", "metodos_pago.ver" },
+                    { 43, "Crear métodos de pago", "metodos_pago.crear" },
+                    { 44, "Editar métodos de pago", "metodos_pago.editar" },
+                    { 45, "Configurar datos del kiosco", "configuracion.kiosco" },
+                    { 46, "Crear respaldos de datos", "configuracion.respaldos" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Turno",
                 columns: new[] { "TurnoID", "Nombre" },
                 values: new object[,]
@@ -420,8 +477,14 @@ namespace Infraestructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Empleado",
-                columns: new[] { "EmpleadoId", "Activo", "KioscoID", "Nombre", "UsuarioID" },
-                values: new object[] { 1, true, 1, "Luchi <3", 1 });
+                columns: new[] { "EmpleadoId", "Activo", "EsAdmin", "KioscoID", "Legajo", "Nombre", "PIN", "Telefono", "UsuarioID" },
+                values: new object[,]
+                {
+                    { 1, true, true, 1, "ADMIN001", "Kiosconeta24HS", null, null, 1 },
+                    { 2, true, false, 1, "EMP001", "Luchi", "QTKFqtmpXhrIj8iA8M8G8/ql8bxK63p2oRpzrJTTHNM=", "1123456789", null },
+                    { 3, true, false, 1, "EMP002", "Brenda", "D/4avRoIIVNTwjPW4AlhPpXuxCU4Mqdhryj/N6xaFQw=", "1198765432", null },
+                    { 4, true, false, 1, "EMP003", "Carlos López", "iI3yWuNXckJKVgxxUqHeeURA4Opc/uYoKDM6RWpQbgU=", "1155443322", null }
+                });
 
             migrationBuilder.InsertData(
                 table: "Producto",
@@ -512,6 +575,59 @@ namespace Infraestructure.Migrations
                 table: "Producto",
                 columns: new[] { "ProductoId", "Activo", "CategoriaId", "CodigoBarra", "Descripcion", "Distribuidor", "FechaCreacion", "FechaModificacion", "FechaVencimiento", "Imagen", "KioscoId", "Nombre", "PrecioCosto", "PrecioVenta", "StockActual", "StockMinimo" },
                 values: new object[] { 50, true, 4, "7790580099748", "Snack de maíz Chizitos queso 50g", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Chizitos 50g", 450m, 900m, 30, 8 });
+
+            migrationBuilder.InsertData(
+                table: "EmpleadoPermiso",
+                columns: new[] { "EmpleadoPermisoId", "EmpleadoId", "PermisoId" },
+                values: new object[,]
+                {
+                    { -46, 1, 46 },
+                    { -45, 1, 45 },
+                    { -44, 1, 44 },
+                    { -43, 1, 43 },
+                    { -42, 1, 42 },
+                    { -41, 1, 41 },
+                    { -40, 1, 40 },
+                    { -39, 1, 39 },
+                    { -38, 1, 38 },
+                    { -37, 1, 37 },
+                    { -36, 1, 36 },
+                    { -35, 1, 35 },
+                    { -34, 1, 34 },
+                    { -33, 1, 33 },
+                    { -32, 1, 32 },
+                    { -31, 1, 31 },
+                    { -30, 1, 30 },
+                    { -29, 1, 29 },
+                    { -28, 1, 28 },
+                    { -27, 1, 27 },
+                    { -26, 1, 26 },
+                    { -25, 1, 25 },
+                    { -24, 1, 24 },
+                    { -23, 1, 23 },
+                    { -22, 1, 22 },
+                    { -21, 1, 21 },
+                    { -20, 1, 20 },
+                    { -19, 1, 19 },
+                    { -18, 1, 18 },
+                    { -17, 1, 17 },
+                    { -16, 1, 16 },
+                    { -15, 1, 15 },
+                    { -14, 1, 14 },
+                    { -13, 1, 13 },
+                    { -12, 1, 12 },
+                    { -11, 1, 11 },
+                    { -10, 1, 10 },
+                    { -9, 1, 9 },
+                    { -8, 1, 8 },
+                    { -7, 1, 7 },
+                    { -6, 1, 6 },
+                    { -5, 1, 5 },
+                    { -4, 1, 4 },
+                    { -3, 1, 3 },
+                    { -2, 1, 2 },
+                    { -1, 1, 1 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_CierresTurno_KioscoId_Estado",

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260221154727_s")]
-    partial class s
+    [Migration("20260222201057_a")]
+    partial class a
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -144,15 +144,30 @@ namespace Infraestructure.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("EsAdmin")
+                        .HasColumnType("bit");
+
                     b.Property<int>("KioscoID")
                         .HasColumnType("int");
+
+                    b.Property<string>("Legajo")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("UsuarioID")
+                    b.Property<string>("PIN")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Telefono")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<int?>("UsuarioID")
                         .HasColumnType("int");
 
                     b.HasKey("EmpleadoId");
@@ -168,9 +183,44 @@ namespace Infraestructure.Migrations
                         {
                             EmpleadoId = 1,
                             Activo = true,
+                            EsAdmin = true,
                             KioscoID = 1,
-                            Nombre = "Luchi <3",
+                            Legajo = "ADMIN001",
+                            Nombre = "Kiosconeta24HS",
                             UsuarioID = 1
+                        },
+                        new
+                        {
+                            EmpleadoId = 2,
+                            Activo = true,
+                            EsAdmin = false,
+                            KioscoID = 1,
+                            Legajo = "EMP001",
+                            Nombre = "Luchi",
+                            PIN = "QTKFqtmpXhrIj8iA8M8G8/ql8bxK63p2oRpzrJTTHNM=",
+                            Telefono = "1123456789"
+                        },
+                        new
+                        {
+                            EmpleadoId = 3,
+                            Activo = true,
+                            EsAdmin = false,
+                            KioscoID = 1,
+                            Legajo = "EMP002",
+                            Nombre = "Brenda",
+                            PIN = "D/4avRoIIVNTwjPW4AlhPpXuxCU4Mqdhryj/N6xaFQw=",
+                            Telefono = "1198765432"
+                        },
+                        new
+                        {
+                            EmpleadoId = 4,
+                            Activo = true,
+                            EsAdmin = false,
+                            KioscoID = 1,
+                            Legajo = "EMP003",
+                            Nombre = "Carlos López",
+                            PIN = "iI3yWuNXckJKVgxxUqHeeURA4Opc/uYoKDM6RWpQbgU=",
+                            Telefono = "1155443322"
                         });
                 });
 
@@ -206,6 +256,376 @@ namespace Infraestructure.Migrations
                         .IsUnique();
 
                     b.ToTable("EmpleadoPermiso", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            EmpleadoPermisoId = -1,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 1
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -2,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 2
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -3,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 3
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -4,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 4
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -5,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 5
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -6,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 6
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -7,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 7
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -8,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 8
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -9,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 9
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -10,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 10
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -11,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 11
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -12,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 12
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -13,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 13
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -14,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 14
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -15,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 15
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -16,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 16
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -17,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 17
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -18,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 18
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -19,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 19
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -20,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 20
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -21,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 21
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -22,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 22
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -23,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 23
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -24,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 24
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -25,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 25
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -26,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 26
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -27,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 27
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -28,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 28
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -29,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 29
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -30,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 30
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -31,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 31
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -32,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 32
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -33,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 33
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -34,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 34
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -35,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 35
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -36,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 36
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -37,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 37
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -38,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 38
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -39,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 39
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -40,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 40
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -41,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 41
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -42,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 42
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -43,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 43
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -44,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 44
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -45,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 45
+                        },
+                        new
+                        {
+                            EmpleadoPermisoId = -46,
+                            Activo = false,
+                            EmpleadoId = 1,
+                            FechaAsignacion = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PermisoId = 46
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Gasto", b =>
@@ -349,6 +769,284 @@ namespace Infraestructure.Migrations
                     b.HasKey("PermisoID");
 
                     b.ToTable("Permiso", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            PermisoID = 1,
+                            Descripcion = "Ver listado de productos",
+                            Nombre = "productos.ver"
+                        },
+                        new
+                        {
+                            PermisoID = 2,
+                            Descripcion = "Crear nuevos productos",
+                            Nombre = "productos.crear"
+                        },
+                        new
+                        {
+                            PermisoID = 3,
+                            Descripcion = "Editar productos existentes",
+                            Nombre = "productos.editar"
+                        },
+                        new
+                        {
+                            PermisoID = 4,
+                            Descripcion = "Eliminar productos",
+                            Nombre = "productos.eliminar"
+                        },
+                        new
+                        {
+                            PermisoID = 5,
+                            Descripcion = "Activar o desactivar productos",
+                            Nombre = "productos.activar_desactivar"
+                        },
+                        new
+                        {
+                            PermisoID = 6,
+                            Descripcion = "Ajustar stock manualmente",
+                            Nombre = "productos.ajustar_stock"
+                        },
+                        new
+                        {
+                            PermisoID = 7,
+                            Descripcion = "Ver productos con stock bajo",
+                            Nombre = "productos.ver_stock_bajo"
+                        },
+                        new
+                        {
+                            PermisoID = 8,
+                            Descripcion = "Editar precios de venta y costo",
+                            Nombre = "productos.editar_precios"
+                        },
+                        new
+                        {
+                            PermisoID = 9,
+                            Descripcion = "Ver categorías",
+                            Nombre = "categorias.ver"
+                        },
+                        new
+                        {
+                            PermisoID = 10,
+                            Descripcion = "Crear categorías",
+                            Nombre = "categorias.crear"
+                        },
+                        new
+                        {
+                            PermisoID = 11,
+                            Descripcion = "Editar categorías",
+                            Nombre = "categorias.editar"
+                        },
+                        new
+                        {
+                            PermisoID = 12,
+                            Descripcion = "Eliminar categorías",
+                            Nombre = "categorias.eliminar"
+                        },
+                        new
+                        {
+                            PermisoID = 13,
+                            Descripcion = "Crear ventas (usar POS)",
+                            Nombre = "ventas.crear"
+                        },
+                        new
+                        {
+                            PermisoID = 14,
+                            Descripcion = "Ver todas las ventas del kiosco",
+                            Nombre = "ventas.ver_todas"
+                        },
+                        new
+                        {
+                            PermisoID = 15,
+                            Descripcion = "Ver solo sus propias ventas",
+                            Nombre = "ventas.ver_propias"
+                        },
+                        new
+                        {
+                            PermisoID = 16,
+                            Descripcion = "Ver detalle completo de ventas",
+                            Nombre = "ventas.ver_detalle"
+                        },
+                        new
+                        {
+                            PermisoID = 17,
+                            Descripcion = "Anular ventas",
+                            Nombre = "ventas.anular"
+                        },
+                        new
+                        {
+                            PermisoID = 18,
+                            Descripcion = "Ver ventas por empleado",
+                            Nombre = "ventas.ver_por_empleado"
+                        },
+                        new
+                        {
+                            PermisoID = 19,
+                            Descripcion = "Registrar gastos",
+                            Nombre = "gastos.crear"
+                        },
+                        new
+                        {
+                            PermisoID = 20,
+                            Descripcion = "Ver todos los gastos",
+                            Nombre = "gastos.ver_todos"
+                        },
+                        new
+                        {
+                            PermisoID = 21,
+                            Descripcion = "Ver solo sus propios gastos",
+                            Nombre = "gastos.ver_propios"
+                        },
+                        new
+                        {
+                            PermisoID = 22,
+                            Descripcion = "Editar gastos",
+                            Nombre = "gastos.editar"
+                        },
+                        new
+                        {
+                            PermisoID = 23,
+                            Descripcion = "Eliminar gastos",
+                            Nombre = "gastos.eliminar"
+                        },
+                        new
+                        {
+                            PermisoID = 24,
+                            Descripcion = "Crear y editar tipos de gasto",
+                            Nombre = "gastos.gestionar_tipos"
+                        },
+                        new
+                        {
+                            PermisoID = 25,
+                            Descripcion = "Abrir turnos",
+                            Nombre = "turnos.abrir"
+                        },
+                        new
+                        {
+                            PermisoID = 26,
+                            Descripcion = "Cerrar turnos",
+                            Nombre = "turnos.cerrar"
+                        },
+                        new
+                        {
+                            PermisoID = 27,
+                            Descripcion = "Ver todos los turnos del kiosco",
+                            Nombre = "turnos.ver_todos"
+                        },
+                        new
+                        {
+                            PermisoID = 28,
+                            Descripcion = "Ver solo su turno actual",
+                            Nombre = "turnos.ver_propio"
+                        },
+                        new
+                        {
+                            PermisoID = 29,
+                            Descripcion = "Ver historial de turnos",
+                            Nombre = "turnos.ver_historial"
+                        },
+                        new
+                        {
+                            PermisoID = 30,
+                            Descripcion = "Ajustar diferencias en cierres",
+                            Nombre = "turnos.ajustar"
+                        },
+                        new
+                        {
+                            PermisoID = 31,
+                            Descripcion = "Ver listado de empleados",
+                            Nombre = "empleados.ver"
+                        },
+                        new
+                        {
+                            PermisoID = 32,
+                            Descripcion = "Crear nuevos empleados",
+                            Nombre = "empleados.crear"
+                        },
+                        new
+                        {
+                            PermisoID = 33,
+                            Descripcion = "Editar empleados",
+                            Nombre = "empleados.editar"
+                        },
+                        new
+                        {
+                            PermisoID = 34,
+                            Descripcion = "Eliminar empleados",
+                            Nombre = "empleados.eliminar"
+                        },
+                        new
+                        {
+                            PermisoID = 35,
+                            Descripcion = "Asignar y quitar permisos a empleados",
+                            Nombre = "empleados.asignar_permisos"
+                        },
+                        new
+                        {
+                            PermisoID = 36,
+                            Descripcion = "Ver estadísticas de rendimiento",
+                            Nombre = "empleados.ver_rendimiento"
+                        },
+                        new
+                        {
+                            PermisoID = 37,
+                            Descripcion = "Ver dashboard completo",
+                            Nombre = "reportes.dashboard_completo"
+                        },
+                        new
+                        {
+                            PermisoID = 38,
+                            Descripcion = "Ver dashboard básico del día",
+                            Nombre = "reportes.dashboard_basico"
+                        },
+                        new
+                        {
+                            PermisoID = 39,
+                            Descripcion = "Ver reportes de ventas",
+                            Nombre = "reportes.ventas"
+                        },
+                        new
+                        {
+                            PermisoID = 40,
+                            Descripcion = "Ver reportes de productos",
+                            Nombre = "reportes.productos"
+                        },
+                        new
+                        {
+                            PermisoID = 41,
+                            Descripcion = "Ver reportes financieros",
+                            Nombre = "reportes.financiero"
+                        },
+                        new
+                        {
+                            PermisoID = 42,
+                            Descripcion = "Ver métodos de pago",
+                            Nombre = "metodos_pago.ver"
+                        },
+                        new
+                        {
+                            PermisoID = 43,
+                            Descripcion = "Crear métodos de pago",
+                            Nombre = "metodos_pago.crear"
+                        },
+                        new
+                        {
+                            PermisoID = 44,
+                            Descripcion = "Editar métodos de pago",
+                            Nombre = "metodos_pago.editar"
+                        },
+                        new
+                        {
+                            PermisoID = 45,
+                            Descripcion = "Configurar datos del kiosco",
+                            Nombre = "configuracion.kiosco"
+                        },
+                        new
+                        {
+                            PermisoID = 46,
+                            Descripcion = "Crear respaldos de datos",
+                            Nombre = "configuracion.respaldos"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Producto", b =>
@@ -1559,8 +2257,7 @@ namespace Infraestructure.Migrations
                     b.HasOne("Domain.Entities.Usuario", "Usuario")
                         .WithMany("Empleados")
                         .HasForeignKey("UsuarioID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Kiosco");
 

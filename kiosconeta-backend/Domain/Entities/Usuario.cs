@@ -2,6 +2,10 @@
 {
     public class Usuario
     {
+        public Usuario()
+        {
+            Kioscos = new List<Kiosco>();
+        }
         public int UsuarioID { get; set; }
         public string Nombre { get; set; }
         public string Email { get; set; }

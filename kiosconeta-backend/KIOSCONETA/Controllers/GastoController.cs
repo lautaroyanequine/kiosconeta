@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Gasto;
 using Application.Interfaces.Services;
+using KIOSCONETA.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,10 +22,10 @@ namespace KIOSCONETA.Controllers
             _gastoService = gastoService;
         }
 
-        /// <summary>
+    
         /// Obtener todos los gastos
-        /// </summary>
         [HttpGet]
+        [RequierePermiso("gastos.ver_todos")]
         public async Task<ActionResult<IEnumerable<GastoResponseDTO>>> GetAll()
         {
             try
@@ -38,10 +39,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener gasto por ID
-        /// </summary>
         [HttpGet("{id}")]
+        [RequierePermiso("gastos.ver_todos")]
         public async Task<ActionResult<GastoResponseDTO>> GetById(int id)
         {
             try
@@ -58,10 +58,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener gastos de un kiosco
-        /// </summary>
+        
         [HttpGet("kiosco/{kioscoId}")]
+        [RequierePermiso("gastos.ver_todos")]
         public async Task<ActionResult<IEnumerable<GastoResponseDTO>>> GetByKiosco(int kioscoId)
         {
             try
@@ -75,10 +75,10 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener gastos del día
-        /// </summary>
+     
         [HttpGet("kiosco/{kioscoId}/hoy")]
+        [RequierePermiso("gastos.ver_todos")]
         public async Task<ActionResult<IEnumerable<GastoResponseDTO>>> GetDelDia(int kioscoId)
         {
             try
@@ -92,10 +92,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener gastos de un empleado
-        /// </summary>
         [HttpGet("empleado/{empleadoId}")]
+        [RequierePermiso("gastos.ver_todos")]
         public async Task<ActionResult<IEnumerable<GastoResponseDTO>>> GetByEmpleado(int empleadoId)
         {
             try
@@ -109,10 +108,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Obtener gastos por rango de fechas
-        /// </summary>
         [HttpGet("fecha")]
+        [RequierePermiso("gastos.ver_todos")]
         public async Task<ActionResult<IEnumerable<GastoResponseDTO>>> GetByFecha(
             [FromQuery] DateTime fechaDesde,
             [FromQuery] DateTime fechaHasta)
@@ -128,10 +126,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Buscar gastos con filtros
-        /// </summary>
         [HttpPost("kiosco/{kioscoId}/buscar")]
+        [RequierePermiso("gastos.ver_todos")]
         public async Task<ActionResult<IEnumerable<GastoResponseDTO>>> Buscar(
             int kioscoId,
             [FromBody] GastoFiltrosDTO filtros)
@@ -147,10 +144,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Registrar nuevo gasto
-        /// </summary>
         [HttpPost]
+        [RequierePermiso("gastos.crear")]
         public async Task<ActionResult<GastoResponseDTO>> Create([FromBody] CreateGastoDTO dto)
         {
             try
@@ -175,10 +171,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Actualizar gasto
-        /// </summary>
         [HttpPut("{id}")]
+        [RequierePermiso("gastos.editar")]
         public async Task<ActionResult<GastoResponseDTO>> Update(int id, [FromBody] UpdateGastoDTO dto)
         {
             try
@@ -206,10 +201,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// <summary>
         /// Eliminar gasto
-        /// </summary>
         [HttpDelete("{id}")]
+        [RequierePermiso("gastos.eliminar")]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -244,9 +238,7 @@ namespace KIOSCONETA.Controllers
             _tipoDeGastoService = tipoDeGastoService;
         }
 
-        /// <summary>
         /// Obtener todos los tipos de gasto
-        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TipoDeGastoResponseDTO>>> GetAll()
         {

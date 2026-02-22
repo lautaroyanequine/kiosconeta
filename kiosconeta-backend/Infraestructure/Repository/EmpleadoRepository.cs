@@ -149,5 +149,27 @@ namespace Infraestructure.Repository
             await _context.SaveChangesAsync();
             return true;
         }
+
+       
+
+        // ════════════════════════════════════════════════
+        // AGREGAR ESTAS IMPLEMENTACIONES A EmpleadoRepository.cs
+        // ════════════════════════════════════════════════
+
+        public async Task<Empleado?> GetByLegajoAsync(string legajo)
+        {
+            return await _context.Empleados
+                .Include(e => e.Kiosco)
+                .Include(e => e.Usuario)
+                .FirstOrDefaultAsync(e => e.Legajo == legajo);
+        }
+
+        public async Task<Empleado?> GetByUsuarioIdAsync(int usuarioId)
+        {
+            return await _context.Empleados
+                .Include(e => e.Kiosco)
+                .Include(e => e.Usuario)
+                .FirstOrDefaultAsync(e => e.UsuarioID == usuarioId);
+        }
     }
 }
