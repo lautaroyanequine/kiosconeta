@@ -28,7 +28,7 @@ export default {
         
         // Naranja secundario
         secondary: {
-          DEFAULT: '#000000',
+          DEFAULT: '#FFB000',
           50: '#FFFCF0',
           100: '#FEF9E0',
           200: '#FDF3C2',

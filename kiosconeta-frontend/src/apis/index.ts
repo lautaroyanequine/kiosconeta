@@ -1,15 +1,13 @@
 // ════════════════════════════════════════════════════════════════════════════
-// INDEX: Exportar todas las utilidades
+// INDEX: Exportar todas las APIs
 // ════════════════════════════════════════════════════════════════════════════
 
-// Formatters
-export * from './formatters';
+// Cliente base
+export { default as apiClient } from './client';
 
-// Validators
-export * from './validators';
-
-// Constants
-export * from './constants';
-
-// Helpers
-export * from './helpers';
+// APIs
+export * from './authApi';
+export * from './productosApi';
+export * from './ventasApi';
+export * from './otrosApi';
+export * from './dashboardApi';

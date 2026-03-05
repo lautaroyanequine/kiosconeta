@@ -1,15 +1,5 @@
 // ════════════════════════════════════════════════════════════════════════════
-// INDEX: Exportar todas las utilidades
+// INDEX: Exportar AuthContext
 // ════════════════════════════════════════════════════════════════════════════
 
-// Formatters
-export * from './formatters';
-
-// Validators
-export * from './validators';
-
-// Constants
-export * from './constants';
-
-// Helpers
-export * from './helpers';
+export * from './AuthContext';

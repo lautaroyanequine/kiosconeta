@@ -1,39 +1,62 @@
 // ════════════════════════════════════════════════════════════════════════════
-// APP: Componente principal
+// API: Dashboard y Reportes
 // ════════════════════════════════════════════════════════════════════════════
 
-import React, { Suspense } from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import { AppRoutes } from './routes/appRoutes';
+import apiClient, { handleResponse, handleError } from './client';
+import { API_ENDPOINTS } from '../utils/constants';
+import type { DashboardData, ReporteVentas, ReporteProductos } from '../types';
 
 // ────────────────────────────────────────────────────────────────────────────
-// LOADING FALLBACK
+// DASHBOARD API
 // ────────────────────────────────────────────────────────────────────────────
 
-const LoadingFallback: React.FC = () => (
-  <div className="min-h-screen center bg-neutral-50">
-    <div className="text-center">
-      <div className="spinner w-16 h-16 border-4 border-primary mb-4"></div>
-      <p className="text-lg text-neutral-600">Cargando...</p>
-    </div>
-  </div>
-);
+export const dashboardApi = {
+  /**
+   * Obtener datos del dashboard
+   */
+  getData: async (): Promise<DashboardData> => {
+    try {
+      const response = await apiClient.get<DashboardData>(API_ENDPOINTS.DASHBOARD);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+};
 
 // ────────────────────────────────────────────────────────────────────────────
-// APP COMPONENT
+// REPORTES API
 // ────────────────────────────────────────────────────────────────────────────
 
-function App() {
-  return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Suspense fallback={<LoadingFallback />}>
-          <AppRoutes />
-        </Suspense>
-      </AuthProvider>
-    </BrowserRouter>
-  );
-}
+export const reportesApi = {
+  /**
+   * Reporte de ventas
+   */
+  ventas: async (fechaDesde: string, fechaHasta: string): Promise<ReporteVentas> => {
+    try {
+      const response = await apiClient.get<ReporteVentas>(
+        `${API_ENDPOINTS.DASHBOARD}/reporte-ventas`,
+        {
+          params: { fechaDesde, fechaHasta },
+        }
+      );
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
 
-export default App;
+  /**
+   * Reporte de productos
+   */
+  productos: async (): Promise<ReporteProductos> => {
+    try {
+      const response = await apiClient.get<ReporteProductos>(
+        `${API_ENDPOINTS.DASHBOARD}/reporte-productos`
+      );
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+};
