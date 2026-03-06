@@ -13,10 +13,13 @@ import { ROUTES } from '../utils/constants';
 
 // Auth
 const LoginPage = React.lazy(() => import('../pages/Login'));
+
+// Main
+const POSPage = React.lazy(() => import('../pages/POS/index'));
+
 /*
 // Main
 const DashboardPage = React.lazy(() => import('../pages/dashboard'));
-const POSPage = React.lazy(() => import('../pages/pos'));
 
 // Gestión
 const ProductosPage = React.lazy(() => import('../pages/productos'));
@@ -46,6 +49,19 @@ export const AppRoutes: React.FC = () => {
       {/* ──────────────────────────────────────────────────────────────────── */}
       {/* RUTAS PRIVADAS */}
       {/* ──────────────────────────────────────────────────────────────────── */}
+
+      
+      POS - Todos los autenticados
+      <Route
+        path={ROUTES.POS}
+        element={
+          <PrivateRoute>
+            <POSPage />
+          </PrivateRoute>
+        }
+      />
+
+      
 {/*
       Dashboard - Solo Admin
       <Route
@@ -126,7 +142,7 @@ export const AppRoutes: React.FC = () => {
           </PrivateRoute>
         }
       />
-*/}
+}
 
       {/* ──────────────────────────────────────────────────────────────────── */}
       {/* 404 - NOT FOUND */}
