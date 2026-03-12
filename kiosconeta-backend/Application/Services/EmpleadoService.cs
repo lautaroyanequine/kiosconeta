@@ -163,7 +163,7 @@ namespace Application.Services
                 Activo = empleado.Activo,
                 KioscoID = empleado.KioscoID,
                 KioscoNombre = empleado.Kiosco?.Nombre ?? "",
-                UsuarioID = empleado.KioscoID,
+                UsuarioID = empleado.UsuarioID,
                 CantidadVentas = cantidadVentas,
                 Permisos = permisos
             };

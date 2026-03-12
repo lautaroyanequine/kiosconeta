@@ -6,9 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
-
+using BC = BCrypt.Net.BCrypt;
 namespace Application.Services
 {
     public class AuthService : IAuthService
@@ -39,8 +38,7 @@ namespace Application.Services
                 throw new UnauthorizedAccessException("Email o contraseña incorrectos");
 
             // Validar password
-            var passwordHash = HashPassword(dto.Password);
-            if (usuario.Password != passwordHash)
+            if (!BC.Verify(dto.Password, usuario.Password))
                 throw new UnauthorizedAccessException("Email o contraseña incorrectos");
 
             // Buscar empleado admin asociado
@@ -103,8 +101,7 @@ namespace Application.Services
             if (string.IsNullOrWhiteSpace(empleado.PIN))
                 throw new InvalidOperationException("El empleado no tiene PIN configurado");
 
-            var pinHash = HashPassword(dto.PIN);
-            if (empleado.PIN != pinHash)
+            if (!BC.Verify(dto.PIN, empleado.PIN))
                 throw new UnauthorizedAccessException("PIN incorrecto");
 
             // Generar token JWT
@@ -165,8 +162,8 @@ namespace Application.Services
             var usuario = new Usuario
             {
                 Email = dto.Email,
-                Password = HashPassword(dto.Password),
-                
+                Password = BC.HashPassword(dto.Password),
+
             };
             usuario.Kioscos.Add(kiosco);
 
@@ -212,12 +209,11 @@ namespace Application.Services
                 throw new KeyNotFoundException("Usuario no encontrado");
 
             // Validar password actual
-            var passwordActualHash = HashPassword(dto.PasswordActual);
-            if (usuario.Password != passwordActualHash)
+            if (!BC.Verify(dto.PasswordActual, usuario.Password))
                 throw new UnauthorizedAccessException("Contraseña actual incorrecta");
 
             // Actualizar password
-            usuario.Password = HashPassword(dto.PasswordNuevo);
+            usuario.Password = BC.HashPassword(dto.PasswordNuevo);
             await _authRepository.UpdateAsync(usuario);
         }
 
@@ -237,8 +233,7 @@ namespace Application.Services
             // Validar PIN actual
             if (!string.IsNullOrWhiteSpace(empleado.PIN))
             {
-                var pinActualHash = HashPassword(dto.PinActual);
-                if (empleado.PIN != pinActualHash)
+                if (!BC.Verify(dto.PinActual, empleado.PIN))
                     throw new UnauthorizedAccessException("PIN actual incorrecto");
             }
 
@@ -247,7 +242,7 @@ namespace Application.Services
                 throw new InvalidOperationException("El PIN debe tener entre 4 y 6 dígitos");
 
             // Actualizar PIN
-            empleado.PIN = HashPassword(dto.PinNuevo);
+            empleado.PIN = BC.HashPassword(dto.PinNuevo);
             await _empleadoRepository.UpdateAsync(empleado);
         }
 
@@ -268,7 +263,7 @@ namespace Application.Services
             if (!System.Text.RegularExpressions.Regex.IsMatch(pin, @"^\d{4,6}$"))
                 throw new InvalidOperationException("El PIN debe tener entre 4 y 6 dígitos");
 
-            empleado.PIN = HashPassword(pin);
+            empleado.PIN = BC.HashPassword(pin);
             await _empleadoRepository.UpdateAsync(empleado);
         }
 
@@ -280,7 +275,7 @@ namespace Application.Services
         {
             var claims = new List<Claim>
             {
-                new Claim("UsuarioID", empleado.EmpleadoId.ToString()),
+                new Claim("UsuarioID", empleado.UsuarioID.ToString()),
                 new Claim("EmpleadoId", empleado.EmpleadoId.ToString()),
                 new Claim(ClaimTypes.Name, empleado.Nombre),
                 new Claim("EsAdmin", empleado.EsAdmin.ToString()),
@@ -308,13 +303,6 @@ namespace Application.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        private string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
         }
     }
 }

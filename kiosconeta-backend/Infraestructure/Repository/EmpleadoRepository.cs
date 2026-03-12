@@ -150,12 +150,6 @@ namespace Infraestructure.Repository
             return true;
         }
 
-       
-
-        // ════════════════════════════════════════════════
-        // AGREGAR ESTAS IMPLEMENTACIONES A EmpleadoRepository.cs
-        // ════════════════════════════════════════════════
-
         public async Task<Empleado?> GetByLegajoAsync(string legajo)
         {
             return await _context.Empleados

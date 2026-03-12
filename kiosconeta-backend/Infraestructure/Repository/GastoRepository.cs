@@ -49,6 +49,17 @@ namespace Infraestructure.Repository
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Gasto>> GetByCierreTurnoIdAsync(int cierreTurnoId)
+        {
+            return await _context.Gastos
+                .Include(g => g.Empleado)
+                .Include(g => g.Kiosco)
+                .Include(g => g.TipoDeGasto)
+                .Where(g => g.CierreTurnoId == cierreTurnoId)
+                .OrderByDescending(g => g.Fecha)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Gasto>> GetByEmpleadoIdAsync(int empleadoId)
         {
             return await _context.Gastos

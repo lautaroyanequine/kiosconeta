@@ -5,7 +5,7 @@
     {
         public string Nombre { get; set; }
         public int KioscoID { get; set; }
-        public int UsuarioID { get; set; }
+        public int? UsuarioID { get; set; }
     }
 
     // ─── ACTUALIZAR ──────────────────────────────────
@@ -24,7 +24,7 @@
         public bool Activo { get; set; }
         public int KioscoID { get; set; }
         public string KioscoNombre { get; set; }
-        public int UsuarioID { get; set; }
+        public int? UsuarioID { get; set; }
         public int CantidadVentas { get; set; }       // Calculado
         public List<PermisoDTO> Permisos { get; set; } // Permisos activos
     }

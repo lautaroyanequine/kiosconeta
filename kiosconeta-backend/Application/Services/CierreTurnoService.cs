@@ -56,8 +56,7 @@ namespace Application.Services
                                     .Sum(v => v.Total);
 
             // Calcular gastos del turno
-            var gastos = await _gastoRepository.GetByFechaAsync(turno.FechaApertura, DateTime.Now);
-            gastos = gastos.Where(g => g.KioscoId == kioscoId);
+            var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(turno.CierreTurnoId);
             var totalGastos = gastos.Sum(g => g.Monto);
 
             return new TurnoActualDTO
@@ -134,11 +133,9 @@ namespace Application.Services
             var totalVirtual = ventas
                 .Where(v => v.MetodoPago.Nombre == "Virtual")
                 .Sum(v => v.Total);
-            // Obtener gastos
+            // Obtener gastos del turno (filtro exacto por CierreTurnoId)
             var gastos = await _gastoRepository
-                .GetByFechaAsync(cierre.FechaApertura, DateTime.Now);
-
-            gastos = gastos.Where(g => g.KioscoId == kioscoId);
+                .GetByCierreTurnoIdAsync(cierre.CierreTurnoId);
 
             var totalGastos = gastos.Sum(g => g.Monto);
 
@@ -169,14 +166,9 @@ namespace Application.Services
             var totalVirtual = ventas.Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") != true)
                                     .Sum(v => v.Total);
 
-            // Calcular gastos
-            decimal totalGastos = 0;
-            if (cierre.Estado == EstadoCierre.Cerrado)
-            {
-                var gastos = await _gastoRepository.GetByFechaAsync(cierre.FechaApertura, DateTime.Now);
-                gastos = gastos.Where(g => g.KioscoId == cierre.KioscoId);
-                totalGastos = gastos.Sum(g => g.Monto);
-            }
+            // Calcular gastos del turno (filtro exacto por CierreTurnoId, aplica siempre)
+            var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(cierre.CierreTurnoId);
+            var totalGastos = gastos.Sum(g => g.Monto);
 
             return new CierreTurnoResponseDTO
             {
