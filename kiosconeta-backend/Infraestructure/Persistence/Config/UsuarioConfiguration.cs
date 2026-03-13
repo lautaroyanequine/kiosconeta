@@ -21,7 +21,7 @@ namespace Infraestructure.Persistence.Config
                 .HasMaxLength(50);
 
             entityBuilder.Property(m => m.Password)
-                .HasMaxLength(50);
+                .HasMaxLength(100);
 
             // USUARIO → KIOSCO (Cascade permitido)
             entityBuilder // UsuarioConfiguration

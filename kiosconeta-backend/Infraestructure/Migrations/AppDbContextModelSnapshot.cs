@@ -633,6 +633,9 @@ namespace Infraestructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GastoId"));
 
+                    b.Property<int?>("CierreTurnoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -661,6 +664,8 @@ namespace Infraestructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("GastoId");
+
+                    b.HasIndex("CierreTurnoId");
 
                     b.HasIndex("EmpleadoId");
 
@@ -2140,8 +2145,8 @@ namespace Infraestructure.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("UsuarioID");
 
@@ -2153,7 +2158,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ="
+                            Password = "$2a$11$NsasK45Agx9SXmHQ0McecuEHXKXqtae6fCuOmDy/Wu2FHLOg93iIm"
                         });
                 });
 
@@ -2211,6 +2216,31 @@ namespace Infraestructure.Migrations
                     b.HasIndex("TurnoId");
 
                     b.ToTable("Venta", (string)null);
+                });
+
+            modelBuilder.Entity("NumeradorVenta", b =>
+                {
+                    b.Property<int>("NumeradorVentaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NumeradorVentaId"));
+
+                    b.Property<int>("KioscoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UltimaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UltimoNumero")
+                        .HasColumnType("int");
+
+                    b.HasKey("NumeradorVentaId");
+
+                    b.HasIndex("KioscoId")
+                        .IsUnique();
+
+                    b.ToTable("NumeradoresVenta", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.CierreTurno", b =>
@@ -2282,6 +2312,10 @@ namespace Infraestructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Gasto", b =>
                 {
+                    b.HasOne("Domain.Entities.CierreTurno", "CierreTurno")
+                        .WithMany()
+                        .HasForeignKey("CierreTurnoId");
+
                     b.HasOne("Domain.Entities.Empleado", "Empleado")
                         .WithMany("Gastos")
                         .HasForeignKey("EmpleadoId")
@@ -2299,6 +2333,8 @@ namespace Infraestructure.Migrations
                         .HasForeignKey("TipoDeGastoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CierreTurno");
 
                     b.Navigation("Empleado");
 
@@ -2391,6 +2427,17 @@ namespace Infraestructure.Migrations
                     b.Navigation("Turno");
                 });
 
+            modelBuilder.Entity("NumeradorVenta", b =>
+                {
+                    b.HasOne("Domain.Entities.Kiosco", "Kiosco")
+                        .WithOne("NumeradorVenta")
+                        .HasForeignKey("NumeradorVenta", "KioscoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Kiosco");
+                });
+
             modelBuilder.Entity("Domain.Entities.CierreTurno", b =>
                 {
                     b.Navigation("CierreTurnoEmpleados");
@@ -2416,6 +2463,9 @@ namespace Infraestructure.Migrations
                     b.Navigation("Empleados");
 
                     b.Navigation("Gastos");
+
+                    b.Navigation("NumeradorVenta")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.MetodoDePago", b =>

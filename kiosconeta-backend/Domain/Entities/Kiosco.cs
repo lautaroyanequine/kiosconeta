@@ -9,7 +9,9 @@
         public Usuario Usuario { get; set; }
         public IList<Empleado> Empleados { get; set; }
         public IList<Gasto> Gastos { get; set; }
-        public IList<CierreTurno> CierreTurnos{ get; set; }
+        public IList<CierreTurno> CierreTurnos { get; set; }
+        public NumeradorVenta NumeradorVenta { get; set; } = null!;
+
 
     }
 }

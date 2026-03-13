@@ -89,7 +89,7 @@ namespace Infraestructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Password = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -176,6 +176,27 @@ namespace Infraestructure.Migrations
                         column: x => x.UsuarioID,
                         principalTable: "Usuario",
                         principalColumn: "UsuarioID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NumeradoresVenta",
+                columns: table => new
+                {
+                    NumeradorVentaId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    KioscoId = table.Column<int>(type: "int", nullable: false),
+                    UltimoNumero = table.Column<int>(type: "int", nullable: false),
+                    UltimaActualizacion = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NumeradoresVenta", x => x.NumeradorVentaId);
+                    table.ForeignKey(
+                        name: "FK_NumeradoresVenta_Kiosco_KioscoId",
+                        column: x => x.KioscoId,
+                        principalTable: "Kiosco",
+                        principalColumn: "KioscoID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -282,11 +303,17 @@ namespace Infraestructure.Migrations
                     Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     EmpleadoId = table.Column<int>(type: "int", nullable: false),
                     KioscoId = table.Column<int>(type: "int", nullable: false),
+                    CierreTurnoId = table.Column<int>(type: "int", nullable: true),
                     TipoDeGastoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Gasto", x => x.GastoId);
+                    table.ForeignKey(
+                        name: "FK_Gasto_CierresTurno_CierreTurnoId",
+                        column: x => x.CierreTurnoId,
+                        principalTable: "CierresTurno",
+                        principalColumn: "CierreTurnoId");
                     table.ForeignKey(
                         name: "FK_Gasto_Empleado_EmpleadoId",
                         column: x => x.EmpleadoId,
@@ -468,7 +495,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ=" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$NsasK45Agx9SXmHQ0McecuEHXKXqtae6fCuOmDy/Wu2FHLOg93iIm" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",
@@ -661,6 +688,11 @@ namespace Infraestructure.Migrations
                 column: "PermisoId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Gasto_CierreTurnoId",
+                table: "Gasto",
+                column: "CierreTurnoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Gasto_EmpleadoId",
                 table: "Gasto",
                 column: "EmpleadoId");
@@ -684,6 +716,12 @@ namespace Infraestructure.Migrations
                 name: "IX_Kiosco_UsuarioID",
                 table: "Kiosco",
                 column: "UsuarioID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NumeradoresVenta_KioscoId",
+                table: "NumeradoresVenta",
+                column: "KioscoId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Producto_CategoriaId",
@@ -748,6 +786,9 @@ namespace Infraestructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Gasto");
+
+            migrationBuilder.DropTable(
+                name: "NumeradoresVenta");
 
             migrationBuilder.DropTable(
                 name: "ProductoVenta");

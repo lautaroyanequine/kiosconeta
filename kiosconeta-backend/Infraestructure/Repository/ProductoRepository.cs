@@ -96,7 +96,12 @@ namespace Infraestructure.Repository
                 .Include(p => p.Categoria)
                 .FirstOrDefaultAsync(p => p.CodigoBarra == codigoBarra && p.Activo);
         }
-
+        public async Task<List<Producto>> GetByIdsAsync(List<int> ids)
+        {
+            return await _context.Productos
+                .Where(p => ids.Contains(p.ProductoId))
+                .ToListAsync();
+        }
         public async Task<IEnumerable<Producto>> SearchAsync(string searchTerm, int kioscoId)
         {
             searchTerm = searchTerm.ToLower();

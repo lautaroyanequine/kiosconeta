@@ -24,6 +24,10 @@ namespace Domain.Entities
         public int KioscoId { get; set; }
         public Kiosco Kiosco { get; set; }
 
+        public CierreTurno CierreTurno { get; set; }
+
+        public int? CierreTurnoId { get; set; }
+
         public int TipoDeGastoId { get; set; }
         public TipoDeGasto TipoDeGasto { get; set; }
     }

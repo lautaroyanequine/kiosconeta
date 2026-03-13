@@ -132,35 +132,30 @@ namespace Infraestructure.Repository
 
         public async Task<Venta> CreateAsync(Venta venta)
         {
-            // Usar transacción para asegurar atomicidad
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                // 1. Crear la venta
-                venta.Fecha = DateTime.Now;
-                venta.Anulada = false;
                 _context.Ventas.Add(venta);
+
                 await _context.SaveChangesAsync();
 
-                // 2. Descontar stock de cada producto
                 foreach (var productoVenta in venta.ProductoVentas)
                 {
-                    var producto = await _context.Productos.FindAsync(productoVenta.ProductoId);
-                    if (producto != null)
-                    {
-                        producto.StockActual -= productoVenta.Cantidad;
-                        _context.Productos.Update(producto);
-                    }
+                    var producto = await _context.Productos
+                        .FirstAsync(p => p.ProductoId == productoVenta.ProductoId);
+
+                    producto.StockActual -= productoVenta.Cantidad;
                 }
+
                 await _context.SaveChangesAsync();
 
-                // 3. Commit de la transacción
                 await transaction.CommitAsync();
 
-                // 4. Recargar con relaciones
-                return await GetByIdAsync(venta.VentaId)
-                    ?? throw new Exception("Error al recargar la venta");
+                return await _context.Ventas
+                    .Include(v => v.ProductoVentas)
+                    .ThenInclude(pv => pv.Producto)
+                    .FirstAsync(v => v.VentaId == venta.VentaId);
             }
             catch
             {
@@ -168,34 +163,42 @@ namespace Infraestructure.Repository
                 throw;
             }
         }
-
+        
         public async Task<bool> AnularVentaAsync(int ventaId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                var venta = await GetByIdAsync(ventaId);
+                var venta = await _context.Ventas
+                    .Include(v => v.ProductoVentas)
+                    .FirstOrDefaultAsync(v => v.VentaId == ventaId);
+
                 if (venta == null || venta.Anulada)
                     return false;
 
-                // 1. Marcar como anulada
                 venta.Anulada = true;
-                _context.Ventas.Update(venta);
 
-                // 2. Devolver stock de cada producto
+                var productoIds = venta.ProductoVentas
+                    .Select(pv => pv.ProductoId)
+                    .ToList();
+
+                var productos = await _context.Productos
+                    .Where(p => productoIds.Contains(p.ProductoId))
+                    .ToListAsync();
+
                 foreach (var productoVenta in venta.ProductoVentas)
                 {
-                    var producto = await _context.Productos.FindAsync(productoVenta.ProductoId);
-                    if (producto != null)
-                    {
-                        producto.StockActual += productoVenta.Cantidad;
-                        _context.Productos.Update(producto);
-                    }
+                    var producto = productos
+                        .First(p => p.ProductoId == productoVenta.ProductoId);
+
+                    producto.StockActual += productoVenta.Cantidad;
                 }
 
                 await _context.SaveChangesAsync();
+
                 await transaction.CommitAsync();
+
                 return true;
             }
             catch

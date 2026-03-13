@@ -25,7 +25,7 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
                     Nombre = "Admin",
                     Email = "admin@kiosconeta.com",
                     // Password: "1234" (hasheado con SHA256)
-                    Password = "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ="
+                    Password = BCrypt.Net.BCrypt.HashPassword("1234")
                 }
             );
         }

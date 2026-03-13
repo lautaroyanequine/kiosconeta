@@ -12,7 +12,7 @@
 
         public string? Detalles { get; set; }
 
-        // 🔑 Foreign Keys
+    
         public int EmpleadoId { get; set; }
         public Empleado Empleado { get; set; }
 

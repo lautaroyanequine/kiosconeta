@@ -100,7 +100,9 @@ builder.Services.AddScoped<ICierreTurnoService, CierreTurnoService>();
 builder.Services.AddScoped<IGastoService, GastoService>();
 builder.Services.AddScoped<ITipoDeGastoService, TipoDeGastoService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddScoped<IPermisoService, PermisoService>();            // ← NUEVO
+builder.Services.AddScoped<IPermisoService, PermisoService>();
+builder.Services.AddScoped<INumeradorRepository, NumeradorRepository>();
+
 
 // ========== CORS ==========
 builder.Services.AddCors(options =>

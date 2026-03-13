@@ -13,6 +13,7 @@ namespace Application.Interfaces.Repository
         Task<Gasto?> GetByIdAsync(int id);
         Task<IEnumerable<Gasto>> GetAllAsync();
         Task<IEnumerable<Gasto>> GetByKioscoIdAsync(int kioscoId);
+        Task<IEnumerable<Gasto>> GetByCierreTurnoIdAsync(int cierreTurnoId);
         Task<IEnumerable<Gasto>> GetByEmpleadoIdAsync(int empleadoId);
         Task<IEnumerable<Gasto>> GetByFechaAsync(DateTime fechaDesde, DateTime fechaHasta);
         Task<IEnumerable<Gasto>> GetDelDiaAsync(int kioscoId);

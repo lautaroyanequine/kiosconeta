@@ -11,20 +11,22 @@ namespace Application.Services
         private readonly IProductoRepository _productoRepository;
         private readonly IEmpleadoRepository _empleadoRepository;
         private readonly IMetodoDePagoRepository _metodoDePagoRepository;
-        private readonly ICierreTurnoRepository _cierreTurnoRepository;  // ← NUEVO
+        private readonly ICierreTurnoRepository _cierreTurnoRepository;
+        private readonly INumeradorRepository _numeradorRepository;
 
         public VentaService(
             IVentaRepository ventaRepository,
             IProductoRepository productoRepository,
             IEmpleadoRepository empleadoRepository,
             IMetodoDePagoRepository metodoDePagoRepository,
-            ICierreTurnoRepository cierreTurnoRepository)  // ← NUEVO
+            ICierreTurnoRepository cierreTurnoRepository, INumeradorRepository numeradorRepository) 
         {
             _ventaRepository = ventaRepository;
             _productoRepository = productoRepository;
             _empleadoRepository = empleadoRepository;
             _metodoDePagoRepository = metodoDePagoRepository;
-            _cierreTurnoRepository = cierreTurnoRepository;  // ← NUEVO
+            _cierreTurnoRepository = cierreTurnoRepository;
+            _numeradorRepository = numeradorRepository;
         }
 
         // ========== CONSULTAS ==========
@@ -82,31 +84,41 @@ namespace Application.Services
             if (dto.Productos == null || !dto.Productos.Any())
                 throw new InvalidOperationException("La venta debe tener al menos un producto");
 
-            // Validar empleado activo
-            var empleado = await _empleadoRepository.GetByIdAsync(dto.EmpleadoId);
-            if (empleado == null)
-                throw new KeyNotFoundException($"Empleado con ID {dto.EmpleadoId} no encontrado");
+            // Validar empleado
+            var empleado = await _empleadoRepository.GetByIdAsync(dto.EmpleadoId)
+                ?? throw new KeyNotFoundException($"Empleado con ID {dto.EmpleadoId} no encontrado");
+
             if (!empleado.Activo)
                 throw new InvalidOperationException("El empleado está inactivo");
 
             // Validar método de pago
-            var metodoPago = await _metodoDePagoRepository.GetByIdAsync(dto.MetodoPagoId);
-            if (metodoPago == null)
-                throw new KeyNotFoundException($"Método de pago con ID {dto.MetodoPagoId} no encontrado");
+            var metodoPago = await _metodoDePagoRepository.GetByIdAsync(dto.MetodoPagoId)
+                ?? throw new KeyNotFoundException($"Método de pago con ID {dto.MetodoPagoId} no encontrado");
 
-            // ─── OBTENER O CREAR TURNO ABIERTO ─────────
+            // ─── TURNO ABIERTO ──────────────────────────
 
-            var turnoAbierto = await _cierreTurnoRepository.GetTurnoAbiertoAsync(empleado.KioscoID);
+            var turnoAbierto = await _cierreTurnoRepository
+                .GetTurnoAbiertoAsync(empleado.KioscoID);
 
             if (turnoAbierto == null)
-            {
                 throw new InvalidOperationException(
                     "No hay ningún turno abierto. Por favor, abra un turno antes de registrar ventas.");
-            }
+
+            // ─── TRAER PRODUCTOS EN UNA SOLA CONSULTA ──
+
+            var productoIds = dto.Productos
+                .Select(p => p.ProductoId)
+                .ToList();
+
+            var productos = await _productoRepository
+                .GetByIdsAsync(productoIds);
+
+            var productosDict = productos.ToDictionary(p => p.ProductoId);
 
             // ─── VALIDAR Y PREPARAR PRODUCTOS ──────────
 
             var productosVenta = new List<ProductoVenta>();
+
             decimal totalVenta = 0;
             decimal costoTotal = 0;
 
@@ -115,27 +127,23 @@ namespace Application.Services
                 if (productoDto.Cantidad <= 0)
                     throw new InvalidOperationException("La cantidad debe ser mayor a 0");
 
-                var producto = await _productoRepository.GetByIdAsync(productoDto.ProductoId);
-                if (producto == null)
+                if (!productosDict.TryGetValue(productoDto.ProductoId, out var producto))
                     throw new KeyNotFoundException($"Producto con ID {productoDto.ProductoId} no encontrado");
 
                 if (!producto.Activo)
                     throw new InvalidOperationException($"El producto '{producto.Nombre}' está inactivo");
 
-                // Validar stock suficiente
                 if (producto.StockActual < productoDto.Cantidad)
                     throw new InvalidOperationException(
                         $"Stock insuficiente para '{producto.Nombre}'. " +
                         $"Disponible: {producto.StockActual}, Solicitado: {productoDto.Cantidad}");
 
-                // Calcular subtotal
                 var subtotal = producto.PrecioVenta * productoDto.Cantidad;
                 var subtotalCosto = producto.PrecioCosto * productoDto.Cantidad;
 
                 totalVenta += subtotal;
                 costoTotal += subtotalCosto;
 
-                // Crear ProductoVenta
                 productosVenta.Add(new ProductoVenta
                 {
                     ProductoId = producto.ProductoId,
@@ -144,16 +152,19 @@ namespace Application.Services
                 });
             }
 
-            // ─── CREAR VENTA ────────────────────────────
+            // ─── GENERAR NÚMERO DE VENTA SEGURO ────────
 
-            var numeroVenta = await _ventaRepository.GetSiguienteNumeroVentaAsync(empleado.KioscoID);
+            var numeroVenta = await _numeradorRepository
+                .GenerarNumeroVentaAsync(empleado.KioscoID);
+
+            // ─── CREAR VENTA ───────────────────────────
 
             var venta = new Venta
             {
                 EmpleadoId = dto.EmpleadoId,
                 MetodoPagoId = dto.MetodoPagoId,
                 TurnoId = dto.TurnoId,
-                CierreTurnoId = turnoAbierto.CierreTurnoId,  // ← USAR TURNO ABIERTO
+                CierreTurnoId = turnoAbierto.CierreTurnoId,
                 Detalles = dto.Detalles,
                 Total = totalVenta,
                 PrecioCosto = costoTotal,
@@ -164,6 +175,7 @@ namespace Application.Services
             };
 
             var creada = await _ventaRepository.CreateAsync(venta);
+
             return MapToResponseDTO(creada);
         }
 

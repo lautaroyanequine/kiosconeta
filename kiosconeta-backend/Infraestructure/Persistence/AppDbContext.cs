@@ -37,7 +37,7 @@ namespace Infraestructure.Persistence
         public DbSet<Gasto> Gastos { get; set; }
         public DbSet<TipoDeGasto> TiposDeGasto { get; set; }
 
-
+        public DbSet<NumeradorVenta> NumeradorVentas { get; set; }
 
 
 
@@ -88,6 +88,8 @@ namespace Infraestructure.Persistence
             new VentaConfiguration(modelBuilder.Entity<Venta>());
             new GastoConfiguration(modelBuilder.Entity<Gasto>());
             new CierreTurnoConfiguration(modelBuilder.Entity<CierreTurno>());
+            new NumeradorVentaConfiguration(modelBuilder.Entity<NumeradorVenta>());
+
 
 
             //DATA

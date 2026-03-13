@@ -163,6 +163,7 @@ namespace Application.Services
             {
                 Email = dto.Email,
                 Password = BC.HashPassword(dto.Password),
+                Nombre = dto.NombreAdmin
 
             };
             usuario.Kioscos.Add(kiosco);

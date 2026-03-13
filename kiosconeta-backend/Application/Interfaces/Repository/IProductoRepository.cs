@@ -15,6 +15,7 @@ namespace Application.Interfaces.Repository
         Task<IEnumerable<Producto>> GetActivosAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetByCategoriaAsync(int categoriaId);
         Task<IEnumerable<Producto>> GetBajoStockAsync(int kioscoId);
+        Task<List<Producto>> GetByIdsAsync(List<int> ids);
         Task<IEnumerable<Producto>> GetProximosAVencerAsync(int kioscoId, int dias = 7);
         Task<Producto?> GetByCodigoBarraAsync(string codigoBarra);
         Task<IEnumerable<Producto>> SearchAsync(string searchTerm, int kioscoId);
