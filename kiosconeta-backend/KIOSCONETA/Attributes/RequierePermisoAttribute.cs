@@ -33,6 +33,14 @@ namespace KIOSCONETA.Attributes
                 return;
             }
 
+            // ════════════════════════════════════════════════
+            // ADMIN BYPASS — si el token tiene EsAdmin: true,
+            // tiene todos los permisos sin consultar la BD
+            // ════════════════════════════════════════════════
+            var esAdminClaim = context.HttpContext.User.FindFirst("EsAdmin")?.Value;
+            if (esAdminClaim == "True")
+                return;
+
             // Obtener el servicio de permisos
             var permisoRepository = context.HttpContext.RequestServices
                 .GetService<IPermisoRepository>();

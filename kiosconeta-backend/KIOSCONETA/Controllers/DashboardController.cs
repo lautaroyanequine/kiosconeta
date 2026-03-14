@@ -40,6 +40,7 @@ namespace KIOSCONETA.Controllers
         /// Obtener reporte de ventas
         /// </summary>
         [HttpPost("kiosco/{kioscoId}/reporte-ventas")]
+        [RequierePermiso("reportes.ventas")]
         public async Task<ActionResult<ReporteVentasDTO>> GetReporteVentas(
             int kioscoId,
             [FromBody] ReporteFiltrosDTO filtros)
@@ -59,6 +60,7 @@ namespace KIOSCONETA.Controllers
         /// Obtener reporte de productos
         /// </summary>
         [HttpGet("kiosco/{kioscoId}/reporte-productos")]
+        [RequierePermiso("reportes.productos")]
         public async Task<ActionResult<ReporteProductosDTO>> GetReporteProductos(int kioscoId)
         {
             try
@@ -76,6 +78,7 @@ namespace KIOSCONETA.Controllers
         /// Obtener reporte financiero
         /// </summary>
         [HttpPost("kiosco/{kioscoId}/reporte-financiero")]
+        [RequierePermiso("reportes.financiero")]
         public async Task<ActionResult<ReporteFinancieroDTO>> GetReporteFinanciero(
             int kioscoId,
             [FromBody] ReporteFiltrosDTO filtros)
