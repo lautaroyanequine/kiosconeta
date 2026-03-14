@@ -18,6 +18,7 @@ namespace Application.Interfaces.Services
         Task<IEnumerable<ProductoResponseDTO>> GetProximosAVencerAsync(int kioscoId);
         Task<ProductoResponseDTO?> GetByCodigoBarraAsync(string codigoBarra);
         Task<IEnumerable<ProductoResponseDTO>> SearchAsync(string searchTerm, int kioscoId);
+        Task<IEnumerable<ProductoResponseDTO>> GetSinMovimientoAsync(int kioscoId, int dias = 7);
 
         // Comandos
         Task<ProductoResponseDTO> CreateAsync(CreateProductoDTO dto);

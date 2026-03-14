@@ -7,6 +7,9 @@ namespace Application.Interfaces.Services
         // Dashboard general
         Task<DashboardResponseDTO> GetDashboardAsync(int kioscoId);
 
+        // Dashboard diario por turnos
+        Task<DashboardDiarioDTO> GetDashboardDiarioAsync(int kioscoId, DateTime fecha);
+
         // Reportes específicos
         Task<ReporteVentasDTO> GetReporteVentasAsync(int kioscoId, ReporteFiltrosDTO filtros);
         Task<ReporteProductosDTO> GetReporteProductosAsync(int kioscoId);

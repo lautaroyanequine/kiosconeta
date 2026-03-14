@@ -129,6 +129,10 @@ namespace Application.Services
 
                 if (!productosDict.TryGetValue(productoDto.ProductoId, out var producto))
                     throw new KeyNotFoundException($"Producto con ID {productoDto.ProductoId} no encontrado");
+                // Validar que el producto pertenece al kiosco del empleado
+                if (producto.KioscoId != empleado.KioscoID)
+                    throw new InvalidOperationException(
+                        $"El producto '{producto.Nombre}' no pertenece a este kiosco");
 
                 if (!producto.Activo)
                     throw new InvalidOperationException($"El producto '{producto.Nombre}' está inactivo");

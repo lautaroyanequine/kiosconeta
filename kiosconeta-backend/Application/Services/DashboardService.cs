@@ -11,17 +11,20 @@ namespace Application.Services
         private readonly IGastoRepository _gastoRepository;
         private readonly IProductoRepository _productoRepository;
         private readonly IProductoVentaRepository _productoVentaRepository;
+        private readonly ICierreTurnoRepository _cierreTurnoRepository;
 
         public DashboardService(
             IVentaRepository ventaRepository,
             IGastoRepository gastoRepository,
             IProductoRepository productoRepository,
-            IProductoVentaRepository productoVentaRepository)
+            IProductoVentaRepository productoVentaRepository,
+            ICierreTurnoRepository cierreTurnoRepository)
         {
             _ventaRepository = ventaRepository;
             _gastoRepository = gastoRepository;
             _productoRepository = productoRepository;
             _productoVentaRepository = productoVentaRepository;
+            _cierreTurnoRepository = cierreTurnoRepository;
         }
 
         // ═══════════════════════════════════════════════════
@@ -135,6 +138,60 @@ namespace Application.Services
                 TopProductos = topProductos,
                 MetodosPago = metodosPago,
                 Balance = balance
+            };
+        }
+
+        // ═══════════════════════════════════════════════════
+        // DASHBOARD DIARIO POR TURNOS
+        // ═══════════════════════════════════════════════════
+
+        public async Task<DashboardDiarioDTO> GetDashboardDiarioAsync(int kioscoId, DateTime fecha)
+        {
+            var inicioDia = fecha.Date;
+            var finDia = inicioDia.AddDays(1);
+
+            // Obtener todos los turnos del día
+            var turnos = await _cierreTurnoRepository.GetPorFechaAsync(kioscoId, inicioDia, finDia);
+            var turnosList = turnos.ToList();
+
+            var resumenTurnos = new List<ResumenTurnoDTO>();
+
+            foreach (var turno in turnosList)
+            {
+                var ventas = turno.Ventas?.Where(v => !v.Anulada).ToList() ?? new();
+                var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(turno.CierreTurnoId);
+
+                var totalVentas = ventas.Sum(v => v.Total);
+                var totalGastos = gastos.Sum(g => g.Monto);
+                var ganancia = ventas.Sum(v => v.Total - v.PrecioCosto) - totalGastos;
+
+                resumenTurnos.Add(new ResumenTurnoDTO
+                {
+                    CierreTurnoId = turno.CierreTurnoId,
+                    Estado = turno.Estado.ToString(),
+                    FechaApertura = turno.FechaApertura,
+                    FechaCierre = turno.FechaCierre,
+                    EfectivoInicial = turno.EfectivoInicial,
+                    TotalVentas = totalVentas,
+                    TotalGastos = totalGastos,
+                    Ganancia = ganancia,
+                    CantidadVentas = ventas.Count,
+                    Diferencia = turno.Diferencia,
+                    Empleados = turno.CierreTurnoEmpleados?
+                        .Select(e => e.Empleado?.Nombre ?? "")
+                        .ToList() ?? new()
+                });
+            }
+
+            return new DashboardDiarioDTO
+            {
+                Fecha = inicioDia,
+                TotalVentas = resumenTurnos.Sum(t => t.TotalVentas),
+                TotalGastos = resumenTurnos.Sum(t => t.TotalGastos),
+                Ganancia = resumenTurnos.Sum(t => t.Ganancia),
+                CantidadVentas = resumenTurnos.Sum(t => t.CantidadVentas),
+                CantidadTurnos = resumenTurnos.Count,
+                Turnos = resumenTurnos.OrderBy(t => t.FechaApertura).ToList()
             };
         }
 
@@ -342,4 +399,3 @@ namespace Application.Services
         }
     }
 }
-

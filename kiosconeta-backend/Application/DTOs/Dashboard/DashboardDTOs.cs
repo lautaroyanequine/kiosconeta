@@ -26,6 +26,7 @@
     public class ResumenDelDiaDTO
     {
         public DateTime Fecha { get; set; }
+        public string FechaFormateada => Fecha.ToString("dd/MM/yyyy");
         public int CantidadVentas { get; set; }
         public decimal TotalVentas { get; set; }
         public decimal TotalGastos { get; set; }
@@ -83,6 +84,8 @@
     {
         public DateTime FechaDesde { get; set; }
         public DateTime FechaHasta { get; set; }
+        public string FechaDesdeFormateada => FechaDesde.ToString("dd/MM/yyyy");
+        public string FechaHastaFormateada => FechaHasta.ToString("dd/MM/yyyy");
         public int TotalVentas { get; set; }
         public decimal TotalMonto { get; set; }
         public decimal CostoTotal { get; set; }
@@ -96,6 +99,7 @@
     public class VentaPorDiaDTO
     {
         public DateTime Fecha { get; set; }
+        public string FechaFormateada => Fecha.ToString("dd/MM/yyyy");
         public int CantidadVentas { get; set; }
         public decimal Total { get; set; }
     }
@@ -141,6 +145,8 @@
     {
         public DateTime FechaDesde { get; set; }
         public DateTime FechaHasta { get; set; }
+        public string FechaDesdeFormateada => FechaDesde.ToString("dd/MM/yyyy");
+        public string FechaHastaFormateada => FechaHasta.ToString("dd/MM/yyyy");
 
         // Ingresos
         public decimal TotalVentas { get; set; }
@@ -172,5 +178,44 @@
         public DateTime FechaHasta { get; set; }
         public int? EmpleadoId { get; set; }
         public int? CategoriaId { get; set; }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // DASHBOARD DIARIO POR TURNOS
+    // ═══════════════════════════════════════════════════
+
+    public class DashboardDiarioDTO
+    {
+        public DateTime Fecha { get; set; }
+        public string FechaFormateada => Fecha.ToString("dd/MM/yyyy");
+
+        // Totales del día (suma de todos los turnos)
+        public decimal TotalVentas { get; set; }
+        public decimal TotalGastos { get; set; }
+        public decimal Ganancia { get; set; }
+        public int CantidadVentas { get; set; }
+        public int CantidadTurnos { get; set; }
+
+        // Detalle por turno
+        public List<ResumenTurnoDTO> Turnos { get; set; } = new();
+    }
+
+    public class ResumenTurnoDTO
+    {
+        public int CierreTurnoId { get; set; }
+        public string Estado { get; set; }
+        public string HoraApertura => FechaApertura.ToString("HH:mm");
+        public string HoraCierre => FechaCierre.HasValue ? FechaCierre.Value.ToString("HH:mm") : "Abierto";
+        public DateTime FechaApertura { get; set; }
+        public DateTime? FechaCierre { get; set; }
+
+        public decimal EfectivoInicial { get; set; }
+        public decimal TotalVentas { get; set; }
+        public decimal TotalGastos { get; set; }
+        public decimal Ganancia { get; set; }
+        public int CantidadVentas { get; set; }
+        public decimal Diferencia { get; set; }
+
+        public List<string> Empleados { get; set; } = new();
     }
 }

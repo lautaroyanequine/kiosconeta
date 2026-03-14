@@ -14,7 +14,7 @@ namespace Application.DTOs.CierreTurno
     // ─── CERRAR TURNO ────────────────────────────────
     public class CerrarTurnoDTO
     {
-     //   public int CierreTurnoId { get; set; }
+        //   public int CierreTurnoId { get; set; }
 
         /// <summary>
         /// Efectivo físico que el empleado contó en la caja
@@ -34,6 +34,7 @@ namespace Application.DTOs.CierreTurno
     {
         public int CierreTurnoId { get; set; }
         public DateTime Fecha { get; set; }
+        public string FechaFormateada => Fecha.ToString("dd/MM/yyyy HH:mm");
         public EstadoCierre Estado { get; set; }
         public string EstadoNombre { get; set; }
 
@@ -73,6 +74,7 @@ namespace Application.DTOs.CierreTurno
     {
         public int CierreTurnoId { get; set; }
         public DateTime FechaApertura { get; set; }
+        public string FechaAperturaFormateada => FechaApertura.ToString("dd/MM/yyyy HH:mm");
 
         // Efectivo
         public decimal EfectivoInicial { get; set; }

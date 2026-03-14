@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260313142432_a")]
+    [Migration("20260314131403_a")]
     partial class a
     {
         /// <inheritdoc />
@@ -2161,7 +2161,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$NsasK45Agx9SXmHQ0McecuEHXKXqtae6fCuOmDy/Wu2FHLOg93iIm"
+                            Password = "$2a$11$Aj2MC/YQcdx1SNwCu4zbg.KXJDTUX.fSls3dz3FtBkeGYY60mJBHS"
                         });
                 });
 

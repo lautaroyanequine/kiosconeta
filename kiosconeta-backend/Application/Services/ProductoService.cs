@@ -73,6 +73,12 @@ namespace Application.Services
             return productos.Select(MapToResponseDTO);
         }
 
+        public async Task<IEnumerable<ProductoResponseDTO>> GetSinMovimientoAsync(int kioscoId, int dias = 7)
+        {
+            var productos = await _productoRepository.GetSinMovimientoAsync(kioscoId, dias);
+            return productos.Select(MapToResponseDTO);
+        }
+
         // ========== COMANDOS ==========
 
         public async Task<ProductoResponseDTO> CreateAsync(CreateProductoDTO dto)

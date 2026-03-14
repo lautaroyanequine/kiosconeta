@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.Dashboard;
+using Domain.Entities;
 
 namespace Application.Interfaces.Repository
 {
@@ -14,11 +15,13 @@ namespace Application.Interfaces.Repository
         Task<IEnumerable<Producto>> GetByKioscoIdAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetActivosAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetByCategoriaAsync(int categoriaId);
-        Task<IEnumerable<Producto>> GetBajoStockAsync(int kioscoId);
         Task<List<Producto>> GetByIdsAsync(List<int> ids);
+
+        Task<IEnumerable<Producto>> GetBajoStockAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetProximosAVencerAsync(int kioscoId, int dias = 7);
         Task<Producto?> GetByCodigoBarraAsync(string codigoBarra);
         Task<IEnumerable<Producto>> SearchAsync(string searchTerm, int kioscoId);
+        Task<IEnumerable<Producto>> GetSinMovimientoAsync(int kioscoId, int dias);
 
         // Commands - Modificaciones
         Task<Producto> CreateAsync(Producto producto);

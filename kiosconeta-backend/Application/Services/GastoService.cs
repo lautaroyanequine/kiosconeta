@@ -14,15 +14,18 @@ namespace Application.Services
         private readonly IGastoRepository _gastoRepository;
         private readonly IEmpleadoRepository _empleadoRepository;
         private readonly ITipoDeGastoRepository _tipoDeGastoRepository;
+        private readonly ICierreTurnoRepository _cierreTurnoRepository;
 
         public GastoService(
             IGastoRepository gastoRepository,
             IEmpleadoRepository empleadoRepository,
-            ITipoDeGastoRepository tipoDeGastoRepository)
+            ITipoDeGastoRepository tipoDeGastoRepository,
+            ICierreTurnoRepository cierreTurnoRepository)
         {
             _gastoRepository = gastoRepository;
             _empleadoRepository = empleadoRepository;
             _tipoDeGastoRepository = tipoDeGastoRepository;
+            _cierreTurnoRepository = cierreTurnoRepository;
         }
 
         public async Task<GastoResponseDTO?> GetByIdAsync(int id)
@@ -86,6 +89,10 @@ namespace Application.Services
             if (!empleado.Activo)
                 throw new InvalidOperationException("El empleado está inactivo");
 
+            // El kiosco siempre se toma del empleado, nunca del DTO
+            // Esto evita que alguien registre gastos en un kiosco ajeno
+            var kioscoId = empleado.KioscoID;
+
             // Validar tipo de gasto
             var tipoGasto = await _tipoDeGastoRepository.GetByIdAsync(dto.TipoDeGastoId);
             if (tipoGasto == null)
@@ -100,10 +107,15 @@ namespace Application.Services
                 Descripcion = dto.Descripcion?.Trim() ?? "",
                 Monto = dto.Monto,
                 EmpleadoId = dto.EmpleadoId,
-                KioscoId = dto.KioscoId,
+                KioscoId = kioscoId,   // ← siempre del empleado, no del DTO
                 TipoDeGastoId = dto.TipoDeGastoId,
                 Fecha = DateTime.Now
             };
+
+            // Asociar al turno abierto si existe — si no hay turno (gasto admin) queda null
+            var turnoAbierto = await _cierreTurnoRepository.GetTurnoAbiertoAsync(kioscoId);
+            if (turnoAbierto != null)
+                gasto.CierreTurnoId = turnoAbierto.CierreTurnoId;
 
             var creado = await _gastoRepository.CreateAsync(gasto);
             return MapToResponseDTO(creado);
@@ -161,7 +173,9 @@ namespace Application.Services
                 KioscoNombre = gasto.Kiosco?.Nombre ?? "",
 
                 TipoDeGastoId = gasto.TipoDeGastoId,
-                TipoDeGastoNombre = gasto.TipoDeGasto?.Nombre ?? ""
+                TipoDeGastoNombre = gasto.TipoDeGasto?.Nombre ?? "",
+
+                CierreTurnoId = gasto.CierreTurnoId
             };
         }
     }

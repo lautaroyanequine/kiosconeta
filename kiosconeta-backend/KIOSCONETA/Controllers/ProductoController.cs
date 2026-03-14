@@ -59,7 +59,7 @@ namespace KIOSCONETA.Controllers
         }
 
         /// Obtener productos por kiosco
-        
+
         [HttpGet("kiosco/{kioscoId}")]
         [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetByKiosco(int kioscoId)
@@ -75,9 +75,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        
+
         /// Obtener productos activos de un kiosco
-        
+
         [HttpGet("kiosco/{kioscoId}/activos")]
         [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetActivos(int kioscoId)
@@ -93,9 +93,9 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        
+
         /// Obtener productos por categoría
-        
+
         [HttpGet("categoria/{categoriaId}")]
         [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetByCategoria(int categoriaId)
@@ -112,7 +112,7 @@ namespace KIOSCONETA.Controllers
         }
 
         /// Obtener productos con bajo stock
-        
+
         [HttpGet("kiosco/{kioscoId}/bajo-stock")]
         [RequierePermiso("productos.ver_stock_bajo")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetBajoStock(int kioscoId)
@@ -129,7 +129,7 @@ namespace KIOSCONETA.Controllers
         }
 
         /// Obtener productos próximos a vencer
-        
+
         [HttpGet("kiosco/{kioscoId}/proximos-vencer")]
         [RequierePermiso("productos.ver")]
         public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetProximosAVencer(int kioscoId)
@@ -307,6 +307,34 @@ namespace KIOSCONETA.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error al actualizar stock", error = ex.Message });
+            }
+        }
+
+        /// Productos sin ventas en los últimos X días
+        /// Ejemplo: GET /api/Productos/kiosco/1/sin-movimiento?dias=7
+        [HttpGet("kiosco/{kioscoId}/sin-movimiento")]
+        [RequierePermiso("productos.ver_stock_bajo")]
+        public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetSinMovimiento(
+            int kioscoId,
+            [FromQuery] int dias = 7)
+        {
+            try
+            {
+                if (dias <= 0)
+                    return BadRequest(new { message = "El parámetro 'dias' debe ser mayor a 0" });
+
+                var productos = await _productoService.GetSinMovimientoAsync(kioscoId, dias);
+                return Ok(new
+                {
+                    kioscoId,
+                    dias,
+                    total = productos.Count(),
+                    productos
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener productos sin movimiento", error = ex.Message });
             }
         }
     }

@@ -11,7 +11,7 @@
         public string? Descripcion { get; set; }
         public decimal Monto { get; set; }
         public int EmpleadoId { get; set; }
-        public int KioscoId { get; set; }
+        // KioscoId se obtiene automáticamente del empleado en el backend
         public int TipoDeGastoId { get; set; }
     }
 
@@ -33,6 +33,7 @@
         public string? Descripcion { get; set; }
         public decimal Monto { get; set; }
         public DateTime Fecha { get; set; }
+        public string FechaFormateada => Fecha.ToString("dd/MM/yyyy HH:mm");
 
         // Relaciones
         public int EmpleadoId { get; set; }
@@ -43,6 +44,9 @@
 
         public int TipoDeGastoId { get; set; }
         public string TipoDeGastoNombre { get; set; }
+
+        // Turno asociado (null si fue registrado fuera de turno)
+        public int? CierreTurnoId { get; set; }
     }
 
     // ─── FILTROS DE BÚSQUEDA ─────────────────────────

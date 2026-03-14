@@ -45,7 +45,12 @@ namespace Infraestructure.Repository
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
         }
-
+        public async Task<List<Producto>> GetByIdsAsync(List<int> ids)
+        {
+            return await _context.Productos
+                .Where(p => ids.Contains(p.ProductoId))
+                .ToListAsync();
+        }
         public async Task<IEnumerable<Producto>> GetActivosAsync(int kioscoId)
         {
             return await _context.Productos
@@ -96,12 +101,7 @@ namespace Infraestructure.Repository
                 .Include(p => p.Categoria)
                 .FirstOrDefaultAsync(p => p.CodigoBarra == codigoBarra && p.Activo);
         }
-        public async Task<List<Producto>> GetByIdsAsync(List<int> ids)
-        {
-            return await _context.Productos
-                .Where(p => ids.Contains(p.ProductoId))
-                .ToListAsync();
-        }
+
         public async Task<IEnumerable<Producto>> SearchAsync(string searchTerm, int kioscoId)
         {
             searchTerm = searchTerm.ToLower();
@@ -188,6 +188,29 @@ namespace Infraestructure.Repository
         {
             return await _context.Productos
                 .AnyAsync(p => p.CodigoBarra == codigoBarra && p.Activo);
+        }
+
+        public async Task<IEnumerable<Producto>> GetSinMovimientoAsync(int kioscoId, int dias)
+        {
+            var fechaLimite = DateTime.Now.AddDays(-dias);
+
+            // Obtener IDs de productos que SÍ tuvieron ventas en los últimos X días
+            var productosConMovimiento = await _context.ProductosVenta
+                .Where(pv => pv.Venta.Empleado.KioscoID == kioscoId
+                          && !pv.Venta.Anulada
+                          && pv.Venta.Fecha >= fechaLimite)
+                .Select(pv => pv.ProductoId)
+                .Distinct()
+                .ToListAsync();
+
+            // Devolver productos activos que NO están en esa lista
+            return await _context.Productos
+                .Include(p => p.Categoria)
+                .Where(p => p.KioscoId == kioscoId
+                         && p.Activo
+                         && !productosConMovimiento.Contains(p.ProductoId))
+                .OrderBy(p => p.Nombre)
+                .ToListAsync();
         }
     }
 }
