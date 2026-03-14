@@ -17,6 +17,19 @@ const LoginPage = React.lazy(() => import('../pages/Login'));
 // Main
 const POSPage = React.lazy(() => import('../pages/POS/index'));
 
+// Dashboard temporal hasta tener la página real
+const DashboardTempPage = () => (
+  <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+    <div className="text-center">
+      <h1 className="text-3xl font-bold text-primary mb-2">Panel Admin</h1>
+      <p className="text-neutral-500 mb-6">Dashboard en construcción</p>
+      <a href="/pos" className="bg-primary text-white px-6 py-2 rounded-lg">
+        Ir al POS
+      </a>
+    </div>
+  </div>
+);
+
 /*
 // Main
 const DashboardPage = React.lazy(() => import('../pages/dashboard'));
@@ -49,6 +62,16 @@ export const AppRoutes: React.FC = () => {
       {/* ──────────────────────────────────────────────────────────────────── */}
       {/* RUTAS PRIVADAS */}
       {/* ──────────────────────────────────────────────────────────────────── */}
+
+      {/* Dashboard - Solo Admin */}
+      <Route
+        path={ROUTES.DASHBOARD}
+        element={
+          <PrivateRoute requireAdmin>
+            <DashboardTempPage />
+          </PrivateRoute>
+        }
+      />
 
       
       POS - Todos los autenticados

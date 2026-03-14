@@ -1,4 +1,4 @@
-// ════════════════════════════════════════════════════════════════════════════
+/// ════════════════════════════════════════════════════════════════════════════
 // CONTEXT: Authentication
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -154,20 +154,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuth = async (): Promise<boolean> => {
     const storedToken = getStorage<string>(STORAGE_KEYS.TOKEN);
-
-    if (!storedToken) {
-      return false;
-    }
-
-    try {
-      // Verificar token con el backend
-      const response = await authApi.verificarToken();
-      return response.valido;
-    } catch (error) {
-      console.error('Token verification failed:', error);
-      logout();
-      return false;
-    }
+    const storedUser = getStorage<User>(STORAGE_KEYS.USER);
+    // Verificación local — no hay endpoint /auth/verificar en el backend
+    return !!(storedToken && storedUser);
   };
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -179,16 +168,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const hasPermission = (permission: string): boolean => {
-    // Si es admin, tiene todos los permisos
-    if (user?.esAdmin) {
-      return true;
-    }
+    // Admin tiene todos los permisos
+    if (user?.esAdmin) return true;
 
-    // TODO: Implementar verificación de permisos específicos
-    // Esto requerirá cargar los permisos del usuario desde el backend
-    // y almacenarlos en el contexto o en localStorage
-
-    return false;
+    // Para empleados: el frontend deja pasar, el backend rechaza con 403
+    // si el empleado no tiene el permiso asignado
+    return true;
   };
 
   // ──────────────────────────────────────────────────────────────────────────

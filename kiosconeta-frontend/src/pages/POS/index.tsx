@@ -52,9 +52,10 @@ const POSPage: React.FC = () => {
 
   const loadProductos = async () => {
     try {
-      const data = await productosApi.getActivos();
+      if (!user?.kioscoId) return;
+      const data = await productosApi.getActivos(user.kioscoId);
       setProductos(data);
-      setProductosFiltrados(data.slice(0, 6)); // Primeros 6 como frecuentes
+      setProductosFiltrados(data.slice(0, 6));
     } catch (error: any) {
       console.error('Error al cargar productos:', error);
     } finally {
@@ -108,25 +109,23 @@ const POSPage: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      // Preparar detalles de venta
-      const detalles: CreateDetalleVentaDTO[] = cart.items.map((item) => ({
+      // Preparar productos para el backend
+      const productos = cart.items.map((item) => ({
         productoId: item.productoId,
         cantidad: item.cantidad,
-        precioUnitario: item.precioUnitario,
       }));
 
       // Crear venta
       const venta = await ventasApi.create({
         empleadoId: user.empleadoId,
         metodoPagoId: cart.metodoPagoId!,
-        descuento: cart.descuento,
-        kioscoId: user.kioscoId,
-        detalles,
+        turnoId: 1,   // TODO: obtener turnoId real del turno abierto
+        productos,
       });
 
       // Obtener nombre del método de pago
       const metodoPago = metodosPago.find(
-        (m) => m.metodoPagoId === cart.metodoPagoId
+        (m) => m.metodoDePagoID === cart.metodoPagoId
       );
 
       // Mostrar confirmación
@@ -283,13 +282,17 @@ const POSPage: React.FC = () => {
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {metodosPago.map((metodo) => {
-                  const isSelected = cart.metodoPagoId === metodo.metodoPagoId;
-                  const Icon = metodo.esEfectivo ? DollarSign : metodo.nombre.toLowerCase().includes('crédito') ? CreditCard : Smartphone;
+                  const isSelected = cart.metodoPagoId === metodo.metodoDePagoID;
+                  const Icon = metodo.nombre.toLowerCase().includes('efectivo')
+                    ? DollarSign
+                    : metodo.nombre.toLowerCase().includes('crédito') || metodo.nombre.toLowerCase().includes('credito')
+                    ? CreditCard
+                    : Smartphone;
 
                   return (
                     <button
-                      key={metodo.metodoPagoId}
-                      onClick={() => cart.setMetodoPagoId(metodo.metodoPagoId)}
+                      key={metodo.metodoDePagoID}
+                      onClick={() => cart.setMetodoPagoId(metodo.metodoDePagoID)}
                       className={`p-3 rounded-lg border-2 transition-all
                         ${
                           isSelected
