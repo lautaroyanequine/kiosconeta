@@ -50,15 +50,15 @@ export interface DetalleVenta {
 export interface CreateVentaDTO {
   empleadoId: number;
   metodoPagoId: number;
-  descuento?: number;
-  kioscoId: number;
-  detalles: CreateDetalleVentaDTO[];
+  turnoId: number;
+  detalles?: string;        // Observaciones opcionales
+  productos: CreateProductoVentaDTO[];
 }
 
-export interface CreateDetalleVentaDTO {
+export interface CreateProductoVentaDTO {
   productoId: number;
   cantidad: number;
-  precioUnitario: number;
+  // precioUnitario lo toma el backend del producto directamente
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -87,11 +87,8 @@ export interface Carrito {
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface MetodoPago {
-  metodoPagoId: number;
+  metodoDePagoID: number;   // el backend devuelve "metodoDePagoID" con mayúscula
   nombre: string;
-  esEfectivo: boolean;
-  activo: boolean;
-  kioscoId: number;
 }
 
 // ────────────────────────────────────────────────────────────────────────────

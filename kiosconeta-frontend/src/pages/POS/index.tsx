@@ -1,4 +1,4 @@
-// ════════════════════════════════════════════════════════════════════════════
+/// ════════════════════════════════════════════════════════════════════════════
 // PAGE: POS (Punto de Venta)
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -13,13 +13,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { productosApi, ventasApi, metodosPagoApi } from '@/apis';
 import { formatCurrency } from '@/utils/formatters';
 import { debounce } from '@/utils/helpers';
-import type { ProductoSimple, MetodoPago, CreateDetalleVentaDTO } from '@/types';
+import type { ProductoSimple, MetodoPago } from '@/types';
 
 // ────────────────────────────────────────────────────────────────────────────
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-const POSPage: React.FC = () => {
+const POSPage= () => {
   const { user } = useAuth();
   const cart = useCart();
 

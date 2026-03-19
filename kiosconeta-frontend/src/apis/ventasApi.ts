@@ -107,7 +107,7 @@ export const metodosPagoApi = {
   getActivos: async (): Promise<MetodoPago[]> => {
     try {
       const response = await apiClient.get<MetodoPago[]>(
-        API_ENDPOINTS.METODOS_PAGO_ACTIVOS
+        API_ENDPOINTS.METODOS_PAGO   // el backend devuelve todos en /MetodoDePago
       );
       return handleResponse(response);
     } catch (error) {

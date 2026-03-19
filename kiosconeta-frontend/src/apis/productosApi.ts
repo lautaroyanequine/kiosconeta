@@ -48,12 +48,12 @@ export const productosApi = {
   },
 
   /**
-   * Obtener productos activos (para POS)
+   * Obtener productos activos del kiosco (para POS)
    */
-  getActivos: async (): Promise<ProductoSimple[]> => {
+  getActivos: async (kioscoId: number): Promise<ProductoSimple[]> => {
     try {
       const response = await apiClient.get<ProductoSimple[]>(
-        API_ENDPOINTS.PRODUCTOS_ACTIVOS
+        `/productos/kiosco/${kioscoId}/activos`
       );
       return handleResponse(response);
     } catch (error) {
