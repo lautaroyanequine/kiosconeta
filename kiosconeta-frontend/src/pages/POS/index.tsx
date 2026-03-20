@@ -276,7 +276,7 @@ const POSPage: React.FC = () => {
         <div className="flex-1 flex flex-col overflow-hidden">
 
           {/* Búsqueda */}
-          <div className="p-3 bg-white border-b border-neutral-200 space-y-2">
+          <div className="px-3 py-2 bg-white border-b border-neutral-200 space-y-1.5">
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
               <input
@@ -323,14 +323,14 @@ const POSPage: React.FC = () => {
           </div>
 
           {/* Grilla de productos */}
-          <div className="flex-1 overflow-y-auto p-3">
+          <div className="flex-1 overflow-y-auto p-2">
             {productosFiltrados.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-neutral-300">
                 <Package size={48} className="mb-3 opacity-30" />
                 <p className="text-sm text-neutral-400">Sin resultados</p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
+              <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2">
                 {productosFiltrados.map(p => (
                   <ProductoCard key={p.productoId} producto={p} onClick={() => cart.addItem(p)} />
                 ))}
@@ -340,15 +340,15 @@ const POSPage: React.FC = () => {
         </div>
 
         {/* Panel derecho: Carrito */}
-        <div className="w-[360px] bg-white border-l border-neutral-200 flex flex-col shrink-0">
+        <div className="w-[480px] bg-white border-l border-neutral-200 flex flex-col shrink-0">
 
           {/* Header carrito */}
-          <div className="px-4 py-3 border-b border-neutral-100 flex items-center justify-between">
+          <div className="px-5 py-4 border-b border-neutral-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ShoppingCart size={17} className="text-primary" />
-              <span className="font-semibold text-sm text-neutral-800">Carrito</span>
+              <ShoppingCart size={20} className="text-primary" />
+              <span className="font-bold text-base text-neutral-800">Carrito</span>
               {cart.items.length > 0 && (
-                <span className="bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
                   {cart.items.length}
                 </span>
               )}
@@ -358,7 +358,7 @@ const POSPage: React.FC = () => {
                 onClick={() => { cart.clearCart(); setMontoEfectivo(''); }}
                 className="text-xs text-neutral-400 hover:text-danger flex items-center gap-1"
               >
-                <Trash2 size={12} /> Limpiar
+                <Trash2 size={13} /> Limpiar
               </button>
             )}
           </div>
@@ -394,8 +394,8 @@ const POSPage: React.FC = () => {
               <span>{formatCurrency(cart.subtotal)}</span>
             </div>
             <div className="flex justify-between items-baseline pb-3 border-b border-neutral-100">
-              <span className="text-lg font-bold text-neutral-900">TOTAL</span>
-              <span className="text-2xl font-bold text-primary">{formatCurrency(cart.total)}</span>
+              <span className="text-xl font-bold text-neutral-900">TOTAL</span>
+              <span className="text-3xl font-bold text-primary">{formatCurrency(cart.total)}</span>
             </div>
 
             {/* Métodos de pago */}
@@ -492,22 +492,22 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; onClick: () => void }> 
     <button
       onClick={onClick}
       disabled={sinStock}
-      className={`relative w-full bg-white rounded-xl p-3 text-left border-2 transition-all group
+      className={`relative w-full bg-white rounded-xl p-4 text-left border-2 transition-all group
         ${sinStock ? 'border-neutral-100 opacity-40 cursor-not-allowed'
         : 'border-neutral-200 hover:border-primary hover:shadow-md active:scale-[0.97]'}`}
     >
       {(stockBajo || sinStock) && (
         <span className={`absolute top-2 right-2 text-xs px-1.5 py-0.5 rounded-full font-medium
           ${sinStock ? 'bg-danger-100 text-danger' : 'bg-warning-100 text-warning-700'}`}>
-          {sinStock ? 'Sin stock' : producto.stock}
+          {sinStock ? 'Sin stock' : `Stock: ${producto.stock}`}
         </span>
       )}
-      <div className="w-10 h-10 rounded-lg bg-primary-50 group-hover:bg-primary flex items-center justify-center mb-2 transition-colors">
-        <Package size={20} className="text-primary group-hover:text-white transition-colors" />
+      <div className="w-12 h-12 rounded-xl bg-primary-50 group-hover:bg-primary flex items-center justify-center mb-3 transition-colors">
+        <Package size={24} className="text-primary group-hover:text-white transition-colors" />
       </div>
-      <p className="text-xs font-semibold text-neutral-800 line-clamp-2 min-h-[2rem] mb-1 leading-tight">{producto.nombre}</p>
-      <p className="text-xs text-neutral-400 truncate mb-1">{producto.categoria}</p>
-      <p className="text-sm font-bold text-primary">{formatCurrency(producto.precioVenta)}</p>
+      <p className="text-sm font-semibold text-neutral-800 line-clamp-2 min-h-[2.5rem] mb-1 leading-tight">{producto.nombre}</p>
+      <p className="text-xs text-neutral-400 truncate mb-2">{producto.categoria}</p>
+      <p className="text-lg font-bold text-primary">{formatCurrency(producto.precioVenta)}</p>
     </button>
   );
 };
@@ -519,28 +519,28 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; onClick: () => void }> 
 const CartItemRow: React.FC<{
   item: any; onIncrement: () => void; onDecrement: () => void; onRemove: () => void;
 }> = ({ item, onIncrement, onDecrement, onRemove }) => (
-  <div className="flex items-center gap-2 px-4 py-2.5 hover:bg-neutral-50 transition-colors">
+  <div className="flex items-center gap-3 px-5 py-3.5 hover:bg-neutral-50 transition-colors">
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-medium text-neutral-800 truncate">{item.nombre}</p>
-      <p className="text-xs text-neutral-400">{formatCurrency(item.precioUnitario)}</p>
+      <p className="text-sm font-semibold text-neutral-800 truncate">{item.nombre}</p>
+      <p className="text-xs text-neutral-400 mt-0.5">{formatCurrency(item.precioUnitario)} c/u</p>
     </div>
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-2">
       <button onClick={onDecrement}
-        className="w-6 h-6 rounded-full border border-neutral-200 flex items-center justify-center
+        className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center
                    text-neutral-400 hover:border-primary hover:text-primary transition-all active:scale-90">
-        <Minus size={10} />
+        <Minus size={12} />
       </button>
-      <span className="w-7 text-center text-sm font-bold text-neutral-800">{item.cantidad}</span>
+      <span className="w-8 text-center text-base font-bold text-neutral-800">{item.cantidad}</span>
       <button onClick={onIncrement} disabled={item.cantidad >= item.stock}
-        className="w-6 h-6 rounded-full border border-neutral-200 flex items-center justify-center
+        className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center
                    text-neutral-400 hover:border-primary hover:text-primary transition-all active:scale-90
                    disabled:opacity-30 disabled:cursor-not-allowed">
-        <Plus size={10} />
+        <Plus size={12} />
       </button>
     </div>
-    <span className="text-sm font-bold text-neutral-700 w-20 text-right">{formatCurrency(item.subtotal)}</span>
+    <span className="text-base font-bold text-neutral-800 w-24 text-right">{formatCurrency(item.subtotal)}</span>
     <button onClick={onRemove} className="text-neutral-300 hover:text-danger transition-colors ml-1">
-      <Trash2 size={14} />
+      <Trash2 size={15} />
     </button>
   </div>
 );
