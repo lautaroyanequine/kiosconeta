@@ -36,8 +36,8 @@ export const API_ENDPOINTS = {
   VENTAS_ANULAR: (id: number) => `/ventas/${id}/anular`,
   
   // Métodos de Pago
-  METODOS_PAGO: '/metodos-pago',
-  METODOS_PAGO_ACTIVOS: '/metodos-pago/activos',
+  METODOS_PAGO: '/MetodosDePago',
+  METODOS_PAGO_ACTIVOS: '/MetodosDePago',
   
   // Gastos
   GASTOS: '/gastos',

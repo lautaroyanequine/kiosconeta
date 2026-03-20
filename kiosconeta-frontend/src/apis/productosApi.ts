@@ -48,6 +48,21 @@ export const productosApi = {
   },
 
   /**
+   * Buscar producto por código de barras (para el scanner)
+   */
+  getByCodigoBarra: async (codigoBarra: string): Promise<ProductoSimple | null> => {
+    try {
+      const response = await apiClient.get<ProductoSimple>(
+        `/productos/codigo-barra/${codigoBarra}`
+      );
+      return handleResponse(response);
+    } catch (error: any) {
+      if (error.statusCode === 404) return null;
+      return handleError(error);
+    }
+  },
+
+  /**
    * Obtener productos activos del kiosco (para POS)
    */
   getActivos: async (kioscoId: number): Promise<ProductoSimple[]> => {
