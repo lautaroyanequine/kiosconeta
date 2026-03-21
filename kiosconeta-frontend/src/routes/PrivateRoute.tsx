@@ -10,11 +10,11 @@ interface PrivateRouteProps {
   requirePermission?: string;
 }
 
-export const PrivateRoute: React.FC<PrivateRouteProps> = ({
+export const PrivateRoute= ({
   children,
   requireAdmin = false,
   requirePermission,
-}) => {
+}:PrivateRouteProps) => {
   const { isAuthenticated, isLoading, isAdmin, hasPermission } = useAuth();
   const location = useLocation();
 

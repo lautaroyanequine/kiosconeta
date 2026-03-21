@@ -97,7 +97,7 @@ const NAV_ITEMS: NavItem[] = [
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
+export const Sidebar = ({ collapsed, onToggle }:SidebarProps) => {
   const { isAdmin } = useAuth();
 
   // Filtrar items según si el usuario es admin o no

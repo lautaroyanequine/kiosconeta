@@ -7,6 +7,7 @@ namespace Application.DTOs.CierreTurno
     {
         public int KioscoId { get; set; }
         public int EmpleadoId { get; set; }
+        public int TurnoId { get; set; }
         public decimal EfectivoInicial { get; set; }
         public string? Observaciones { get; set; }
     }
@@ -20,7 +21,8 @@ namespace Application.DTOs.CierreTurno
         /// Efectivo físico que el empleado contó en la caja
         /// </summary>
         public decimal EfectivoContado { get; set; }
-
+        public int TurnoId { get; set; }    
+        public string TurnoNombre { get; set; }
         /// <summary>
         /// Monto que realmente se acreditó en cuenta (tarjeta, MercadoPago, etc.)
         /// </summary>
@@ -38,6 +40,8 @@ namespace Application.DTOs.CierreTurno
         public EstadoCierre Estado { get; set; }
         public string EstadoNombre { get; set; }
 
+        public int TurnoId { get; set; }
+        public string TurnoNombre { get; set; }
         // Montos
         public decimal EfectivoInicial { get; set; }
         public decimal EfectivoFinal { get; set; }

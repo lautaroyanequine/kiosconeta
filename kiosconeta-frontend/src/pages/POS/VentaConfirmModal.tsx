@@ -23,13 +23,13 @@ interface VentaConfirmModalProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const VentaConfirmModal: React.FC<VentaConfirmModalProps> = ({
+export const VentaConfirmModal= ({
   isOpen,
   onClose,
   ventaId,
   total,
   metodoPago,
-}) => {
+}:VentaConfirmModalProps) => {
   // Auto-cerrar después de 3 segundos
   useEffect(() => {
     if (isOpen) {

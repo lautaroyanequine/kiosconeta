@@ -26,7 +26,7 @@ interface CardProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const Card: React.FC<CardProps> = ({
+export const Card = ({
   children,
   title,
   subtitle,
@@ -37,7 +37,7 @@ export const Card: React.FC<CardProps> = ({
   borderColor,
   className,
   onClick,
-}) => {
+}:CardProps) => {
   // Clases de padding
   const paddingClasses = {
     none: '',

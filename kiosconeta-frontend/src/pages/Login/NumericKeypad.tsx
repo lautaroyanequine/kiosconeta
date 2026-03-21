@@ -20,12 +20,12 @@ interface NumericKeypadProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const NumericKeypad: React.FC<NumericKeypadProps> = ({
+export const NumericKeypad= ({
   value,
   onChange,
   onSubmit,
   maxLength = 6,
-}) => {
+}:NumericKeypadProps) => {
   // ──────────────────────────────────────────────────────────────────────────
   // HANDLERS
   // ──────────────────────────────────────────────────────────────────────────

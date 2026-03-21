@@ -37,7 +37,7 @@ interface MainLayoutProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+export const MainLayout= ({ children }: MainLayoutProps) => {
   /*
     useState: hook de React para manejar estado local.
     - El valor inicial lo leemos de localStorage (si el usuario ya lo configuró antes)

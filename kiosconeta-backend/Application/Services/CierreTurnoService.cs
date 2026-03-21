@@ -101,7 +101,8 @@ namespace Application.Services
             var cierre = CierreTurno.Abrir(
                 dto.KioscoId,
                 dto.EfectivoInicial,
-                dto.Observaciones ?? string.Empty
+                dto.Observaciones ?? string.Empty,
+                dto.TurnoId
             );
 
             await _cierreTurnoRepository.CreateAsync(cierre);
@@ -183,7 +184,8 @@ namespace Application.Services
                 MontoEsperado = cierre.MontoEsperado,
                 MontoReal = cierre.MontoReal,
                 Diferencia = cierre.Diferencia,
-
+                TurnoId = cierre.TurnoId,
+                TurnoNombre = cierre.Turno?.Nombre ?? "",
                 CantidadVentas = ventas.Count,
                 TotalVentas = totalVentas,
                 TotalEfectivo = totalEfectivo,

@@ -88,7 +88,7 @@ builder.Services.AddScoped<IGastoRepository, GastoRepository>();
 builder.Services.AddScoped<ITipoDeGastoRepository, TipoDeGastoRepository>();
 builder.Services.AddScoped<IProductoVentaRepository, ProductoVentaRepository>();
 builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();     // ← NUEVO
-
+builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
 // ========== SERVICES ==========
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();

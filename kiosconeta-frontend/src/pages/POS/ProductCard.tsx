@@ -21,10 +21,10 @@ interface ProductCardProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+export const ProductCard= ({
   producto,
   onClick,
-}) => {
+}:ProductCardProps) => {
   const isLowStock = producto.stock < 10;
 
   return (

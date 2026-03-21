@@ -11,7 +11,7 @@ import { AppRoutes } from './routes/appRoutes';
 // LOADING FALLBACK
 // ────────────────────────────────────────────────────────────────────────────
 
-const LoadingFallback: React.FC = () => (
+const LoadingFallback= () => (
   <div className="min-h-screen center bg-neutral-50">
     <div className="text-center">
       <div className="spinner w-16 h-16 border-4 border-primary mb-4"></div>

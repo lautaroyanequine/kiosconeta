@@ -22,12 +22,12 @@ interface CartItemProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const CartItem: React.FC<CartItemProps> = ({
+export const CartItem= ({
   item,
   onIncrement,
   onDecrement,
   onRemove,
-}) => {
+}:CartItemProps) => {
   return (
     <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg
                     hover:bg-neutral-100 transition-colors">

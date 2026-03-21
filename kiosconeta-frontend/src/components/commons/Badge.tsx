@@ -14,12 +14,12 @@ interface BadgeProps {
   className?: string;
 }
 
-export const Badge: React.FC<BadgeProps> = ({
+export const Badge= ({
   children,
   variant = 'neutral',
   dot = false,
   className,
-}) => {
+}: BadgeProps) => {
   const variantClasses = {
     success: 'badge-success',
     danger: 'badge-danger',
@@ -50,10 +50,10 @@ interface SpinnerProps {
   className?: string;
 }
 
-export const Spinner: React.FC<SpinnerProps> = ({ 
+export const Spinner= ({ 
   size = 'md',
   className 
-}) => {
+}:SpinnerProps) => {
   const sizeClasses = {
     sm: 'w-4 h-4 border-2',
     md: 'w-8 h-8 border-2',
@@ -80,9 +80,9 @@ interface LoadingOverlayProps {
   message?: string;
 }
 
-export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ 
+export const LoadingOverlay = ({ 
   message = 'Cargando...' 
-}) => {
+}:LoadingOverlayProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-lg p-8 shadow-xl text-center">

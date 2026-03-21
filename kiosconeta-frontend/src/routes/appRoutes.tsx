@@ -19,7 +19,7 @@ const DashboardTempPage = () => (
   </div>
 );
 
-export const AppRoutes: React.FC = () => {
+export const AppRoutes= () => {
   return (
     <Routes>
 

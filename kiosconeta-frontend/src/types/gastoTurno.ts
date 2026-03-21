@@ -48,24 +48,50 @@ export interface TipoGasto {
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface Turno {
-  turnoId: number;
+  turnoID: number;
+  nombre: string;
+}
+
+export interface CierreTurno {
+  cierreTurnoId: number;
   fechaApertura: string;      // ISO date string
   fechaCierre?: string;       // ISO date string
   efectivoInicial: number;
-  efectivoFinal?: number;
+  totalEfectivo: number
+  totalVirtual: number;
+  efectivoEsperado: number
   totalVentas?: number;
   totalGastos?: number;
+  cantidadVentas: number
   diferencia?: number;
   observaciones?: string;
   kioscoId: number;
   empleados?: EmpleadoTurno[];
 }
 
+// Turno en tiempo real — mientras está abierto
+export interface TurnoActual {
+  cierreTurnoId: number;
+  fechaApertura: string;
+  fechaAperturaFormateada: string;
+  efectivoInicial: number;
+  efectivoEsperado: number;    // ← efectivo inicial + ventas efectivo - gastos
+  cantidadVentas: number;
+  totalVentas: number;
+  totalEfectivo: number;
+  totalVirtual: number;
+  totalGastos: number;
+  empleados: string[];         // ← array de nombres, no objetos
+}
+
+
 export interface EmpleadoTurno {
   empleadoId: number;
   nombre: string;
   ventasRealizadas: number;
   totalVendido: number;
+  turnoId: number;
+turnoNombre: string;  
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -73,13 +99,17 @@ export interface EmpleadoTurno {
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface AbrirTurnoDTO {
-  efectivoInicial: number;
   kioscoId: number;
+  empleadoId: number;
+  efectivoInicial: number;
+  turnoId: number;
+  observaciones?: string;
 }
 
 export interface CerrarTurnoDTO {
-  turnoId: number;
-  efectivoFinal: number;
+  turnoId : number;
+  efectivoContado: number;
+  virtualAcreditado: number;
   observaciones?: string;
 }
 
@@ -87,27 +117,34 @@ export interface CerrarTurnoDTO {
 // CIERRE DE TURNO (Detalle completo)
 // ────────────────────────────────────────────────────────────────────────────
 
-export interface CierreTurno {
-  turno: Turno;
-  resumenVentas: {
-    totalVentas: number;
-    cantidadVentas: number;
-    promedioVenta: number;
-  };
-  resumenGastos: {
-    totalGastos: number;
-    cantidadGastos: number;
-  };
-  resumenEfectivo: {
-    efectivoInicial: number;
-    efectivoEsperado: number;
-    efectivoReal: number;
-    diferencia: number;
-  };
-  resumenMetodosPago: {
-    metodoPago: string;
-    cantidad: number;
-    total: number;
+export interface CierreTurnoResponse {
+  cierreTurnoId: number;
+  fecha: string;
+  fechaFormateada: string;
+  estado: number;
+  estadoNombre: string;
+
+  // Montos del cierre
+  efectivoInicial: number;
+  efectivoFinal: number;
+  virtualFinal: number;
+  montoEsperado: number;
+  montoReal: number;
+  diferencia: number;
+
+  // Estadísticas
+  cantidadVentas: number;
+  totalVentas: number;
+  totalEfectivo: number;
+  totalVirtual: number;
+  totalGastos: number;
+
+  // Info extra
+  observaciones: string;
+  kioscoId: number;
+  kioscoNombre: string;
+  empleados: {
+    empleadoId: number;
+    empleadoNombre: string;
   }[];
-  ventasPorEmpleado: EmpleadoTurno[];
 }

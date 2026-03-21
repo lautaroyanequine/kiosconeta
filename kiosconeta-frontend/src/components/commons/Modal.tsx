@@ -27,7 +27,7 @@ interface ModalProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const Modal: React.FC<ModalProps> = ({
+export const Modal = ({
   isOpen,
   onClose,
   title,
@@ -36,7 +36,7 @@ export const Modal: React.FC<ModalProps> = ({
   size = 'md',
   closeOnOverlayClick = true,
   showCloseButton = true,
-}) => {
+}:ModalProps) => {
   // Cerrar con ESC
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {

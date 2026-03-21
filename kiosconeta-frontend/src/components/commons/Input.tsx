@@ -45,16 +45,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     // Clases del input
     const inputClasses = classNames(
-      'px-4 py-2 border rounded-md transition-colors duration-200',
-      'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20',
-      leftIcon && 'pl-10',
-      rightIcon && 'pr-10',
-      error && 'border-danger focus:border-danger focus:ring-danger',
-      !error && 'border-neutral-300 focus:border-primary',
-      disabled && 'bg-neutral-100 cursor-not-allowed opacity-60',
-      fullWidth ? 'w-full' : '',
-      className
-    );
+  'px-4 py-2 border rounded-md transition-colors duration-200',
+  'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20',
+  leftIcon ? 'pl-10' : undefined,
+  rightIcon ? 'pr-10' : undefined,
+  error && 'border-danger focus:border-danger focus:ring-danger',
+  !error && 'border-neutral-300 focus:border-primary',
+  disabled && 'bg-neutral-100 cursor-not-allowed opacity-60',
+  fullWidth ? 'w-full' : undefined,
+  className
+);
 
     return (
       <div className={containerClasses}>

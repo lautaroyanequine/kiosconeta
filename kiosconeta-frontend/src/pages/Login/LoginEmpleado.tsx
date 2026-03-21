@@ -22,7 +22,7 @@ interface LoginEmpleadoProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const LoginEmpleado: React.FC<LoginEmpleadoProps> = ({ onBack }) => {
+export const LoginEmpleado= ({ onBack }:LoginEmpleadoProps) => {
   const { loginEmpleado } = useAuth();
 
   // State

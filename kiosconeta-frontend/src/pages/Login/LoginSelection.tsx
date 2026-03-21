@@ -18,10 +18,10 @@ interface LoginSelectionProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const LoginSelection: React.FC<LoginSelectionProps> = ({
+export const LoginSelection = ({
   onSelectAdmin,
   onSelectEmpleado,
-}) => {
+}:LoginSelectionProps) => {
   return (
     <div className="min-h-screen bg-gradient-primary center">
       <div className="w-full max-w-md px-6">

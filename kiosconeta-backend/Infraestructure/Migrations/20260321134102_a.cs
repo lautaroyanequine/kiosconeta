@@ -134,7 +134,8 @@ namespace Infraestructure.Migrations
                     MontoReal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Diferencia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CantidadVentas = table.Column<int>(type: "int", nullable: false),
-                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    TurnoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -145,6 +146,12 @@ namespace Infraestructure.Migrations
                         principalTable: "Kiosco",
                         principalColumn: "KioscoID",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CierresTurno_Turno_TurnoId",
+                        column: x => x.TurnoId,
+                        principalTable: "Turno",
+                        principalColumn: "TurnoID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -495,7 +502,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$Aj2MC/YQcdx1SNwCu4zbg.KXJDTUX.fSls3dz3FtBkeGYY60mJBHS" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$TtsjU/FsLfbjv.T8l1EBCOACC/Ps26opzeUTzPaADtpptUU0/8nnO" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",
@@ -660,6 +667,11 @@ namespace Infraestructure.Migrations
                 name: "IX_CierresTurno_KioscoId_Estado",
                 table: "CierresTurno",
                 columns: new[] { "KioscoId", "Estado" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CierresTurno_TurnoId",
+                table: "CierresTurno",
+                column: "TurnoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CierreTurnoEmpleado_EmpleadoId",

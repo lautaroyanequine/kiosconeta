@@ -20,8 +20,9 @@ interface LoginAdminProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const LoginAdmin= ({ onBack }:LoginAdminProps) => {
+export const LoginAdmin = ({ onBack }: LoginAdminProps) => {
   const { loginAdmin } = useAuth();
+  
 
   // State
   const [email, setEmail] = useState('');

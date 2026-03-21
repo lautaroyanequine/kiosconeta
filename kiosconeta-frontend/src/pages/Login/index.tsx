@@ -17,7 +17,7 @@ type LoginStep = 'selection' | 'admin' | 'empleado';
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-const LoginPage: React.FC = () => {
+const LoginPage= () => {
   const [step, setStep] = useState<LoginStep>('selection');
 
   // ──────────────────────────────────────────────────────────────────────────

@@ -45,12 +45,12 @@ export const API_ENDPOINTS = {
   TIPOS_GASTO: '/tipos-gasto',
   
   // Turnos
-  TURNOS: '/turnos',
-  TURNO_ACTUAL: '/turnos/actual',
-  TURNO_ABRIR: '/turnos/abrir',
-  TURNO_CERRAR: (id: number) => `/turnos/${id}/cerrar`,
-  TURNO_DETALLE: (id: number) => `/turnos/${id}/detalle`,
-  
+TURNOS: '/Turnos',                    // ← lista Mañana/Tarde/Noche (TurnosController)
+TURNO_ACTUAL: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}/actual`,
+TURNO_ABRIR: '/CierreTurnos/abrir',
+TURNO_CERRAR: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}/cerrar`,
+TURNO_DETALLE: (id: number) => `/CierreTurnos/${id}`,
+TURNOS_KIOSCO: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}`,
   // Empleados
   EMPLEADOS: '/empleados',
   EMPLEADOS_BY_ID: (id: number) => `/empleados/${id}`,

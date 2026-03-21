@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const Header: React.FC = () => {
+export const Header= () => {
   const { user, logout, isAdmin } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 

@@ -26,7 +26,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button= ({
   variant = 'primary',
   size = 'md',
   loading = false,
@@ -37,7 +37,7 @@ export const Button: React.FC<ButtonProps> = ({
   className,
   children,
   ...props
-}) => {
+}:ButtonProps) => {
   // Clases base
   const baseClasses = 'btn inline-flex items-center justify-center';
 
