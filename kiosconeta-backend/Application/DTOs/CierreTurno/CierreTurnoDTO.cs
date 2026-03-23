@@ -90,6 +90,9 @@ namespace Application.DTOs.CierreTurno
         public decimal TotalEfectivo { get; set; }
         public decimal TotalVirtual { get; set; }
 
+        public int TurnoId { get; set; }
+        public string TurnoNombre { get; set; } = string.Empty;
+
         // Gastos
         public decimal TotalGastos { get; set; }  // ← NUEVO: Calculado automáticamente
 

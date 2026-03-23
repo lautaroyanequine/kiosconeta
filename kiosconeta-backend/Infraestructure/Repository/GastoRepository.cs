@@ -198,7 +198,13 @@ namespace Infraestructure.Repository
                 .OrderBy(t => t.Nombre)
                 .ToListAsync();
         }
-
+        public async Task<IEnumerable<TipoDeGasto>> GetByKioscoIdAsync(int kioscoId)
+        {
+            return await _context.TiposDeGasto
+                .Where(t => t.KioscoId == kioscoId && t.Activo)
+                .OrderBy(t => t.Nombre)
+                .ToListAsync();
+        }
         public async Task<IEnumerable<TipoDeGasto>> GetActivosAsync()
         {
             return await _context.TiposDeGasto

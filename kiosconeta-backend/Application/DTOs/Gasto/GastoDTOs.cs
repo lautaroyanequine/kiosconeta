@@ -11,6 +11,7 @@
         public string? Descripcion { get; set; }
         public decimal Monto { get; set; }
         public int EmpleadoId { get; set; }
+        public int? CierreTurnoId { get; set; }
         // KioscoId se obtiene automáticamente del empleado en el backend
         public int TipoDeGastoId { get; set; }
     }
@@ -68,7 +69,8 @@
     public class CreateTipoDeGastoDTO
     {
         public string Nombre { get; set; }
-        public string? Descripcion { get; set; }
+        public string Descripcion { get; set; }
+        public int KioscoId { get; set; }
     }
 
     // ─── ACTUALIZAR TIPO DE GASTO ────────────────────

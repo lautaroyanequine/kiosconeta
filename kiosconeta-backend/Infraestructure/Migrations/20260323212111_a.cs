@@ -54,21 +54,6 @@ namespace Infraestructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TipoDeGasto",
-                columns: table => new
-                {
-                    TipoDeGastoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    Activo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TipoDeGasto", x => x.TipoDeGastoId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Turno",
                 columns: table => new
                 {
@@ -247,6 +232,28 @@ namespace Infraestructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TipoDeGasto",
+                columns: table => new
+                {
+                    TipoDeGastoId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    Activo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    KioscoId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TipoDeGasto", x => x.TipoDeGastoId);
+                    table.ForeignKey(
+                        name: "FK_TipoDeGasto_Kiosco_KioscoId",
+                        column: x => x.KioscoId,
+                        principalTable: "Kiosco",
+                        principalColumn: "KioscoID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CierreTurnoEmpleado",
                 columns: table => new
                 {
@@ -299,49 +306,6 @@ namespace Infraestructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Gasto",
-                columns: table => new
-                {
-                    GastoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    EmpleadoId = table.Column<int>(type: "int", nullable: false),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    CierreTurnoId = table.Column<int>(type: "int", nullable: true),
-                    TipoDeGastoId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Gasto", x => x.GastoId);
-                    table.ForeignKey(
-                        name: "FK_Gasto_CierresTurno_CierreTurnoId",
-                        column: x => x.CierreTurnoId,
-                        principalTable: "CierresTurno",
-                        principalColumn: "CierreTurnoId");
-                    table.ForeignKey(
-                        name: "FK_Gasto_Empleado_EmpleadoId",
-                        column: x => x.EmpleadoId,
-                        principalTable: "Empleado",
-                        principalColumn: "EmpleadoId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Gasto_Kiosco_KioscoId",
-                        column: x => x.KioscoId,
-                        principalTable: "Kiosco",
-                        principalColumn: "KioscoID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Gasto_TipoDeGasto_TipoDeGastoId",
-                        column: x => x.TipoDeGastoId,
-                        principalTable: "TipoDeGasto",
-                        principalColumn: "TipoDeGastoId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Venta",
                 columns: table => new
                 {
@@ -384,6 +348,49 @@ namespace Infraestructure.Migrations
                         column: x => x.TurnoId,
                         principalTable: "Turno",
                         principalColumn: "TurnoID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Gasto",
+                columns: table => new
+                {
+                    GastoId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
+                    Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    EmpleadoId = table.Column<int>(type: "int", nullable: false),
+                    KioscoId = table.Column<int>(type: "int", nullable: false),
+                    CierreTurnoId = table.Column<int>(type: "int", nullable: true),
+                    TipoDeGastoId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Gasto", x => x.GastoId);
+                    table.ForeignKey(
+                        name: "FK_Gasto_CierresTurno_CierreTurnoId",
+                        column: x => x.CierreTurnoId,
+                        principalTable: "CierresTurno",
+                        principalColumn: "CierreTurnoId");
+                    table.ForeignKey(
+                        name: "FK_Gasto_Empleado_EmpleadoId",
+                        column: x => x.EmpleadoId,
+                        principalTable: "Empleado",
+                        principalColumn: "EmpleadoId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Gasto_Kiosco_KioscoId",
+                        column: x => x.KioscoId,
+                        principalTable: "Kiosco",
+                        principalColumn: "KioscoID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Gasto_TipoDeGasto_TipoDeGastoId",
+                        column: x => x.TipoDeGastoId,
+                        principalTable: "TipoDeGasto",
+                        principalColumn: "TipoDeGastoId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -502,7 +509,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$TtsjU/FsLfbjv.T8l1EBCOACC/Ps26opzeUTzPaADtpptUU0/8nnO" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$dBrfjhbXMkLaS.2H2vxoHO8pvrDjxeFRwKJyjwaZHmtxnBAqFoHIe" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",
@@ -754,6 +761,11 @@ namespace Infraestructure.Migrations
                 name: "IX_ProductoVenta_VentaId",
                 table: "ProductoVenta",
                 column: "VentaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TipoDeGasto_KioscoId",
+                table: "TipoDeGasto",
+                column: "KioscoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TipoDeGasto_Nombre",

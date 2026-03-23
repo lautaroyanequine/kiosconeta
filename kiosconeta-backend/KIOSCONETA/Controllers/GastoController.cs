@@ -58,6 +58,13 @@ namespace KIOSCONETA.Controllers
             }
         }
 
+
+        [HttpGet("turno/{cierreTurnoId}")]
+public async Task<ActionResult<IEnumerable<GastoResponseDTO>>> GetByTurno(int cierreTurnoId)
+{
+    var gastos = await _gastoService.GetByCierreTurnoIdAsync(cierreTurnoId);
+    return Ok(gastos);
+}
         /// Obtener gastos de un kiosco
         
         [HttpGet("kiosco/{kioscoId}")]
@@ -253,6 +260,7 @@ namespace KIOSCONETA.Controllers
             }
         }
 
+
         /// <summary>
         /// Obtener tipos de gasto activos
         /// </summary>
@@ -313,7 +321,19 @@ namespace KIOSCONETA.Controllers
                 return StatusCode(500, new { message = "Error al crear tipo de gasto", error = ex.Message });
             }
         }
-
+        [HttpGet("kiosco/{kioscoId}")]
+        public async Task<ActionResult<IEnumerable<TipoDeGastoResponseDTO>>> GetByKiosco(int kioscoId)
+        {
+            try
+            {
+                var tipos = await _tipoDeGastoService.GetByKioscoIdAsync(kioscoId);
+                return Ok(tipos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener tipos de gasto", error = ex.Message });
+            }
+        }
         /// <summary>
         /// Actualizar tipo de gasto
         /// </summary>

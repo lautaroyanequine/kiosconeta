@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260321134102_a")]
+    [Migration("20260323212111_a")]
     partial class a
     {
         /// <inheritdoc />
@@ -2068,37 +2068,6 @@ namespace Infraestructure.Migrations
                     b.ToTable("ProductoVenta", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.TipoDeGasto", b =>
-                {
-                    b.Property<int>("TipoDeGastoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TipoDeGastoId"));
-
-                    b.Property<bool>("Activo")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("TipoDeGastoId");
-
-                    b.HasIndex("Nombre")
-                        .IsUnique();
-
-                    b.ToTable("TipoDeGasto", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.Turno", b =>
                 {
                     b.Property<int>("TurnoID")
@@ -2166,7 +2135,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$TtsjU/FsLfbjv.T8l1EBCOACC/Ps26opzeUTzPaADtpptUU0/8nnO"
+                            Password = "$2a$11$dBrfjhbXMkLaS.2H2vxoHO8pvrDjxeFRwKJyjwaZHmtxnBAqFoHIe"
                         });
                 });
 
@@ -2249,6 +2218,42 @@ namespace Infraestructure.Migrations
                         .IsUnique();
 
                     b.ToTable("NumeradoresVenta", (string)null);
+                });
+
+            modelBuilder.Entity("TipoDeGasto", b =>
+                {
+                    b.Property<int>("TipoDeGastoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TipoDeGastoId"));
+
+                    b.Property<bool>("Activo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("KioscoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("TipoDeGastoId");
+
+                    b.HasIndex("KioscoId");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("TipoDeGasto", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.CierreTurno", b =>
@@ -2344,7 +2349,7 @@ namespace Infraestructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.TipoDeGasto", "TipoDeGasto")
+                    b.HasOne("TipoDeGasto", "TipoDeGasto")
                         .WithMany("Gastos")
                         .HasForeignKey("TipoDeGastoId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2454,6 +2459,17 @@ namespace Infraestructure.Migrations
                     b.Navigation("Kiosco");
                 });
 
+            modelBuilder.Entity("TipoDeGasto", b =>
+                {
+                    b.HasOne("Domain.Entities.Kiosco", "Kiosco")
+                        .WithMany()
+                        .HasForeignKey("KioscoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Kiosco");
+                });
+
             modelBuilder.Entity("Domain.Entities.CierreTurno", b =>
                 {
                     b.Navigation("CierreTurnoEmpleados");
@@ -2499,11 +2515,6 @@ namespace Infraestructure.Migrations
                     b.Navigation("ProductoVentas");
                 });
 
-            modelBuilder.Entity("Domain.Entities.TipoDeGasto", b =>
-                {
-                    b.Navigation("Gastos");
-                });
-
             modelBuilder.Entity("Domain.Entities.Turno", b =>
                 {
                     b.Navigation("Ventas");
@@ -2519,6 +2530,11 @@ namespace Infraestructure.Migrations
             modelBuilder.Entity("Domain.Entities.Venta", b =>
                 {
                     b.Navigation("ProductoVentas");
+                });
+
+            modelBuilder.Entity("TipoDeGasto", b =>
+                {
+                    b.Navigation("Gastos");
                 });
 #pragma warning restore 612, 618
         }

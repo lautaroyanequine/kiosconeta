@@ -16,6 +16,7 @@ namespace Application.Interfaces.Services
         Task<IEnumerable<GastoResponseDTO>> GetByFechaAsync(DateTime fechaDesde, DateTime fechaHasta);
         Task<IEnumerable<GastoResponseDTO>> GetDelDiaAsync(int kioscoId);
         Task<IEnumerable<GastoResponseDTO>> GetConFiltrosAsync(int kioscoId, GastoFiltrosDTO filtros);
+        Task<IEnumerable<GastoResponseDTO>> GetByCierreTurnoIdAsync(int cierreTurnoId);
 
         // Comandos
         Task<GastoResponseDTO> CreateAsync(CreateGastoDTO dto);
@@ -33,7 +34,7 @@ namespace Application.Interfaces.Services
         Task<TipoDeGastoResponseDTO?> GetByIdAsync(int id);
         Task<IEnumerable<TipoDeGastoResponseDTO>> GetAllAsync();
         Task<IEnumerable<TipoDeGastoResponseDTO>> GetActivosAsync();
-
+        Task<IEnumerable<TipoDeGastoResponseDTO>> GetByKioscoIdAsync(int kioscoId);
         // Comandos
         Task<TipoDeGastoResponseDTO> CreateAsync(CreateTipoDeGastoDTO dto);
         Task<TipoDeGastoResponseDTO> UpdateAsync(UpdateTipoDeGastoDTO dto);

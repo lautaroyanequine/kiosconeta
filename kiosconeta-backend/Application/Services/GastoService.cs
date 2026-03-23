@@ -35,7 +35,11 @@ namespace Application.Services
 
             return MapToResponseDTO(gasto);
         }
-
+        public async Task<IEnumerable<GastoResponseDTO>> GetByCierreTurnoIdAsync(int cierreTurnoId)
+        {
+            var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(cierreTurnoId);
+            return gastos.Select(MapToResponseDTO);
+        }
         public async Task<IEnumerable<GastoResponseDTO>> GetAllAsync()
         {
             var gastos = await _gastoRepository.GetAllAsync();
@@ -204,7 +208,14 @@ namespace Application.Services
 
             return await MapToResponseDTO(tipo);
         }
-
+        public async Task<IEnumerable<TipoDeGastoResponseDTO>> GetByKioscoIdAsync(int kioscoId)
+        {
+            var tipos = await _tipoDeGastoRepository.GetByKioscoIdAsync(kioscoId);
+            var result = new List<TipoDeGastoResponseDTO>();
+            foreach (var t in tipos)
+                result.Add(await MapToResponseDTO(t));
+            return result;
+        }
         public async Task<IEnumerable<TipoDeGastoResponseDTO>> GetAllAsync()
         {
             var tipos = await _tipoDeGastoRepository.GetAllAsync();
@@ -236,6 +247,7 @@ namespace Application.Services
             {
                 Nombre = dto.Nombre.Trim(),
                 Descripcion = dto.Descripcion?.Trim() ?? "",
+                KioscoId = dto.KioscoId,
                 Activo = true
             };
 

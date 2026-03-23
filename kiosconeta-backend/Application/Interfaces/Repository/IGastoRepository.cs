@@ -12,6 +12,7 @@ namespace Application.Interfaces.Repository
         // Consultas
         Task<Gasto?> GetByIdAsync(int id);
         Task<IEnumerable<Gasto>> GetAllAsync();
+
         Task<IEnumerable<Gasto>> GetByKioscoIdAsync(int kioscoId);
         Task<IEnumerable<Gasto>> GetByCierreTurnoIdAsync(int cierreTurnoId);
         Task<IEnumerable<Gasto>> GetByEmpleadoIdAsync(int empleadoId);
@@ -40,6 +41,7 @@ namespace Application.Interfaces.Repository
     {
         // Consultas
         Task<TipoDeGasto?> GetByIdAsync(int id);
+        Task<IEnumerable<TipoDeGasto>> GetByKioscoIdAsync(int kioscoId);
         Task<IEnumerable<TipoDeGasto>> GetAllAsync();
         Task<IEnumerable<TipoDeGasto>> GetActivosAsync();
         Task<bool> ExistsAsync(int id);

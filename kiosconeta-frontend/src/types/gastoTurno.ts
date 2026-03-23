@@ -78,6 +78,8 @@ export interface TurnoActual {
   efectivoEsperado: number;    // ← efectivo inicial + ventas efectivo - gastos
   cantidadVentas: number;
   totalVentas: number;
+   turnoId: number;       
+  turnoNombre: string
   totalEfectivo: number;
   totalVirtual: number;
   totalGastos: number;
@@ -90,6 +92,7 @@ export interface EmpleadoTurno {
   nombre: string;
   ventasRealizadas: number;
   totalVendido: number;
+  
   turnoId: number;
 turnoNombre: string;  
 }
@@ -107,12 +110,12 @@ export interface AbrirTurnoDTO {
 }
 
 export interface CerrarTurnoDTO {
-  turnoId : number;
-  efectivoContado: number;
-  virtualAcreditado: number;
-  observaciones?: string;
+  turnoId: number
+  turnoNombre: string
+  efectivoContado: number
+  virtualAcreditado: number
+  observaciones?: string
 }
-
 // ────────────────────────────────────────────────────────────────────────────
 // CIERRE DE TURNO (Detalle completo)
 // ────────────────────────────────────────────────────────────────────────────
@@ -123,7 +126,8 @@ export interface CierreTurnoResponse {
   fechaFormateada: string;
   estado: number;
   estadoNombre: string;
-
+  turnoId: number;       
+  turnoNombre: string
   // Montos del cierre
   efectivoInicial: number;
   efectivoFinal: number;
