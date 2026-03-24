@@ -10,7 +10,9 @@ import { ROUTES } from '../utils/constants';
 // Páginas (lazy loading — se cargan solo cuando el usuario navega a ellas)
 const LoginPage = React.lazy(() => import('../pages/Login'));
 const POSPage   = React.lazy(() => import('../pages/POS/index'));
-const TurnosPage = React.lazy(() => import('../pages/Turnos'))
+const TurnosPage = React.lazy(() => import('../pages/Turnos'));
+const GastosPage = React.lazy(() => import('../pages/Gastos'))
+
 
 // Dashboard temporal
 const DashboardTempPage = () => (
@@ -43,6 +45,11 @@ export const AppRoutes= () => {
       <Route
       path={ROUTES.TURNOS}
       element={<PrivateRoute><TurnosPage /></PrivateRoute> }/>
+
+
+      <Route
+      path={ROUTES.GASTOS}
+      element={<PrivateRoute><GastosPage /></PrivateRoute> }/>
 
       {/* ── 404 ── */}
       <Route

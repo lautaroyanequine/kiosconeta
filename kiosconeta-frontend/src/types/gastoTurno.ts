@@ -23,24 +23,45 @@ export interface Gasto {
   kioscoId: number;
 }
 
+
+// Respuesta de un gasto
+export interface GastoResponse {
+  gastoId: number
+  nombre: string
+  descripcion: string
+  monto: number
+  fecha: string
+  fechaFormateada: string
+  empleadoId: number
+  empleadoNombre: string
+  kioscoId: number
+  kioscoNombre: string
+  tipoDeGastoId: number
+  tipoDeGastoNombre: string
+  cierreTurnoId: number | null
+}
+
 export interface CreateGastoDTO {
-  descripcion: string;
-  monto: number;
-  tipoGastoId: number;
-  empleadoId: number;
-  kioscoId: number;
+  nombre: string
+  descripcion: string
+  monto: number
+  empleadoId: number
+  tipoDeGastoId: number
+  cierreTurnoId?: number   // opcional — null si es gasto admin
 }
 
 // ────────────────────────────────────────────────────────────────────────────
 // TIPO DE GASTO
 // ────────────────────────────────────────────────────────────────────────────
 
-export interface TipoGasto {
-  tipoGastoId: number;
-  nombre: string;
-  descripcion?: string;
-  activo: boolean;
-  kioscoId: number;
+// Tipo de gasto
+export interface TipoDeGasto {
+  tipoDeGastoId: number
+  nombre: string
+  descripcion: string
+  activo: boolean
+  cantidadGastos: number
+  totalGastos: number
 }
 
 // ────────────────────────────────────────────────────────────────────────────
