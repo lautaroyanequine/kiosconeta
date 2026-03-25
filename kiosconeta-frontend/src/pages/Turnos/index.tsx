@@ -19,7 +19,7 @@ const TurnosPage: React.FC = () => {
 
   useEffect(() => {
     if (user) cargarTurno()
-  }, [user])
+  }, [user,turnoActual])
 
   const cargarTurno = async () => {
     if (!user) return
@@ -41,7 +41,17 @@ const TurnosPage: React.FC = () => {
 
   if (!turnoActual) return <SinTurno />
 
-  return <TurnoAbierto turno={turnoActual} onCerrado={cargarTurno} />
+const handleTurnoCerrado = () => {
+  setTurnoActual(null) // opcional (para UI)
+  // NO LLAMAR cargarTurno acá inmediatamente
+}
+
+return (
+  <TurnoAbierto
+    turno={turnoActual}
+    onCerrado={handleTurnoCerrado}
+  />
+)
 }
 
 export default TurnosPage

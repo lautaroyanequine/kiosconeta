@@ -12,26 +12,21 @@ interface GastosTurnoProps {
 export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
   const { user } = useAuth()
 
-  // ── DATA ─────────────────────────────────────────
-  const [gastos, setGastos] = useState<GastoResponse[]>([])
+  const [gastos, setGastos]         = useState<GastoResponse[]>([])
   const [tiposGasto, setTiposGasto] = useState<TipoDeGasto[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading]       = useState(true)
 
-  // ── FORM ─────────────────────────────────────────
-  const [mostrarForm, setMostrarForm] = useState(false)
-  const [descripcion, setDescripcion] = useState('')
-  const [monto, setMonto] = useState('')
+  const [modalAbierto, setModalAbierto] = useState(false)
+
+  const [descripcion, setDescripcion]   = useState('')
+  const [monto, setMonto]               = useState('')
   const [tipoSeleccionado, setTipoSeleccionado] = useState<number | ''>('')
+
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError]               = useState('')
+  const [eliminando, setEliminando]     = useState<number | null>(null)
 
-  // ── DELETE ───────────────────────────────────────
-  const [eliminando, setEliminando] = useState<number | null>(null)
-
-  // ── LOAD ─────────────────────────────────────────
-  useEffect(() => {
-    cargarDatos()
-  }, [cierreTurnoId])
+  useEffect(() => { cargarDatos() }, [cierreTurnoId])
 
   const cargarDatos = async () => {
     setLoading(true)
@@ -40,13 +35,9 @@ export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
         gastosApi.getByTurno(cierreTurnoId),
         tiposGastoApi.getByKiosco(user!.kioscoId),
       ])
-
       setGastos(gastosData)
       setTiposGasto(tiposData)
-
-      if (tiposData.length > 0) {
-        setTipoSeleccionado(tiposData[0].tipoDeGastoId)
-      }
+      if (tiposData.length > 0) setTipoSeleccionado(tiposData[0].tipoDeGastoId)
     } catch (err) {
       console.error('Error cargando gastos:', err)
     } finally {
@@ -54,35 +45,25 @@ export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
     }
   }
 
-  // ── TOTAL ────────────────────────────────────────
   const totalGastos = useMemo(
     () => gastos.reduce((sum, g) => sum + g.monto, 0),
     [gastos]
   )
 
-  // ── VALIDACIÓN ───────────────────────────────────
   const formularioValido =
     monto !== '' &&
     !isNaN(parseFloat(monto)) &&
     parseFloat(monto) > 0 &&
     tipoSeleccionado !== ''
 
-  // ── RESET FORM ───────────────────────────────────
-  const limpiarFormulario = () => {
+  const limpiarYCerrar = () => {
     setDescripcion('')
     setMonto('')
     setError('')
-    if (tiposGasto.length > 0) {
-      setTipoSeleccionado(tiposGasto[0].tipoDeGastoId)
-    }
+    if (tiposGasto.length > 0) setTipoSeleccionado(tiposGasto[0].tipoDeGastoId)
+    setModalAbierto(false)
   }
 
-  const cancelarFormulario = () => {
-    limpiarFormulario()
-    setMostrarForm(false)
-  }
-
-  // ── CREATE ───────────────────────────────────────
   const handleCrear = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formularioValido || !user) return
@@ -91,6 +72,8 @@ export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
     setError('')
 
     try {
+      const tipo = tiposGasto.find(t => t.tipoDeGastoId === tipoSeleccionado)
+
       const nuevoGasto = await gastosApi.create({
         descripcion: descripcion.trim(),
         monto: parseFloat(monto),
@@ -100,8 +83,7 @@ export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
       })
 
       setGastos(prev => [...prev, nuevoGasto])
-      limpiarFormulario()
-      setMostrarForm(false)
+      limpiarYCerrar()
     } catch (err: any) {
       setError(err.message || 'Error al registrar el gasto')
     } finally {
@@ -109,7 +91,6 @@ export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
     }
   }
 
-  // ── DELETE ───────────────────────────────────────
   const handleEliminar = async (gastoId: number) => {
     setEliminando(gastoId)
     try {
@@ -122,111 +103,143 @@ export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
     }
   }
 
-  // ── RENDER ───────────────────────────────────────
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+    <>
+      <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
 
-      {/* HEADER */}
-      <div className="flex items-center justify-between px-5 py-4 border-b">
-        <div className="flex items-center gap-2">
-          <Wallet size={18} className="text-neutral-400" />
-          <h3 className="text-sm font-semibold">Gastos del turno</h3>
-        </div>
-
-        {!mostrarForm && (
-          <button onClick={() => setMostrarForm(true)} className="text-primary flex items-center gap-1">
-            <Plus size={15} />
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-neutral-100">
+          <div className="flex items-center gap-2">
+            <Wallet size={16} className="text-neutral-400" />
+            <h3 className="text-sm font-semibold text-neutral-800">Gastos del turno</h3>
+          </div>
+          <button
+            onClick={() => setModalAbierto(true)}
+            className="flex items-center gap-1.5 text-xs text-primary font-medium
+                       hover:bg-primary/5 px-2.5 py-1.5 rounded-lg transition-colors"
+          >
+            <Plus size={13} />
             Agregar
           </button>
+        </div>
+
+        {/* Lista */}
+        {loading ? (
+          <div className="flex items-center justify-center py-6">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : gastos.length === 0 ? (
+          <div className="text-center py-6 text-neutral-400">
+            <p className="text-xs">Sin gastos en este turno</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-neutral-100">
+            {gastos.map(gasto => (
+              <div key={gasto.gastoId}
+                className="flex items-center gap-3 px-5 py-2.5 hover:bg-neutral-50">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded-full">
+                      {gasto.tipoDeGastoNombre}
+                    </span>
+                  </div>
+                  {gasto.descripcion && (
+                    <p className="text-xs text-neutral-500 mt-1">{gasto.descripcion}</p>
+                  )}
+                  <p className="text-xs text-neutral-400">{gasto.fechaFormateada}</p>
+                </div>
+
+                <span className="text-sm font-bold text-danger">
+                  -{formatCurrency(gasto.monto)}
+                </span>
+
+                <button
+                  onClick={() => handleEliminar(gasto.gastoId)}
+                  disabled={eliminando === gasto.gastoId}
+                  className="text-neutral-300 hover:text-danger ml-1"
+                >
+                  {eliminando === gasto.gastoId
+                    ? <div className="w-3.5 h-3.5 border-2 border-danger/40 border-t-danger rounded-full animate-spin" />
+                    : <Trash2 size={14} />
+                  }
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Total */}
+        {gastos.length > 0 && (
+          <div className="flex justify-between items-center px-5 py-2.5 bg-neutral-50 border-t">
+            <span className="text-xs text-neutral-600">Total gastos</span>
+            <span className="text-sm font-bold text-danger">
+              {formatCurrency(totalGastos)}
+            </span>
+          </div>
         )}
       </div>
 
-      {/* FORM */}
-      {mostrarForm && (
-        <div className="p-5 bg-neutral-50 border-b">
-          <form onSubmit={handleCrear} className="space-y-3">
+      {/* MODAL */}
+      {modalAbierto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl w-full max-w-md mx-4">
 
-            {/* MONTO */}
-            <input
-              type="number"
-              value={monto}
-              onChange={e => setMonto(e.target.value)}
-              placeholder="Monto"
-              className="w-full p-2 border rounded"
-            />
-
-            {/* TIPO */}
-            <select
-              value={tipoSeleccionado}
-              onChange={e => setTipoSeleccionado(Number(e.target.value))}
-              className="w-full p-2 border rounded"
-            >
-              {tiposGasto.map(t => (
-                <option key={t.tipoDeGastoId} value={t.tipoDeGastoId}>
-                  {t.nombre}
-                </option>
-              ))}
-            </select>
-
-            {/* DESCRIPCIÓN */}
-            <input
-              type="text"
-              value={descripcion}
-              onChange={e => setDescripcion(e.target.value)}
-              placeholder="Descripción (opcional)"
-              className="w-full p-2 border rounded"
-            />
-
-            <div className="flex gap-2">
-              <button type="button" onClick={cancelarFormulario}>
-                Cancelar
-              </button>
-              <button type="submit" disabled={!formularioValido}>
-                Guardar
-              </button>
+            <div className="flex justify-between px-6 py-4 border-b">
+              <h3 className="font-bold">Registrar gasto</h3>
+              <button onClick={limpiarYCerrar}><X size={18} /></button>
             </div>
 
-          </form>
-        </div>
-      )}
+            <form onSubmit={handleCrear} className="p-6 space-y-4">
 
-      {/* LISTA */}
-      {loading ? (
-        <p className="p-5 text-center">Cargando...</p>
-      ) : gastos.length === 0 ? (
-        <p className="p-5 text-center text-neutral-400">Sin gastos</p>
-      ) : (
-        <div>
-          {gastos.map(g => (
-            <div key={g.gastoId} className="flex justify-between p-3 border-b">
+              {/* Tipo */}
               <div>
-                <p>{g.descripcion || g.tipoDeGastoNombre}</p>
-                <small>{g.tipoDeGastoNombre}</small>
+                <label className="text-sm font-medium">Tipo *</label>
+                <select
+                  value={tipoSeleccionado}
+                  onChange={e => setTipoSeleccionado(Number(e.target.value))}
+                  className="w-full mt-1 p-2 border rounded-lg"
+                >
+                  {tiposGasto.map(t => (
+                    <option key={t.tipoDeGastoId} value={t.tipoDeGastoId}>
+                      {t.nombre}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-danger">
-                  -{formatCurrency(g.monto)}
-                </span>
-
-                <button onClick={() => handleEliminar(g.gastoId)}>
-                  <Trash2 size={14} />
-                </button>
+              {/* Monto */}
+              <div>
+                <label className="text-sm font-medium">Monto *</label>
+                <input
+                  type="number"
+                  value={monto}
+                  onChange={e => setMonto(e.target.value)}
+                  className="w-full mt-1 p-2 border rounded-lg"
+                />
               </div>
-            </div>
-          ))}
-        </div>
-      )}
 
-      {/* TOTAL */}
-      {gastos.length > 0 && (
-        <div className="p-3 bg-neutral-50 flex justify-between">
-          <span>Total</span>
-          <strong className="text-danger">
-            {formatCurrency(totalGastos)}
-          </strong>
+              {/* Descripción */}
+              <div>
+                <label className="text-sm font-medium">Descripción</label>
+                <input
+                  type="text"
+                  value={descripcion}
+                  onChange={e => setDescripcion(e.target.value)}
+                  className="w-full mt-1 p-2 border rounded-lg"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={!formularioValido}
+                className="w-full bg-primary text-white py-2 rounded-lg"
+              >
+                Guardar gasto
+              </button>
+            </form>
+          </div>
         </div>
       )}
-    </div>
+    </>
   )
 }

@@ -78,9 +78,7 @@ namespace Application.Services
 
         public async Task<GastoResponseDTO> CreateAsync(CreateGastoDTO dto)
         {
-            // Validaciones
-            if (string.IsNullOrWhiteSpace(dto.Nombre))
-                throw new InvalidOperationException("El nombre del gasto es obligatorio");
+            
 
             if (dto.Monto <= 0)
                 throw new InvalidOperationException("El monto debe ser mayor a 0");

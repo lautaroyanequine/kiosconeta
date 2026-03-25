@@ -7,7 +7,6 @@
     // ─── CREAR GASTO ─────────────────────────────────
     public class CreateGastoDTO
     {
-        public string Nombre { get; set; }
         public string? Descripcion { get; set; }
         public decimal Monto { get; set; }
         public int EmpleadoId { get; set; }
