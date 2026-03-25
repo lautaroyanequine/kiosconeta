@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { turnosApi } from '@/apis/turnosApi'
 import { TurnoAbierto } from './TurnoAbierto'
 import type { TurnoActual } from '@/types/gastoTurno'
+import { Spinner } from '@/components/commons'
 
 // ── Componente sin turno ──────────────────────────────────────────────────
 
@@ -35,14 +36,7 @@ const TurnosPage: React.FC = () => {
 
   // Loading
   if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-neutral-500">Cargando turno...</p>
-        </div>
-      </div>
-    )
+    <Spinner></Spinner>
   }
 
   if (!turnoActual) return <SinTurno />

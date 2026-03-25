@@ -42,7 +42,6 @@ export interface GastoResponse {
 }
 
 export interface CreateGastoDTO {
-  nombre: string
   descripcion: string
   monto: number
   empleadoId: number

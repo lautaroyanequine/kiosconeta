@@ -660,11 +660,6 @@ namespace Infraestructure.Migrations
                     b.Property<decimal>("Monto")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
                     b.Property<int>("TipoDeGastoId")
                         .HasColumnType("int");
 
@@ -2132,7 +2127,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$dBrfjhbXMkLaS.2H2vxoHO8pvrDjxeFRwKJyjwaZHmtxnBAqFoHIe"
+                            Password = "$2a$11$eIVAwM//te/H4AMkirFek.ny6V0Zgxa1uqWs0QZTwIXmWCwhboxV6"
                         });
                 });
 

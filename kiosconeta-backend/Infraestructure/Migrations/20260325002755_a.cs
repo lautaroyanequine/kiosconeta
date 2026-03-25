@@ -357,7 +357,6 @@ namespace Infraestructure.Migrations
                 {
                     GastoId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Fecha = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
                     Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -509,7 +508,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$dBrfjhbXMkLaS.2H2vxoHO8pvrDjxeFRwKJyjwaZHmtxnBAqFoHIe" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$eIVAwM//te/H4AMkirFek.ny6V0Zgxa1uqWs0QZTwIXmWCwhboxV6" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",

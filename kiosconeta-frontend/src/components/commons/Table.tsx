@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { classNames } from '@/utils/helpers';
+import { Spinner } from './Badge';
 
 // ────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -68,14 +69,8 @@ export const Table = <T extends Record<string, any>>({
         {/* Body */}
         <tbody>
           {loading ? (
-            <tr>
-              <td colSpan={columns.length} className="text-center py-8">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="spinner w-8 h-8 border-2 border-primary" />
-                  <span className="text-neutral-500">Cargando...</span>
-                </div>
-              </td>
-            </tr>
+            <Spinner>
+            </Spinner>
           ) : data.length === 0 ? (
             <tr>
               <td colSpan={columns.length} className="text-center py-8">

@@ -107,7 +107,7 @@ namespace Application.Services
 
             var gasto = new Gasto
             {
-                Nombre = dto.Nombre.Trim(),
+             
                 Descripcion = dto.Descripcion?.Trim() ?? "",
                 Monto = dto.Monto,
                 EmpleadoId = dto.EmpleadoId,
@@ -142,7 +142,6 @@ namespace Application.Services
             if (tipoGasto == null)
                 throw new KeyNotFoundException($"Tipo de gasto con ID {dto.TipoDeGastoId} no encontrado");
 
-            gasto.Nombre = dto.Nombre.Trim();
             gasto.Descripcion = dto.Descripcion?.Trim() ?? "";
             gasto.Monto = dto.Monto;
             gasto.TipoDeGastoId = dto.TipoDeGastoId;
@@ -165,7 +164,6 @@ namespace Application.Services
             return new GastoResponseDTO
             {
                 GastoId = gasto.GastoId,
-                Nombre = gasto.Nombre,
                 Descripcion = gasto.Descripcion,
                 Monto = gasto.Monto,
                 Fecha = gasto.Fecha,

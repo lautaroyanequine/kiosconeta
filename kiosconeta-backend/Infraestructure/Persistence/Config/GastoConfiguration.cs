@@ -15,9 +15,7 @@ namespace Infraestructure.Persistence.Config
             entityBuilder.Property(g => g.GastoId)
                 .ValueGeneratedOnAdd();
 
-            entityBuilder.Property(g => g.Nombre)
-        .HasMaxLength(150)
-        .IsRequired();
+        
 
             entityBuilder.Property(g => g.Fecha)
                 .HasColumnType("datetime2")

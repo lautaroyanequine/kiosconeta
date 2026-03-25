@@ -105,14 +105,7 @@ export const LoginEmpleado= ({ onBack }:LoginEmpleadoProps) => {
   // ──────────────────────────────────────────────────────────────────────────
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-neutral-50 center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="text-neutral-600 mt-4">Cargando empleados...</p>
-        </div>
-      </div>
-    );
+    <Spinner></Spinner>
   }
 
   // ──────────────────────────────────────────────────────────────────────────

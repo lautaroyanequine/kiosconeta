@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { turnosApi } from '@/apis/turnosApi';
 import { POSVenta } from './POSVenta';
 import { AbrirTurno } from './AbrirTurno';
+import { Spinner } from '@/components/commons';
 import type { TurnoActual } from '@/types/gastoTurno';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -41,14 +42,7 @@ const POSPage: React.FC = () => {
 
   // Loading
   if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-neutral-500">Cargando...</p>
-        </div>
-      </div>
-    );
+    <Spinner></Spinner>
   }
 
   // Sin turno → formulario de apertura
