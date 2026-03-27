@@ -16,7 +16,6 @@ namespace Infraestructure.Repository
         }
 
         // ========== CONSULTAS ==========
-
         public async Task<CierreTurno?> GetByIdAsync(int id)
         {
             return await _context.CierresTurno
@@ -24,8 +23,42 @@ namespace Infraestructure.Repository
                 .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Include(ct => ct.Ventas)
-                .ThenInclude(v => v.MetodoPago)
+                    .ThenInclude(v => v.MetodoPago)
+                .Include(ct => ct.Ventas)           // ← AGREGAR
+                    .ThenInclude(v => v.ProductoVentas)
+                        .ThenInclude(pv => pv.Producto) // ← AGREGAR
                 .FirstOrDefaultAsync(ct => ct.CierreTurnoId == id);
+        }
+
+        public async Task<CierreTurno?> GetTurnoAbiertoAsync(int kioscoId)
+        {
+            return await _context.CierresTurno
+                .Include(ct => ct.Kiosco)
+                .Include(ct => ct.CierreTurnoEmpleados)
+                    .ThenInclude(cte => cte.Empleado)
+                .Include(ct => ct.Ventas)
+                    .ThenInclude(v => v.MetodoPago)
+                .Include(ct => ct.Ventas)           // ← AGREGAR
+                    .ThenInclude(v => v.ProductoVentas)
+                        .ThenInclude(pv => pv.Producto) // ← AGREGAR
+                .FirstOrDefaultAsync(ct => ct.KioscoId == kioscoId
+                                        && ct.Estado == EstadoCierre.Abierto);
+        }
+
+        public async Task<IEnumerable<CierreTurno>> GetByKioscoIdAsync(int kioscoId)
+        {
+            return await _context.CierresTurno
+                .Include(ct => ct.Kiosco)
+                .Include(ct => ct.CierreTurnoEmpleados)
+                    .ThenInclude(cte => cte.Empleado)
+                .Include(ct => ct.Ventas)
+                    .ThenInclude(v => v.MetodoPago)
+                .Include(ct => ct.Ventas)           // ← AGREGAR
+                    .ThenInclude(v => v.ProductoVentas)
+                        .ThenInclude(pv => pv.Producto) // ← AGREGAR
+                .Where(ct => ct.KioscoId == kioscoId)
+                .OrderByDescending(ct => ct.FechaApertura)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<CierreTurno>> GetAllAsync()
@@ -38,28 +71,7 @@ namespace Infraestructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<CierreTurno>> GetByKioscoIdAsync(int kioscoId)
-        {
-            return await _context.CierresTurno
-                .Include(ct => ct.Kiosco)
-                .Include(ct => ct.CierreTurnoEmpleados)
-                    .ThenInclude(cte => cte.Empleado)
-                .Where(ct => ct.KioscoId == kioscoId)
-                .OrderByDescending(ct => ct.FechaApertura)
-                .ToListAsync();
-        }
 
-        public async Task<CierreTurno?> GetTurnoAbiertoAsync(int kioscoId)
-        {
-            return await _context.CierresTurno
-                .Include(ct => ct.Kiosco)
-                .Include(ct => ct.CierreTurnoEmpleados)
-                    .ThenInclude(cte => cte.Empleado)
-                .Include(ct => ct.Ventas)
-                .ThenInclude(v => v.MetodoPago)
-                .FirstOrDefaultAsync(ct => ct.KioscoId == kioscoId
-                                        && ct.Estado == EstadoCierre.Abierto);
-        }
 
         public async Task<IEnumerable<CierreTurno>> GetPorFechaAsync(int kioscoId, DateTime fechaDesde, DateTime fechaHasta)
         {

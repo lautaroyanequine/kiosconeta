@@ -9,6 +9,7 @@ namespace Application.DTOs.CierreTurno
         public int EmpleadoId { get; set; }
         public decimal EfectivoInicial { get; set; }
         public string? Observaciones { get; set; }
+        public int TurnoId { get; set; }
     }
 
     // ─── CERRAR TURNO ────────────────────────────────
@@ -37,7 +38,8 @@ namespace Application.DTOs.CierreTurno
         public string FechaFormateada => Fecha.ToString("dd/MM/yyyy HH:mm");
         public EstadoCierre Estado { get; set; }
         public string EstadoNombre { get; set; }
-
+        public DateTime? FechaCierre { get; set; }   
+        public string? FechaCierreFormateada => FechaCierre?.ToString("HH:mm");
         // Montos
         public decimal EfectivoInicial { get; set; }
         public decimal EfectivoFinal { get; set; }
@@ -45,6 +47,10 @@ namespace Application.DTOs.CierreTurno
         public decimal MontoEsperado { get; set; }
         public decimal MontoReal { get; set; }
         public decimal Diferencia { get; set; }
+
+        public int TurnoId { get; set; }
+        public string TurnoNombre { get; set; } = string.Empty;
+        public decimal GananciaTotal { get; set; }
 
         // Estadísticas
         public int CantidadVentas { get; set; }

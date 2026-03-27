@@ -117,33 +117,32 @@ export const productosApi = {
   },
 
   /**
-   * Activar/desactivar producto
+   * Activar/desactivar producto — PATCH /productos/{id}/toggle-activo?activo=true|false
    */
-  toggleActivo: async (id: number): Promise<Producto> => {
+  toggleActivo: async (id: number, activo?: boolean): Promise<void> => {
     try {
-      const response = await apiClient.patch<Producto>(
-        `${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/toggle-activo`
+      const param = activo !== undefined ? `?activo=${activo}` : '';
+      await apiClient.patch(
+        `${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/toggle-activo${param}`
       );
-      return handleResponse(response);
     } catch (error) {
       return handleError(error);
     }
   },
 
   /**
-   * Ajustar stock
+   * Ajustar stock — PATCH /productos/{id}/stock?cantidad=X
+   * cantidad positiva = agregar, negativa = quitar
    */
   ajustarStock: async (
     id: number,
     cantidad: number,
-    operacion: 'agregar' | 'quitar'
-  ): Promise<Producto> => {
+    _operacion?: 'agregar' | 'quitar'
+  ): Promise<void> => {
     try {
-      const response = await apiClient.patch<Producto>(
-        `${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/ajustar-stock`,
-        { cantidad, operacion }
+      await apiClient.patch(
+        `${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/stock?cantidad=${cantidad}`
       );
-      return handleResponse(response);
     } catch (error) {
       return handleError(error);
     }

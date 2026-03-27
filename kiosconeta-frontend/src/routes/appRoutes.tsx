@@ -8,8 +8,9 @@ import { PrivateRoute } from './PrivateRoute';
 import { ROUTES } from '../utils/constants';
 
 // Páginas (lazy loading — se cargan solo cuando el usuario navega a ellas)
-const LoginPage = React.lazy(() => import('../pages/Login'));
-const POSPage   = React.lazy(() => import('../pages/POS/index'));
+const LoginPage      = React.lazy(() => import('../pages/Login'));
+const POSPage        = React.lazy(() => import('../pages/POS/index'));
+const ProductosPage  = React.lazy(() => import('../pages/Productos/index'));
 
 // Dashboard temporal
 const DashboardTempPage = () => (
@@ -35,6 +36,10 @@ export const AppRoutes: React.FC = () => {
       <Route
         path={ROUTES.POS}
         element={<PrivateRoute><POSPage /></PrivateRoute>}
+      />
+      <Route
+        path={ROUTES.PRODUCTOS}
+        element={<PrivateRoute><ProductosPage /></PrivateRoute>}
       />
 
       {/* ── 404 ── */}

@@ -20,8 +20,7 @@ interface LoginAdminProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const LoginAdmin: <LoginAdminProps> = ({ onBack }) => {
-  const { loginAdmin } = useAuth();
+export const LoginAdmin: React.FC<LoginAdminProps> = ({ onBack }) => {  const { loginAdmin } = useAuth();
 
   // State
   const [email, setEmail] = useState('');

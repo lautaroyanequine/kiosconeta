@@ -105,10 +105,15 @@ namespace Infraestructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int>("TurnoId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("VirtualFinal")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("CierreTurnoId");
+
+                    b.HasIndex("TurnoId");
 
                     b.HasIndex("KioscoId", "Estado");
 
@@ -2158,7 +2163,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$Aj2MC/YQcdx1SNwCu4zbg.KXJDTUX.fSls3dz3FtBkeGYY60mJBHS"
+                            Password = "$2a$11$didl3AW57d137yUmsGaxX.bUUAnNdKHFMrOojkXIgiYbdH5wJqLDq"
                         });
                 });
 
@@ -2251,7 +2256,15 @@ namespace Infraestructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.Turno", "Turno")
+                        .WithMany()
+                        .HasForeignKey("TurnoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Kiosco");
+
+                    b.Navigation("Turno");
                 });
 
             modelBuilder.Entity("Domain.Entities.CierreTurnoEmpleado", b =>
