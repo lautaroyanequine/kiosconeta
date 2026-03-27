@@ -44,7 +44,7 @@ export const AbrirTurno: React.FC<AbrirTurnoProps> = ({ onAbierto }) => {
         const data = await turnosApi.getAll();
         setTurnos(data);
         // Seleccionar el primero por defecto
-        if (data.length > 0) setTurnoSeleccionado(data[0].turnoID);
+        if (data.length > 0) setTurnoSeleccionado(data[0].turnoId);
       } catch (err) {
         console.error('Error al cargar turnos:', err);
       } finally {
@@ -132,11 +132,11 @@ export const AbrirTurno: React.FC<AbrirTurnoProps> = ({ onAbierto }) => {
                 <div className="grid grid-cols-3 gap-2">
                   {turnos.map(t => (
                     <button
-                      key={t.turnoID}
+                      key={t.turnoId}
                       type="button"
-                      onClick={() => setTurnoSeleccionado(t.turnoID)}
+                      onClick={() => setTurnoSeleccionado(t.turnoId)}
                       className={`py-2.5 rounded-xl text-sm font-semibold border-2 transition-all
-                        ${turnoSeleccionado === t.turnoID
+                        ${turnoSeleccionado === t.turnoId
                           ? 'border-primary bg-primary text-white'
                           : 'border-neutral-200 text-neutral-600 hover:border-primary/50'}`}
                     >

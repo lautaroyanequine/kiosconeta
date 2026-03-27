@@ -44,9 +44,9 @@ export const StockModal: React.FC<StockModalProps> = ({
   const stockResultante =
     cantidad && !isNaN(Number(cantidad))
       ? operacion === 'agregar'
-        ? producto.stock + Number(cantidad)
-        : producto.stock - Number(cantidad)
-      : producto.stock;
+        ? producto.stockActual + Number(cantidad)
+        : producto.stockActual - Number(cantidad)
+      : producto.stockActual;
 
   const handleConfirmar = () => {
     const n = Number(cantidad);
@@ -54,8 +54,8 @@ export const StockModal: React.FC<StockModalProps> = ({
       setError('Ingresá una cantidad válida mayor a 0');
       return;
     }
-    if (operacion === 'quitar' && n > producto.stock) {
-      setError(`No podés quitar más de ${producto.stock} unidades`);
+    if (operacion === 'quitar' && n > producto.stockActual) {
+      setError(`No podés quitar más de ${producto.stockActual} unidades`);
       return;
     }
     const delta = operacion === 'agregar' ? n : -n;
@@ -86,14 +86,14 @@ export const StockModal: React.FC<StockModalProps> = ({
           Stock actual:{' '}
           <span
             className={`font-bold ${
-              producto.stock === 0
+              producto.stockActual === 0
                 ? 'text-red-600'
-                : producto.stock < producto.stockMinimo
+                : producto.stockActual < producto.stockMinimo
                 ? 'text-amber-600'
                 : 'text-green-600'
             }`}
           >
-            {producto.stock} unidades
+            {producto.stockActual} unidades
           </span>
         </p>
       </div>

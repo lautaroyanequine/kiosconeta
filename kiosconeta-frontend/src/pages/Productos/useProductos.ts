@@ -87,23 +87,16 @@ export const useProductos = () => {
 
   const productosFiltrados = useMemo(() => {
     return productos.filter((p) => {
-      // Filtro activos
       if (filtros.soloActivos && !p.activo) return false;
-
-      // Filtro stock bajo
-      if (filtros.soloStockBajo && p.stock >= p.stockMinimo) return false;
-
-      // Filtro categoría
+      // bajoStock viene calculado del backend, pero también lo calculamos localmente
+      if (filtros.soloStockBajo && p.stockActual >= p.stockMinimo) return false;
       if (filtros.categoriaId !== '' && p.categoriaId !== filtros.categoriaId) return false;
-
-      // Filtro búsqueda
       if (filtros.busqueda) {
         const q = filtros.busqueda.toLowerCase();
         const matchNombre = p.nombre.toLowerCase().includes(q);
-        const matchCodigo = p.codigoBarras?.toLowerCase().includes(q);
+        const matchCodigo = p.codigoBarra?.toLowerCase().includes(q);
         if (!matchNombre && !matchCodigo) return false;
       }
-
       return true;
     });
   }, [productos, filtros]);
@@ -185,13 +178,11 @@ export const useProductos = () => {
 
   const ajustarStock = async (productoId: number, cantidad: number) => {
     try {
-      // El endpoint PATCH /productos/{id}/stock recibe cantidad como query param
-      // cantidad positiva = sumar, negativa = restar
       await productosApi.ajustarStock(productoId, Math.abs(cantidad), cantidad > 0 ? 'agregar' : 'quitar');
       setProductos((prev) =>
         prev.map((p) =>
           p.productoId === productoId
-            ? { ...p, stock: Math.max(0, p.stock + cantidad) }
+            ? { ...p, stockActual: Math.max(0, p.stockActual + cantidad) }
             : p
         )
       );
@@ -236,8 +227,8 @@ export const useProductos = () => {
 
   const stats = useMemo(() => {
     const activos = productos.filter((p) => p.activo).length;
-    const stockBajo = productos.filter((p) => p.activo && p.stock < p.stockMinimo).length;
-    const sinStock = productos.filter((p) => p.activo && p.stock === 0).length;
+    const stockBajo = productos.filter((p) => p.activo && p.stockActual < p.stockMinimo).length;
+    const sinStock = productos.filter((p) => p.activo && p.stockActual === 0).length;
     return { total: productos.length, activos, stockBajo, sinStock };
   }, [productos]);
 

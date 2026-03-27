@@ -110,18 +110,18 @@ const ProductosPage: React.FC = () => {
       render: (p: Producto) => (
         <div>
           <p className="font-medium text-neutral-900">{p.nombre}</p>
-          {p.codigoBarras && (
-            <p className="text-xs text-neutral-400 font-mono">{p.codigoBarras}</p>
+          {p.codigoBarra && (
+            <p className="text-xs text-neutral-400 font-mono">{p.codigoBarra}</p>
           )}
         </div>
       ),
     },
     {
-      key: 'categoria',
+      key: 'categoriaNombre',
       header: 'Categoría',
       render: (p: Producto) => (
         <span className="text-sm text-neutral-600">
-          {categorias.find((c) => c.categoriaId === p.categoriaId)?.nombre || '—'}
+          {p.categoriaNombre || categorias.find((c) => c.categoriaID === p.categoriaId)?.nombre || '—'}
         </span>
       ),
     },
@@ -144,7 +144,7 @@ const ProductosPage: React.FC = () => {
       ),
     },
     {
-      key: 'stock',
+      key: 'stockActual',
       header: 'Stock',
       align: 'center' as const,
       render: (p: Producto) => (
@@ -153,7 +153,7 @@ const ProductosPage: React.FC = () => {
           title="Ajustar stock"
           className="flex items-center gap-1.5 mx-auto hover:opacity-70 transition-opacity"
         >
-          <StockBadge stock={p.stock} stockMinimo={p.stockMinimo} />
+          <StockBadge stock={p.stockActual} stockMinimo={p.stockMinimo} />
         </button>
       ),
     },
@@ -322,7 +322,7 @@ const ProductosPage: React.FC = () => {
               >
                 <option value="">Todas las categorías</option>
                 {categorias.map((cat) => (
-                  <option key={cat.categoriaId} value={cat.categoriaId}>
+                  <option key={cat.categoriaID} value={cat.categoriaID}>
                     {cat.nombre}
                   </option>
                 ))}

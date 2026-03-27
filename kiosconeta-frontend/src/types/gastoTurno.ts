@@ -68,7 +68,7 @@ export interface TipoDeGasto {
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface Turno {
-  turnoID: number;
+  turnoId: number;
   nombre: string;
 }
 
@@ -98,7 +98,7 @@ export interface TurnoActual {
   efectivoEsperado: number;    // ← efectivo inicial + ventas efectivo - gastos
   cantidadVentas: number;
   totalVentas: number;
-   turnoId: number;       
+  turnoId: number;       
   turnoNombre: string
   totalEfectivo: number;
   totalVirtual: number;
@@ -162,6 +162,10 @@ export interface CierreTurnoResponse {
   totalEfectivo: number;
   totalVirtual: number;
   totalGastos: number;
+
+  fechaCierre: string | null
+  fechaCierreFormateada: string | null
+  gananciaTotal: number
 
   // Info extra
   observaciones: string;

@@ -51,7 +51,8 @@ TURNO_ABRIR: '/CierreTurnos/abrir',
 TURNO_CERRAR: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}/cerrar`,
 TURNO_DETALLE: (id: number) => `/CierreTurnos/${id}`,
 TURNOS_KIOSCO: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}`,
-  // Empleados
+
+// Empleados
   EMPLEADOS: '/empleados',
   EMPLEADOS_BY_ID: (id: number) => `/empleados/${id}`,
   EMPLEADOS_ACTIVOS: '/empleados/activos',

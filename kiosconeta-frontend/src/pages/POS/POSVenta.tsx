@@ -236,13 +236,13 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       const venta = await ventasApi.create({
         empleadoId:   user.empleadoId,
         metodoPagoId: cart.metodoPagoId!,
-        turnoId:      turnoActual.cierreTurnoId, // ← turno real
+        turnoId:      turnoActual.turnoId, // ← turno real
         productos:    cart.items.map(i => ({
           productoId: i.productoId,
           cantidad:   i.cantidad,
         })),
       });
-
+console.log("SETEANDO MODAL")
       setVentaConfirmada({
         ventaId:    venta.ventaId,
         total:      cart.total,
@@ -253,7 +253,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       cart.clearCart();
       setMontoEfectivo('');
       setBusqueda('');
-      onTurnoActualizado(); // refrescar stats del turno
+       // refrescar stats del turno
     } catch (err: any) {
       alert(err.message || 'Error al procesar la venta');
     } finally {
@@ -518,7 +518,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       {ventaConfirmada && (
         <VentaModal
           data={ventaConfirmada}
-          onClose={() => { setVentaConfirmada(null); busquedaRef.current?.focus(); }}
+          onClose={() => { setVentaConfirmada(null);onTurnoActualizado(); busquedaRef.current?.focus(); }}
         />
       )}
     </div>

@@ -9,16 +9,19 @@
 export interface Producto {
   productoId: number;
   nombre: string;
-  codigoBarras?: string;
+  codigoBarra?: string;         // backend: CodigoBarra
   precioCosto: number;
   precioVenta: number;
-  stock: number;
+  stockActual: number;          // backend: StockActual
   stockMinimo: number;
   categoriaId: number;
-  categoria?: Categoria;
-  fechaVencimiento?: string;    // ISO date string
+  categoriaNombre?: string;     // backend: CategoriaNombre
+  fechaVencimiento?: string;
   activo: boolean;
   kioscoId: number;
+  bajoStock?: boolean;          // backend: BajoStock (calculado)
+  margenGanancia?: number;
+  suelto?: boolean;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -27,27 +30,29 @@ export interface Producto {
 
 export interface CreateProductoDTO {
   nombre: string;
-  codigoBarras?: string;
+  codigoBarra?: string;
   precioCosto: number;
   precioVenta: number;
-  stock: number;
+  stockActual: number;
   stockMinimo: number;
   categoriaId: number;
   fechaVencimiento?: string;
   kioscoId: number;
+  suelto?: boolean;
 }
 
 export interface UpdateProductoDTO {
   productoId: number;
-  nombre?: string;
-  codigoBarras?: string;
-  precioCosto?: number;
-  precioVenta?: number;
-  stock?: number;
-  stockMinimo?: number;
-  categoriaId?: number;
+  nombre: string;
+  codigoBarra?: string;
+  precioCosto: number;
+  precioVenta: number;
+  stockActual: number;
+  stockMinimo: number;
+  categoriaId: number;
   fechaVencimiento?: string;
-  activo?: boolean;
+  activo: boolean;
+  suelto?: boolean;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -55,17 +60,16 @@ export interface UpdateProductoDTO {
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface Categoria {
-  categoriaId: number;
+  categoriaID: number;          // backend: CategoriaID (mayúscula)
   nombre: string;
-  descripcion?: string;
-  activo: boolean;
-  kioscoId: number;
+  cantidadProductos?: number;
+  activo?: boolean;
+  kioscoId?: number;
 }
 
 export interface CreateCategoriaDTO {
   nombre: string;
-  descripcion?: string;
-  kioscoId: number;
+  kioscoId?: number;
 }
 
 // ────────────────────────────────────────────────────────────────────────────

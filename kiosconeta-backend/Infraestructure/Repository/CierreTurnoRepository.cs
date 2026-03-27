@@ -20,6 +20,7 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
+                .Include(ct => ct.Turno)
                 .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Include(ct => ct.Ventas)
@@ -34,6 +35,7 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
+                .Include(CT => CT.Turno)
                 .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Include(ct => ct.Ventas)
@@ -49,6 +51,7 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
+                .Include(ct => ct.Turno)
                 .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Include(ct => ct.Ventas)
@@ -65,6 +68,7 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
+                .Include(ct => ct.Turno)
                 .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .OrderByDescending(ct => ct.FechaApertura)
@@ -77,6 +81,7 @@ namespace Infraestructure.Repository
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
+                .Include(ct => ct.Turno)
                 .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
                 .Where(ct => ct.KioscoId == kioscoId

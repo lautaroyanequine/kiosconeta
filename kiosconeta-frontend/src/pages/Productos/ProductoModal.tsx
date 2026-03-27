@@ -66,10 +66,10 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
     if (mode === 'editar' && producto) {
       setForm({
         nombre: producto.nombre,
-        codigoBarras: producto.codigoBarras || '',
+        codigoBarras: producto.codigoBarra || '',
         precioCosto: String(producto.precioCosto),
         precioVenta: String(producto.precioVenta),
-        stock: String(producto.stock),
+        stock: String(producto.stockActual),
         stockMinimo: String(producto.stockMinimo),
         categoriaId: String(producto.categoriaId),
         fechaVencimiento: producto.fechaVencimiento
@@ -120,17 +120,22 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
 
     const base = {
       nombre: form.nombre.trim(),
-      codigoBarras: form.codigoBarras.trim() || undefined,
+      codigoBarra: form.codigoBarras.trim() || undefined,
       precioCosto: Number(form.precioCosto),
       precioVenta: Number(form.precioVenta),
-      stock: Number(form.stock),
+      stockActual: Number(form.stock),
       stockMinimo: Number(form.stockMinimo),
       categoriaId: Number(form.categoriaId),
       fechaVencimiento: form.fechaVencimiento || undefined,
+      suelto: false,
     };
 
     if (mode === 'editar' && producto) {
-      onSave({ ...base, productoId: producto.productoId } as UpdateProductoDTO);
+      onSave({
+        ...base,
+        productoId: producto.productoId,
+        activo: producto.activo,
+      } as UpdateProductoDTO);
     } else {
       onSave(base as CreateProductoDTO);
     }
@@ -286,9 +291,9 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
           >
             <option value="">Seleccioná una categoría</option>
             {categorias
-              .filter((c) => c.activo)
+              .filter((c) => c.activo !== false)
               .map((cat) => (
-                <option key={cat.categoriaId} value={cat.categoriaId}>
+                <option key={cat.categoriaID} value={cat.categoriaID}>
                   {cat.nombre}
                 </option>
               ))}

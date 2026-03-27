@@ -4,17 +4,20 @@ import { Clock } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { turnosApi } from '@/apis/turnosApi'
 import { TurnoAbierto } from './TurnoAbierto'
+import { HistorialTurnos } from './HistorialTurnos'
 import { ROUTES } from '@/utils/constants'
-import type { TurnoActual } from '@/types/gastoTurno'
 import { Spinner } from '@/components/commons'
+import type { TurnoActual } from '@/types/gastoTurno'
+
 // ── Sin turno ─────────────────────────────────────────────────────────────
 
 const SinTurno: React.FC = () => {
   const navigate = useNavigate()
   return (
-    <div className="h-full flex items-center justify-center bg-neutral-50">
-      <div className="text-center max-w-sm">
-        <div className="w-20 h-20 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+    <div className="h-full flex flex-col bg-neutral-50 overflow-y-auto">
+      {/* Aviso sin turno */}
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="w-20 h-20 bg-neutral-100 rounded-full flex items-center justify-center mb-6">
           <Clock size={40} className="text-neutral-400" />
         </div>
         <h2 className="text-2xl font-bold text-neutral-800 mb-2">No hay turno abierto</h2>
@@ -29,6 +32,12 @@ const SinTurno: React.FC = () => {
           Ir al POS
         </button>
       </div>
+
+      {/* Historial de turnos cerrados */}
+      <div className="max-w-4xl mx-auto w-full px-6 pb-8">
+        <h2 className="text-base font-bold text-neutral-800 mb-4">Historial de turnos</h2>
+        <HistorialTurnos />
+      </div>
     </div>
   )
 }
@@ -40,7 +49,6 @@ const TurnosPage: React.FC = () => {
   const [turnoActual, setTurnoActual] = useState<TurnoActual | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // ← Solo se ejecuta al montar — SIN turnoActual como dependencia
   useEffect(() => {
     if (user) cargarTurno()
   }, [user])
@@ -58,14 +66,12 @@ const TurnosPage: React.FC = () => {
     }
   }
 
-  // Loading
- if (loading) {
-     <Spinner></Spinner>
+   if (loading) {
+    return <Spinner></Spinner>
    }
-  if (!turnoActual) return <SinTurno />
 
-  // ← onCerrado llama cargarTurno — el modal ya se mostró en TurnoAbierto
-  // cargarTurno recarga el estado → turnoActual pasa a null → muestra SinTurno
+  if (!turnoActual) return <SinTurno></SinTurno>
+
   return (
     <TurnoAbierto
       turno={turnoActual}

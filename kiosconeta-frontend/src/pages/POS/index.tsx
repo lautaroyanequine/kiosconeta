@@ -42,7 +42,7 @@ const POSPage: React.FC = () => {
 
   // Loading
   if (loading) {
-    <Spinner></Spinner>
+    return<Spinner></Spinner>
   }
 
   // Sin turno → formulario de apertura

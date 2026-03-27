@@ -62,6 +62,8 @@ namespace Application.Services
             return new TurnoActualDTO
             {
                 CierreTurnoId = turno.CierreTurnoId,
+                TurnoId = turno.TurnoId, 
+                TurnoNombre = turno.Turno?.Nombre ?? "",
                 FechaApertura = turno.FechaApertura,
                 EfectivoInicial = turno.EfectivoInicial,
                 CantidadVentas = ventas.Count,
@@ -102,8 +104,7 @@ namespace Application.Services
                 dto.KioscoId,
                 dto.EfectivoInicial,
                 dto.Observaciones ?? string.Empty,dto.TurnoId
-                dto.Observaciones ?? string.Empty,
-                dto.TurnoId
+         
             );
 
             await _cierreTurnoRepository.CreateAsync(cierre);
@@ -168,8 +169,8 @@ namespace Application.Services
             var totalVirtual = ventas.Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") != true)
                                     .Sum(v => v.Total);
             var gananciaTotal = ventas
-    .SelectMany(v => v.ProductoVentas ?? new List<ProductoVenta>())
-    .Sum(pv => (pv.PrecioUnitario - (pv.Producto?.PrecioCosto ?? 0)) * pv.Cantidad);
+            .SelectMany(v => v.ProductoVentas ?? new List<ProductoVenta>())
+            .Sum(pv => (pv.PrecioUnitario - (pv.Producto?.PrecioCosto ?? 0)) * pv.Cantidad);
 
             // Calcular gastos del turno (filtro exacto por CierreTurnoId, aplica siempre)
             var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(cierre.CierreTurnoId);
@@ -197,8 +198,7 @@ namespace Application.Services
                 TotalGastos = totalGastos,
 
                 FechaCierre = cierre.FechaCierre,        
-                TurnoId = cierre.TurnoId,               
-                TurnoNombre = cierre.Turno?.Nombre ?? "", 
+  
                 GananciaTotal = gananciaTotal,
 
                 Observaciones = cierre.Observaciones,
