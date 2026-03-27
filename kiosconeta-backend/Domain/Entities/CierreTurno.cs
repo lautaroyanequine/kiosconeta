@@ -34,14 +34,19 @@ namespace Domain.Entities
         public int TurnoId { get; private set; }
         public Turno Turno { get; private set; }
         // ───────────── RELACIONES ─────────────
-
+        public int TurnoId { get; private set; }
+        public Turno Turno { get; private set; }
         public IList<Venta> Ventas { get; private set; } = new List<Venta>();
         public IList<CierreTurnoEmpleado> CierreTurnoEmpleados { get; private set; } = new List<CierreTurnoEmpleado>();
 
         // Constructor vacío para EF
         protected CierreTurno() { }
 
+<<<<<<< HEAD
         private CierreTurno(int kioscoId, decimal efectivoInicial, string observaciones,int turnoId)
+=======
+        private CierreTurno(int kioscoId, decimal efectivoInicial, string observaciones ,int turnoId)
+>>>>>>> c41927fb954081734a8155d066e5772976b0e279
         {
             if (efectivoInicial < 0)
                 throw new InvalidOperationException("El efectivo inicial no puede ser negativo");
@@ -55,6 +60,7 @@ namespace Domain.Entities
             EfectivoInicial = efectivoInicial;
             EfectivoFinal = 0;
             VirtualFinal = 0;
+            TurnoId = turnoId;
 
             MontoEsperado = 0;
             MontoReal = 0;

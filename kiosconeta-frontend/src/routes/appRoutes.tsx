@@ -12,6 +12,8 @@ const LoginPage = React.lazy(() => import('../pages/Login'));
 const POSPage   = React.lazy(() => import('../pages/POS/index'));
 const TurnosPage = React.lazy(() => import('../pages/Turnos'));
 const GastosPage = React.lazy(() => import('../pages/Gastos'))
+const ProductosPage  = React.lazy(() => import('../pages/Productos/index'));
+
 
 
 // Dashboard temporal
@@ -40,6 +42,10 @@ export const AppRoutes= () => {
       <Route
         path={ROUTES.POS}
         element={<PrivateRoute><POSPage /></PrivateRoute>}
+      />
+      <Route
+        path={ROUTES.PRODUCTOS}
+        element={<PrivateRoute><ProductosPage /></PrivateRoute>}
       />
 
       <Route
