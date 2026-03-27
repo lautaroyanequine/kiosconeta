@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260327110852_a")]
+    [Migration("20260327173252_a")]
     partial class a
     {
         /// <inheritdoc />
@@ -2065,34 +2065,34 @@ namespace Infraestructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Turno", b =>
                 {
-                    b.Property<int>("TurnoID")
+                    b.Property<int>("TurnoId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TurnoID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TurnoId"));
 
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("TurnoID");
+                    b.HasKey("TurnoId");
 
                     b.ToTable("Turno", (string)null);
 
                     b.HasData(
                         new
                         {
-                            TurnoID = 1,
+                            TurnoId = 1,
                             Nombre = "Mañana"
                         },
                         new
                         {
-                            TurnoID = 2,
+                            TurnoId = 2,
                             Nombre = "Tarde"
                         },
                         new
                         {
-                            TurnoID = 3,
+                            TurnoId = 3,
                             Nombre = "Noche"
                         });
                 });
@@ -2130,7 +2130,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$xOYID.bQ7moWNdAm0gB6y.Zej5U69kASB07gQPRGRE8f2ws/pfFZ."
+                            Password = "$2a$11$/vJbrkrTgmg1i6XEXQZNQuHAjD/EmlUA65mfClLUVGFGHo1T20yXy"
                         });
                 });
 

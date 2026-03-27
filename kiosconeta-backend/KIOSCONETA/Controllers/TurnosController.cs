@@ -19,7 +19,7 @@ namespace KIOSCONETA.Controllers
             var turnos = await turnoRepository.GetAllAsync();
             return Ok(turnos.Select(t => new
             {
-                turnoID = t.TurnoID,
+                turnoId = t.TurnoId,
                 nombre = t.Nombre
             }));
         }

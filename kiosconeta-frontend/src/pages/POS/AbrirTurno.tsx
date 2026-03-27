@@ -42,6 +42,7 @@ export const AbrirTurno: React.FC<AbrirTurnoProps> = ({ onAbierto }) => {
     const cargarTurnos = async () => {
       try {
         const data = await turnosApi.getAll();
+        console.log(data);
         setTurnos(data);
         // Seleccionar el primero por defecto
         if (data.length > 0) setTurnoSeleccionado(data[0].turnoId);

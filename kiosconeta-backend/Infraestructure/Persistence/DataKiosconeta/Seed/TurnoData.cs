@@ -10,17 +10,17 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
             entity.HasData(
                 new Turno
                 {
-                    TurnoID = 1,
+                    TurnoId = 1,
                     Nombre = "Mañana"
                 },
                 new Turno
                 {
-                    TurnoID = 2,
+                    TurnoId = 2,
                     Nombre = "Tarde"
                 },
                 new Turno
                 {
-                    TurnoID = 3,
+                    TurnoId = 3,
                     Nombre = "Noche"
                 }
             );

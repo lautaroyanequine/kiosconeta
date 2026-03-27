@@ -57,13 +57,13 @@ namespace Infraestructure.Migrations
                 name: "Turno",
                 columns: table => new
                 {
-                    TurnoID = table.Column<int>(type: "int", nullable: false)
+                    TurnoId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Turno", x => x.TurnoID);
+                    table.PrimaryKey("PK_Turno", x => x.TurnoId);
                 });
 
             migrationBuilder.CreateTable(
@@ -135,7 +135,7 @@ namespace Infraestructure.Migrations
                         name: "FK_CierresTurno_Turno_TurnoId",
                         column: x => x.TurnoId,
                         principalTable: "Turno",
-                        principalColumn: "TurnoID",
+                        principalColumn: "TurnoId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -347,7 +347,7 @@ namespace Infraestructure.Migrations
                         name: "FK_Venta_Turno_TurnoId",
                         column: x => x.TurnoId,
                         principalTable: "Turno",
-                        principalColumn: "TurnoID",
+                        principalColumn: "TurnoId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -497,7 +497,7 @@ namespace Infraestructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Turno",
-                columns: new[] { "TurnoID", "Nombre" },
+                columns: new[] { "TurnoId", "Nombre" },
                 values: new object[,]
                 {
                     { 1, "Mañana" },
@@ -508,7 +508,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$xOYID.bQ7moWNdAm0gB6y.Zej5U69kASB07gQPRGRE8f2ws/pfFZ." });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$/vJbrkrTgmg1i6XEXQZNQuHAjD/EmlUA65mfClLUVGFGHo1T20yXy" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",

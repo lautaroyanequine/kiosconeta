@@ -9,7 +9,7 @@ namespace Infraestructure.Persistence.Config
         public TurnoConfiguration(EntityTypeBuilder<Turno> entityBuilder)
         {
             entityBuilder.ToTable("Turno");
-            entityBuilder.Property(m => m.TurnoID).ValueGeneratedOnAdd();
+            entityBuilder.Property(m => m.TurnoId).ValueGeneratedOnAdd();
             entityBuilder.HasMany(t => t.Ventas)
                 .WithOne(v => v.Turno)
                 .HasForeignKey(v => v.TurnoId)

@@ -17,14 +17,14 @@ namespace Infraestructure.Repository
         public async Task<IEnumerable<Turno>> GetAllAsync()
         {
             return await _context.Turnos
-                .OrderBy(t => t.TurnoID)
+                .OrderBy(t => t.TurnoId)
                 .ToListAsync();
         }
 
         public async Task<Turno?> GetByIdAsync(int id)
         {
             return await _context.Turnos
-                .FirstOrDefaultAsync(t => t.TurnoID == id);
+                .FirstOrDefaultAsync(t => t.TurnoId == id);
         }
     }
 }
