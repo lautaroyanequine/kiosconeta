@@ -11,7 +11,9 @@ import { ROUTES } from '../utils/constants';
 const LoginPage = React.lazy(() => import('../pages/Login'));
 const POSPage   = React.lazy(() => import('../pages/POS/index'));
 const TurnosPage = React.lazy(() => import('../pages/Turnos'));
-const GastosPage = React.lazy(() => import('../pages/Gastos'))
+const CategoriasPage  = React.lazy(() => import('../pages/Categorias'));
+const EmpleadosPage   = React.lazy(() => import('../pages/Empleados'));
+const GastosPage  = React.lazy(() => import('../pages/Gastos'))
 const ProductosPage  = React.lazy(() => import('../pages/Productos/index'));
 
 
@@ -52,6 +54,17 @@ export const AppRoutes= () => {
       path={ROUTES.TURNOS}
       element={<PrivateRoute><TurnosPage /></PrivateRoute> }/>
 
+
+  
+      <Route
+        path={ROUTES.CATEGORIAS}
+        element={<PrivateRoute requireAdmin><CategoriasPage /></PrivateRoute>}
+      />
+
+      <Route
+        path={ROUTES.EMPLEADOS}
+        element={<PrivateRoute requireAdmin><EmpleadosPage /></PrivateRoute>}
+      />
 
       <Route
       path={ROUTES.GASTOS}

@@ -508,7 +508,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$1qGIb7n0P5cBhCYUkGNQmeSCvNapZ1t3La9/ISli.n4mtd7LVVrbO" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$8e/cntFtJEPpRXaflodxl.f0MEsGJsKwkCe6NqwLVKQSA/mX3EAdK" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",
