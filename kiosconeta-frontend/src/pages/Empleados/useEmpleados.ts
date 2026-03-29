@@ -12,7 +12,10 @@ import type {
   Permiso,
   EmpleadoConPermisos,
   PlantillaRol,
+  PlantillaCustom,
 } from '@/types';
+
+const STORAGE_KEY_PLANTILLAS = 'kiosconeta_plantillas_custom';
 
 // ────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -31,6 +34,13 @@ export const useEmpleados = () => {
   const [empleados, setEmpleados]           = useState<Empleado[]>([]);
   const [todosPermisos, setTodosPermisos]   = useState<Permiso[]>([]);
   const [plantillas, setPlantillas]         = useState<PlantillaRol[]>([]);
+  const [plantillasCustom, setPlantillasCustom] = useState<PlantillaCustom[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_PLANTILLAS);
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+  const [showModalPlantillas, setShowModalPlantillas] = useState(false);
   const [isLoading, setIsLoading]           = useState(true);
   const [error, setError]                   = useState<string | null>(null);
 
@@ -218,8 +228,8 @@ export const useEmpleados = () => {
     );
   };
 
-  const aplicarPlantilla = (permisos: Permiso[]) => {
-    setPermisosSeleccionados(permisos.map(p => p.permisoId));
+  const aplicarPlantilla = (permisosIds: number[]) => {
+    setPermisosSeleccionados(permisosIds);
   };
 
   const guardarPermisos = async () => {
@@ -269,6 +279,38 @@ export const useEmpleados = () => {
     } finally {
       setIsSavingPin(false);
     }
+  };
+
+  // ────────────────────────────────────────────────────────────────────────
+  // PLANTILLAS CUSTOM
+  // ────────────────────────────────────────────────────────────────────────
+
+  const guardarPlantillasCustom = (nuevas: PlantillaCustom[]) => {
+    setPlantillasCustom(nuevas);
+    localStorage.setItem(STORAGE_KEY_PLANTILLAS, JSON.stringify(nuevas));
+  };
+
+  const crearPlantillaCustom = (nombre: string, descripcion: string, permisosIds: number[]) => {
+    const nueva: PlantillaCustom = {
+      id: Date.now().toString(),
+      nombre: nombre.trim(),
+      descripcion: descripcion.trim() || undefined,
+      permisosIds,
+      creadaEn: new Date().toISOString(),
+    };
+    guardarPlantillasCustom([...plantillasCustom, nueva]);
+  };
+
+  const editarPlantillaCustom = (id: string, nombre: string, descripcion: string, permisosIds: number[]) => {
+    guardarPlantillasCustom(
+      plantillasCustom.map(p =>
+        p.id === id ? { ...p, nombre: nombre.trim(), descripcion: descripcion.trim() || undefined, permisosIds } : p
+      )
+    );
+  };
+
+  const eliminarPlantillaCustom = (id: string) => {
+    guardarPlantillasCustom(plantillasCustom.filter(p => p.id !== id));
   };
 
   // ────────────────────────────────────────────────────────────────────────
@@ -327,6 +369,14 @@ export const useEmpleados = () => {
     abrirPin,
     cerrarPin,
     guardarPin,
+
+    // Plantillas custom
+    plantillasCustom,
+    showModalPlantillas,
+    setShowModalPlantillas,
+    crearPlantillaCustom,
+    editarPlantillaCustom,
+    eliminarPlantillaCustom,
 
     // Refresh
     cargarEmpleados,

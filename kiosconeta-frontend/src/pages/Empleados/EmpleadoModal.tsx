@@ -39,7 +39,6 @@ export const EmpleadoModal: React.FC<EmpleadoModalProps> = ({
   const [nombre, setNombre]     = useState('');
   const [legajo, setLegajo]     = useState('');
   const [telefono, setTelefono] = useState('');
-  const [esAdmin, setEsAdmin]   = useState(false);
   const [pin, setPin]           = useState('');
   const [touched, setTouched]   = useState(false);
 
@@ -49,13 +48,11 @@ export const EmpleadoModal: React.FC<EmpleadoModalProps> = ({
       setNombre(empleado.nombre);
       setLegajo(empleado.legajo ?? '');
       setTelefono(empleado.telefono ?? '');
-      setEsAdmin(empleado.esAdmin);
       setPin('');
     } else {
       setNombre('');
       setLegajo('');
       setTelefono('');
-      setEsAdmin(false);
       setPin('');
     }
     setTouched(false);
@@ -74,7 +71,7 @@ export const EmpleadoModal: React.FC<EmpleadoModalProps> = ({
         nombre:   nombre.trim(),
         legajo:   legajo.trim() || undefined,
         telefono: telefono.trim() || undefined,
-        esAdmin,
+        esAdmin:  false,
         pin:      pin,
         kioscoId: user!.kioscoId,
       };
@@ -161,25 +158,15 @@ export const EmpleadoModal: React.FC<EmpleadoModalProps> = ({
           />
         )}
 
-        {/* Es admin — solo al crear */}
         {mode === 'crear' && (
-          <div className="flex items-center gap-3 cursor-pointer select-none"
-               onClick={() => setEsAdmin(v => !v)}>
-            <div className={`w-10 h-6 rounded-full transition-colors relative shrink-0
-              ${esAdmin ? 'bg-primary' : 'bg-neutral-300'}`}>
-              <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all
-                ${esAdmin ? 'left-5' : 'left-1'}`} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-neutral-700">Administrador</p>
-              <p className="text-xs text-neutral-400">Tiene acceso total al sistema</p>
-            </div>
-          </div>
+          <p className="text-xs text-neutral-400 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2">
+            💡 El empleado se crea sin permisos. Podés asignarle una plantilla de rol desde la lista.
+          </p>
         )}
 
         {mode === 'editar' && (
           <p className="text-xs text-neutral-400">
-            Para cambiar el PIN del empleado usá el botón "Asignar PIN" en la lista.
+            Para cambiar el PIN del empleado usá el botón &quot;Asignar PIN&quot; en la lista.
           </p>
         )}
       </form>

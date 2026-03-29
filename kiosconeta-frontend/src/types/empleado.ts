@@ -1,4 +1,4 @@
-/// ════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════
 // TYPES: Empleados
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -79,7 +79,16 @@ export const Rol = {
 export type Rol = typeof Rol[keyof typeof Rol]
 
 export interface PlantillaRol {
-  rol: Rol;
+  rol: string;
   descripcion: string;
-  permisos: Permiso[];
+  permisosIds: number[];   // backend devuelve IDs, no objetos
+}
+
+// Plantilla custom creada por el admin — guardada en localStorage
+export interface PlantillaCustom {
+  id: string;              // uuid generado en frontend
+  nombre: string;
+  descripcion?: string;
+  permisosIds: number[];
+  creadaEn: string;        // ISO date
 }

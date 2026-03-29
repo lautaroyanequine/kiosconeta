@@ -42,6 +42,7 @@ const EmpleadosPage: React.FC = () => {
     empleadosFiltrados,
     todosPermisos,
     plantillas,
+    plantillasCustom,
     stats,
     isLoading,
     error,
@@ -58,6 +59,9 @@ const EmpleadosPage: React.FC = () => {
     isSavingPermisos, isLoadingPermisos, errorPermisos,
     abrirPermisos, cerrarPermisos,
     togglePermiso, aplicarPlantilla, guardarPermisos,
+    crearPlantillaCustom,
+    editarPlantillaCustom,
+    eliminarPlantillaCustom,
     showModalPin,
     empleadoPin,
     nuevoPin, setNuevoPin,
@@ -199,7 +203,8 @@ const EmpleadosPage: React.FC = () => {
         empleado={empleadoPermisos}
         todosPermisos={todosPermisos}
         permisosSeleccionados={permisosSeleccionados}
-        plantillas={plantillas}
+        plantillasSistema={plantillas}
+        plantillasCustom={plantillasCustom}
         isSaving={isSavingPermisos}
         isLoading={isLoadingPermisos}
         error={errorPermisos}
@@ -207,6 +212,9 @@ const EmpleadosPage: React.FC = () => {
         onToggle={togglePermiso}
         onAplicarPlantilla={aplicarPlantilla}
         onGuardar={guardarPermisos}
+        onCrearPlantilla={crearPlantillaCustom}
+        onEditarPlantilla={editarPlantillaCustom}
+        onEliminarPlantilla={eliminarPlantillaCustom}
       />
 
       {/* ── Modal: PIN ── */}
