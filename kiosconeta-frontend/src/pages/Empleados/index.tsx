@@ -290,12 +290,12 @@ const EmpleadoRow: React.FC<{
     <td className="px-4 py-3">
       <div className="flex items-center gap-2.5">
         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0
-                         ${empleado.esAdmin ? 'bg-warning-100 text-warning-700' : 'bg-primary/10 text-primary'}`}>
+                         ${(empleado.esAdmin || empleado.usuarioID != null) ? 'bg-warning-100 text-warning-700' : 'bg-primary/10 text-primary'}`}>
           {empleado.nombre.charAt(0).toUpperCase()}
         </div>
         <div>
           <p className="font-semibold text-neutral-800">{empleado.nombre}</p>
-          {empleado.esAdmin && (
+          {(empleado.esAdmin || empleado.usuarioID != null) && (
             <p className="text-xs text-warning-600 flex items-center gap-0.5">
               <Crown size={10} /> Admin
             </p>
@@ -316,7 +316,7 @@ const EmpleadoRow: React.FC<{
 
     {/* Rol */}
     <td className="px-4 py-3 text-center">
-      {empleado.esAdmin
+      {(empleado.esAdmin || empleado.usuarioID != null)
         ? <Badge variant="warning">Admin</Badge>
         : <Badge variant="neutral">Empleado</Badge>}
     </td>
@@ -340,7 +340,7 @@ const EmpleadoRow: React.FC<{
         </button>
 
         {/* Permisos — solo si no es admin */}
-        {!empleado.esAdmin && (
+        {!empleado.esAdmin && empleado.usuarioID == null && (
           <button onClick={onPermisos} title="Gestionar permisos"
             className="p-1.5 rounded-lg text-neutral-400 hover:text-primary
                        hover:bg-primary/10 transition-all">

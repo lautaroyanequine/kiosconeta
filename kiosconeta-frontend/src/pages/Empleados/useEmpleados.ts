@@ -116,7 +116,7 @@ export const useEmpleados = () => {
     total:     empleados.length,
     activos:   empleados.filter(e => e.activo).length,
     inactivos: empleados.filter(e => !e.activo).length,
-    admins:    empleados.filter(e => e.esAdmin).length,
+    admins:    empleados.filter(e => e.esAdmin || e.usuarioID != null).length,
   }), [empleados]);
 
   // ────────────────────────────────────────────────────────────────────────
@@ -148,7 +148,12 @@ export const useEmpleados = () => {
       if (modalMode === 'crear') {
         await empleadosApi.create(data as CreateEmpleadoDTO);
       } else if (modalMode === 'editar' && empleadoSeleccionado) {
-        await empleadosApi.update(empleadoSeleccionado.empleadoId, data as UpdateEmpleadoDTO);
+        const dto = data as UpdateEmpleadoDTO;
+        await empleadosApi.update(empleadoSeleccionado.empleadoId, {
+          empleadoId: empleadoSeleccionado.empleadoId,
+          nombre:     dto.nombre,
+          activo:     dto.activo ?? empleadoSeleccionado.activo, // nunca undefined
+        });
       }
       cerrarModal();
       cargarEmpleados();
@@ -168,7 +173,8 @@ export const useEmpleados = () => {
     try {
       await empleadosApi.update(empleado.empleadoId, {
         empleadoId: empleado.empleadoId,
-        activo: !empleado.activo,
+        nombre:     empleado.nombre,
+        activo:     !empleado.activo,
       });
       cargarEmpleados();
     } catch (err: any) {

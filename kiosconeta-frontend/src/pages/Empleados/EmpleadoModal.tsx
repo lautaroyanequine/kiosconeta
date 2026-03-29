@@ -83,8 +83,7 @@ export const EmpleadoModal: React.FC<EmpleadoModalProps> = ({
       const dto: UpdateEmpleadoDTO = {
         empleadoId: empleado.empleadoId,
         nombre:     nombre.trim(),
-        legajo:     legajo.trim() || undefined,
-        telefono:   telefono.trim() || undefined,
+        activo:     empleado.activo,   // mantener el activo actual, no pisarlo
       };
       onGuardar(dto);
     }
@@ -164,12 +163,10 @@ export const EmpleadoModal: React.FC<EmpleadoModalProps> = ({
 
         {/* Es admin — solo al crear */}
         {mode === 'crear' && (
-          <label className="flex items-center gap-3 cursor-pointer select-none group">
-            <div
-              onClick={() => setEsAdmin(v => !v)}
-              className={`w-10 h-6 rounded-full transition-colors relative
-                ${esAdmin ? 'bg-primary' : 'bg-neutral-300'}`}
-            >
+          <div className="flex items-center gap-3 cursor-pointer select-none"
+               onClick={() => setEsAdmin(v => !v)}>
+            <div className={`w-10 h-6 rounded-full transition-colors relative shrink-0
+              ${esAdmin ? 'bg-primary' : 'bg-neutral-300'}`}>
               <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all
                 ${esAdmin ? 'left-5' : 'left-1'}`} />
             </div>
@@ -177,7 +174,7 @@ export const EmpleadoModal: React.FC<EmpleadoModalProps> = ({
               <p className="text-sm font-medium text-neutral-700">Administrador</p>
               <p className="text-xs text-neutral-400">Tiene acceso total al sistema</p>
             </div>
-          </label>
+          </div>
         )}
 
         {mode === 'editar' && (

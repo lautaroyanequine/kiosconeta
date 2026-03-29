@@ -1,4 +1,4 @@
-// ════════════════════════════════════════════════════════════════════════════
+/// ════════════════════════════════════════════════════════════════════════════
 // TYPES: Empleados
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -14,6 +14,9 @@ export interface Empleado {
   esAdmin: boolean;
   activo: boolean;
   kioscoId: number;
+  kioscoID?: number;       // backend devuelve kioscoID (mayúscula)
+  usuarioID?: number | null; // backend: si tiene usuario = es admin
+  cantidadVentas?: number;
   permisos?: Permiso[];
 }
 

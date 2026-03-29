@@ -87,7 +87,7 @@ export const PermisosModal: React.FC<PermisosModalProps> = ({
   // Agrupar permisos por categoría
   const permisosPorCategoria = useMemo(() => {
     const grupos: Record<string, Permiso[]> = {};
-    todosPermisos.forEach(p => {
+    (todosPermisos ?? []).forEach(p => {
       const cat = p.categoria || p.nombre.split('.')[0] || 'otros';
       if (!grupos[cat]) grupos[cat] = [];
       grupos[cat].push(p);
@@ -95,8 +95,8 @@ export const PermisosModal: React.FC<PermisosModalProps> = ({
     return grupos;
   }, [todosPermisos]);
 
-  const cantidadSeleccionados = permisosSeleccionados.length;
-  const cantidadTotal = todosPermisos.length;
+  const cantidadSeleccionados = (permisosSeleccionados ?? []).length;
+  const cantidadTotal = (todosPermisos ?? []).length;
 
   return (
     <Modal
@@ -134,23 +134,23 @@ export const PermisosModal: React.FC<PermisosModalProps> = ({
           )}
 
           {/* Plantillas de rol */}
-          {plantillas.length > 0 && (
+          {(plantillas ?? []).length > 0 && (
             <div>
               <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                 <Zap size={12} />
                 Aplicar plantilla de rol
               </p>
               <div className="flex flex-wrap gap-2">
-                {plantillas.map(p => (
+                {(plantillas ?? []).map(p => (
                   <button
                     key={p.rol}
-                    onClick={() => onAplicarPlantilla(p.permisos)}
+                    onClick={() => onAplicarPlantilla(p.permisos ?? [])}
                     className="px-3 py-1.5 text-xs font-medium rounded-lg border border-neutral-300
                                text-neutral-600 hover:border-primary hover:text-primary
                                hover:bg-primary/5 transition-all"
                   >
                     {p.rol}
-                    <span className="ml-1.5 text-neutral-400">({p.permisos.length})</span>
+                    <span className="ml-1.5 text-neutral-400">({(p.permisos ?? []).length})</span>
                   </button>
                 ))}
                 <button
