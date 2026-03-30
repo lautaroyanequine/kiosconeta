@@ -5,6 +5,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { EmpleadoActivoProvider } from './contexts/EmpleadoActivoContext';
 import { AppRoutes } from './routes/appRoutes';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -28,9 +29,11 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Suspense fallback={<LoadingFallback />}>
-          <AppRoutes />
-        </Suspense>
+        <EmpleadoActivoProvider>
+          <Suspense fallback={<LoadingFallback />}>
+            <AppRoutes />
+          </Suspense>
+        </EmpleadoActivoProvider>
       </AuthProvider>
     </BrowserRouter>
   );

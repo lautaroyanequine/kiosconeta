@@ -12,15 +12,12 @@ import { isValidEmail, errorMessages } from '@/utils';
 // TYPES
 // ────────────────────────────────────────────────────────────────────────────
 
-interface LoginAdminProps {
-  onBack: () => void;
-}
 
 // ────────────────────────────────────────────────────────────────────────────
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const LoginAdmin = ({ onBack }: LoginAdminProps) => {
+export const LoginAdmin = ({ onBack }: { onBack: () => void }) => {
   
   const { loginAdmin } = useAuth();
 
@@ -83,16 +80,6 @@ export const LoginAdmin = ({ onBack }: LoginAdminProps) => {
   return (
     <div className="min-h-screen bg-neutral-50 center">
       <div className="w-full max-w-md px-6">
-        {/* Botón Volver */}
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-neutral-600 hover:text-primary 
-                     mb-6 transition-colors"
-        >
-          <ArrowLeft size={20} />
-          <span>Volver</span>
-        </button>
-
         {/* Card */}
         <div className="bg-white rounded-xl shadow-lg p-8">
           {/* Logo */}

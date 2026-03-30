@@ -3,3 +3,5 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 export * from './AuthContext';
+
+export * from './EmpleadoActivoContext';

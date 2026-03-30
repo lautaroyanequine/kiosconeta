@@ -51,8 +51,7 @@ TURNO_ABRIR: '/CierreTurnos/abrir',
 TURNO_CERRAR: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}/cerrar`,
 TURNO_DETALLE: (id: number) => `/CierreTurnos/${id}`,
 TURNOS_KIOSCO: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}`,
-
-// Empleados
+  // Empleados
   EMPLEADOS: '/empleados',
   EMPLEADOS_BY_ID: (id: number) => `/empleados/${id}`,
   EMPLEADOS_ACTIVOS: '/empleados/activos',
@@ -79,6 +78,8 @@ export const STORAGE_KEYS = {
   TOKEN: 'kiosconeta_token',
   USER: 'kiosconeta_user',
   KIOSCO_ID: 'kiosconeta_kiosco_id',
+  TURNO_ID: 'kiosconeta_turno_id',
+  EMPLEADO_ACTIVO: 'kiosconeta_empleado_activo',
   THEME: 'kiosconeta_theme',
   SIDEBAR_COLLAPSED: 'kiosconeta_sidebar_collapsed',
 };

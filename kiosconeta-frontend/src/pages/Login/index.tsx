@@ -1,63 +1,10 @@
 // ════════════════════════════════════════════════════════════════════════════
-// PAGE: Login (Coordinador principal)
+// PAGE: Login — Directo a email/password del kiosco
 // ════════════════════════════════════════════════════════════════════════════
 
-import React, { useState } from 'react';
-import { LoginSelection } from './LoginSelection';
+import React from 'react';
 import { LoginAdmin } from './LoginAdmin';
-import { LoginEmpleado } from './LoginEmpleado';
 
-// ────────────────────────────────────────────────────────────────────────────
-// TYPES
-// ────────────────────────────────────────────────────────────────────────────
-
-type LoginStep = 'selection' | 'admin' | 'empleado';
-
-// ────────────────────────────────────────────────────────────────────────────
-// COMPONENT
-// ────────────────────────────────────────────────────────────────────────────
-
-const LoginPage= () => {
-  const [step, setStep] = useState<LoginStep>('selection');
-
-  // ──────────────────────────────────────────────────────────────────────────
-  // HANDLERS
-  // ──────────────────────────────────────────────────────────────────────────
-
-  const handleSelectAdmin = () => {
-    setStep('admin');
-  };
-
-  const handleSelectEmpleado = () => {
-    setStep('empleado');
-  };
-
-  const handleBack = () => {
-    setStep('selection');
-  };
-
-  // ──────────────────────────────────────────────────────────────────────────
-  // RENDER
-  // ──────────────────────────────────────────────────────────────────────────
-
-  switch (step) {
-    case 'selection':
-      return (
-        <LoginSelection
-          onSelectAdmin={handleSelectAdmin}
-          onSelectEmpleado={handleSelectEmpleado}
-        />
-      );
-
-    case 'admin':
-      return <LoginAdmin onBack={handleBack} />;
-
-    case 'empleado':
-      return <LoginEmpleado onBack={handleBack} />;
-
-    default:
-      return null;
-  }
-};
+const LoginPage = () => <LoginAdmin onBack={() => {}} />;
 
 export default LoginPage;
