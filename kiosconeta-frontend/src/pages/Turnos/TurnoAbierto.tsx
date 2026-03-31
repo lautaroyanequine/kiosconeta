@@ -10,6 +10,7 @@ import {
   CheckCircle2, AlertTriangle
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
 import { turnosApi } from '@/apis/turnosApi'
 import { formatCurrency } from '@/utils/formatters'
 import { GastosTurno } from './GastosTurno'
@@ -55,6 +56,7 @@ const FilaResumen: React.FC<{
 
 export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) => {
   const { user } = useAuth()
+  const { liberarEmpleado } = useEmpleadoActivo()
 
   // ── Estado del formulario ─────────────────────────────────────────────────
   const [efectivoContado, setEfectivoContado]     = useState('')
@@ -400,6 +402,7 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
                 onClick={() => {
                   setTurnoFinalizado(null)
                   onCerrado()
+                  liberarEmpleado() // volver a pantalla de selección de empleado
                 }}
                 className="w-full py-3 bg-primary text-white rounded-xl font-bold
                            hover:bg-primary-600 transition-colors"

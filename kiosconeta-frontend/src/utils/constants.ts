@@ -75,7 +75,9 @@ TURNOS_KIOSCO: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}`,
 // ────────────────────────────────────────────────────────────────────────────
 
 export const STORAGE_KEYS = {
-  TOKEN: 'kiosconeta_token',
+  TOKEN: 'kiosconeta_token',           // token del empleado activo (se usa en las llamadas API)
+  KIOSCO_TOKEN: 'kiosconeta_kiosco_token', // token del kiosco (configura la PC)
+  KIOSCO_USER: 'kiosconeta_kiosco_user',   // datos del admin que configuró la PC
   USER: 'kiosconeta_user',
   KIOSCO_ID: 'kiosconeta_kiosco_id',
   TURNO_ID: 'kiosconeta_turno_id',
@@ -92,6 +94,7 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
+  SELECCION_EMPLEADO: '/seleccionar-empleado',
   POS: '/pos',
   PRODUCTOS: '/productos',
   CATEGORIAS: '/categorias',

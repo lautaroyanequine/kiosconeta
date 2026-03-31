@@ -1,9 +1,16 @@
+// ════════════════════════════════════════════════════════════════════════════
+// PRIVATE ROUTE
+// Verifica dos niveles:
+// 1. PC configurada (sesión de kiosco)
+// 2. Empleado activo seleccionado
+// ════════════════════════════════════════════════════════════════════════════
+
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useEmpleadoActivo } from '../contexts/EmpleadoActivoContext';
 import { MainLayout } from '../components/layout/MainLayout';
 import { ROUTES } from '../utils/constants';
-import { Spinner } from '@/components/commons';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -11,35 +18,30 @@ interface PrivateRouteProps {
   requirePermission?: string;
 }
 
-export const PrivateRoute= ({
+export const PrivateRoute = ({
   children,
   requireAdmin = false,
-  requirePermission,
-}:PrivateRouteProps) => {
-  const { isAuthenticated, isLoading, isAdmin, hasPermission } = useAuth();
+}: PrivateRouteProps) => {
+  const { isKioscoConfigured, isLoading } = useAuth();
+  const { empleadoActivo } = useEmpleadoActivo();
   const location = useLocation();
 
-  // Mostrar loading mientras verifica autenticación
-  if (isLoading) {
-        <Spinner></Spinner>
-    
-  }
+  if (isLoading) return null;
 
-  // Si no está autenticado → redirigir a login
-  if (!isAuthenticated) {
+  // Sin sesión de kiosco → login
+  if (!isKioscoConfigured) {
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
   }
 
-  // Si requiere admin y no es admin → redirigir al POS
-  if (requireAdmin && !isAdmin()) {
+  // Sesión de kiosco OK pero sin empleado activo → selección de empleado
+  if (!empleadoActivo) {
+    return <Navigate to={ROUTES.SELECCION_EMPLEADO} replace />;
+  }
+
+  // Requiere admin y el empleado activo no es admin → POS
+  if (requireAdmin && !empleadoActivo.esAdmin) {
     return <Navigate to={ROUTES.POS} replace />;
   }
 
-  // Si requiere permiso específico y no lo tiene → redirigir
-  if (requirePermission && !hasPermission(requirePermission)) {
-    return <Navigate to={isAdmin() ? ROUTES.DASHBOARD : ROUTES.POS} replace />;
-  }
-
-  // Todo OK → renderizar la página dentro del layout
   return <MainLayout>{children}</MainLayout>;
 };

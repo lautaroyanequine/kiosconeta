@@ -94,8 +94,6 @@ namespace Application.Services
             if (!empleado.Activo)
                 throw new UnauthorizedAccessException("Empleado inactivo");
 
-            if (empleado.EsAdmin)
-                throw new UnauthorizedAccessException("Los administradores deben usar login con email");
 
             // Validar PIN
             if (string.IsNullOrWhiteSpace(empleado.PIN))
@@ -228,9 +226,6 @@ namespace Application.Services
             if (empleado == null)
                 throw new KeyNotFoundException("Empleado no encontrado");
 
-            if (empleado.EsAdmin)
-                throw new InvalidOperationException("Los administradores no usan PIN");
-
             // Validar PIN actual
             if (!string.IsNullOrWhiteSpace(empleado.PIN))
             {
@@ -257,8 +252,6 @@ namespace Application.Services
             if (empleado == null)
                 throw new KeyNotFoundException("Empleado no encontrado");
 
-            if (empleado.EsAdmin)
-                throw new InvalidOperationException("Los administradores no usan PIN");
 
             // Validar formato (4-6 dígitos)
             if (!System.Text.RegularExpressions.Regex.IsMatch(pin, @"^\d{4,6}$"))

@@ -8,7 +8,8 @@ import { PrivateRoute } from './PrivateRoute';
 import { ROUTES } from '../utils/constants';
 
 // Páginas (lazy loading — se cargan solo cuando el usuario navega a ellas)
-const LoginPage = React.lazy(() => import('../pages/Login'));
+const LoginPage           = React.lazy(() => import('../pages/Login'));
+const SeleccionEmpleadoPage = React.lazy(() => import('../pages/SeleccionEmpleado'));
 const POSPage   = React.lazy(() => import('../pages/POS/index'));
 const TurnosPage = React.lazy(() => import('../pages/Turnos'));
 const CategoriasPage  = React.lazy(() => import('../pages/Categorias'));
@@ -34,6 +35,9 @@ export const AppRoutes= () => {
       <Route path="/"             element={<Navigate to={ROUTES.LOGIN} replace />} />
       <Route path={ROUTES.LOGIN}  element={<LoginPage />} />
 
+      {/* ── SELECCIÓN DE EMPLEADO (requiere kiosco configurado) ── */}
+      <Route path={ROUTES.SELECCION_EMPLEADO} element={<SeleccionEmpleadoPage />} />
+
       {/* ── PRIVADAS ── */}
       <Route
         path={ROUTES.DASHBOARD}
@@ -55,7 +59,8 @@ export const AppRoutes= () => {
       element={<PrivateRoute><TurnosPage /></PrivateRoute> }/>
 
 
-  
+
+
       <Route
         path={ROUTES.CATEGORIAS}
         element={<PrivateRoute requireAdmin><CategoriasPage /></PrivateRoute>}

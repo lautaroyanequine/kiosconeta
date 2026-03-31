@@ -4,13 +4,15 @@
 
 import React, { useState } from 'react';
 import { LogOut, User, ChevronDown, Store, UserCheck, UserX, RefreshCw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/utils/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
-import { EmpleadoSelectorModal } from './EmpleadoSelectorModal';
 
 export const Header = () => {
   const { user, logout } = useAuth();
-  const { empleadoActivo, abrirSelector, liberarEmpleado } = useEmpleadoActivo();
+  const { empleadoActivo, liberarEmpleado } = useEmpleadoActivo();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -29,7 +31,7 @@ export const Header = () => {
             <div className="flex items-center gap-2 px-3 py-1.5 bg-success-50 border border-success-200 rounded-xl">
               <UserCheck size={15} className="text-success shrink-0" />
               <span className="text-sm font-semibold text-success-700">{empleadoActivo.nombre}</span>
-              <button onClick={abrirSelector} title="Cambiar empleado"
+              <button onClick={() => navigate(ROUTES.SELECCION_EMPLEADO)} title="Cambiar empleado"
                 className="ml-1 p-0.5 rounded text-success-500 hover:text-success-700 hover:bg-success-100 transition-all">
                 <RefreshCw size={13} />
               </button>
@@ -39,7 +41,7 @@ export const Header = () => {
               </button>
             </div>
           ) : (
-            <button onClick={abrirSelector}
+            <button onClick={() => navigate(ROUTES.SELECCION_EMPLEADO)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 border-dashed
                          border-neutral-300 text-neutral-500 hover:border-primary hover:text-primary
                          hover:bg-primary/5 transition-all text-sm font-medium">
@@ -83,7 +85,6 @@ export const Header = () => {
         </div>
       </header>
 
-      <EmpleadoSelectorModal />
     </>
   );
 };

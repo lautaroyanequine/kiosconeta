@@ -28,10 +28,11 @@ const apiClient: AxiosInstance = axios.create({
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Obtener token de localStorage
-    const token = getStorage<string>(STORAGE_KEYS.TOKEN);
+    // Prioridad: token del empleado activo → token del kiosco (fallback)
+    const token =
+      getStorage<string>(STORAGE_KEYS.TOKEN) ??
+      getStorage<string>(STORAGE_KEYS.KIOSCO_TOKEN);
 
-    // Si hay token, agregarlo al header
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -68,14 +69,19 @@ apiClient.interceptors.response.use(
     
     switch (status) {
       case 401:
-        // No autenticado - Limpiar storage y redirigir a login
-        console.error('Unauthorized - Clearing session');
+        // Token del empleado expiró → volver a selección de empleado
+        console.error('Unauthorized - Clearing employee session');
         removeStorage(STORAGE_KEYS.TOKEN);
         removeStorage(STORAGE_KEYS.USER);
-        
-        // Redirigir a login (solo si no estamos ya en login)
-        if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
+        removeStorage(STORAGE_KEYS.EMPLEADO_ACTIVO);
+
+        // Si hay sesión de kiosco → ir a selección de empleado
+        // Si no hay sesión de kiosco → ir a login
+        const tieneKiosco = !!getStorage(STORAGE_KEYS.KIOSCO_TOKEN);
+        const enLogin = window.location.pathname.includes('/login');
+        const enSeleccion = window.location.pathname.includes('/seleccionar-empleado');
+        if (!enLogin && !enSeleccion) {
+          window.location.href = tieneKiosco ? '/seleccionar-empleado' : '/login';
         }
         
         return Promise.reject({
