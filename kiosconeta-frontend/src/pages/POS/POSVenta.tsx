@@ -13,10 +13,11 @@ import {
   CreditCard, Trash2, Plus, Minus, CheckCircle2,
   Barcode, Package, Clock
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { productosApi, ventasApi, metodosPagoApi } from '@/apis';
 import { formatCurrency } from '@/utils/formatters';
-import { debounce } from '@/utils/helpers';
+import { debounce, getStorage } from '@/utils/helpers';
+import { STORAGE_KEYS } from '@/utils/constants';
 import { useCart } from './useCart';
 import type { ProductoSimple, MetodoPago } from '@/types';
 import type { TurnoActual } from '@/types/gastoTurno';
@@ -47,7 +48,8 @@ const getMetodoIcon = (nombre: string) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualizado }) => {
-  const { user } = useAuth();
+  const { empleadoActivo: user } = useEmpleadoActivo()
+  const { empleadoActivo } = useEmpleadoActivo();
   const cart = useCart();
 
   // Productos
@@ -91,7 +93,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   const loadProductos = async () => {
     try {
-      const data = await productosApi.getActivos(user!.kioscoId);
+      const data = await productosApi.getActivos((empleadoActivo?.kioscoId ?? user?.kioscoId)!);
       setProductos(data);
       setProductosFiltrados(data.slice(0, 12));
     } catch (err) {
@@ -234,15 +236,15 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     setIsProcessing(true);
     try {
       const venta = await ventasApi.create({
-        empleadoId:   user.empleadoId,
+        empleadoId:   empleadoActivo?.empleadoId ?? user?.empleadoId,
         metodoPagoId: cart.metodoPagoId!,
-        turnoId:      turnoActual.turnoId, // ← turno real
+        turnoId:      getStorage<number>(STORAGE_KEYS.TURNO_ID) ?? turnoActual.turnoId,
         productos:    cart.items.map(i => ({
           productoId: i.productoId,
           cantidad:   i.cantidad,
         })),
       });
-console.log("SETEANDO MODAL")
+
       setVentaConfirmada({
         ventaId:    venta.ventaId,
         total:      cart.total,
@@ -253,7 +255,7 @@ console.log("SETEANDO MODAL")
       cart.clearCart();
       setMontoEfectivo('');
       setBusqueda('');
-       // refrescar stats del turno
+      onTurnoActualizado(); // refrescar stats del turno
     } catch (err: any) {
       alert(err.message || 'Error al procesar la venta');
     } finally {
@@ -518,7 +520,7 @@ console.log("SETEANDO MODAL")
       {ventaConfirmada && (
         <VentaModal
           data={ventaConfirmada}
-          onClose={() => { setVentaConfirmada(null);onTurnoActualizado(); busquedaRef.current?.focus(); }}
+          onClose={() => { setVentaConfirmada(null); busquedaRef.current?.focus(); }}
         />
       )}
     </div>

@@ -6,7 +6,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Clock, ChevronDown, ChevronUp, Users, Search } from 'lucide-react'
 import { turnosApi } from '@/apis/turnosApi'
-import { useAuth } from '@/contexts/AuthContext'
+import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
+import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { formatCurrency } from '@/utils/formatters'
 import type { CierreTurnoResponse } from '@/types/gastoTurno'
 
@@ -15,7 +16,8 @@ import type { CierreTurnoResponse } from '@/types/gastoTurno'
 // ════════════════════════════════════════════════════════════════════════════
 
 export const HistorialTurnos: React.FC = () => {
-  const { user } = useAuth()
+  const { empleadoActivo: user } = useEmpleadoActivo()
+  const { empleadoActivo } = useEmpleadoActivo()
 
   const [turnos, setTurnos]       = useState<CierreTurnoResponse[]>([])
   const [loading, setLoading]     = useState(true)
@@ -33,7 +35,7 @@ export const HistorialTurnos: React.FC = () => {
     if (!user?.kioscoId) return
     setLoading(true)
     try {
-      const data = await turnosApi.getByKiosco(user.kioscoId)
+      const data = await turnosApi.getByKiosco(empleadoActivo?.kioscoId ?? user?.kioscoId)
       setTurnos(data)
     } catch (err) {
       console.error('Error cargando historial:', err)

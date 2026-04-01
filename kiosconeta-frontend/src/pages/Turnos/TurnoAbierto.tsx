@@ -9,7 +9,7 @@ import {
   AlertCircle, Users, Smartphone,
   CheckCircle2, AlertTriangle
 } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
 import { turnosApi } from '@/apis/turnosApi'
 import { formatCurrency } from '@/utils/formatters'
@@ -55,7 +55,8 @@ const FilaResumen: React.FC<{
 // ════════════════════════════════════════════════════════════════════════════
 
 export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) => {
-  const { user } = useAuth()
+  const { empleadoActivo: user } = useEmpleadoActivo()
+  const { empleadoActivo } = useEmpleadoActivo()
   const { liberarEmpleado } = useEmpleadoActivo()
 
   // ── Estado del formulario ─────────────────────────────────────────────────
@@ -87,7 +88,7 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
     setError('')
 
     try {
-      const resultado = await turnosApi.cerrar(user.kioscoId, {
+      const resultado = await turnosApi.cerrar(empleadoActivo?.kioscoId ?? user?.kioscoId, {
         turnoId: turno.turnoId,
         turnoNombre: turno.turnoNombre ?? '',   // ← nombre real del turno
         efectivoContado: parseFloat(efectivoContado),

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Plus, Trash2, AlertCircle, Wallet, X, ChevronDown } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
+import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { gastosApi, tiposGastoApi } from '@/apis/gastosApi'
 import { formatCurrency } from '@/utils/formatters'
 import type { GastoResponse, TipoDeGasto } from '@/types/gastoTurno'
@@ -10,7 +11,8 @@ interface GastosTurnoProps {
 }
 
 export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
-  const { user } = useAuth()
+  const { empleadoActivo: user } = useEmpleadoActivo()
+  const { empleadoActivo } = useEmpleadoActivo()
 
   const [gastos, setGastos]         = useState<GastoResponse[]>([])
   const [tiposGasto, setTiposGasto] = useState<TipoDeGasto[]>([])
@@ -33,7 +35,7 @@ export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
     try {
       const [gastosData, tiposData] = await Promise.all([
         gastosApi.getByTurno(cierreTurnoId),
-        tiposGastoApi.getByKiosco(user!.kioscoId),
+        tiposGastoApi.getByKiosco((empleadoActivo?.kioscoId ?? user?.kioscoId)!),
       ])
       setGastos(gastosData)
       setTiposGasto(tiposData)
@@ -77,7 +79,7 @@ export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
       const nuevoGasto = await gastosApi.create({
         descripcion: descripcion.trim(),
         monto: parseFloat(monto),
-        empleadoId: user.empleadoId,
+        empleadoId: empleadoActivo?.empleadoId ?? user?.empleadoId,
         tipoDeGastoId: Number(tipoSeleccionado),
         cierreTurnoId,
       })

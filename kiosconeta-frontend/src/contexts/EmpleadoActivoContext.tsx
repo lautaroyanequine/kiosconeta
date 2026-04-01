@@ -59,7 +59,6 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
 
   const abrirSelector = useCallback(() => {
     setPinError('');
-    setPendingEmpleado(null);
     setIsSelecting(true);
   }, []);
 
@@ -98,7 +97,6 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
       setStorage(STORAGE_KEYS.EMPLEADO_ACTIVO, activo);
 
       setIsSelecting(false);
-      setPendingEmpleado(null);
 
       // Redirigir al POS (o dashboard si es admin)
       navigate(response.esAdmin ? ROUTES.DASHBOARD : ROUTES.POS);
@@ -130,7 +128,6 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
       isSelecting,
       isVerifyingPin,
       pinError,
-      pendingEmpleado: null,
       abrirSelector,
       cerrarSelector,
       confirmarPin,
