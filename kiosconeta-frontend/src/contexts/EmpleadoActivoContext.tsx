@@ -12,6 +12,16 @@ import { setStorage, getStorage, removeStorage } from '../utils/helpers';
 import { STORAGE_KEYS, ROUTES } from '../utils/constants';
 import type { EmpleadoLoginDTO } from '../types';
 
+// Decodifica el payload del JWT sin verificar firma
+const decodeJWT = (token: string): Record<string, any> => {
+  try {
+    const payload = token.split('.')[1];
+    return JSON.parse(atob(payload));
+  } catch {
+    return {};
+  }
+};
+
 // ────────────────────────────────────────────────────────────────────────────
 // TYPES
 // ────────────────────────────────────────────────────────────────────────────
@@ -81,11 +91,15 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
         pin,
       });
 
+      // Leer esAdmin del JWT porque el backend lo hardcodea mal en el response
+      const jwtPayload = decodeJWT(response.token);
+      const esAdminReal = jwtPayload['EsAdmin'] === 'True' || jwtPayload['EsAdmin'] === true;
+
       const activo: EmpleadoActivo = {
         empleadoId: response.empleadoId,
         nombre:     response.nombre,
         legajo:     pendingEmpleado.legajo,
-        esAdmin:    response.esAdmin,
+        esAdmin:    esAdminReal,
         kioscoId:   response.kioscoId,
       };
 
@@ -97,7 +111,7 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
       setStorage(STORAGE_KEYS.EMPLEADO_ACTIVO, activo);
 
       setIsSelecting(false);
-
+  
       // Redirigir al POS (o dashboard si es admin)
       navigate(response.esAdmin ? ROUTES.DASHBOARD : ROUTES.POS);
       return true;

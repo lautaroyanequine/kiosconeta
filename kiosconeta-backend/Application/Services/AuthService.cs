@@ -109,7 +109,7 @@ namespace Application.Services
             {
                 EmpleadoId = empleado.EmpleadoId,
                 Nombre = empleado.Nombre,
-                EsAdmin = false,
+                EsAdmin = empleado.EsAdmin,
                 Email = null,
                 KioscoId = empleado.KioscoID,
                 Token = token,

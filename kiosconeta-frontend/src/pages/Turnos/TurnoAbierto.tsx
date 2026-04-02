@@ -10,7 +10,6 @@ import {
   CheckCircle2, AlertTriangle
 } from 'lucide-react'
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
-import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
 import { turnosApi } from '@/apis/turnosApi'
 import { formatCurrency } from '@/utils/formatters'
 import { GastosTurno } from './GastosTurno'

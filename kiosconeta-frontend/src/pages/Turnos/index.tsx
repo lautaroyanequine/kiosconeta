@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Clock } from 'lucide-react'
-import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { turnosApi } from '@/apis/turnosApi'
 import { TurnoAbierto } from './TurnoAbierto'

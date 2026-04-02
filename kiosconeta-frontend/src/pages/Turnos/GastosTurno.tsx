@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Plus, Trash2, AlertCircle, Wallet, X, ChevronDown } from 'lucide-react'
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
-import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { gastosApi, tiposGastoApi } from '@/apis/gastosApi'
 import { formatCurrency } from '@/utils/formatters'
 import type { GastoResponse, TipoDeGasto } from '@/types/gastoTurno'

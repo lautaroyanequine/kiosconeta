@@ -7,7 +7,6 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Clock, ChevronDown, ChevronUp, Users, Search } from 'lucide-react'
 import { turnosApi } from '@/apis/turnosApi'
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
-import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { formatCurrency } from '@/utils/formatters'
 import type { CierreTurnoResponse } from '@/types/gastoTurno'
 
