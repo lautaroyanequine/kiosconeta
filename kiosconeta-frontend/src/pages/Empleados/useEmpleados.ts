@@ -205,7 +205,7 @@ export const useEmpleados = () => {
     try {
       const data = await permisosApi.getByEmpleado(empleado.empleadoId);
       setEmpleadoPermisos(data);
-      setPermisosSeleccionados(data.permisos.map(p => p.permisoId));
+      setPermisosSeleccionados(data.permisos.map(p => (p as any).permisoID ?? p.permisoId));
     } catch (err: any) {
       setErrorPermisos(err.message || 'Error al cargar permisos');
     } finally {

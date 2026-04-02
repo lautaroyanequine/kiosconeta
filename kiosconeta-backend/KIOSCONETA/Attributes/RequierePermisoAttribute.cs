@@ -22,7 +22,7 @@ namespace KIOSCONETA.Attributes
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             // Obtener el EmpleadoId del token JWT
-            var empleadoIdClaim = context.HttpContext.User.FindFirst("UsuarioID")?.Value;
+            var empleadoIdClaim = context.HttpContext.User.FindFirst("EmpleadoId")?.Value;
 
             if (string.IsNullOrEmpty(empleadoIdClaim) || !int.TryParse(empleadoIdClaim, out int empleadoId))
             {
@@ -52,8 +52,10 @@ namespace KIOSCONETA.Attributes
             }
 
             // Verificar si el empleado tiene el permiso
+            // Temporal debug
+            Console.WriteLine($"[DEBUG] EmpleadoId del token: {empleadoId}, Permiso: {_permiso}");
             var tienePermiso = await permisoRepository.EmpleadoTienePermisoAsync(empleadoId, _permiso);
-
+            Console.WriteLine($"[DEBUG] TienePermiso: {tienePermiso}");
             if (!tienePermiso)
             {
                 context.Result = new ObjectResult(new

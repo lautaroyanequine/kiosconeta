@@ -54,6 +54,7 @@ export const turnosApi = {
       );
       return handleResponse(response);
     } catch (error) {
+      console.log(error);
       return handleError(error);
     }
   },

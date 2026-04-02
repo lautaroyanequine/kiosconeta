@@ -1,4 +1,4 @@
-/// ════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════
 // COMPONENT: PermisosModal — Ver y gestionar permisos de un empleado
 // Plantillas del sistema (fijas) + plantillas custom del admin (editables)
 // ════════════════════════════════════════════════════════════════════════════
@@ -223,13 +223,14 @@ export const PermisosModal: React.FC<PermisosModalProps> = ({
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   {permisos.map(permiso => {
-                    const activo = (permisosSeleccionados ?? []).includes(permiso.permisoId);
+                    const pid = (permiso as any).permisoID ?? permiso.permisoId;
+                    const activo = (permisosSeleccionados ?? []).includes(pid);
                     return (
-                      <label key={permiso.permisoId}
+                      <label key={(permiso as any).permisoID ?? permiso.permisoId}
                         className={`flex items-center gap-3 p-2.5 rounded-xl border-2 cursor-pointer
                                     transition-all select-none
                                     ${activo ? 'border-primary bg-primary/5' : 'border-neutral-200 hover:border-neutral-300'}`}>
-                        <input type="checkbox" checked={activo} onChange={() => onToggle(permiso.permisoId)} className="hidden" />
+                        <input type="checkbox" checked={activo} onChange={() => onToggle((permiso as any).permisoID ?? permiso.permisoId)} className="hidden" />
                         <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-all
                                          ${activo ? 'border-primary bg-primary' : 'border-neutral-300'}`}>
                           {activo && (

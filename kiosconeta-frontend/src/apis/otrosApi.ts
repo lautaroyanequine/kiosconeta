@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from '../utils/constants';
 import type {
   Gasto,
   CreateGastoDTO,
-  TipoGasto,
+  TipoDeGasto,
   Empleado,
   CreateEmpleadoDTO,
   UpdateEmpleadoDTO,
@@ -102,9 +102,9 @@ export const tiposGastoApi = {
   /**
    * Obtener todos los tipos de gasto
    */
-  getAll: async (): Promise<TipoGasto[]> => {
+  getAll: async (): Promise<TipoDeGasto[]> => {
     try {
-      const response = await apiClient.get<TipoGasto[]>(
+      const response = await apiClient.get<TipoDeGasto[]>(
         API_ENDPOINTS.TIPOS_GASTO
       );
       return handleResponse(response);
@@ -120,9 +120,9 @@ export const tiposGastoApi = {
     nombre: string;
     descripcion?: string;
     kioscoId: number;
-  }): Promise<TipoGasto> => {
+  }): Promise<TipoDeGasto> => {
     try {
-      const response = await apiClient.post<TipoGasto>(
+      const response = await apiClient.post<TipoDeGasto>(
         API_ENDPOINTS.TIPOS_GASTO,
         data
       );
@@ -278,7 +278,11 @@ export const permisosApi = {
    */
   reemplazar: async (data: AsignarPermisosDTO): Promise<void> => {
     try {
-      await apiClient.put(`${API_ENDPOINTS.PERMISOS}/reemplazar`, data);
+      // Backend espera PermisosIds con mayúscula
+      await apiClient.put(`${API_ENDPOINTS.PERMISOS}/reemplazar`, {
+        EmpleadoId: data.empleadoId,
+        PermisosIds: data.permisosIds,
+      });
     } catch (error) {
       return handleError(error);
     }

@@ -29,9 +29,16 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // Prioridad: token del empleado activo → token del kiosco (fallback)
-    const token =
-      getStorage<string>(STORAGE_KEYS.TOKEN) ??
-      getStorage<string>(STORAGE_KEYS.KIOSCO_TOKEN);
+    const tokenEmpleado = getStorage<string>(STORAGE_KEYS.TOKEN);
+    const tokenKiosco   = getStorage<string>(STORAGE_KEYS.KIOSCO_TOKEN);
+    const token = tokenEmpleado ?? tokenKiosco;
+
+    // LOG TEMPORAL — borrar después de debuggear
+    console.log('[AUTH]', config.url, {
+      tokenEmpleado: tokenEmpleado ? tokenEmpleado.slice(-20) : null,
+      tokenKiosco:   tokenKiosco   ? tokenKiosco.slice(-20)   : null,
+      usando: tokenEmpleado ? 'EMPLEADO' : tokenKiosco ? 'KIOSCO' : 'NINGUNO',
+    });
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -70,7 +77,12 @@ apiClient.interceptors.response.use(
     switch (status) {
       case 401:
         // Token del empleado expiró → volver a selección de empleado
-        console.error('Unauthorized - Clearing employee session');
+console.error(
+  '401 - token usado:',
+  (getStorage(STORAGE_KEYS.TOKEN) as string)?.substring(0, 50)
+);        console.error('401 - empleado activo:', getStorage(STORAGE_KEYS.EMPLEADO_ACTIVO));
+        console.error('401 - url:', (error as any)?.config?.url);
+        debugger;
         removeStorage(STORAGE_KEYS.TOKEN);
         removeStorage(STORAGE_KEYS.USER);
         removeStorage(STORAGE_KEYS.EMPLEADO_ACTIVO);

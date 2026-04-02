@@ -39,6 +39,13 @@ namespace Infraestructure.Repository
 
         public async Task<IEnumerable<Permiso>> GetPermisosByEmpleadoAsync(int empleadoId)
         {
+
+            var debug = await _context.EmpleadoPermisos
+      .Include(ep => ep.Permiso)
+      .Where(ep => ep.EmpleadoId == empleadoId)
+      .ToListAsync();
+
+
             return await _context.EmpleadoPermisos
                 .Where(ep => ep.EmpleadoId == empleadoId)
                 .Include(ep => ep.Permiso)
@@ -49,9 +56,27 @@ namespace Infraestructure.Repository
 
         public async Task<bool> EmpleadoTienePermisoAsync(int empleadoId, string permiso)
         {
+            var permisosEmpleado = await _context.EmpleadoPermisos
+                .Include(ep => ep.Permiso)
+                .Where(ep => ep.EmpleadoId == empleadoId)
+                .Select(ep => ep.Permiso.Nombre)
+                .ToListAsync();
+            Console.WriteLine("HOALAAAAAAAAAAAA");
+
+
+            Console.WriteLine("Permisos del empleado:");
+            foreach (var p in permisosEmpleado)
+            {
+                Console.WriteLine($"- '{p}'");
+            }
+
+            Console.WriteLine($"Permiso buscado: '{permiso}'");
+
             return await _context.EmpleadoPermisos
+                .Include(ep => ep.Permiso)
                 .AnyAsync(ep => ep.EmpleadoId == empleadoId
-                             && ep.Permiso.Nombre.ToLower() == permiso.ToLower());
+                             && ep.Permiso != null
+                             && ep.Permiso.Nombre.Trim().ToLower() == permiso.Trim().ToLower());
         }
 
         public async Task AsignarPermisosAsync(int empleadoId, List<int> permisosIds)
@@ -66,7 +91,8 @@ namespace Infraestructure.Repository
                 .Select(pid => new EmpleadoPermiso
                 {
                     EmpleadoId = empleadoId,
-                    PermisoId = pid
+                    PermisoId = pid,
+                    Activo = true
                 });
 
             if (nuevosPermisos.Any())
@@ -104,7 +130,8 @@ namespace Infraestructure.Repository
                 .Select(pid => new EmpleadoPermiso
                 {
                     EmpleadoId = empleadoId,
-                    PermisoId = pid
+                    PermisoId = pid,
+                    Activo=true
                 });
 
             _context.EmpleadoPermisos.AddRange(nuevosPermisos);

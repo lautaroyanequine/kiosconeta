@@ -47,6 +47,7 @@ export interface UpdateEmpleadoDTO {
 
 export interface Permiso {
   permisoId: number;
+  permisoID?: number;  // backend devuelve con mayúscula
   nombre: string;             // Ej: "productos.crear"
   descripcion: string;
   categoria: string;          // Ej: "productos", "ventas"

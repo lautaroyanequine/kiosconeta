@@ -78,7 +78,7 @@ public class CierreTurnosController : ControllerBase
     // ===================== POST =====================
 
     [HttpPost("abrir")]
-    [RequierePermiso("turno.abrir")]
+    [RequierePermiso("turnos.abrir")]
     public async Task<ActionResult<CierreTurnoResponseDTO>>
         AbrirTurno([FromBody] AbrirTurnoDTO dto)
     {
