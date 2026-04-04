@@ -105,6 +105,7 @@ export const ROUTES = {
   CONFIGURACION: '/configuracion',
   REPORTES: '/reportes',
   PERFIL: '/perfil',
+  ADMIN: '/admin',
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -284,6 +285,7 @@ export const PERMISOS = {
   REPORTES_DASHBOARD_COMPLETO: 'reportes.dashboard_completo',
   REPORTES_DASHBOARD_BASICO: 'reportes.dashboard_basico',
   
+ 
   // Configuración
   CONFIGURACION_KIOSCO: 'configuracion.kiosco',
 } as const;

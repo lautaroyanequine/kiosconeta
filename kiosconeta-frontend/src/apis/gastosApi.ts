@@ -7,16 +7,6 @@ import type { GastoResponse, CreateGastoDTO, TipoDeGasto } from '../types/gastoT
 
 export const gastosApi = {
 
-  //Todos los gastos
-  getAll : async (): Promise<GastoResponse[]> => {
-    try{
-      const response = await apiClient.get<GastoResponse[]>(`/Gastos/turno/`);
-      return handleResponse(response);
-    }catch (error) {
-      return handleError(error);
-    }
-
-  },
   // Gastos del turno actual
   getByTurno: async (cierreTurnoId: number): Promise<GastoResponse[]> => {
     try {
@@ -95,6 +85,33 @@ export const tiposGastoApi = {
   getActivos: async (): Promise<TipoDeGasto[]> => {
     try {
       const response = await apiClient.get<TipoDeGasto[]>('/TiposDeGasto/activos');
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  create: async (data: { nombre: string; descripcion: string; kioscoId: number }): Promise<TipoDeGasto> => {
+    try {
+      const response = await apiClient.post<TipoDeGasto>('/TiposDeGasto', data);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  update: async (id: number, data: { tipoDeGastoId: number; nombre: string; descripcion: string; kioscoId: number }): Promise<TipoDeGasto> => {
+    try {
+      const response = await apiClient.put<TipoDeGasto>(`/TiposDeGasto/${id}`, data);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  toggleActivo: async (id: number, activo: boolean): Promise<void> => {
+    try {
+      const response = await apiClient.patch(`/TiposDeGasto/${id}/toggle-activo?activo=${activo}`);
       return handleResponse(response);
     } catch (error) {
       return handleError(error);

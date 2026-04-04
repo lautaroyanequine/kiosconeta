@@ -1,10 +1,3 @@
-// ════════════════════════════════════════════════════════════════════════════
-// PRIVATE ROUTE
-// Verifica dos niveles:
-// 1. PC configurada (sesión de kiosco)
-// 2. Empleado activo seleccionado
-// ════════════════════════════════════════════════════════════════════════════
-
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,6 +14,7 @@ interface PrivateRouteProps {
 export const PrivateRoute = ({
   children,
   requireAdmin = false,
+  requirePermission,
 }: PrivateRouteProps) => {
   const { isKioscoConfigured, isLoading } = useAuth();
   const { empleadoActivo } = useEmpleadoActivo();
@@ -33,15 +27,25 @@ export const PrivateRoute = ({
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
   }
 
-  // Sesión de kiosco OK pero sin empleado activo → selección de empleado
+  // Sin empleado activo → selección
   if (!empleadoActivo) {
     return <Navigate to={ROUTES.SELECCION_EMPLEADO} replace />;
   }
 
-  // Requiere admin y el empleado activo no es admin → POS
-  if (requireAdmin && !empleadoActivo.esAdmin) {
+  // Admin siempre puede acceder a todo
+  if (empleadoActivo.esAdmin) {
+    return <MainLayout>{children}</MainLayout>;
+  }
+
+  // Requiere ser admin y no lo es → POS
+  if (requireAdmin) {
     return <Navigate to={ROUTES.POS} replace />;
   }
+
+  // Requiere un permiso específico — el backend lo validará,
+  // el frontend solo verifica que el empleado esté autenticado
+  // Si querés bloquear en frontend también, podés cargar los permisos
+  // del empleado activo y verificar acá
 
   return <MainLayout>{children}</MainLayout>;
 };

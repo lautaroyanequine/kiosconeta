@@ -14,6 +14,8 @@ namespace Infraestructure.Persistence
         }
         // ===== Seguridad / Usuarios =====
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<AuditoriaLog> AuditoriaLogs { get; set; }
+
         public DbSet<Empleado> Empleados { get; set; }
         public DbSet<Permiso> Permisos { get; set; }
         public DbSet<EmpleadoPermiso> EmpleadoPermisos { get; set; } // tabla intermedia
@@ -68,6 +70,7 @@ namespace Infraestructure.Persistence
             // =========================
             new UsuarioConfiguration(modelBuilder.Entity<Usuario>());
             new EmpleadoConfiguration(modelBuilder.Entity<Empleado>());
+            new AuditoriaLogConfiguration(modelBuilder.Entity<AuditoriaLog>());
 
             // =========================
             // 3️⃣ Core del negocio

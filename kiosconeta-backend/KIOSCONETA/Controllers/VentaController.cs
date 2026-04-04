@@ -181,12 +181,12 @@ namespace KIOSCONETA.Controllers
         /// Anular venta (devuelve stock)
         [HttpDelete("{id}")]
         [RequierePermiso("ventas.anular")]
-
-        public async Task<ActionResult> Anular(int id)
+        public async Task<ActionResult> Anular(int id, [FromBody] AnularVentaDTO dto)
         {
             try
             {
-                await _ventaService.AnularVentaAsync(id);
+                var empleadoId = int.Parse(User.FindFirst("EmpleadoId")?.Value ?? "0");
+                await _ventaService.AnularVentaAsync(id, empleadoId, dto.Motivo);
                 return Ok(new { message = "Venta anulada correctamente. Stock devuelto." });
             }
             catch (KeyNotFoundException ex)

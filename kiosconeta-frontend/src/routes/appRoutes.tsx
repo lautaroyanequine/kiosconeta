@@ -16,6 +16,9 @@ const CategoriasPage  = React.lazy(() => import('../pages/Categorias'));
 const EmpleadosPage   = React.lazy(() => import('../pages/Empleados'));
 const GastosPage  = React.lazy(() => import('../pages/Gastos'))
 const ProductosPage  = React.lazy(() => import('../pages/Productos/index'));
+const VentasPage     = React.lazy(() => import('../pages/Ventas/index'));
+const AdminPage = React.lazy(() => import('../pages/Admin'))
+
 
 
 
@@ -58,19 +61,28 @@ export const AppRoutes= () => {
       path={ROUTES.TURNOS}
       element={<PrivateRoute><TurnosPage /></PrivateRoute> }/>
 
-
-
-
+      <Route
+        path={ROUTES.ADMIN}
+        element={
+          <PrivateRoute requireAdmin>
+            <AdminPage />
+          </PrivateRoute>
+        }
+      />
+     
       <Route
         path={ROUTES.CATEGORIAS}
-        element={<PrivateRoute requireAdmin><CategoriasPage /></PrivateRoute>}
+        element={<PrivateRoute><CategoriasPage /></PrivateRoute>}
       />
 
       <Route
         path={ROUTES.EMPLEADOS}
-        element={<PrivateRoute requireAdmin><EmpleadosPage /></PrivateRoute>}
+        element={<PrivateRoute><EmpleadosPage /></PrivateRoute>}
       />
-
+     <Route
+        path={ROUTES.VENTAS}
+        element={<PrivateRoute><VentasPage /></PrivateRoute>}
+      />
       <Route
       path={ROUTES.GASTOS}
       element={<PrivateRoute><GastosPage /></PrivateRoute> }/>
@@ -94,3 +106,11 @@ export const AppRoutes= () => {
     </Routes>
   );
 };
+
+
+
+
+
+
+
+

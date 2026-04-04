@@ -86,6 +86,12 @@ const NAV_ITEMS: NavItem[] = [
     adminOnly: true,
   },
   {
+    label: 'Administración',
+    path: ROUTES.ADMIN,
+    icon: <Settings size={20} />,
+    adminOnly: true,
+  },
+  {
     label: 'Configuración',
     path: ROUTES.CONFIGURACION,
     icon: <Settings size={20} />,

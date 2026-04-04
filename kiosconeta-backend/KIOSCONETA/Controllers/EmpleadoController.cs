@@ -23,7 +23,7 @@ namespace KIOSCONETA.Controllers
 
         /// Obtener todos los empleados
         [HttpGet]
-        [RequierePermiso("empelados.ver")]
+        [RequierePermiso("empleados.ver")]
         public async Task<ActionResult<IEnumerable<EmpleadoResponseDTO>>> GetAll()
         {
             try
@@ -89,7 +89,7 @@ namespace KIOSCONETA.Controllers
 
         /// Crear nuevo empleado
         [HttpPost]
-        [RequierePermiso("empelados.crear")]
+        [RequierePermiso("empleados.crear")]
         public async Task<ActionResult<EmpleadoResponseDTO>> Create([FromBody] CreateEmpleadoDTO dto)
         {
             try
@@ -114,7 +114,7 @@ namespace KIOSCONETA.Controllers
 
         /// Actualizar empleado
         [HttpPut("{id}")]
-        [RequierePermiso("empelados.editar")]
+        [RequierePermiso("empleados.editar")]
         public async Task<ActionResult<EmpleadoResponseDTO>> Update(int id, [FromBody] UpdateEmpleadoDTO dto)
         {
             try

@@ -15,6 +15,6 @@ namespace Application.Interfaces.Services
 
         // Comandos
         Task<VentaResponseDTO> CreateAsync(CreateVentaDTO dto);
-        Task<bool> AnularVentaAsync(int ventaId);
+        Task<bool> AnularVentaAsync(int ventaId,int empleadoId, string motivo);
     }
 }

@@ -17,26 +17,20 @@ import type {
 
 export const ventasApi = {
   /**
-   * Obtener todas las ventas
+   * Ventas del kiosco con filtros — POST /ventas/kiosco/{id}/buscar
    */
-  getAll: async (filtros?: VentaFiltros): Promise<Venta[]> => {
+  getByKiosco: async (kioscoId: number, filtros?: {
+    fechaDesde?: string;
+    fechaHasta?: string;
+    empleadoId?: number;
+    metodoPagoId?: number;
+    turnoId?: number;
+    soloAnuladas?: boolean;
+  }): Promise<Venta[]> => {
     try {
-      const response = await apiClient.get<Venta[]>(API_ENDPOINTS.VENTAS, {
-        params: filtros,
-      });
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  /**
-   * Obtener venta por ID (con detalles)
-   */
-  getById: async (id: number): Promise<Venta> => {
-    try {
-      const response = await apiClient.get<Venta>(
-        API_ENDPOINTS.VENTAS_BY_ID(id)
+      const response = await apiClient.post<Venta[]>(
+        `/ventas/kiosco/${kioscoId}/buscar`,
+        filtros ?? {}
       );
       return handleResponse(response);
     } catch (error) {
@@ -45,13 +39,11 @@ export const ventasApi = {
   },
 
   /**
-   * Obtener ventas de un empleado
+   * Ventas de hoy — GET /ventas/kiosco/{id}/hoy
    */
-  getByEmpleado: async (empleadoId: number): Promise<Venta[]> => {
+  getHoy: async (kioscoId: number): Promise<Venta[]> => {
     try {
-      const response = await apiClient.get<Venta[]>(
-        API_ENDPOINTS.VENTAS_EMPLEADO(empleadoId)
-      );
+      const response = await apiClient.get<Venta[]>(`/ventas/kiosco/${kioscoId}/hoy`);
       return handleResponse(response);
     } catch (error) {
       return handleError(error);
@@ -71,11 +63,11 @@ export const ventasApi = {
   },
 
   /**
-   * Anular venta
+   * Anular venta — DELETE /ventas/{id}
    */
-  anular: async (id: number, motivo: string): Promise<void> => {
+  anular: async (id: number): Promise<void> => {
     try {
-      await apiClient.post(API_ENDPOINTS.VENTAS_ANULAR(id), { motivo });
+      await apiClient.delete(API_ENDPOINTS.VENTAS_BY_ID(id));
     } catch (error) {
       return handleError(error);
     }

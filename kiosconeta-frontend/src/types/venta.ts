@@ -8,36 +8,31 @@
 
 export interface Venta {
   ventaId: number;
-  fecha: string;                // ISO date string
+  fecha: string;
   total: number;
-  descuento: number;
-  empleadoId: number;
-  empleado?: {
-    nombre: string;
-    legajo?: string;
-  };
-  metodoPagoId: number;
-  metodoPago?: {
-    nombre: string;
-  };
-  turnoId?: number;
+  precioCosto: number;
+  ganancia: number;
+  margenGanancia: number;
+  detalles: string | null;
   anulada: boolean;
-  motivoAnulacion?: string;
-  kioscoId: number;
-  detalles?: DetalleVenta[];
+  numeroVenta: number;
+  // Empleado
+  empleadoId: number;
+  empleadoNombre: string;
+  // Método de pago
+  metodoPagoId: number;
+  metodoPagoNombre: string;
+  // Turno
+  turnoId: number;
+  turnoNombre: string;
+  // Productos
+  productos: ProductoVenta[];
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// DETALLE DE VENTA
-// ────────────────────────────────────────────────────────────────────────────
-
-export interface DetalleVenta {
-  detalleVentaId: number;
-  ventaId: number;
+export interface ProductoVenta {
+  productoVentaId: number;
   productoId: number;
-  producto?: {
-    nombre: string;
-  };
+  productoNombre: string;
   cantidad: number;
   precioUnitario: number;
   subtotal: number;

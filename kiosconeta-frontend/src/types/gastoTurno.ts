@@ -42,6 +42,7 @@ export interface GastoResponse {
 }
 
 export interface CreateGastoDTO {
+  nombre : string 
   descripcion: string
   monto: number
   empleadoId: number
@@ -63,6 +64,11 @@ export interface TipoDeGasto {
   totalGastos: number
 }
 
+export interface CreateTipoDeGastoDTO {
+  nombre: string;
+  descripcion: string;
+  kioscoId: number;
+}
 // ────────────────────────────────────────────────────────────────────────────
 // TURNO
 // ────────────────────────────────────────────────────────────────────────────

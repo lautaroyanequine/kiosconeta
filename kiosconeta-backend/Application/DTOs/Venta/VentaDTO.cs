@@ -66,4 +66,8 @@
         public int? TurnoId { get; set; }
         public bool? SoloAnuladas { get; set; }
     }
+    public class AnularVentaDTO
+    {
+        public string Motivo { get; set; } = string.Empty;
+    }
 }

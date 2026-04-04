@@ -50,6 +50,9 @@ export const useProductos = () => {
   // ── Estado: modal ajuste de stock ──────────────────────────────────────
   const [modalStock, setModalStock] = useState<Producto | null>(null);
 
+  // ── Estado: modal ingreso de mercadería ───────────────────────────────
+  const [modalIngreso, setModalIngreso] = useState(false);
+
   // ── Estado: confirmación eliminar ─────────────────────────────────────
   const [productoAEliminar, setProductoAEliminar] = useState<Producto | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -193,6 +196,60 @@ export const useProductos = () => {
   };
 
   // ────────────────────────────────────────────────────────────────────────
+  // INGRESO DE MERCADERÍA
+  // Suma stock + guarda distribuidor en el producto
+  // ────────────────────────────────────────────────────────────────────────
+
+  const ingresarMercaderia = async (
+    productoId: number,
+    cantidad: number,
+    distribuidor: string,
+    precioCosto: number
+  ) => {
+    const producto = productos.find((p) => p.productoId === productoId);
+    if (!producto) throw new Error('Producto no encontrado');
+
+    // 1. Sumar stock
+    await productosApi.ajustarStock(productoId, cantidad, 'agregar');
+
+    // 2. Si cambió el costo o el distribuidor, actualizar el producto
+    const costoCambio = precioCosto !== producto.precioCosto;
+    const distribuidorCambio = distribuidor && distribuidor !== producto.distribuidor;
+
+    if (costoCambio || distribuidorCambio) {
+      await productosApi.update(productoId, {
+        productoId,
+        nombre: producto.nombre,
+        codigoBarra: producto.codigoBarra,
+        precioCosto: costoCambio ? precioCosto : producto.precioCosto,
+        precioVenta: producto.precioVenta,
+        stockActual: producto.stockActual + cantidad,
+        stockMinimo: producto.stockMinimo,
+        categoriaId: producto.categoriaId,
+        fechaVencimiento: producto.fechaVencimiento,
+        activo: producto.activo,
+        suelto: producto.suelto ?? false,
+        distribuidor: distribuidorCambio ? distribuidor : producto.distribuidor,
+      });
+    }
+
+    // Actualizar estado local
+    setProductos((prev) =>
+      prev.map((p) =>
+        p.productoId === productoId
+          ? {
+              ...p,
+              stockActual: p.stockActual + cantidad,
+              precioCosto: costoCambio ? precioCosto : p.precioCosto,
+              distribuidor: distribuidorCambio ? distribuidor : p.distribuidor,
+            }
+          : p
+      )
+    );
+    setModalIngreso(false);
+  };
+
+  // ────────────────────────────────────────────────────────────────────────
   // ELIMINAR
   // ────────────────────────────────────────────────────────────────────────
 
@@ -262,6 +319,11 @@ export const useProductos = () => {
     modalStock,
     setModalStock,
     ajustarStock,
+
+    // Ingreso de mercadería
+    modalIngreso,
+    setModalIngreso,
+    ingresarMercaderia,
 
     // Eliminar
     productoAEliminar,

@@ -2,6 +2,7 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Services
 {
@@ -13,13 +14,14 @@ namespace Application.Services
         private readonly IMetodoDePagoRepository _metodoDePagoRepository;
         private readonly ICierreTurnoRepository _cierreTurnoRepository;
         private readonly INumeradorRepository _numeradorRepository;
+        private readonly IAuditoriaService _auditoriaService;
 
         public VentaService(
             IVentaRepository ventaRepository,
             IProductoRepository productoRepository,
             IEmpleadoRepository empleadoRepository,
             IMetodoDePagoRepository metodoDePagoRepository,
-            ICierreTurnoRepository cierreTurnoRepository, INumeradorRepository numeradorRepository) 
+            ICierreTurnoRepository cierreTurnoRepository, INumeradorRepository numeradorRepository,IAuditoriaService auditoriaService) 
         {
             _ventaRepository = ventaRepository;
             _productoRepository = productoRepository;
@@ -27,6 +29,7 @@ namespace Application.Services
             _metodoDePagoRepository = metodoDePagoRepository;
             _cierreTurnoRepository = cierreTurnoRepository;
             _numeradorRepository = numeradorRepository;
+            _auditoriaService = auditoriaService;
         }
 
         // ========== CONSULTAS ==========
@@ -183,18 +186,33 @@ namespace Application.Services
             return MapToResponseDTO(creada);
         }
 
-        public async Task<bool> AnularVentaAsync(int ventaId)
+        public async Task<bool> AnularVentaAsync(int ventaId, int empleadoId, string motivo)
         {
             var venta = await _ventaRepository.GetByIdAsync(ventaId);
+
             if (venta == null)
                 throw new KeyNotFoundException($"Venta con ID {ventaId} no encontrada");
 
             if (venta.Anulada)
                 throw new InvalidOperationException("La venta ya está anulada");
 
-            return await _ventaRepository.AnularVentaAsync(ventaId);
-        }
+            var resultado = await _ventaRepository.AnularVentaAsync(ventaId);
 
+            if (resultado)
+            {
+                await _auditoriaService.RegistrarAsync(
+                    empleadoId: empleadoId,
+                    kioscoId: venta.Empleado.KioscoID,
+                    tipoEvento: TipoEventoAuditoria.VentaAnulada,
+                    descripcion: $"Venta #{venta.NumeroVenta} anulada. Total: ${venta.Total}. Motivo: {motivo}",
+                    datos: new { ventaId = venta.VentaId, total = venta.Total, motivo },
+                    esSospechoso: true,
+                    motivoSospecha: "Anulación de venta registrada"
+                );
+            }
+
+            return resultado;
+        }
         // ========== MAPEO ==========
 
         private VentaResponseDTO MapToResponseDTO(Venta venta)

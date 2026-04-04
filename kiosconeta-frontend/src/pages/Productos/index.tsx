@@ -15,11 +15,14 @@ import {
   PackageSearch,
   AlertTriangle,
   TrendingUp,
+  PackagePlus,
+  Truck,
 } from 'lucide-react';
 import { Button, Input, Badge, Table, Modal, LoadingOverlay } from '@/components/commons';
 import { formatCurrency, formatDate, getStockStatus } from '@/utils/formatters';
 import { ProductoModal } from './ProductoModal';
 import { StockModal } from './StockModal';
+import { IngresoMercaderiaModal } from './IngresoMercaderiaModal';
 import { useProductos } from './useProductos';
 import type { Producto } from '@/types';
 
@@ -92,6 +95,9 @@ const ProductosPage: React.FC = () => {
     modalStock,
     setModalStock,
     ajustarStock,
+    modalIngreso,
+    setModalIngreso,
+    ingresarMercaderia,
     productoAEliminar,
     isDeleting,
     confirmarEliminar,
@@ -124,6 +130,19 @@ const ProductosPage: React.FC = () => {
           {p.categoriaNombre || categorias.find((c) => c.categoriaID === p.categoriaId)?.nombre || '—'}
         </span>
       ),
+    },
+    {
+      key: 'distribuidor',
+      header: 'Distribuidor',
+      render: (p: Producto) =>
+        p.distribuidor ? (
+          <span className="text-xs text-neutral-600 flex items-center gap-1">
+            <Truck size={11} className="text-neutral-400" />
+            {p.distribuidor}
+          </span>
+        ) : (
+          <span className="text-xs text-neutral-300">—</span>
+        ),
     },
     {
       key: 'precioCosto',
@@ -183,7 +202,6 @@ const ProductosPage: React.FC = () => {
       align: 'right' as const,
       render: (p: Producto) => (
         <div className="flex items-center justify-end gap-1">
-          {/* Editar */}
           <button
             onClick={() => abrirModalEditar(p)}
             title="Editar"
@@ -191,8 +209,6 @@ const ProductosPage: React.FC = () => {
           >
             <Pencil size={15} />
           </button>
-
-          {/* Toggle activo */}
           <button
             onClick={() => toggleActivo(p)}
             title={p.activo ? 'Desactivar' : 'Activar'}
@@ -204,8 +220,6 @@ const ProductosPage: React.FC = () => {
           >
             {p.activo ? <ToggleRight size={17} /> : <ToggleLeft size={17} />}
           </button>
-
-          {/* Eliminar */}
           <button
             onClick={() => confirmarEliminar(p)}
             title="Eliminar"
@@ -244,6 +258,13 @@ const ProductosPage: React.FC = () => {
               onClick={recargar}
             >
               Actualizar
+            </Button>
+            <Button
+              variant="outline"
+              leftIcon={<PackagePlus size={16} />}
+              onClick={() => setModalIngreso(true)}
+            >
+              Agregar stock
             </Button>
             <Button
               variant="primary"
@@ -393,6 +414,14 @@ const ProductosPage: React.FC = () => {
         producto={modalStock}
         onClose={() => setModalStock(null)}
         onAjustar={ajustarStock}
+      />
+
+      {/* Ingreso de mercadería */}
+      <IngresoMercaderiaModal
+        isOpen={modalIngreso}
+        productos={productos}
+        onClose={() => setModalIngreso(false)}
+        onConfirmar={ingresarMercaderia}
       />
 
       {/* Confirmar eliminar */}

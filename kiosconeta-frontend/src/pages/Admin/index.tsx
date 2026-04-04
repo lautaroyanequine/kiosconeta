@@ -1,0 +1,103 @@
+// ════════════════════════════════════════════════════════════════════════════
+// PAGE: Administración
+// Centro de control del negocio — solo accesible para admins.
+// Organizado en tabs: Gastos, Sueldos, Caja (próximo), Auditoría (próximo)
+// ════════════════════════════════════════════════════════════════════════════
+
+import React, { useState } from 'react'
+import { Wallet, Users, DollarSign, Shield, Clock } from 'lucide-react'
+import { GastosAdmin } from './GastosAdmin'
+import { Sueldos } from './Sueldos'
+
+// ────────────────────────────────────────────────────────────────────────────
+// TABS
+// ────────────────────────────────────────────────────────────────────────────
+
+const TABS = [
+  { id: 'gastos',    label: 'Gastos',    icon: <Wallet size={16} />,     disponible: true },
+  { id: 'sueldos',  label: 'Sueldos',   icon: <Users size={16} />,      disponible: true },
+  { id: 'caja',     label: 'Caja',      icon: <DollarSign size={16} />, disponible: false },
+  { id: 'auditoria',label: 'Auditoría', icon: <Shield size={16} />,     disponible: false },
+]
+
+// ────────────────────────────────────────────────────────────────────────────
+// SUB-COMPONENTE: ProximamenteBanner
+// ────────────────────────────────────────────────────────────────────────────
+
+const ProximamenteBanner: React.FC<{ titulo: string; descripcion: string }> = ({
+  titulo, descripcion
+}) => (
+  <div className="flex flex-col items-center justify-center h-64">
+    <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mb-4">
+      <Clock size={32} className="text-neutral-400" />
+    </div>
+    <h3 className="text-lg font-bold text-neutral-700 mb-2">{titulo} — Próximamente</h3>
+    <p className="text-sm text-neutral-400 text-center max-w-sm">{descripcion}</p>
+  </div>
+)
+
+// ════════════════════════════════════════════════════════════════════════════
+// PAGE
+// ════════════════════════════════════════════════════════════════════════════
+
+const AdminPage: React.FC = () => {
+  const [tabActiva, setTabActiva] = useState('gastos')
+
+  return (
+    <div className="h-full flex flex-col bg-neutral-50 overflow-hidden">
+
+      {/* ── HEADER ────────────────────────────────────────────────────────── */}
+      <div className="bg-white border-b border-neutral-200 px-6 pt-5 pb-0 shrink-0">
+        <h1 className="text-xl font-bold text-neutral-900 mb-4">Administración</h1>
+
+        {/* Tabs */}
+        <div className="flex gap-1">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => tab.disponible && setTabActiva(tab.id)}
+              className={`
+                flex items-center gap-2 px-4 py-2.5 text-sm font-medium
+                border-b-2 transition-all rounded-t-lg
+                ${tab.id === tabActiva
+                  ? 'border-primary text-primary bg-primary/5'
+                  : tab.disponible
+                  ? 'border-transparent text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50'
+                  : 'border-transparent text-neutral-300 cursor-not-allowed'
+                }
+              `}
+            >
+              {tab.icon}
+              {tab.label}
+              {!tab.disponible && (
+                <span className="text-xs bg-neutral-100 text-neutral-400 px-1.5 py-0.5 rounded-full">
+                  Pronto
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── CONTENIDO ─────────────────────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {tabActiva === 'gastos'    && <GastosAdmin />}
+        {tabActiva === 'sueldos'   && <Sueldos />}
+        {tabActiva === 'caja'      && (
+          <ProximamenteBanner
+            titulo="Caja"
+            descripcion="Vas a poder ver todos los movimientos de dinero del negocio — ingresos, egresos y saldo actual."
+          />
+        )}
+        {tabActiva === 'auditoria' && (
+          <ProximamenteBanner
+            titulo="Auditoría"
+            descripcion="Vas a poder ver todas las acciones realizadas en el sistema — ventas anuladas, carritos vaciados, cambios de precios y más."
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default AdminPage

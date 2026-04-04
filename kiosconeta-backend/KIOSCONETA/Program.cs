@@ -4,6 +4,7 @@ using Application.Services;
 using Infraestructure.Persistence;
 using Infraestructure.Repository;
 using Infrastructure.Persistence.Repositories;
+using Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -83,12 +84,15 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IMetodoDePagoRepository, MetodoDePagoRepository>();
 builder.Services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();
 builder.Services.AddScoped<IVentaRepository, VentaRepository>();
+builder.Services.AddScoped<IProductoVentaRepository, ProductoVentaRepository>();
+
 builder.Services.AddScoped<ICierreTurnoRepository, CierreTurnoRepository>();
 builder.Services.AddScoped<IGastoRepository, GastoRepository>();
 builder.Services.AddScoped<ITipoDeGastoRepository, TipoDeGastoRepository>();
-builder.Services.AddScoped<IProductoVentaRepository, ProductoVentaRepository>();
-builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();     // ← NUEVO
+builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();     
 builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
+builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
+
 // ========== SERVICES ==========
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
@@ -96,12 +100,14 @@ builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IMetodoDePagoService, MetodoDePagoService>();
 builder.Services.AddScoped<IEmpleadoService, EmpleadoService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
+
 builder.Services.AddScoped<ICierreTurnoService, CierreTurnoService>();
 builder.Services.AddScoped<IGastoService, GastoService>();
 builder.Services.AddScoped<ITipoDeGastoService, TipoDeGastoService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IPermisoService, PermisoService>();
 builder.Services.AddScoped<INumeradorRepository, NumeradorRepository>();
+builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 
 
 // ========== CORS ==========

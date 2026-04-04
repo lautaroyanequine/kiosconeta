@@ -105,7 +105,6 @@ namespace Application.Services
 
             var gasto = new Gasto
             {
-             
                 Descripcion = dto.Descripcion?.Trim() ?? "",
                 Monto = dto.Monto,
                 EmpleadoId = dto.EmpleadoId,

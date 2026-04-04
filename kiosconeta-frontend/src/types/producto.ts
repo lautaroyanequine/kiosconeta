@@ -9,19 +9,20 @@
 export interface Producto {
   productoId: number;
   nombre: string;
-  codigoBarra?: string;         // backend: CodigoBarra
+  codigoBarra?: string;
   precioCosto: number;
   precioVenta: number;
-  stockActual: number;          // backend: StockActual
+  stockActual: number;
   stockMinimo: number;
   categoriaId: number;
-  categoriaNombre?: string;     // backend: CategoriaNombre
+  categoriaNombre?: string;
   fechaVencimiento?: string;
   activo: boolean;
   kioscoId: number;
-  bajoStock?: boolean;          // backend: BajoStock (calculado)
+  bajoStock?: boolean;
   margenGanancia?: number;
   suelto?: boolean;
+  distribuidor?: string;        // para ingreso de mercadería
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -53,6 +54,7 @@ export interface UpdateProductoDTO {
   fechaVencimiento?: string;
   activo: boolean;
   suelto?: boolean;
+  distribuidor?: string;
 }
 
 // ────────────────────────────────────────────────────────────────────────────

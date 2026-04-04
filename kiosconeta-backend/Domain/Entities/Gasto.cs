@@ -9,6 +9,8 @@ namespace Domain.Entities
     public class Gasto
     {
         public int GastoId { get; set; }
+        public string Nombre { get; set; }
+
 
         public DateTime Fecha { get; set; }
 

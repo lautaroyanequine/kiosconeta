@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260328111016_a")]
+    [Migration("20260404012807_a")]
     partial class a
     {
         /// <inheritdoc />
@@ -662,6 +662,10 @@ namespace Infraestructure.Migrations
 
                     b.Property<decimal>("Monto")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TipoDeGastoId")
                         .HasColumnType("int");
@@ -2130,7 +2134,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$8e/cntFtJEPpRXaflodxl.f0MEsGJsKwkCe6NqwLVKQSA/mX3EAdK"
+                            Password = "$2a$11$Gl216qtXHrEmM3QhtjJqveWKTz7Vo.iiKr2uDb3CkFy/75i1Jg9XO"
                         });
                 });
 
