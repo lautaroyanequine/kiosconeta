@@ -1,7 +1,7 @@
-﻿using Application.Interfaces.Repository;
+﻿using Application.DTOs.Auditoria;
+using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
-using Domain.Enums;
 using System.Text.Json;
 
 namespace Application.Services
@@ -16,8 +16,10 @@ namespace Application.Services
         }
 
         public async Task RegistrarAsync(
-            int empleadoId, int kioscoId,
-            string tipoEvento, string descripcion,
+            int empleadoId,
+            int kioscoId,
+            string tipoEvento,
+            string descripcion,
             object? datos = null,
             bool esSospechoso = false,
             string? motivoSospecha = null)
@@ -32,18 +34,46 @@ namespace Application.Services
                 EsSospechoso = esSospechoso,
                 MotivoSospecha = motivoSospecha,
             };
+
             await _repo.RegistrarAsync(log);
         }
 
-        public async Task<IEnumerable<AuditoriaLog>> GetByKioscoAsync(
+        public async Task<IEnumerable<AuditoriaLogResponseDTO>> GetByKioscoAsync(
             int kioscoId, DateTime? desde = null, DateTime? hasta = null)
-            => await _repo.GetByKioscoAsync(kioscoId, desde, hasta);
+        {
+            var logs = await _repo.GetByKioscoAsync(kioscoId, desde, hasta);
+            return logs.Select(MapToResponseDTO);
+        }
 
-        public async Task<IEnumerable<AuditoriaLog>> GetSospechososByKioscoAsync(int kioscoId)
-            => await _repo.GetSospechososByKioscoAsync(kioscoId);
+        public async Task<IEnumerable<AuditoriaLogResponseDTO>> GetSospechososByKioscoAsync(int kioscoId)
+        {
+            var logs = await _repo.GetSospechososByKioscoAsync(kioscoId);
+            return logs.Select(MapToResponseDTO);
+        }
 
-        public async Task<IEnumerable<AuditoriaLog>> GetByEmpleadoAsync(
+        public async Task<IEnumerable<AuditoriaLogResponseDTO>> GetByEmpleadoAsync(
             int empleadoId, DateTime? desde = null, DateTime? hasta = null)
-            => await _repo.GetByEmpleadoAsync(empleadoId, desde, hasta);
+        {
+            var logs = await _repo.GetByEmpleadoAsync(empleadoId, desde, hasta);
+            return logs.Select(MapToResponseDTO);
+        }
+
+        // 🔥 MAPPER
+        private AuditoriaLogResponseDTO MapToResponseDTO(AuditoriaLog log)
+        {
+            return new AuditoriaLogResponseDTO
+            {
+                AuditoriaLogId = log.AuditoriaLogId,
+                Fecha = log.Fecha,
+                EmpleadoId = log.EmpleadoId,
+                EmpleadoNombre = log.Empleado?.Nombre ?? "",
+                TipoEvento = log.TipoEvento,
+                Descripcion = log.Descripcion,
+                DatosJson = log.DatosJson,
+                EsSospechoso = log.EsSospechoso,
+                MotivoSospecha = log.MotivoSospecha,
+                KioscoId = log.KioscoId,
+            };
+        }
     }
 }

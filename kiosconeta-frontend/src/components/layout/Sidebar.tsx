@@ -15,6 +15,7 @@ import {
   Users,
   Settings,
   ShoppingBag,
+  ShieldCheck,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -83,12 +84,11 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Empleados',
     path: ROUTES.EMPLEADOS,
     icon: <Users size={20} />,
-    adminOnly: true,
   },
   {
-    label: 'Administración',
-    path: ROUTES.ADMIN,
-    icon: <Settings size={20} />,
+    label: 'Auditoría',
+    path: ROUTES.AUDITORIA,
+    icon: <ShieldCheck size={20} />,
     adminOnly: true,
   },
   {

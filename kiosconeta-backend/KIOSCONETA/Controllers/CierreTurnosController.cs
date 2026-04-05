@@ -97,16 +97,18 @@ public class CierreTurnosController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-
+    [Authorize]
     [HttpPost("kiosco/{kioscoId}/cerrar")]
     [RequierePermiso("turnos.cerrar")]
     public async Task<ActionResult<CierreTurnoResponseDTO>>
-        CerrarTurno(int kioscoId, [FromBody] CerrarTurnoDTO dto)
+    CerrarTurno(int kioscoId, [FromBody] CerrarTurnoDTO dto)
     {
         try
         {
+            var empleadoId = int.Parse(User.FindFirst("EmpleadoId")!.Value);
+
             var cierre = await _cierreTurnoService
-                .CerrarTurnoAsync(kioscoId, dto);
+                .CerrarTurnoAsync(kioscoId, dto, empleadoId);
 
             return Ok(cierre);
         }

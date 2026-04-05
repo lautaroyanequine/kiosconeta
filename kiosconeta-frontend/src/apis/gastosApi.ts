@@ -100,7 +100,7 @@ export const tiposGastoApi = {
     }
   },
 
-  update: async (id: number, data: { tipoDeGastoId: number; nombre: string; descripcion: string; kioscoId: number }): Promise<TipoDeGasto> => {
+  update: async (id: number, data: { tipoDeGastoId: number; nombre: string; descripcion: string; kioscoId: number ;activo : boolean}): Promise<TipoDeGasto> => {
     try {
       const response = await apiClient.put<TipoDeGasto>(`/TiposDeGasto/${id}`, data);
       return handleResponse(response);

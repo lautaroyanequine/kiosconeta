@@ -2,6 +2,7 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Services
 {
@@ -11,10 +12,13 @@ namespace Application.Services
     public class ProductoService : IProductoService
     {
         private readonly IProductoRepository _productoRepository;
+        private readonly IAuditoriaService _auditoriaService;
 
-        public ProductoService(IProductoRepository productoRepository)
+
+        public ProductoService(IProductoRepository productoRepository, IAuditoriaService auditoriaService)
         {
             _productoRepository = productoRepository;
+            _auditoriaService = auditoriaService;
         }
 
         // ========== CONSULTAS ==========
@@ -182,21 +186,32 @@ namespace Application.Services
             return await _productoRepository.ActivarDesactivarAsync(id, activo);
         }
 
-        public async Task<bool> ActualizarStockAsync(int id, int cantidad)
+        public async Task<bool> ActualizarStockAsync(int id, int cantidad, int empleadoId)
         {
             var producto = await _productoRepository.GetByIdAsync(id);
             if (producto == null)
-            {
                 throw new KeyNotFoundException($"No se encontró el producto con ID: {id}");
-            }
 
-            // Validar que no quede en negativo
             if (producto.StockActual + cantidad < 0)
-            {
                 throw new InvalidOperationException("No hay suficiente stock disponible");
+
+            var resultado = await _productoRepository.ActualizarStockAsync(id, cantidad);
+
+            if (resultado)
+            {
+                var esSospechoso = cantidad < -10; // reducción grande = sospechoso
+                await _auditoriaService.RegistrarAsync(
+                    empleadoId: empleadoId,
+                    kioscoId: producto.KioscoId,
+                    tipoEvento: TipoEventoAuditoria.StockAjustado,
+                    descripcion: $"Stock de '{producto.Nombre}' ajustado en {(cantidad > 0 ? "+" : "")}{cantidad}. Stock resultante: {producto.StockActual + cantidad}",
+                    datos: new { productoId = id, productoNombre = producto.Nombre, cantidad, stockAnterior = producto.StockActual, stockNuevo = producto.StockActual + cantidad },
+                    esSospechoso: esSospechoso,
+                    motivoSospecha: esSospechoso ? $"Reducción grande de stock: {cantidad} unidades" : null
+                );
             }
 
-            return await _productoRepository.ActualizarStockAsync(id, cantidad);
+            return resultado;
         }
 
         // ========== MAPEO ==========

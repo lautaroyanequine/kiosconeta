@@ -41,6 +41,11 @@ export const API_ENDPOINTS = {
   
   // Gastos
   GASTOS: '/gastos',
+
+  // Auditoría
+  AUDITORIA_KIOSCO: (kioscoId: number) => `/auditoria/kiosco/${kioscoId}`,
+  AUDITORIA_SOSPECHOSOS: (kioscoId: number) => `/auditoria/kiosco/${kioscoId}/sospechosos`,
+  AUDITORIA_EMPLEADO: (empleadoId: number) => `/auditoria/empleado/${empleadoId}`,
   GASTOS_BY_ID: (id: number) => `/gastos/${id}`,
   TIPOS_GASTO: '/tipos-gasto',
   
@@ -103,9 +108,9 @@ export const ROUTES = {
   TURNOS: '/turnos',
   EMPLEADOS: '/empleados',
   CONFIGURACION: '/configuracion',
+  AUDITORIA: '/auditoria',
   REPORTES: '/reportes',
   PERFIL: '/perfil',
-  ADMIN: '/admin',
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -285,7 +290,6 @@ export const PERMISOS = {
   REPORTES_DASHBOARD_COMPLETO: 'reportes.dashboard_completo',
   REPORTES_DASHBOARD_BASICO: 'reportes.dashboard_basico',
   
- 
   // Configuración
   CONFIGURACION_KIOSCO: 'configuracion.kiosco',
 } as const;

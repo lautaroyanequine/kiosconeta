@@ -20,6 +20,9 @@ namespace Application.DTOs.CierreTurno
         /// <summary>
         /// Efectivo físico que el empleado contó en la caja
         /// </summary>
+        /// 
+
+        public int EmpleadoId { get; set; }
         public decimal EfectivoContado { get; set; }
         public int TurnoId { get; set; }    
         public string TurnoNombre { get; set; }

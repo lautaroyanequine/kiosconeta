@@ -289,11 +289,11 @@ namespace KIOSCONETA.Controllers
         /// Actualizar stock de un producto (suma o resta)
         [HttpPatch("{id}/stock")]
         [RequierePermiso("productos.editar")]
-        public async Task<ActionResult> ActualizarStock(int id, [FromQuery] int cantidad)
+        public async Task<ActionResult> ActualizarStock(int id, [FromQuery] int cantidad,int idEmpleado)
         {
             try
             {
-                await _productoService.ActualizarStockAsync(id, cantidad);
+                await _productoService.ActualizarStockAsync(id, cantidad,idEmpleado);
                 return Ok(new { message = "Stock actualizado correctamente", cantidad });
             }
             catch (KeyNotFoundException ex)

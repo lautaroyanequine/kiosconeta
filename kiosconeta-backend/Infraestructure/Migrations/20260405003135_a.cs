@@ -254,6 +254,36 @@ namespace Infraestructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AuditoriaLog",
+                columns: table => new
+                {
+                    AuditoriaLogId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
+                    EmpleadoId = table.Column<int>(type: "int", nullable: false),
+                    KioscoId = table.Column<int>(type: "int", nullable: false),
+                    TipoEvento = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    DatosJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EsSospechoso = table.Column<bool>(type: "bit", nullable: false),
+                    MotivoSospecha = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuditoriaLog", x => x.AuditoriaLogId);
+                    table.ForeignKey(
+                        name: "FK_AuditoriaLog_Empleado_EmpleadoId",
+                        column: x => x.EmpleadoId,
+                        principalTable: "Empleado",
+                        principalColumn: "EmpleadoId");
+                    table.ForeignKey(
+                        name: "FK_AuditoriaLog_Kiosco_KioscoId",
+                        column: x => x.KioscoId,
+                        principalTable: "Kiosco",
+                        principalColumn: "KioscoID");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CierreTurnoEmpleado",
                 columns: table => new
                 {
@@ -509,7 +539,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$Gl216qtXHrEmM3QhtjJqveWKTz7Vo.iiKr2uDb3CkFy/75i1Jg9XO" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$oJu6CJJPg2rJ0VjwEKIuMucFmmmyTv3g21yxCw60VdYRofUyzvMAu" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",
@@ -671,6 +701,26 @@ namespace Infraestructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuditoriaLog_EmpleadoId",
+                table: "AuditoriaLog",
+                column: "EmpleadoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditoriaLog_EsSospechoso",
+                table: "AuditoriaLog",
+                column: "EsSospechoso");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditoriaLog_Fecha",
+                table: "AuditoriaLog",
+                column: "Fecha");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditoriaLog_KioscoId",
+                table: "AuditoriaLog",
+                column: "KioscoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CierresTurno_KioscoId_Estado",
                 table: "CierresTurno",
                 columns: new[] { "KioscoId", "Estado" });
@@ -802,6 +852,9 @@ namespace Infraestructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AuditoriaLog");
+
             migrationBuilder.DropTable(
                 name: "CierreTurnoEmpleado");
 

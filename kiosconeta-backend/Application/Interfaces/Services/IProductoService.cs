@@ -25,6 +25,6 @@ namespace Application.Interfaces.Services
         Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto);
         Task<bool> DeleteAsync(int id);
         Task<bool> ActivarDesactivarAsync(int id, bool activo);
-        Task<bool> ActualizarStockAsync(int id, int cantidad);
+        Task<bool> ActualizarStockAsync(int id, int cantidad,int idEmpleado);
     }
 }

@@ -110,6 +110,7 @@ builder.Services.AddScoped<INumeradorRepository, NumeradorRepository>();
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 
 
+
 // ========== CORS ==========
 builder.Services.AddCors(options =>
 {

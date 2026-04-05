@@ -11,3 +11,4 @@ export * from './productosApi';
 export * from './ventasApi';
 export * from './otrosApi';
 export * from './dashboardApi';
+export * from './auditoriaApi';

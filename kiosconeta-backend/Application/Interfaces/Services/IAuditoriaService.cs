@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.Auditoria;
 
 namespace Application.Interfaces.Services
 {
@@ -14,15 +14,15 @@ namespace Application.Interfaces.Services
             string? motivoSospecha = null
         );
 
-        Task<IEnumerable<AuditoriaLog>> GetByKioscoAsync(
+        Task<IEnumerable<AuditoriaLogResponseDTO>> GetByKioscoAsync(
             int kioscoId,
             DateTime? desde = null,
             DateTime? hasta = null
         );
 
-        Task<IEnumerable<AuditoriaLog>> GetSospechososByKioscoAsync(int kioscoId);
+        Task<IEnumerable<AuditoriaLogResponseDTO>> GetSospechososByKioscoAsync(int kioscoId);
 
-        Task<IEnumerable<AuditoriaLog>> GetByEmpleadoAsync(
+        Task<IEnumerable<AuditoriaLogResponseDTO>> GetByEmpleadoAsync(
             int empleadoId,
             DateTime? desde = null,
             DateTime? hasta = null

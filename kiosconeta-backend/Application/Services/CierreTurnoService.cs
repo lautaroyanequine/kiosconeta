@@ -2,6 +2,8 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
+using System.Security.Claims;
+
 using Domain.Enums;
 
 namespace Application.Services
@@ -11,15 +13,17 @@ namespace Application.Services
         private readonly ICierreTurnoRepository _cierreTurnoRepository;
         private readonly IVentaRepository _ventaRepository;
         private readonly IGastoRepository _gastoRepository;
+        private readonly IAuditoriaService _auditoriaService;
 
         public CierreTurnoService(
             ICierreTurnoRepository cierreTurnoRepository,
             IVentaRepository ventaRepository,
-            IGastoRepository gastoRepository)
+            IGastoRepository gastoRepository,IAuditoriaService auditoriaService)
         {
             _cierreTurnoRepository = cierreTurnoRepository;
             _ventaRepository = ventaRepository;
             _gastoRepository = gastoRepository;
+            _auditoriaService = auditoriaService;
         }
 
         // ========== CONSULTAS ==========
@@ -114,8 +118,7 @@ namespace Application.Services
 
             return await MapToResponseDTO(cierre);
         }
-        public async Task<CierreTurnoResponseDTO>
-            CerrarTurnoAsync(int kioscoId, CerrarTurnoDTO dto)
+        public async Task<CierreTurnoResponseDTO>CerrarTurnoAsync(int kioscoId, CerrarTurnoDTO dto , int empleadoId)
         {
             var cierre = await _cierreTurnoRepository
                 .GetTurnoAbiertoAsync(kioscoId);
@@ -154,7 +157,29 @@ namespace Application.Services
             );
 
             await _cierreTurnoRepository.UpdateAsync(cierre);
+            // Registrar en auditoría
+            var diferencia = Math.Abs(cierre.Diferencia);
+            var esSospechoso = diferencia > 500; // más de $500 de diferencia
 
+            await _auditoriaService.RegistrarAsync(
+            empleadoId: empleadoId,
+            kioscoId: kioscoId,
+            tipoEvento: esSospechoso
+                ? TipoEventoAuditoria.TurnoCerradoConDiferencia
+                : TipoEventoAuditoria.TurnoCerrado,
+            descripcion: $"Turno cerrado. Diferencia de caja: ${cierre.Diferencia:F2}. Ventas: {ventas.Count}",
+            datos: new
+            {
+                cierreTurnoId = cierre.CierreTurnoId,
+                diferencia = cierre.Diferencia,
+                montoEsperado = cierre.MontoEsperado,
+                montoReal = cierre.MontoReal
+            },
+            esSospechoso: esSospechoso,
+            motivoSospecha: esSospechoso
+                ? $"Diferencia de caja mayor a $500: ${cierre.Diferencia:F2}"
+                : null
+        );
             return await MapToResponseDTO(cierre);
         }
         // ========== MAPEO ==========

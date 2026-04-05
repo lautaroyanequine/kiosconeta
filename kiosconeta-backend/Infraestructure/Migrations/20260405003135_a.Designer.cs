@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260404012807_a")]
+    [Migration("20260405003135_a")]
     partial class a
     {
         /// <inheritdoc />
@@ -24,6 +24,58 @@ namespace Infraestructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.Entities.AuditoriaLog", b =>
+                {
+                    b.Property<int>("AuditoriaLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditoriaLogId"));
+
+                    b.Property<string>("DatosJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("EmpleadoId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("EsSospechoso")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Fecha")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("KioscoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MotivoSospecha")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("TipoEvento")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("AuditoriaLogId");
+
+                    b.HasIndex("EmpleadoId");
+
+                    b.HasIndex("EsSospechoso");
+
+                    b.HasIndex("Fecha");
+
+                    b.HasIndex("KioscoId");
+
+                    b.ToTable("AuditoriaLog", (string)null);
+                });
 
             modelBuilder.Entity("Domain.Entities.Categoria", b =>
                 {
@@ -2134,7 +2186,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$Gl216qtXHrEmM3QhtjJqveWKTz7Vo.iiKr2uDb3CkFy/75i1Jg9XO"
+                            Password = "$2a$11$oJu6CJJPg2rJ0VjwEKIuMucFmmmyTv3g21yxCw60VdYRofUyzvMAu"
                         });
                 });
 
@@ -2253,6 +2305,25 @@ namespace Infraestructure.Migrations
                         .IsUnique();
 
                     b.ToTable("TipoDeGasto", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.AuditoriaLog", b =>
+                {
+                    b.HasOne("Domain.Entities.Empleado", "Empleado")
+                        .WithMany()
+                        .HasForeignKey("EmpleadoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Kiosco", "Kiosco")
+                        .WithMany()
+                        .HasForeignKey("KioscoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Empleado");
+
+                    b.Navigation("Kiosco");
                 });
 
             modelBuilder.Entity("Domain.Entities.CierreTurno", b =>

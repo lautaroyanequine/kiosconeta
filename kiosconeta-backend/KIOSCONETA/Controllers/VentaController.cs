@@ -179,7 +179,7 @@ namespace KIOSCONETA.Controllers
         // ========== DELETE - ANULAR ==========
 
         /// Anular venta (devuelve stock)
-        [HttpDelete("{id}")]
+        [HttpPost("{id}/anular")]
         [RequierePermiso("ventas.anular")]
         public async Task<ActionResult> Anular(int id, [FromBody] AnularVentaDTO dto)
         {

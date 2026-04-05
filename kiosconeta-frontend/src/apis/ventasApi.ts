@@ -65,13 +65,13 @@ export const ventasApi = {
   /**
    * Anular venta — DELETE /ventas/{id}
    */
-  anular: async (id: number): Promise<void> => {
-    try {
-      await apiClient.delete(API_ENDPOINTS.VENTAS_BY_ID(id));
-    } catch (error) {
-      return handleError(error);
-    }
-  },
+ anular: async (id: number, motivo: string): Promise<void> => {
+  try {
+    await apiClient.post(API_ENDPOINTS.VENTAS_ANULAR(id), { motivo });
+  } catch (error) {
+    return handleError(error);
+  }
+},
 };
 
 // ────────────────────────────────────────────────────────────────────────────
