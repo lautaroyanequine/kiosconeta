@@ -50,11 +50,14 @@ export const turnosApi = {
     try {
       const response = await apiClient.post<Turno>(
         API_ENDPOINTS.TURNO_ABRIR,
-        data
+
+        data,
+        
       );
+
       return handleResponse(response);
     } catch (error) {
-      console.log(error);
+    
       return handleError(error);
     }
   },

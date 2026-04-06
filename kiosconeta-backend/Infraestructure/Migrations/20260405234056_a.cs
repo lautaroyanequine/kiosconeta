@@ -539,7 +539,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$oJu6CJJPg2rJ0VjwEKIuMucFmmmyTv3g21yxCw60VdYRofUyzvMAu" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$067VS/P2opHBTnX3duNygOnFTqbCV1boeTnu3nw5zxW2/Aq001sSy" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",

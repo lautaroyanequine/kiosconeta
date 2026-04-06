@@ -86,8 +86,8 @@ const NAV_ITEMS: NavItem[] = [
     icon: <Users size={20} />,
   },
   {
-    label: 'Auditoría',
-    path: ROUTES.AUDITORIA,
+    label: 'Administracion',
+    path: ROUTES.ADMIN,
     icon: <ShieldCheck size={20} />,
     adminOnly: true,
   },

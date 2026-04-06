@@ -111,6 +111,7 @@ export const ROUTES = {
   AUDITORIA: '/auditoria',
   REPORTES: '/reportes',
   PERFIL: '/perfil',
+  ADMIN: '/admin',
 };
 
 // ────────────────────────────────────────────────────────────────────────────

@@ -1,28 +1,15 @@
-// ════════════════════════════════════════════════════════════════════════════
-// PAGE: Administración
-// Centro de control del negocio — solo accesible para admins.
-// Organizado en tabs: Gastos, Sueldos, Caja (próximo), Auditoría (próximo)
-// ════════════════════════════════════════════════════════════════════════════
-
 import React, { useState } from 'react'
 import { Wallet, Users, DollarSign, Shield, Clock } from 'lucide-react'
 import { GastosAdmin } from './GastosAdmin'
 import { Sueldos } from './Sueldos'
-
-// ────────────────────────────────────────────────────────────────────────────
-// TABS
-// ────────────────────────────────────────────────────────────────────────────
+import Auditoria from "./Auditoria";
 
 const TABS = [
   { id: 'gastos',    label: 'Gastos',    icon: <Wallet size={16} />,     disponible: true },
   { id: 'sueldos',  label: 'Sueldos',   icon: <Users size={16} />,      disponible: true },
   { id: 'caja',     label: 'Caja',      icon: <DollarSign size={16} />, disponible: false },
-  { id: 'auditoria',label: 'Auditoría', icon: <Shield size={16} />,     disponible: false },
+  { id: 'auditoria',label: 'Auditoría', icon: <Shield size={16} />,     disponible: true },
 ]
-
-// ────────────────────────────────────────────────────────────────────────────
-// SUB-COMPONENTE: ProximamenteBanner
-// ────────────────────────────────────────────────────────────────────────────
 
 const ProximamenteBanner: React.FC<{ titulo: string; descripcion: string }> = ({
   titulo, descripcion
@@ -36,21 +23,15 @@ const ProximamenteBanner: React.FC<{ titulo: string; descripcion: string }> = ({
   </div>
 )
 
-// ════════════════════════════════════════════════════════════════════════════
-// PAGE
-// ════════════════════════════════════════════════════════════════════════════
-
 const AdminPage: React.FC = () => {
   const [tabActiva, setTabActiva] = useState('gastos')
 
   return (
     <div className="h-full flex flex-col bg-neutral-50 overflow-hidden">
 
-      {/* ── HEADER ────────────────────────────────────────────────────────── */}
+      {/* Header con tabs */}
       <div className="bg-white border-b border-neutral-200 px-6 pt-5 pb-0 shrink-0">
         <h1 className="text-xl font-bold text-neutral-900 mb-4">Administración</h1>
-
-        {/* Tabs */}
         <div className="flex gap-1">
           {TABS.map(tab => (
             <button
@@ -79,20 +60,15 @@ const AdminPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ── CONTENIDO ─────────────────────────────────────────────────────── */}
+      {/* Contenido */}
       <div className="flex-1 overflow-y-auto p-6">
         {tabActiva === 'gastos'    && <GastosAdmin />}
         {tabActiva === 'sueldos'   && <Sueldos />}
+        {tabActiva === 'auditoria' && <Auditoria />}
         {tabActiva === 'caja'      && (
           <ProximamenteBanner
             titulo="Caja"
             descripcion="Vas a poder ver todos los movimientos de dinero del negocio — ingresos, egresos y saldo actual."
-          />
-        )}
-        {tabActiva === 'auditoria' && (
-          <ProximamenteBanner
-            titulo="Auditoría"
-            descripcion="Vas a poder ver todas las acciones realizadas en el sistema — ventas anuladas, carritos vaciados, cambios de precios y más."
           />
         )}
       </div>
