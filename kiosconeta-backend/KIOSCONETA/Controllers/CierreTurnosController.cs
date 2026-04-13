@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.CierreTurno;
 using Application.Interfaces.Services;
+using Domain.Enums;
 using KIOSCONETA.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -120,5 +121,53 @@ public class CierreTurnosController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    // GET /api/CierreTurnos/kiosco/{kioscoId}/resumen-caja
+    [HttpGet("kiosco/{kioscoId}/resumen-caja")]
+    [RequierePermiso("reportes.dashboard_completo")]
+    public async Task<IActionResult> GetResumenCaja(int kioscoId)
+    {
+        var turnos = await _cierreTurnoService.GetByKioscoIdAsync(kioscoId);
+
+        var resumen = new
+        {
+            // Saldo acumulado
+            saldoActual = turnos
+                .Where(t => t.Estado == EstadoCierre.Cerrado)
+                .Sum(t => t.EfectivoInicial + t.TotalEfectivo - t.TotalGastos + t.Diferencia),
+
+            // Totales históricos
+            totalVentasEfectivo = turnos.Sum(t => t.TotalEfectivo),
+            totalVentasVirtual = turnos.Sum(t => t.TotalVirtual),
+            totalVentas = turnos.Sum(t => t.TotalVentas),
+            totalGastos = turnos.Sum(t => t.TotalGastos),
+            gananciaTotal = turnos.Sum(t => t.GananciaTotal),
+            cantidadVentas = turnos.Sum(t => t.CantidadVentas),
+
+            // Turno abierto actualmente
+            turnoAbierto = turnos.FirstOrDefault(t => t.Estado == EstadoCierre.Abierto),
+
+            // Movimientos (cada turno cerrado)
+            movimientos = turnos
+                .Where(t => t.Estado == EstadoCierre.Cerrado)
+                .OrderByDescending(t => t.Fecha)
+                .Select(t => new {
+                    t.CierreTurnoId,
+                    t.FechaFormateada,
+                    t.FechaCierreFormateada,
+                    t.TurnoNombre,
+                    t.EfectivoInicial,
+                    t.TotalEfectivo,
+                    t.TotalVirtual,
+                    t.TotalGastos,
+                    t.GananciaTotal,
+                    t.Diferencia,
+                    t.CantidadVentas,
+                    t.Empleados,
+                })
+        };
+
+        return Ok(resumen);
     }
 }

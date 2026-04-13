@@ -44,6 +44,7 @@ export const API_ENDPOINTS = {
 
   // Auditoría
   AUDITORIA_KIOSCO: (kioscoId: number) => `/auditoria/kiosco/${kioscoId}`,
+  CAJA_RESUMEN: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}/resumen-caja`,
   AUDITORIA_SOSPECHOSOS: (kioscoId: number) => `/auditoria/kiosco/${kioscoId}/sospechosos`,
   AUDITORIA_EMPLEADO: (empleadoId: number) => `/auditoria/empleado/${empleadoId}`,
   GASTOS_BY_ID: (id: number) => `/gastos/${id}`,
@@ -109,9 +110,9 @@ export const ROUTES = {
   EMPLEADOS: '/empleados',
   CONFIGURACION: '/configuracion',
   AUDITORIA: '/auditoria',
+  CAJA: '/caja',
   REPORTES: '/reportes',
   PERFIL: '/perfil',
-  ADMIN: '/admin',
 };
 
 // ────────────────────────────────────────────────────────────────────────────

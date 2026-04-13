@@ -41,7 +41,8 @@ namespace Infraestructure.Persistence
 
         public DbSet<NumeradorVenta> NumeradorVentas { get; set; }
 
-
+        public DbSet<MovimientoCaja> MovimientosCaja { get; set; }
+        public DbSet<SaldoCaja> SaldosCaja { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -49,8 +50,8 @@ namespace Infraestructure.Persistence
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-      optionsBuilder.UseSqlServer(@"Server=localhost;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
-      // optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
+      //optionsBuilder.UseSqlServer(@"Server=localhost;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
+      optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
 
         }
 
