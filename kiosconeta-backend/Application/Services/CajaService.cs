@@ -25,32 +25,20 @@ namespace Application.Services
 
         public async Task<CajaResumenDTO> GetResumenAsync(int kioscoId)
         {
-            // Obtener todos los datos en paralelo
-            var saldoTask = _cajaRepository.GetSaldoByKioscoAsync(kioscoId);
-            var ventasEfectivoTask = _cajaRepository.GetTotalVentasEfectivoAsync(kioscoId);
-            var ventasVirtualTask = _cajaRepository.GetTotalVentasVirtualAsync(kioscoId);
-            var gastosTask = _cajaRepository.GetTotalGastosAsync(kioscoId);
-            var ingresosManualTask = _cajaRepository.GetTotalIngresosManualAsync(kioscoId);
-            var egresosManualTask = _cajaRepository.GetTotalEgresosManualAsync(kioscoId);
-            var cantidadVentasTask = _cajaRepository.GetCantidadVentasAsync(kioscoId);
-            var gananciaTotalTask = _cajaRepository.GetGananciaTotalAsync(kioscoId);
-            var movimientosTask = _cajaRepository.GetMovimientosByKioscoAsync(kioscoId);
+            // EF Core no soporta queries paralelas en el mismo contexto
+            // — hay que ejecutarlas en secuencia
+            var saldo = await _cajaRepository.GetSaldoByKioscoAsync(kioscoId);
+            var ventasEfectivo = await _cajaRepository.GetTotalVentasEfectivoAsync(kioscoId);
+            var ventasVirtual = await _cajaRepository.GetTotalVentasVirtualAsync(kioscoId);
+            var gastos = await _cajaRepository.GetTotalGastosAsync(kioscoId);
+            var ingresosManual = await _cajaRepository.GetTotalIngresosManualAsync(kioscoId);
+            var egresosManual = await _cajaRepository.GetTotalEgresosManualAsync(kioscoId);
+            var cantidadVentas = await _cajaRepository.GetCantidadVentasAsync(kioscoId);
+            var gananciaTotal = await _cajaRepository.GetGananciaTotalAsync(kioscoId);
+            var movimientos = await _cajaRepository.GetMovimientosByKioscoAsync(kioscoId);
 
-            await Task.WhenAll(
-                saldoTask, ventasEfectivoTask, ventasVirtualTask,
-                gastosTask, ingresosManualTask, egresosManualTask,
-                cantidadVentasTask, gananciaTotalTask, movimientosTask
-            );
+            var saldoInicial = saldo?.SaldoInicial ?? 0;
 
-            var saldoInicial = saldoTask.Result?.SaldoInicial ?? 0;
-            var ventasEfectivo = ventasEfectivoTask.Result;
-            var ventasVirtual = ventasVirtualTask.Result;
-            var gastos = gastosTask.Result;
-            var ingresosManual = ingresosManualTask.Result;
-            var egresosManual = egresosManualTask.Result;
-
-            // Saldo actual = saldo inicial + ventas (efectivo + virtual) + ingresos manuales
-            //                             - gastos - egresos manuales
             var saldoActual = saldoInicial
                             + ventasEfectivo
                             + ventasVirtual
@@ -66,12 +54,11 @@ namespace Application.Services
                 TotalVentasVirtual = ventasVirtual,
                 TotalVentas = ventasEfectivo + ventasVirtual,
                 TotalGastos = gastos,
-                GananciaTotal = gananciaTotalTask.Result,
-                CantidadVentas = cantidadVentasTask.Result,
+                GananciaTotal = gananciaTotal,
+                CantidadVentas = cantidadVentas,
                 TotalIngresosManual = ingresosManual,
                 TotalEgresosManual = egresosManual,
-                Movimientos = movimientosTask.Result
-                    .Select(MapMovimientoToDTO).ToList()
+                Movimientos = movimientos.Select(MapMovimientoToDTO).ToList()
             };
         }
 

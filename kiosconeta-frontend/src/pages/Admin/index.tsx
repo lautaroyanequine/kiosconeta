@@ -1,27 +1,16 @@
 import React, { useState } from 'react'
-import { Wallet, Users, DollarSign, Shield, Clock } from 'lucide-react'
+import { Wallet, Users, DollarSign, Shield } from 'lucide-react'
 import { GastosAdmin } from './GastosAdmin'
 import { Sueldos } from './Sueldos'
-import Auditoria from "./Auditoria";
+import { Caja } from './Caja'
+import Auditoria from './Auditoria'
 
 const TABS = [
   { id: 'gastos',    label: 'Gastos',    icon: <Wallet size={16} />,     disponible: true },
   { id: 'sueldos',  label: 'Sueldos',   icon: <Users size={16} />,      disponible: true },
-  { id: 'caja',     label: 'Caja',      icon: <DollarSign size={16} />, disponible: false },
+  { id: 'caja',     label: 'Caja',      icon: <DollarSign size={16} />, disponible: true },
   { id: 'auditoria',label: 'Auditoría', icon: <Shield size={16} />,     disponible: true },
 ]
-
-const ProximamenteBanner: React.FC<{ titulo: string; descripcion: string }> = ({
-  titulo, descripcion
-}) => (
-  <div className="flex flex-col items-center justify-center h-64">
-    <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mb-4">
-      <Clock size={32} className="text-neutral-400" />
-    </div>
-    <h3 className="text-lg font-bold text-neutral-700 mb-2">{titulo} — Próximamente</h3>
-    <p className="text-sm text-neutral-400 text-center max-w-sm">{descripcion}</p>
-  </div>
-)
 
 const AdminPage: React.FC = () => {
   const [tabActiva, setTabActiva] = useState('gastos')
@@ -64,13 +53,8 @@ const AdminPage: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-6">
         {tabActiva === 'gastos'    && <GastosAdmin />}
         {tabActiva === 'sueldos'   && <Sueldos />}
+        {tabActiva === 'caja'      && <Caja />}
         {tabActiva === 'auditoria' && <Auditoria />}
-        {tabActiva === 'caja'      && (
-          <ProximamenteBanner
-            titulo="Caja"
-            descripcion="Vas a poder ver todos los movimientos de dinero del negocio — ingresos, egresos y saldo actual."
-          />
-        )}
       </div>
     </div>
   )

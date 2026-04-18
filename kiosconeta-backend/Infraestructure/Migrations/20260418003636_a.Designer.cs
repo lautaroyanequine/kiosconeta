@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260405234056_a")]
+    [Migration("20260418003636_a")]
     partial class a
     {
         /// <inheritdoc />
@@ -807,6 +807,47 @@ namespace Infraestructure.Migrations
                             MetodoDePagoID = 3,
                             Nombre = "Débito"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.MovimientoCaja", b =>
+                {
+                    b.Property<int>("MovimientoCajaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MovimientoCajaId"));
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("EmpleadoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("KioscoId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Monto")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.HasKey("MovimientoCajaId");
+
+                    b.HasIndex("EmpleadoId");
+
+                    b.HasIndex("Fecha");
+
+                    b.HasIndex("KioscoId");
+
+                    b.ToTable("MovimientoCaja", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Permiso", b =>
@@ -2119,6 +2160,33 @@ namespace Infraestructure.Migrations
                     b.ToTable("ProductoVenta", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.SaldoCaja", b =>
+                {
+                    b.Property<int>("SaldoCajaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SaldoCajaId"));
+
+                    b.Property<DateTime>("FechaActualizacion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("KioscoId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("SaldoInicial")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("SaldoCajaId");
+
+                    b.HasIndex("KioscoId")
+                        .IsUnique();
+
+                    b.ToTable("SaldoCaja", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Turno", b =>
                 {
                     b.Property<int>("TurnoId")
@@ -2186,7 +2254,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$067VS/P2opHBTnX3duNygOnFTqbCV1boeTnu3nw5zxW2/Aq001sSy"
+                            Password = "$2a$11$8LvZbq602.H8zpIBIyYd4uuXgahCwuICOUsbyBfGxqkgLdRgj14Ta"
                         });
                 });
 
@@ -2445,6 +2513,25 @@ namespace Infraestructure.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MovimientoCaja", b =>
+                {
+                    b.HasOne("Domain.Entities.Empleado", "Empleado")
+                        .WithMany()
+                        .HasForeignKey("EmpleadoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Kiosco", "Kiosco")
+                        .WithMany()
+                        .HasForeignKey("KioscoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Empleado");
+
+                    b.Navigation("Kiosco");
+                });
+
             modelBuilder.Entity("Domain.Entities.Producto", b =>
                 {
                     b.HasOne("Domain.Entities.Categoria", "Categoria")
@@ -2481,6 +2568,17 @@ namespace Infraestructure.Migrations
                     b.Navigation("Producto");
 
                     b.Navigation("Venta");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SaldoCaja", b =>
+                {
+                    b.HasOne("Domain.Entities.Kiosco", "Kiosco")
+                        .WithMany()
+                        .HasForeignKey("KioscoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Kiosco");
                 });
 
             modelBuilder.Entity("Domain.Entities.Venta", b =>

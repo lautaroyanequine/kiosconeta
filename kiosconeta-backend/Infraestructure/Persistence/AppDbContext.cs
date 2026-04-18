@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Infraestructure.Persistence.Config;
+using Infraestructure.Persistence.Configurations;
 using Infraestructure.Persistence.DataKiosconeta.Seed;
 using Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
@@ -94,7 +95,8 @@ namespace Infraestructure.Persistence
             new CierreTurnoConfiguration(modelBuilder.Entity<CierreTurno>());
             new NumeradorVentaConfiguration(modelBuilder.Entity<NumeradorVenta>());
 
-
+            new MovimientoCajaConfiguration(modelBuilder.Entity<MovimientoCaja>());
+            new SaldoCajaConfiguration(modelBuilder.Entity<SaldoCaja>());
 
             //DATA
             UsuarioData.Seed(modelBuilder.Entity<Usuario>());

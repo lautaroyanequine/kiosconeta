@@ -38,12 +38,12 @@ namespace Infraestructure.Persistence.Configurations
             entity.HasOne(m => m.Kiosco)
                 .WithMany()
                 .HasForeignKey(m => m.KioscoId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.NoAction);
 
             entity.HasOne(m => m.Empleado)
                 .WithMany()
                 .HasForeignKey(m => m.EmpleadoId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 

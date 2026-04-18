@@ -20,7 +20,6 @@ export const GastosAdmin: React.FC = () => {
   const [loading, setLoading]       = useState(true)
 
   const [modalGasto, setModalGasto]                 = useState(false)
-  const [nombre, setNombre]                         = useState('')
   const [descripcion, setDescripcion]               = useState('')
   const [monto, setMonto]                           = useState('')
   const [tipoSeleccionado, setTipoSeleccionado]     = useState<number | ''>('')
@@ -66,7 +65,7 @@ export const GastosAdmin: React.FC = () => {
     setErrorGasto('')
     try {
       const nuevo = await gastosApi.create({
-        nombre: nombre.trim(),
+        nombre: '',
         descripcion: descripcion.trim(),
         monto: parseFloat(monto),
         empleadoId: user.empleadoId,
@@ -82,7 +81,7 @@ export const GastosAdmin: React.FC = () => {
   }
 
   const cerrarModalGasto = () => {
-    setNombre(''); setDescripcion(''); setMonto(''); setErrorGasto('')
+     setDescripcion(''); setMonto(''); setErrorGasto('')
     if (tiposGasto.length > 0) setTipoSeleccionado(tiposGasto[0].tipoDeGastoId)
     setModalGasto(false)
   }
@@ -310,13 +309,7 @@ export const GastosAdmin: React.FC = () => {
                   <AlertCircle size={14} className="shrink-0" />{errorGasto}
                 </div>
               )}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1.5">Nombre *</label>
-                <input type="text" value={nombre} onChange={e => setNombre(e.target.value)}
-                  placeholder="Ej: Compra mayorista en Hangar" autoFocus
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm
-                             outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
-              </div>
+              
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">Monto *</label>
@@ -357,13 +350,16 @@ export const GastosAdmin: React.FC = () => {
                   className="flex-1 py-2.5 text-sm text-neutral-600 border border-neutral-300 rounded-xl hover:bg-neutral-50">
                   Cancelar
                 </button>
-                <button type="submit" disabled={!nombre.trim() || !monto || isSubmittingGasto}
-                  className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all
-                    ${nombre.trim() && monto && !isSubmittingGasto
-                      ? 'bg-primary text-white hover:bg-primary-600'
-                      : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'}`}>
-                  {isSubmittingGasto ? 'Guardando...' : 'Guardar gasto'}
-                </button>
+                <button
+                    type="submit"
+                    disabled={!monto || isSubmittingGasto}
+                    className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all
+                      ${monto && !isSubmittingGasto
+                        ? 'bg-primary text-white hover:bg-primary-600'
+                        : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'}`}
+                  >
+                    {isSubmittingGasto ? 'Guardando...' : 'Guardar gasto'}
+                  </button>
               </div>
             </form>
           </div>
