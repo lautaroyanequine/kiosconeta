@@ -239,8 +239,8 @@ export const HistorialTurnos: React.FC = () => {
 
                   {/* Total ventas */}
                   <div className="text-right hidden md:block shrink-0">
-                    <p className="text-xs text-neutral-400 mb-0.5">Total</p>
-                    <p className="text-sm font-semibold text-primary">{formatCurrency(turno.totalVentas)}</p>
+                    <p className="text-xs text-neutral-400 mb-0.5">Total declarado</p>
+                    <p className="text-sm font-semibold text-primary">{formatCurrency((turno.montoReal - turno.efectivoInicial) + turno.virtualFinal)}</p>
                   </div>
 
                   {/* Ganancia */}
@@ -294,18 +294,8 @@ export const HistorialTurnos: React.FC = () => {
                       </div>
 
                       <div>
-                        <p className="text-xs text-neutral-400 mb-1">Efectivo en ventas</p>
-                        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.totalEfectivo)}</p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-neutral-400 mb-1">Virtual en ventas</p>
-                        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.totalVirtual)}</p>
-                      </div>
-
-                      <div>
                         <p className="text-xs text-neutral-400 mb-1">Gastos</p>
-                        <p className="text-sm font-semibold text-danger">{formatCurrency(turno.totalGastos)}</p>
+                        <p className="text-sm font-semibold text-danger">-{formatCurrency(turno.totalGastos)}</p>
                       </div>
 
                       <div>
@@ -319,8 +309,25 @@ export const HistorialTurnos: React.FC = () => {
                       </div>
 
                       <div>
+                        <p className="text-xs text-neutral-400 mb-1">Efectivo inicial (caja de cambio)</p>
+                        <p className="text-sm font-semibold text-neutral-400">-{formatCurrency(turno.efectivoInicial)}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Efectivo del turno</p>
+                        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.montoReal - turno.efectivoInicial)}</p>
+                      </div>
+
+                      <div>
                         <p className="text-xs text-neutral-400 mb-1">Virtual acreditado</p>
                         <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.virtualFinal)}</p>
+                      </div>
+
+                      <div className="col-span-2 bg-primary/5 rounded-xl px-3 py-2.5">
+                        <p className="text-xs text-neutral-400 mb-1">Total del turno</p>
+                        <p className="text-sm font-bold text-primary">
+                          {formatCurrency((turno.montoReal - turno.efectivoInicial) + turno.virtualFinal)}
+                        </p>
                       </div>
 
                       <div className="col-span-2">

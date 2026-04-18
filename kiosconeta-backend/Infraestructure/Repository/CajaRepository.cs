@@ -98,24 +98,18 @@ namespace Infraestructure.Repository
 
         public async Task<decimal> GetTotalVentasEfectivoAsync(int kioscoId)
         {
-            return await _context.Ventas
-                .Include(v => v.MetodoPago)
-                .Include(v => v.CierreTurno)
-                .Where(v => v.CierreTurno.KioscoId == kioscoId
-                    && !v.Anulada
-                    && v.MetodoPago.Nombre.ToLower().Contains("efectivo"))
-                .SumAsync(v => (decimal?)v.Total) ?? 0;
+            return await _context.CierresTurno
+                .Where(ct => ct.KioscoId == kioscoId
+                    && ct.Estado == EstadoCierre.Cerrado)
+                .SumAsync(ct => (decimal?)(ct.MontoReal - ct.EfectivoInicial)) ?? 0;
         }
 
         public async Task<decimal> GetTotalVentasVirtualAsync(int kioscoId)
         {
-            return await _context.Ventas
-                .Include(v => v.MetodoPago)
-                .Include(v => v.CierreTurno)
-                .Where(v => v.CierreTurno.KioscoId == kioscoId
-                    && !v.Anulada
-                    && !v.MetodoPago.Nombre.ToLower().Contains("efectivo"))
-                .SumAsync(v => (decimal?)v.Total) ?? 0;
+            return await _context.CierresTurno
+                .Where(ct => ct.KioscoId == kioscoId
+                    && ct.Estado == EstadoCierre.Cerrado)
+                .SumAsync(ct => (decimal?)ct.VirtualFinal) ?? 0;
         }
 
         public async Task<decimal> GetTotalGastosAsync(int kioscoId)
@@ -141,9 +135,10 @@ namespace Infraestructure.Repository
 
         public async Task<int> GetCantidadVentasAsync(int kioscoId)
         {
-            return await _context.Ventas
-                .Include(v => v.CierreTurno)
-                .CountAsync(v => v.CierreTurno.KioscoId == kioscoId && !v.Anulada);
+            return await _context.CierresTurno
+                .Where(ct => ct.KioscoId == kioscoId
+                    && ct.Estado == EstadoCierre.Cerrado)
+                .SumAsync(ct => (int?)ct.CantidadVentas) ?? 0;
         }
 
         public async Task<decimal> GetGananciaTotalAsync(int kioscoId)

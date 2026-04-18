@@ -359,13 +359,27 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
                   <span className="text-neutral-500">Gastos</span>
                   <span className="font-medium text-danger">{formatCurrency(turnoFinalizado.totalGastos)}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Efectivo esperado</span>
-                  <span className="font-medium">{formatCurrency(turnoFinalizado.montoEsperado)}</span>
-                </div>
+
+                {/* Separador declarado */}
+                <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
+                  Lo declarado al cerrar
+                </p>
+
                 <div className="flex justify-between py-2 border-b border-neutral-100">
                   <span className="text-neutral-500">Efectivo contado</span>
                   <span className="font-medium">{formatCurrency(turnoFinalizado.montoReal)}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-neutral-100">
+                  <span className="text-neutral-500">Virtual acreditado</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.virtualFinal)}</span>
+                </div>
+
+                {/* Total declarado */}
+                <div className="flex justify-between py-2.5 px-3 rounded-xl bg-primary/5 font-semibold">
+                  <span className="text-primary">Total declarado</span>
+                  <span className="text-primary">
+                    {formatCurrency(turnoFinalizado.montoReal + turnoFinalizado.virtualFinal)}
+                  </span>
                 </div>
 
                 {/* Diferencia */}
