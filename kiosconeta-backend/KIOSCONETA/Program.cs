@@ -93,6 +93,7 @@ builder.Services.AddScoped<ITipoDeGastoRepository, TipoDeGastoRepository>();
 builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();     
 builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
 builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
+builder.Services.AddScoped<IKioscoRepository, KioscoRepository>();
 
 // ========== SERVICES ==========
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -101,7 +102,7 @@ builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IMetodoDePagoService, MetodoDePagoService>();
 builder.Services.AddScoped<IEmpleadoService, EmpleadoService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
-
+builder.Services.AddScoped<IKioscoService, KioscoService>();
 builder.Services.AddScoped<ICierreTurnoService, CierreTurnoService>();
 builder.Services.AddScoped<IGastoService, GastoService>();
 builder.Services.AddScoped<ITipoDeGastoService, TipoDeGastoService>();

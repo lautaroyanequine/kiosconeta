@@ -174,7 +174,7 @@ namespace Application.Services
                 Activo = true,
                 Usuario = usuario,
                 Kiosco = kiosco,
-                PIN = null  // Admin no usa PIN
+                PIN = string.IsNullOrEmpty(dto.Pin) ? null : BC.HashPassword(dto.Pin)
             };
 
             // Guardar todo

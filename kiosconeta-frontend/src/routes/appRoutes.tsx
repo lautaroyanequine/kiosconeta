@@ -19,16 +19,11 @@ const AuditoriaPage = React.lazy(() => import('../pages/Admin/Auditoria'))
 const GastosPage  = React.lazy(() => import('../pages/Gastos'))
 const ProductosPage  = React.lazy(() => import('../pages/Productos/index'));
 const AdminPage = React.lazy(() => import('../pages/Admin'))
-
+const DashboardPage = React.lazy(() => import('../pages/Dashboard'))
+const ConfiguracionPage = React.lazy(() => import('../pages/Configuracion'))
 
 
 // Dashboard temporal
-const DashboardTempPage = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold text-neutral-800 mb-2">Panel de administración</h1>
-    <p className="text-neutral-500">Dashboard en construcción — próximamente.</p>
-  </div>
-);
 
 export const AppRoutes= () => {
   return (
@@ -42,10 +37,10 @@ export const AppRoutes= () => {
       <Route path={ROUTES.SELECCION_EMPLEADO} element={<SeleccionEmpleadoPage />} />
 
       {/* ── PRIVADAS ── */}
-      <Route
-        path={ROUTES.DASHBOARD}
-        element={<PrivateRoute requireAdmin><DashboardTempPage /></PrivateRoute>}
-      />
+    <Route
+      path={ROUTES.DASHBOARD}
+      element={<PrivateRoute requireAdmin><DashboardPage /></PrivateRoute>}
+    />
 
       <Route
         path={ROUTES.AUDITORIA}
@@ -90,6 +85,11 @@ export const AppRoutes= () => {
       <Route
       path={ROUTES.GASTOS}
       element={<PrivateRoute><GastosPage /></PrivateRoute> }/>
+      
+         <Route
+        path={ROUTES.CONFIGURACION}
+        element={<PrivateRoute requireAdmin><ConfiguracionPage /></PrivateRoute>}
+      />
 
       {/* ── 404 ── */}
       <Route

@@ -41,6 +41,7 @@
         // Datos del kiosco
         public string NombreKiosco { get; set; }
         public string? DireccionKiosco { get; set; }
+        public string? Pin { get; set; }  // PIN opcional para el admin
 
         // Datos del admin
         public string NombreAdmin { get; set; }

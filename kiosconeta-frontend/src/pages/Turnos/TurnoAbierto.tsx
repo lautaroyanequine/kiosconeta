@@ -348,37 +348,41 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
               {/* Detalle */}
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Efectivo en ventas</span>
-                  <span className="font-medium">{formatCurrency(turnoFinalizado.totalEfectivo)}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Virtual en ventas</span>
-                  <span className="font-medium">{formatCurrency(turnoFinalizado.totalVirtual)}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Gastos</span>
-                  <span className="font-medium text-danger">{formatCurrency(turnoFinalizado.totalGastos)}</span>
+                  <span className="text-neutral-500">Gastos del turno</span>
+                  <span className="font-medium text-danger">-{formatCurrency(turnoFinalizado.totalGastos)}</span>
                 </div>
 
-                {/* Separador declarado */}
+                {/* Separador efectivo */}
                 <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
-                  Lo declarado al cerrar
+                  Efectivo
                 </p>
-
                 <div className="flex justify-between py-2 border-b border-neutral-100">
                   <span className="text-neutral-500">Efectivo contado</span>
                   <span className="font-medium">{formatCurrency(turnoFinalizado.montoReal)}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-neutral-100">
+                  <span className="text-neutral-500">Efectivo inicial (caja de cambio)</span>
+                  <span className="font-medium text-neutral-400">-{formatCurrency(turnoFinalizado.efectivoInicial)}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-neutral-100">
+                  <span className="text-neutral-500">Efectivo del turno</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.montoReal - turnoFinalizado.efectivoInicial)}</span>
+                </div>
+
+                {/* Virtual */}
+                <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
+                  Virtual
+                </p>
+                <div className="flex justify-between py-2 border-b border-neutral-100">
                   <span className="text-neutral-500">Virtual acreditado</span>
                   <span className="font-medium">{formatCurrency(turnoFinalizado.virtualFinal)}</span>
                 </div>
 
-                {/* Total declarado */}
+                {/* Total del turno */}
                 <div className="flex justify-between py-2.5 px-3 rounded-xl bg-primary/5 font-semibold">
-                  <span className="text-primary">Total declarado</span>
+                  <span className="text-primary">Total del turno</span>
                   <span className="text-primary">
-                    {formatCurrency(turnoFinalizado.montoReal + turnoFinalizado.virtualFinal)}
+                    {formatCurrency((turnoFinalizado.montoReal - turnoFinalizado.efectivoInicial) + turnoFinalizado.virtualFinal)}
                   </span>
                 </div>
 
