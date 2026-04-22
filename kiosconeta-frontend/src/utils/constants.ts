@@ -74,6 +74,7 @@ TURNOS_KIOSCO: (kioscoId: number) => `/CierreTurnos/kiosco/${kioscoId}`,
   
   // Configuración
   KIOSCO: '/kiosco',
+
  
 };
 
@@ -115,6 +116,7 @@ export const ROUTES = {
   REPORTES: '/reportes',
   PERFIL: '/perfil',
   ADMIN: '/admin',
+  INICIO: '/inicio',
 };
 
 // ────────────────────────────────────────────────────────────────────────────

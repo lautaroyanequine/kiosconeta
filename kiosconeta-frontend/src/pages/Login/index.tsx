@@ -1,10 +1,21 @@
 // ════════════════════════════════════════════════════════════════════════════
-// PAGE: Login — Directo a email/password del kiosco
+// PAGE: Login — alterna entre login y registro en la misma pantalla
 // ════════════════════════════════════════════════════════════════════════════
 
-import React from 'react';
+import React, { useState } from 'react';
 import { LoginAdmin } from './LoginAdmin';
+import Registro from '../Registro';
 
-const LoginPage = () => <LoginAdmin onBack={() => {}} />;
+type Vista = 'login' | 'registro'
+
+const LoginPage = () => {
+  const [vista, setVista] = useState<Vista>('login')
+
+  if (vista === 'registro') {
+    return <Registro onVolver={() => setVista('login')} />
+  }
+
+  return <LoginAdmin onBack={() => {}} onRegistrarse={() => setVista('registro')} />
+}
 
 export default LoginPage;

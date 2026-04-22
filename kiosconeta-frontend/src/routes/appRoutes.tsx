@@ -16,10 +16,10 @@ const VentasPage  = React.lazy(() => import('../pages/Ventas'));
 const CategoriasPage  = React.lazy(() => import('../pages/Categorias'));
 const EmpleadosPage   = React.lazy(() => import('../pages/Empleados'));
 const AuditoriaPage = React.lazy(() => import('../pages/Admin/Auditoria'))
-const GastosPage  = React.lazy(() => import('../pages/Gastos'))
 const ProductosPage  = React.lazy(() => import('../pages/Productos/index'));
 const AdminPage = React.lazy(() => import('../pages/Admin'))
 const DashboardPage = React.lazy(() => import('../pages/Dashboard'))
+const InicioPage = React.lazy(() => import('../pages/Inicio'))
 const ConfiguracionPage = React.lazy(() => import('../pages/Configuracion'))
 
 
@@ -37,10 +37,11 @@ export const AppRoutes= () => {
       <Route path={ROUTES.SELECCION_EMPLEADO} element={<SeleccionEmpleadoPage />} />
 
       {/* ── PRIVADAS ── */}
-    <Route
-      path={ROUTES.DASHBOARD}
-      element={<PrivateRoute requireAdmin><DashboardPage /></PrivateRoute>}
-    />
+
+<Route path={ROUTES.INICIO} element={<PrivateRoute><InicioPage /></PrivateRoute>} />
+
+   <Route path={ROUTES.DASHBOARD} element={<PrivateRoute requireAdmin><DashboardPage /></PrivateRoute>} />
+
 
       <Route
         path={ROUTES.AUDITORIA}
@@ -82,9 +83,6 @@ export const AppRoutes= () => {
         element={<PrivateRoute><EmpleadosPage /></PrivateRoute>}
       />
 
-      <Route
-      path={ROUTES.GASTOS}
-      element={<PrivateRoute><GastosPage /></PrivateRoute> }/>
       
          <Route
         path={ROUTES.CONFIGURACION}

@@ -3,7 +3,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import React, { useState } from 'react';
-import { ArrowLeft, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { Button, Input } from '@/components/commons';
 import { useAuth } from '@/contexts/AuthContext';
 import { isValidEmail, errorMessages } from '@/utils';
@@ -17,7 +17,7 @@ import { isValidEmail, errorMessages } from '@/utils';
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const LoginAdmin = ({ onBack }: { onBack: () => void }) => {
+export const LoginAdmin = ({ onBack, onRegistrarse }: { onBack: () => void; onRegistrarse?: () => void }) => {
   
   const { loginAdmin } = useAuth();
 
@@ -144,10 +144,21 @@ export const LoginAdmin = ({ onBack }: { onBack: () => void }) => {
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center">
-            <button className="text-sm text-secondary hover:text-secondary-600 transition-colors">
+          <div className="mt-6 text-center space-y-2">
+            <button className="text-sm text-secondary hover:text-secondary-600 transition-colors block w-full">
               ¿Olvidaste tu contraseña?
             </button>
+            {onRegistrarse && (
+              <p className="text-sm text-neutral-500">
+                ¿No tenés cuenta?{' '}
+                <button
+                  onClick={onRegistrarse}
+                  className="text-primary font-medium hover:underline"
+                >
+                  Creá tu kiosco
+                </button>
+              </p>
+            )}
           </div>
         </div>
 
