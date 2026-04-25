@@ -46,6 +46,14 @@ export const productosApi = {
       return handleError(error);
     }
   },
+  getByKiosco: async (kioscoId: number) => {
+  try {
+    const response = await apiClient.get(`/Productos/kiosco/${kioscoId}`)
+    return handleResponse(response)
+  } catch (error) {
+    return handleError(error)
+  }
+},
 
   /**
    * Buscar producto por código de barras (para el scanner)

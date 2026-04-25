@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Input, Button } from '@/components/commons';
 import { calcularMargenGanancia } from '@/utils/helpers';
 import { formatCurrency } from '@/utils/formatters';
+import { useAuth } from '@/contexts/AuthContext'
 import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO } from '@/types';
 import type { ModalMode } from './useProductos';
 
@@ -114,7 +115,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
   };
 
   // ── Submit ────────────────────────────────────────────────────────────
-
+  const { user } = useAuth()
   const handleSubmit = () => {
     if (!validar()) return;
 
@@ -128,6 +129,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
       categoriaId: Number(form.categoriaId),
       fechaVencimiento: form.fechaVencimiento || undefined,
       suelto: false,
+      kioscoId: user!.kioscoId,
     };
 
     if (mode === 'editar' && producto) {

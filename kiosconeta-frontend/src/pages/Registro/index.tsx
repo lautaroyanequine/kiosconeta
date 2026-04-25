@@ -307,7 +307,7 @@ const Paso3: React.FC<{
             ${errores.pin ? 'border-danger' : 'border-neutral-300 focus:border-primary'}`}
           autoFocus
         />
-        <PinDisplay value={data.pin} />
+      
         {errores.pin && <span className="input-error">{errores.pin}</span>}
       </div>
 
@@ -325,7 +325,7 @@ const Paso3: React.FC<{
               focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
               ${errores.confirmarPin ? 'border-danger' : 'border-neutral-300 focus:border-primary'}`}
           />
-          <PinDisplay value={data.confirmarPin} />
+        
           {errores.confirmarPin && <span className="input-error">{errores.confirmarPin}</span>}
         </div>
       )}

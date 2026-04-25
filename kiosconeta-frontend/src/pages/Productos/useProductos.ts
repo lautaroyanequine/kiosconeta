@@ -68,7 +68,7 @@ export const useProductos = () => {
 
     try {
       const [prods, cats] = await Promise.all([
-        productosApi.getAll(),
+        productosApi.getByKiosco(user.kioscoId),  // ← solo este kiosco
         categoriasApi.getAll(),
       ]);
       setProductos(prods);

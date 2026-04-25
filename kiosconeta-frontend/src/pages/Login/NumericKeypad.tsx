@@ -65,13 +65,12 @@ export const NumericKeypad= ({
           {[...Array(maxLength)].map((_, index) => (
             <div
               key={index}
-              className={`w-12 h-12 rounded-lg border-2 center text-2xl font-bold
-                ${
-                  index < value.length
-                    ? 'bg-secondary border-secondary text-primary'
-                    : 'bg-white border-neutral-300 text-neutral-300'
-                }
-                transition-all duration-200`}
+              className={`w-12 h-12 rounded-lg border-2 flex items-center justify-center text-2xl font-bold
+  ${index < value.length
+    ? 'bg-secondary border-secondary text-primary'
+    : 'bg-white border-neutral-300 text-neutral-300'
+  }
+  transition-all duration-200`}
             >
               {index < value.length ? '•' : ''}
             </div>
@@ -105,7 +104,7 @@ export const NumericKeypad= ({
                      active:scale-95
                      disabled:opacity-40 disabled:cursor-not-allowed
                      transition-all duration-200
-                     center"
+                     justify-center"
         >
           <Delete size={24} className="text-neutral-600" />
         </button>
