@@ -1,8 +1,4 @@
-// ════════════════════════════════════════════════════════════════════════════
-// COMPONENT: Numeric Keypad (Teclado numérico para PIN)
-// ════════════════════════════════════════════════════════════════════════════
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Delete, Check } from 'lucide-react';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -20,12 +16,13 @@ interface NumericKeypadProps {
 // COMPONENT
 // ────────────────────────────────────────────────────────────────────────────
 
-export const NumericKeypad= ({
+export const NumericKeypad = ({
   value,
   onChange,
   onSubmit,
   maxLength = 6,
-}:NumericKeypadProps) => {
+}: NumericKeypadProps) => {
+
   // ──────────────────────────────────────────────────────────────────────────
   // HANDLERS
   // ──────────────────────────────────────────────────────────────────────────
@@ -47,6 +44,37 @@ export const NumericKeypad= ({
   };
 
   // ──────────────────────────────────────────────────────────────────────────
+  // TECLADO FÍSICO
+  // ──────────────────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Números
+      if (/^[0-9]$/.test(e.key)) {
+        if (value.length < maxLength) {
+          onChange(value + e.key);
+        }
+      }
+
+      // Backspace
+      if (e.key === 'Backspace') {
+        handleDelete();
+      }
+
+      // Enter
+      if (e.key === 'Enter') {
+        handleSubmit();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [value, maxLength]);
+
+  // ──────────────────────────────────────────────────────────────────────────
   // NÚMEROS DEL TECLADO
   // ──────────────────────────────────────────────────────────────────────────
 
@@ -61,16 +89,18 @@ export const NumericKeypad= ({
       {/* Display del PIN */}
       <div className="mb-8 text-center">
         <p className="text-sm text-neutral-600 mb-4">Ingresá tu PIN</p>
+
         <div className="flex justify-center gap-3">
           {[...Array(maxLength)].map((_, index) => (
             <div
               key={index}
               className={`w-12 h-12 rounded-lg border-2 flex items-center justify-center text-2xl font-bold
-  ${index < value.length
-    ? 'bg-secondary border-secondary text-primary'
-    : 'bg-white border-neutral-300 text-neutral-300'
-  }
-  transition-all duration-200`}
+              ${
+                index < value.length
+                  ? 'bg-secondary border-secondary text-primary'
+                  : 'bg-white border-neutral-300 text-neutral-300'
+              }
+              transition-all duration-200`}
             >
               {index < value.length ? '•' : ''}
             </div>
@@ -100,11 +130,11 @@ export const NumericKeypad= ({
           onClick={handleDelete}
           disabled={value.length === 0}
           className="h-16 bg-white border-2 border-neutral-300 rounded-lg
-                     hover:bg-neutral-100 hover:border-neutral-400
-                     active:scale-95
-                     disabled:opacity-40 disabled:cursor-not-allowed
-                     transition-all duration-200
-                     justify-center"
+           flex items-center justify-center
+           hover:bg-neutral-100 hover:border-neutral-400
+           active:scale-95
+           disabled:opacity-40 disabled:cursor-not-allowed
+           transition-all duration-200"
         >
           <Delete size={24} className="text-neutral-600" />
         </button>
