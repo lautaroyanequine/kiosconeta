@@ -81,7 +81,7 @@ export const useEmpleados = () => {
     setError(null);
     try {
       const [emps, perms, plants] = await Promise.all([
-        empleadosApi.getAll(),
+        empleadosApi.getByKiosco(user!.kioscoId),
         permisosApi.getAll(),
         permisosApi.getPlantillas(),
       ]);

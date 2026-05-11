@@ -141,6 +141,14 @@ export const empleadosApi = {
   /**
    * Obtener todos los empleados
    */
+  getByKiosco: async (kioscoId: number) => {
+  try {
+    const response = await apiClient.get(`/Empleados/kiosco/${kioscoId}`)
+    return handleResponse(response)
+  } catch (error) {
+    return handleError(error)
+  }
+},
   getAll: async (): Promise<Empleado[]> => {
     try {
       const response = await apiClient.get<Empleado[]>(API_ENDPOINTS.EMPLEADOS);

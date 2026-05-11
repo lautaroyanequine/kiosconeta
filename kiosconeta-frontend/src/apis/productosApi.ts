@@ -202,6 +202,14 @@ export const categoriasApi = {
       return handleError(error);
     }
   },
+  getByKiosco: async (kioscoId: number) => {
+  try {
+    const response = await apiClient.get(`/Categorias/kiosco/${kioscoId}`)
+    return handleResponse(response)
+  } catch (error) {
+    return handleError(error)
+  }
+},
 
   /**
    * Crear categoría
@@ -230,6 +238,7 @@ export const categoriasApi = {
       return handleResponse(response);
     } catch (error) {
       return handleError(error);
+      
     }
   },
 

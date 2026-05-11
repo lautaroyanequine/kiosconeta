@@ -110,15 +110,33 @@ const EmpleadosPage: React.FC = () => {
       <div className="px-6 py-3 bg-white border-b border-neutral-200 flex items-center gap-4 flex-wrap">
         {/* Búsqueda */}
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input
-            type="text" value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            placeholder="Buscar por nombre o legajo..."
-            className="w-full pl-9 pr-4 py-2 rounded-lg border border-neutral-300 text-sm
-                       outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-          />
-        </div>
+    {/* Icono con z-index y sin interferencia de click */}
+    <Search 
+      size={16} 
+      className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 z-10 pointer-events-none" 
+    />
+    
+    <input
+      type="text" 
+      value={busqueda}
+      onChange={e => setBusqueda(e.target.value)}
+      placeholder="Buscar por nombre o legajo..."
+      style={{ paddingLeft: '2.5rem' }}
+      className="
+        w-full 
+        pr-4 
+        py-2 
+        rounded-lg 
+        border 
+        border-neutral-300 
+        text-sm
+        outline-none 
+        focus:ring-2 
+        focus:ring-primary/30 
+        focus:border-primary
+      "
+    />
+  </div>
 
         {/* Filtro activo/inactivo */}
         <div className="flex rounded-lg border border-neutral-300 overflow-hidden text-sm">

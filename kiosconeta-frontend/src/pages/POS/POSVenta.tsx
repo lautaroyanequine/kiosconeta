@@ -1,20 +1,15 @@
 // ════════════════════════════════════════════════════════════════════════════
-// COMPONENT: POSVenta — El POS en sí (búsqueda, carrito, cobrar)
-// Solo se muestra cuando hay un turno abierto.
-//
-// Props:
-//   turnoActual         → el turno abierto (para usar su ID al crear ventas)
-//   onTurnoActualizado  → se llama después de cada venta para refrescar stats
+// COMPONENT: POSVenta — POS con detección automática de promociones
 // ════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Search, ShoppingCart, DollarSign, Smartphone,
   CreditCard, Trash2, Plus, Minus, CheckCircle2,
-  Barcode, Package, Clock
+  Barcode, Package, Clock, Tag, Loader2
 } from 'lucide-react';
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
-import { productosApi, ventasApi, metodosPagoApi } from '@/apis';
+import { productosApi, ventasApi, metodosPagoApi, auditoriaApi } from '@/apis';
 import { formatCurrency } from '@/utils/formatters';
 import { debounce, getStorage } from '@/utils/helpers';
 import { STORAGE_KEYS } from '@/utils/constants';
@@ -22,18 +17,10 @@ import { useCart } from './useCart';
 import type { ProductoSimple, MetodoPago } from '@/types';
 import type { TurnoActual } from '@/types/gastoTurno';
 
-// ────────────────────────────────────────────────────────────────────────────
-// TIPOS
-// ────────────────────────────────────────────────────────────────────────────
-
 interface POSVentaProps {
   turnoActual: TurnoActual;
   onTurnoActualizado: () => void;
 }
-
-// ────────────────────────────────────────────────────────────────────────────
-// ÍCONO POR MÉTODO DE PAGO
-// ────────────────────────────────────────────────────────────────────────────
 
 const getMetodoIcon = (nombre: string) => {
   const n = nombre.toLowerCase();
@@ -43,21 +30,20 @@ const getMetodoIcon = (nombre: string) => {
   return CreditCard;
 };
 
-
-
-
 // ════════════════════════════════════════════════════════════════════════════
-// COMPONENTE
+// COMPONENTE PRINCIPAL
 // ════════════════════════════════════════════════════════════════════════════
 
 export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualizado }) => {
-  const { empleadoActivo: user } = useEmpleadoActivo()
+  const { empleadoActivo: user } = useEmpleadoActivo();
   const { empleadoActivo } = useEmpleadoActivo();
-  const cart = useCart();
+
+  // Pasar kioscoId al hook para detección de promos
+  const cart = useCart(empleadoActivo?.kioscoId ?? user?.kioscoId);
 
   // Productos
   const [productos, setProductos]                   = useState<ProductoSimple[]>([]);
-  const [productosFiltrados, setProductosFiltrados] = useState<ProductoSimple[]>([]);
+  // productosFiltrados calculado con useMemo — sin estado separado que cause race condition
   const [busqueda, setBusqueda]                     = useState('');
   const [categoriaActiva, setCategoriaActiva]       = useState('todas');
   const [isLoadingProductos, setIsLoadingProductos] = useState(true);
@@ -70,6 +56,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   const [isProcessing, setIsProcessing] = useState(false);
   const [ventaConfirmada, setVentaConfirmada] = useState<{
     ventaId: number; total: number; metodoPago: string; vuelto?: number;
+    descuento?: number;
   } | null>(null);
 
   // Efectivo / vuelto
@@ -98,27 +85,18 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     try {
       const data = await productosApi.getActivos((empleadoActivo?.kioscoId ?? user?.kioscoId)!);
       setProductos(data);
-      setProductosFiltrados(data.slice(0, 12));
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoadingProductos(false);
-    }
+    } catch (err) { console.error(err); }
+    finally { setIsLoadingProductos(false); }
   };
 
   const loadMetodosPago = async () => {
     try {
       const data = await metodosPagoApi.getActivos();
       setMetodosPago(data);
-      const efectivo = data.find((m: MetodoPago) =>
-        m.nombre.toLowerCase().includes('efectivo')
-      );
+      const efectivo = data.find((m: MetodoPago) => m.nombre.toLowerCase().includes('efectivo'));
       if (efectivo) cart.setMetodoPagoId(efectivo.metodoDePagoID);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoadingMetodos(false);
-    }
+    } catch (err) { console.error(err); }
+    finally { setIsLoadingMetodos(false); }
   };
 
   // ── Categorías ────────────────────────────────────────────────────────────
@@ -127,46 +105,32 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     [...new Set(productos.map(p => p.categoria).filter(Boolean))].sort()
   , [productos]);
 
-  // ── Filtrar productos ─────────────────────────────────────────────────────
+  // ── Filtrar (useMemo — sin estado separado) ──────────────────────────────
 
-  const filtrarProductos = useCallback((query: string, cat: string) => {
+  const productosFiltrados = useMemo(() => {
     let r = [...productos];
-    if (cat !== 'todas') r = r.filter(p => p.categoria === cat);
-    if (query.trim()) {
-      const q = query.toLowerCase();
+    if (categoriaActiva !== 'todas') r = r.filter(p => p.categoria === categoriaActiva);
+    if (busqueda.trim()) {
+      const q = busqueda.toLowerCase();
       r = r.filter(p => p.nombre.toLowerCase().includes(q));
     }
-    setProductosFiltrados(r.slice(0, 12));
-  }, [productos]);
+    return r.slice(0, 24); // mostrar hasta 24 productos
+  }, [productos, busqueda, categoriaActiva]);
 
-  const debouncedFilter = useMemo(
-    () => debounce((q: string, c: string) => filtrarProductos(q, c), 300),
-    [filtrarProductos]
-  );
-
-  useEffect(() => {
-    debouncedFilter(busqueda, categoriaActiva);
-  }, [busqueda, categoriaActiva]);
-
-  // ── Detección de scanner ──────────────────────────────────────────────────
+  // ── Scanner ───────────────────────────────────────────────────────────────
 
   const buscarPorCodigo = useCallback(async (codigo: string) => {
     setUltimoCodigo(codigo);
     try {
       const local = productos.find(p => (p as any).codigoBarra === codigo);
-      if (local) {
-        cart.addItem(local);
-        setCodigoFeedback('ok');
-      } else {
+      if (local) { cart.addItem(local); setCodigoFeedback('ok'); }
+      else {
         const remoto = await productosApi.getByCodigoBarra(codigo);
         if (remoto) { cart.addItem(remoto); setCodigoFeedback('ok'); }
         else setCodigoFeedback('error');
       }
-    } catch {
-      setCodigoFeedback('error');
-    } finally {
-      setTimeout(() => setCodigoFeedback(null), 1500);
-    }
+    } catch { setCodigoFeedback('error'); }
+    finally { setTimeout(() => setCodigoFeedback(null), 1500); }
   }, [productos, cart]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -193,8 +157,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       return;
     }
 
-    if (e.key === 'F1') { e.preventDefault(); if (cart.isValid && !isProcessing) handleCobrar(); return; }
-    if (e.key === 'F2') { e.preventDefault(); cart.clearCart(); setMontoEfectivo(''); return; }
+    if (e.key === 'F1')  { e.preventDefault(); if (cart.isValid && !isProcessing) handleCobrar(); return; }
+    if (e.key === 'F2')  { e.preventDefault(); handleLimpiarCarrito(); return; }
     if (e.key === 'Escape') { e.preventDefault(); setBusqueda(''); busquedaRef.current?.focus(); return; }
 
     if (diff < 50 && e.key.length === 1) {
@@ -204,7 +168,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     } else if (e.key.length === 1 && !e.ctrlKey && !e.altKey) {
       busquedaRef.current?.focus();
     }
-  }, [busqueda, productosFiltrados, cart, isProcessing, buscarPorCodigo]);
+  }, [busqueda, productosFiltrados, cart, isProcessing]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -213,9 +177,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   // ── Vuelto ────────────────────────────────────────────────────────────────
 
-  const metodoPagoSeleccionado = metodosPago.find(
-    m => m.metodoDePagoID === cart.metodoPagoId
-  );
+  const metodoPagoSeleccionado = metodosPago.find(m => m.metodoDePagoID === cart.metodoPagoId);
   const esEfectivo = metodoPagoSeleccionado?.nombre.toLowerCase().includes('efectivo');
 
   const vuelto = useMemo(() => {
@@ -223,6 +185,19 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     if (!isNaN(monto) && monto > 0) return monto - cart.total;
     return null;
   }, [montoEfectivo, cart.total]);
+
+  // ── Limpiar carrito con auditoría ─────────────────────────────────────────
+
+  const handleLimpiarCarrito = useCallback(async () => {
+    if (user && cart.items.length > 0) {
+      const total = cart.items.reduce((s, i) => s + i.subtotal, 0);
+      await auditoriaApi.registrarCarritoLimpiado(
+        user.empleadoId, user.kioscoId, total, cart.items.length
+      );
+    }
+    cart.clearCart();
+    setMontoEfectivo('');
+  }, [cart, user]);
 
   // ── Cobrar ────────────────────────────────────────────────────────────────
 
@@ -242,10 +217,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
         empleadoId:   empleadoActivo?.empleadoId ?? user?.empleadoId,
         metodoPagoId: cart.metodoPagoId!,
         turnoId:      getStorage<number>(STORAGE_KEYS.TURNO_ID) ?? turnoActual.turnoId,
-        productos:    cart.items.map(i => ({
-          productoId: i.productoId,
-          cantidad:   i.cantidad,
-        })),
+        productos:    cart.items.map(i => ({ productoId: i.productoId, cantidad: i.cantidad })),
+        descuento:    cart.totalDescuento > 0 ? cart.totalDescuento : undefined,
       });
 
       setVentaConfirmada({
@@ -253,12 +226,13 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
         total:      cart.total,
         metodoPago: metodoPagoSeleccionado?.nombre || '',
         vuelto:     esEfectivo && vuelto !== null && vuelto >= 0 ? vuelto : undefined,
+        descuento:  cart.totalDescuento > 0 ? cart.totalDescuento : undefined,
       });
 
       cart.clearCart();
       setMontoEfectivo('');
       setBusqueda('');
-      onTurnoActualizado(); // refrescar stats del turno
+      onTurnoActualizado();
     } catch (err: any) {
       alert(err.message || 'Error al procesar la venta');
     } finally {
@@ -293,9 +267,6 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
                            px-2.5 py-1 rounded-full font-medium">
             <Clock size={12} />
             Turno abierto — desde {turnoActual.fechaAperturaFormateada}
-            {turnoActual.empleados?.length > 0 && (
-              <span className="opacity-75">· {turnoActual.empleados.join(', ')}</span>
-            )}
           </span>
         </div>
         <div className="hidden lg:flex items-center gap-4 text-xs text-neutral-400">
@@ -311,8 +282,6 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
         {/* Panel izquierdo: Productos */}
         <div className="flex-1 flex flex-col overflow-hidden">
-
-          {/* Búsqueda */}
           <div className="px-3 py-2 bg-white border-b border-neutral-200 space-y-1.5">
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
@@ -327,7 +296,6 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               />
             </div>
 
-            {/* Feedback scanner */}
             {ultimoCodigo && (
               <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg
                 ${codigoFeedback === 'ok'    ? 'bg-success-50 text-success-700'
@@ -340,18 +308,14 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               </div>
             )}
 
-            {/* Categorías */}
             {categorias.length > 0 && (
-              <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
+              <div className="flex gap-1.5 overflow-x-auto pb-0.5">
                 {['todas', ...categorias].map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setCategoriaActiva(cat)}
+                  <button key={cat} onClick={() => setCategoriaActiva(cat)}
                     className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all
                       ${categoriaActiva === cat
                         ? 'bg-primary text-white'
-                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'}`}
-                  >
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'}`}>
                     {cat === 'todas' ? 'Todas' : cat}
                   </button>
                 ))}
@@ -359,7 +323,6 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
             )}
           </div>
 
-          {/* Grilla */}
           <div className="flex-1 overflow-y-auto p-2">
             {productosFiltrados.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-neutral-300">
@@ -369,11 +332,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
             ) : (
               <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2">
                 {productosFiltrados.map(p => (
-                  <ProductoCard
-                    key={p.productoId}
-                    producto={p}
-                    onClick={() => cart.addItem(p)}
-                  />
+                  <ProductoCard key={p.productoId} producto={p} onClick={() => cart.addItem(p)} />
                 ))}
               </div>
             )}
@@ -395,10 +354,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               )}
             </div>
             {cart.items.length > 0 && (
-              <button
-                onClick={() => { cart.clearCart(); setMontoEfectivo(''); }}
-                className="text-xs text-neutral-400 hover:text-danger flex items-center gap-1"
-              >
+              <button onClick={handleLimpiarCarrito}
+                className="text-xs text-neutral-400 hover:text-danger flex items-center gap-1">
                 <Trash2 size={13} /> Limpiar
               </button>
             )}
@@ -429,57 +386,82 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
           {/* Footer */}
           <div className="border-t border-neutral-200 p-4 space-y-3">
 
+            {/* Promos aplicadas */}
+            {cart.detectandoPromos && (
+              <div className="flex items-center gap-2 text-xs text-neutral-400">
+                <Loader2 size={12} className="animate-spin" />
+                Verificando promociones...
+              </div>
+            )}
+
+            {cart.promosAplicadas.length > 0 && (
+              <div className="bg-success-50 border border-success-200 rounded-xl p-3 space-y-1.5">
+                <p className="text-xs font-semibold text-success-700 flex items-center gap-1.5">
+                  <Tag size={12} />
+                  ¡Promociones aplicadas!
+                </p>
+                {cart.promosAplicadas.map(p => (
+                  <div key={p.promocionId} className="flex justify-between items-center">
+                    <span className="text-xs text-success-600">{p.descripcion}</span>
+                    <span className="text-xs font-bold text-success">-{formatCurrency(p.descuento)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="flex justify-between text-sm text-neutral-500">
               <span>Subtotal</span>
               <span>{formatCurrency(cart.subtotal)}</span>
             </div>
+
+            {cart.totalDescuento > 0 && (
+              <div className="flex justify-between text-sm text-success font-medium">
+                <span>Descuento promos</span>
+                <span>-{formatCurrency(cart.totalDescuento)}</span>
+              </div>
+            )}
+
             <div className="flex justify-between items-baseline pb-3 border-b border-neutral-100">
               <span className="text-xl font-bold text-neutral-900">TOTAL</span>
-              <span className="text-3xl font-bold text-primary">{formatCurrency(cart.total)}</span>
+              <div className="text-right">
+                {cart.totalDescuento > 0 && (
+                  <p className="text-sm text-neutral-400 line-through">{formatCurrency(cart.subtotal)}</p>
+                )}
+                <span className="text-3xl font-bold text-primary">{formatCurrency(cart.total)}</span>
+              </div>
             </div>
 
             {/* Métodos de pago */}
             <div>
-              <p className="text-xs font-medium text-neutral-400 mb-2 uppercase tracking-wide">
-                Método de pago
-              </p>
+              <p className="text-xs font-medium text-neutral-400 mb-2 uppercase tracking-wide">Método de pago</p>
               <div className="grid grid-cols-3 gap-2">
                 {metodosPago.map(m => {
                   const Icon = getMetodoIcon(m.nombre);
                   const sel  = cart.metodoPagoId === m.metodoDePagoID;
                   return (
-                    <button
-                      key={m.metodoDePagoID}
+                    <button key={m.metodoDePagoID}
                       onClick={() => { cart.setMetodoPagoId(m.metodoDePagoID); setMontoEfectivo(''); }}
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all
-                        ${sel
-                          ? 'border-primary bg-primary/5 text-primary'
-                          : 'border-neutral-200 text-neutral-400 hover:border-neutral-300'}`}
-                    >
+                        ${sel ? 'border-primary bg-primary/5 text-primary'
+                              : 'border-neutral-200 text-neutral-400 hover:border-neutral-300'}`}>
                       <Icon size={20} />
-                      <span className="text-xs font-medium text-center leading-tight">
-                        {m.nombre}
-                      </span>
+                      <span className="text-xs font-medium text-center leading-tight">{m.nombre}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Campo efectivo + vuelto */}
+            {/* Efectivo + vuelto */}
             {esEfectivo && cart.items.length > 0 && (
               <div className="space-y-2">
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
-                  <input
-                    ref={efectivoRef}
-                    type="number"
-                    value={montoEfectivo}
+                  <input ref={efectivoRef} type="number" value={montoEfectivo}
                     onChange={e => setMontoEfectivo(e.target.value)}
                     placeholder="Monto recibido"
                     className="w-full pl-7 pr-4 py-2.5 rounded-lg border border-neutral-300 text-sm
-                               outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  />
+                               outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
                 </div>
                 {vuelto !== null && vuelto >= 0 && (
                   <div className="flex justify-between items-center bg-success-50 px-3 py-2 rounded-lg">
@@ -497,23 +479,16 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
             )}
 
             {/* Botón cobrar */}
-            <button
-              onClick={handleCobrar}
-              disabled={!cart.isValid || isProcessing}
+            <button onClick={handleCobrar} disabled={!cart.isValid || isProcessing || cart.detectandoPromos}
               className={`w-full py-3.5 rounded-xl font-bold text-base transition-all
                 flex items-center justify-center gap-2
-                ${cart.isValid && !isProcessing
+                ${cart.isValid && !isProcessing && !cart.detectandoPromos
                   ? 'bg-primary text-white hover:bg-primary-600 active:scale-[0.98] shadow-lg shadow-primary/20'
-                  : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'}`}
-            >
-              {isProcessing ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                  Procesando...
-                </>
-              ) : (
-                <>💰 COBRAR <kbd className="text-xs opacity-50 font-mono">F1</kbd></>
-              )}
+                  : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'}`}>
+              {isProcessing
+                ? <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Procesando...</>
+                : <>💰 COBRAR <kbd className="text-xs opacity-50 font-mono">F1</kbd></>
+              }
             </button>
           </div>
         </div>
@@ -539,26 +514,23 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; onClick: () => void }> 
   const stockBajo = !sinStock && producto.stock < 10;
 
   return (
-    <button
-      onClick={onClick}
-      disabled={sinStock}
+    <button onClick={onClick} disabled={sinStock}
       className={`relative w-full bg-white rounded-xl p-4 text-left border-2 transition-all group
-        ${sinStock
-          ? 'border-neutral-100 opacity-40 cursor-not-allowed'
-          : 'border-neutral-200 hover:border-primary hover:shadow-md active:scale-[0.97]'}`}
-    >
+        ${sinStock ? 'border-neutral-100 opacity-40 cursor-not-allowed'
+                   : 'border-neutral-200 hover:border-primary hover:shadow-md active:scale-[0.97]'}`}>
       {(stockBajo || sinStock) && (
         <span className={`absolute top-2 right-2 text-xs px-1.5 py-0.5 rounded-full font-medium
           ${sinStock ? 'bg-danger-100 text-danger' : 'bg-warning-100 text-warning-700'}`}>
           {sinStock ? 'Sin stock' : `Stock: ${producto.stock}`}
         </span>
       )}
-      <div className="w-12 h-12 rounded-xl bg-primary-50 group-hover:bg-primary flex items-center justify-center mb-3 transition-colors">
-        <Package size={24} className="text-primary group-hover:text-white transition-colors" />
+      <div className="w-12 h-12 rounded-xl bg-primary/10 group-hover:bg-primary flex items-center
+                      justify-center mb-3 transition-colors shrink-0">
+        <span className="text-lg font-bold text-primary group-hover:text-white transition-colors">
+          {producto.nombre.charAt(0).toUpperCase()}
+        </span>
       </div>
-      <p className="text-sm font-semibold text-neutral-800 line-clamp-2 min-h-[2.5rem] mb-1 leading-tight">
-        {producto.nombre}
-      </p>
+      <p className="text-sm font-semibold text-neutral-800 line-clamp-2 min-h-[2.5rem] mb-1 leading-tight">{producto.nombre}</p>
       <p className="text-xs text-neutral-400 truncate mb-2">{producto.categoria}</p>
       <p className="text-lg font-bold text-primary">{formatCurrency(producto.precioVenta)}</p>
     </button>
@@ -566,10 +538,7 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; onClick: () => void }> 
 };
 
 const CartItemRow: React.FC<{
-  item: any;
-  onIncrement: () => void;
-  onDecrement: () => void;
-  onRemove: () => void;
+  item: any; onIncrement: () => void; onDecrement: () => void; onRemove: () => void;
 }> = ({ item, onIncrement, onDecrement, onRemove }) => (
   <div className="flex items-center gap-3 px-5 py-3.5 hover:bg-neutral-50 transition-colors">
     <div className="flex-1 min-w-0">
@@ -577,38 +546,28 @@ const CartItemRow: React.FC<{
       <p className="text-xs text-neutral-400 mt-0.5">{formatCurrency(item.precioUnitario)} c/u</p>
     </div>
     <div className="flex items-center gap-2">
-      <button
-        onClick={onDecrement}
+      <button onClick={onDecrement}
         className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center
-                   text-neutral-400 hover:border-primary hover:text-primary transition-all active:scale-90"
-      >
+                   text-neutral-400 hover:border-primary hover:text-primary transition-all active:scale-90">
         <Minus size={12} />
       </button>
       <span className="w-8 text-center text-base font-bold text-neutral-800">{item.cantidad}</span>
-      <button
-        onClick={onIncrement}
-        disabled={item.cantidad >= item.stock}
+      <button onClick={onIncrement} disabled={item.cantidad >= item.stock}
         className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center
                    text-neutral-400 hover:border-primary hover:text-primary transition-all active:scale-90
-                   disabled:opacity-30 disabled:cursor-not-allowed"
-      >
+                   disabled:opacity-30 disabled:cursor-not-allowed">
         <Plus size={12} />
       </button>
     </div>
-    <span className="text-base font-bold text-neutral-800 w-24 text-right">
-      {formatCurrency(item.subtotal)}
-    </span>
-    <button
-      onClick={onRemove}
-      className="text-neutral-300 hover:text-danger transition-colors ml-1"
-    >
+    <span className="text-base font-bold text-neutral-800 w-24 text-right">{formatCurrency(item.subtotal)}</span>
+    <button onClick={onRemove} className="text-neutral-300 hover:text-danger transition-colors ml-1">
       <Trash2 size={15} />
     </button>
   </div>
 );
 
 const VentaModal: React.FC<{
-  data: { ventaId: number; total: number; metodoPago: string; vuelto?: number };
+  data: { ventaId: number; total: number; metodoPago: string; vuelto?: number; descuento?: number };
   onClose: () => void;
 }> = ({ data, onClose }) => {
   useEffect(() => {
@@ -618,12 +577,17 @@ const VentaModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl p-8 shadow-2xl text-center w-80 animate-scale-in">
+      <div className="bg-white rounded-2xl p-8 shadow-2xl text-center w-80">
         <div className="w-16 h-16 bg-success-50 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 size={36} className="text-success" />
         </div>
         <h2 className="text-xl font-bold text-neutral-900 mb-1">¡Venta registrada!</h2>
         <p className="text-sm text-neutral-500 mb-4">#{data.ventaId} · {data.metodoPago}</p>
+        {data.descuento && data.descuento > 0 && (
+          <div className="mb-2 bg-success-50 rounded-xl px-4 py-2">
+            <p className="text-xs text-success-600">🎉 Descuento aplicado: {formatCurrency(data.descuento)}</p>
+          </div>
+        )}
         <p className="text-4xl font-bold text-primary mb-2">{formatCurrency(data.total)}</p>
         {data.vuelto !== undefined && data.vuelto > 0 && (
           <div className="mt-3 bg-success-50 rounded-xl px-4 py-3">
@@ -631,10 +595,8 @@ const VentaModal: React.FC<{
             <p className="text-2xl font-bold text-success">{formatCurrency(data.vuelto)}</p>
           </div>
         )}
-        <button
-          onClick={onClose}
-          className="mt-5 w-full py-2.5 bg-primary text-white rounded-xl font-semibold hover:bg-primary-600"
-        >
+        <button onClick={onClose}
+          className="mt-5 w-full py-2.5 bg-primary text-white rounded-xl font-semibold hover:bg-primary-600">
           Nueva venta
         </button>
         <p className="text-xs text-neutral-400 mt-2">Se cierra en 4 segundos</p>

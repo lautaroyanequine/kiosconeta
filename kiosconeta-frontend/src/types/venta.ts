@@ -48,6 +48,7 @@ export interface CreateVentaDTO {
   turnoId: number;
   detalles?: string;        // Observaciones opcionales
   productos: CreateProductoVentaDTO[];
+  descuento?: number   
 }
 
 export interface CreateProductoVentaDTO {

@@ -14,10 +14,10 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
         public static void Seed(EntityTypeBuilder<Categoria> entity)
         {
             entity.HasData(
-                new Categoria { CategoriaID = 1, Nombre = "Bebidas" },
-                new Categoria { CategoriaID = 2, Nombre = "Golosinas" },
-                new Categoria { CategoriaID = 3, Nombre = "Cigarrillos" },
-                new Categoria { CategoriaID = 4, Nombre = "Comida" }
+                new Categoria { CategoriaID = 1, Nombre = "Bebidas", KioscoId = 1 },
+                new Categoria { CategoriaID = 2, Nombre = "Golosinas", KioscoId = 1 },
+                new Categoria { CategoriaID = 3, Nombre = "Cigarrillos",KioscoId = 1 },
+                new Categoria { CategoriaID = 4, Nombre = "Comida",KioscoId = 1 }
 
             );
         }

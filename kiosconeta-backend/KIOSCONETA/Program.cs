@@ -94,6 +94,7 @@ builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();
 builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
 builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
 builder.Services.AddScoped<IKioscoRepository, KioscoRepository>();
+builder.Services.AddScoped<IPromocionRepository, PromocionRepository>();
 
 // ========== SERVICES ==========
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -112,7 +113,7 @@ builder.Services.AddScoped<INumeradorRepository, NumeradorRepository>();
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 builder.Services.AddScoped<ICajaService, CajaService>();
 
-
+builder.Services.AddScoped<IPromocionService, PromocionService>();
 
 // ========== CORS ==========
 builder.Services.AddCors(options =>

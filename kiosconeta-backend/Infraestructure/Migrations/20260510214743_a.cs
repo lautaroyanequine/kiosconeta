@@ -14,19 +14,6 @@ namespace Infraestructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Categoria",
-                columns: table => new
-                {
-                    CategoriaID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Categoria", x => x.CategoriaID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MetodoDePago",
                 columns: table => new
                 {
@@ -100,6 +87,25 @@ namespace Infraestructure.Migrations
                         principalTable: "Usuario",
                         principalColumn: "UsuarioID",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Categoria",
+                columns: table => new
+                {
+                    CategoriaID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    KioscoId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categoria", x => x.CategoriaID);
+                    table.ForeignKey(
+                        name: "FK_Categoria_Kiosco_KioscoId",
+                        column: x => x.KioscoId,
+                        principalTable: "Kiosco",
+                        principalColumn: "KioscoID");
                 });
 
             migrationBuilder.CreateTable(
@@ -192,46 +198,6 @@ namespace Infraestructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Producto",
-                columns: table => new
-                {
-                    ProductoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    PrecioCosto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PrecioVenta = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CategoriaId = table.Column<int>(type: "int", nullable: false),
-                    Distribuidor = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CodigoBarra = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    Imagen = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    StockActual = table.Column<int>(type: "int", nullable: false),
-                    StockMinimo = table.Column<int>(type: "int", nullable: false),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    FechaModificacion = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Activo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Suelto = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Producto", x => x.ProductoId);
-                    table.ForeignKey(
-                        name: "FK_Producto_Categoria_CategoriaId",
-                        column: x => x.CategoriaId,
-                        principalTable: "Categoria",
-                        principalColumn: "CategoriaID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Producto_Kiosco_KioscoId",
-                        column: x => x.KioscoId,
-                        principalTable: "Kiosco",
-                        principalColumn: "KioscoID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SaldoCaja",
                 columns: table => new
                 {
@@ -272,6 +238,44 @@ namespace Infraestructure.Migrations
                         principalTable: "Kiosco",
                         principalColumn: "KioscoID",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Producto",
+                columns: table => new
+                {
+                    ProductoId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    PrecioCosto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PrecioVenta = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CategoriaId = table.Column<int>(type: "int", nullable: false),
+                    Distribuidor = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CodigoBarra = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    Imagen = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    StockActual = table.Column<int>(type: "int", nullable: false),
+                    StockMinimo = table.Column<int>(type: "int", nullable: false),
+                    KioscoId = table.Column<int>(type: "int", nullable: false),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
+                    FechaModificacion = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Activo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Suelto = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Producto", x => x.ProductoId);
+                    table.ForeignKey(
+                        name: "FK_Producto_Categoria_CategoriaId",
+                        column: x => x.CategoriaId,
+                        principalTable: "Categoria",
+                        principalColumn: "CategoriaID");
+                    table.ForeignKey(
+                        name: "FK_Producto_Kiosco_KioscoId",
+                        column: x => x.KioscoId,
+                        principalTable: "Kiosco",
+                        principalColumn: "KioscoID");
                 });
 
             migrationBuilder.CreateTable(
@@ -474,6 +478,54 @@ namespace Infraestructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Promocion",
+                columns: table => new
+                {
+                    PromocionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    Tipo = table.Column<int>(type: "int", nullable: false),
+                    Activa = table.Column<bool>(type: "bit", nullable: false),
+                    FechaDesde = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FechaHasta = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    KioscoId = table.Column<int>(type: "int", nullable: false),
+                    PrecioCombo = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    CantidadRequerida = table.Column<int>(type: "int", nullable: true),
+                    CantidadPaga = table.Column<int>(type: "int", nullable: true),
+                    ProductoIdCantidad = table.Column<int>(type: "int", nullable: true),
+                    PorcentajeDescuento = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
+                    ProductoIdPorcentaje = table.Column<int>(type: "int", nullable: true),
+                    CategoriaIdPorcentaje = table.Column<int>(type: "int", nullable: true),
+                    CantidadMinimaDescuento = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Promocion", x => x.PromocionId);
+                    table.ForeignKey(
+                        name: "FK_Promocion_Categoria_CategoriaIdPorcentaje",
+                        column: x => x.CategoriaIdPorcentaje,
+                        principalTable: "Categoria",
+                        principalColumn: "CategoriaID");
+                    table.ForeignKey(
+                        name: "FK_Promocion_Kiosco_KioscoId",
+                        column: x => x.KioscoId,
+                        principalTable: "Kiosco",
+                        principalColumn: "KioscoID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Promocion_Producto_ProductoIdCantidad",
+                        column: x => x.ProductoIdCantidad,
+                        principalTable: "Producto",
+                        principalColumn: "ProductoId");
+                    table.ForeignKey(
+                        name: "FK_Promocion_Producto_ProductoIdPorcentaje",
+                        column: x => x.ProductoIdPorcentaje,
+                        principalTable: "Producto",
+                        principalColumn: "ProductoId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductoVenta",
                 columns: table => new
                 {
@@ -501,15 +553,29 @@ namespace Infraestructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "Categoria",
-                columns: new[] { "CategoriaID", "Nombre" },
-                values: new object[,]
+            migrationBuilder.CreateTable(
+                name: "PromocionProducto",
+                columns: table => new
                 {
-                    { 1, "Bebidas" },
-                    { 2, "Golosinas" },
-                    { 3, "Cigarrillos" },
-                    { 4, "Comida" }
+                    PromocionProductoId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PromocionId = table.Column<int>(type: "int", nullable: false),
+                    ProductoId = table.Column<int>(type: "int", nullable: false),
+                    Cantidad = table.Column<int>(type: "int", nullable: false, defaultValue: 1)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PromocionProducto", x => x.PromocionProductoId);
+                    table.ForeignKey(
+                        name: "FK_PromocionProducto_Producto_ProductoId",
+                        column: x => x.ProductoId,
+                        principalTable: "Producto",
+                        principalColumn: "ProductoId");
+                    table.ForeignKey(
+                        name: "FK_PromocionProducto_Promocion_PromocionId",
+                        column: x => x.PromocionId,
+                        principalTable: "Promocion",
+                        principalColumn: "PromocionId");
                 });
 
             migrationBuilder.InsertData(
@@ -588,12 +654,23 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$8LvZbq602.H8zpIBIyYd4uuXgahCwuICOUsbyBfGxqkgLdRgj14Ta" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$Rg.Er3wtJM9qOryOZ7Hzt.L.Ti54JLMsNb719zQHZ.DiPLZckHfcO" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",
                 columns: new[] { "KioscoID", "Direccion", "Nombre", "UsuarioID" },
                 values: new object[] { 1, "845 2595", "Kiosconeta 1", 1 });
+
+            migrationBuilder.InsertData(
+                table: "Categoria",
+                columns: new[] { "CategoriaID", "KioscoId", "Nombre" },
+                values: new object[,]
+                {
+                    { 1, 1, "Bebidas" },
+                    { 2, 1, "Golosinas" },
+                    { 3, 1, "Cigarrillos" },
+                    { 4, 1, "Comida" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Empleado",
@@ -604,6 +681,59 @@ namespace Infraestructure.Migrations
                     { 2, true, false, 1, "EMP001", "Luchi", "QTKFqtmpXhrIj8iA8M8G8/ql8bxK63p2oRpzrJTTHNM=", "1123456789", null },
                     { 3, true, false, 1, "EMP002", "Brenda", "D/4avRoIIVNTwjPW4AlhPpXuxCU4Mqdhryj/N6xaFQw=", "1198765432", null },
                     { 4, true, false, 1, "EMP003", "Carlos López", "iI3yWuNXckJKVgxxUqHeeURA4Opc/uYoKDM6RWpQbgU=", "1155443322", null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "EmpleadoPermiso",
+                columns: new[] { "EmpleadoPermisoId", "EmpleadoId", "PermisoId" },
+                values: new object[,]
+                {
+                    { -46, 1, 46 },
+                    { -45, 1, 45 },
+                    { -44, 1, 44 },
+                    { -43, 1, 43 },
+                    { -42, 1, 42 },
+                    { -41, 1, 41 },
+                    { -40, 1, 40 },
+                    { -39, 1, 39 },
+                    { -38, 1, 38 },
+                    { -37, 1, 37 },
+                    { -36, 1, 36 },
+                    { -35, 1, 35 },
+                    { -34, 1, 34 },
+                    { -33, 1, 33 },
+                    { -32, 1, 32 },
+                    { -31, 1, 31 },
+                    { -30, 1, 30 },
+                    { -29, 1, 29 },
+                    { -28, 1, 28 },
+                    { -27, 1, 27 },
+                    { -26, 1, 26 },
+                    { -25, 1, 25 },
+                    { -24, 1, 24 },
+                    { -23, 1, 23 },
+                    { -22, 1, 22 },
+                    { -21, 1, 21 },
+                    { -20, 1, 20 },
+                    { -19, 1, 19 },
+                    { -18, 1, 18 },
+                    { -17, 1, 17 },
+                    { -16, 1, 16 },
+                    { -15, 1, 15 },
+                    { -14, 1, 14 },
+                    { -13, 1, 13 },
+                    { -12, 1, 12 },
+                    { -11, 1, 11 },
+                    { -10, 1, 10 },
+                    { -9, 1, 9 },
+                    { -8, 1, 8 },
+                    { -7, 1, 7 },
+                    { -6, 1, 6 },
+                    { -5, 1, 5 },
+                    { -4, 1, 4 },
+                    { -3, 1, 3 },
+                    { -2, 1, 2 },
+                    { -1, 1, 1 }
                 });
 
             migrationBuilder.InsertData(
@@ -696,59 +826,6 @@ namespace Infraestructure.Migrations
                 columns: new[] { "ProductoId", "Activo", "CategoriaId", "CodigoBarra", "Descripcion", "Distribuidor", "FechaCreacion", "FechaModificacion", "FechaVencimiento", "Imagen", "KioscoId", "Nombre", "PrecioCosto", "PrecioVenta", "StockActual", "StockMinimo" },
                 values: new object[] { 50, true, 4, "7790580099748", "Snack de maíz Chizitos queso 50g", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Chizitos 50g", 450m, 900m, 30, 8 });
 
-            migrationBuilder.InsertData(
-                table: "EmpleadoPermiso",
-                columns: new[] { "EmpleadoPermisoId", "EmpleadoId", "PermisoId" },
-                values: new object[,]
-                {
-                    { -46, 1, 46 },
-                    { -45, 1, 45 },
-                    { -44, 1, 44 },
-                    { -43, 1, 43 },
-                    { -42, 1, 42 },
-                    { -41, 1, 41 },
-                    { -40, 1, 40 },
-                    { -39, 1, 39 },
-                    { -38, 1, 38 },
-                    { -37, 1, 37 },
-                    { -36, 1, 36 },
-                    { -35, 1, 35 },
-                    { -34, 1, 34 },
-                    { -33, 1, 33 },
-                    { -32, 1, 32 },
-                    { -31, 1, 31 },
-                    { -30, 1, 30 },
-                    { -29, 1, 29 },
-                    { -28, 1, 28 },
-                    { -27, 1, 27 },
-                    { -26, 1, 26 },
-                    { -25, 1, 25 },
-                    { -24, 1, 24 },
-                    { -23, 1, 23 },
-                    { -22, 1, 22 },
-                    { -21, 1, 21 },
-                    { -20, 1, 20 },
-                    { -19, 1, 19 },
-                    { -18, 1, 18 },
-                    { -17, 1, 17 },
-                    { -16, 1, 16 },
-                    { -15, 1, 15 },
-                    { -14, 1, 14 },
-                    { -13, 1, 13 },
-                    { -12, 1, 12 },
-                    { -11, 1, 11 },
-                    { -10, 1, 10 },
-                    { -9, 1, 9 },
-                    { -8, 1, 8 },
-                    { -7, 1, 7 },
-                    { -6, 1, 6 },
-                    { -5, 1, 5 },
-                    { -4, 1, 4 },
-                    { -3, 1, 3 },
-                    { -2, 1, 2 },
-                    { -1, 1, 1 }
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_AuditoriaLog_EmpleadoId",
                 table: "AuditoriaLog",
@@ -767,6 +844,11 @@ namespace Infraestructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_AuditoriaLog_KioscoId",
                 table: "AuditoriaLog",
+                column: "KioscoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categoria_KioscoId",
+                table: "Categoria",
                 column: "KioscoId");
 
             migrationBuilder.CreateIndex(
@@ -877,6 +959,41 @@ namespace Infraestructure.Migrations
                 column: "VentaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Promocion_Activa",
+                table: "Promocion",
+                column: "Activa");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Promocion_CategoriaIdPorcentaje",
+                table: "Promocion",
+                column: "CategoriaIdPorcentaje");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Promocion_KioscoId",
+                table: "Promocion",
+                column: "KioscoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Promocion_ProductoIdCantidad",
+                table: "Promocion",
+                column: "ProductoIdCantidad");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Promocion_ProductoIdPorcentaje",
+                table: "Promocion",
+                column: "ProductoIdPorcentaje");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PromocionProducto_ProductoId",
+                table: "PromocionProducto",
+                column: "ProductoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PromocionProducto_PromocionId",
+                table: "PromocionProducto",
+                column: "PromocionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SaldoCaja_KioscoId",
                 table: "SaldoCaja",
                 column: "KioscoId",
@@ -944,6 +1061,9 @@ namespace Infraestructure.Migrations
                 name: "ProductoVenta");
 
             migrationBuilder.DropTable(
+                name: "PromocionProducto");
+
+            migrationBuilder.DropTable(
                 name: "SaldoCaja");
 
             migrationBuilder.DropTable(
@@ -953,13 +1073,10 @@ namespace Infraestructure.Migrations
                 name: "TipoDeGasto");
 
             migrationBuilder.DropTable(
-                name: "Producto");
-
-            migrationBuilder.DropTable(
                 name: "Venta");
 
             migrationBuilder.DropTable(
-                name: "Categoria");
+                name: "Promocion");
 
             migrationBuilder.DropTable(
                 name: "CierresTurno");
@@ -971,7 +1088,13 @@ namespace Infraestructure.Migrations
                 name: "MetodoDePago");
 
             migrationBuilder.DropTable(
+                name: "Producto");
+
+            migrationBuilder.DropTable(
                 name: "Turno");
+
+            migrationBuilder.DropTable(
+                name: "Categoria");
 
             migrationBuilder.DropTable(
                 name: "Kiosco");

@@ -82,6 +82,9 @@ namespace Infraestructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoriaID"));
 
+                    b.Property<int>("KioscoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -89,27 +92,33 @@ namespace Infraestructure.Migrations
 
                     b.HasKey("CategoriaID");
 
+                    b.HasIndex("KioscoId");
+
                     b.ToTable("Categoria", (string)null);
 
                     b.HasData(
                         new
                         {
                             CategoriaID = 1,
+                            KioscoId = 1,
                             Nombre = "Bebidas"
                         },
                         new
                         {
                             CategoriaID = 2,
+                            KioscoId = 1,
                             Nombre = "Golosinas"
                         },
                         new
                         {
                             CategoriaID = 3,
+                            KioscoId = 1,
                             Nombre = "Cigarrillos"
                         },
                         new
                         {
                             CategoriaID = 4,
+                            KioscoId = 1,
                             Nombre = "Comida"
                         });
                 });
@@ -2157,6 +2166,105 @@ namespace Infraestructure.Migrations
                     b.ToTable("ProductoVenta", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Promocion", b =>
+                {
+                    b.Property<int>("PromocionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PromocionId"));
+
+                    b.Property<bool>("Activa")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("CantidadMinimaDescuento")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CantidadPaga")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CantidadRequerida")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CategoriaIdPorcentaje")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime?>("FechaDesde")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaHasta")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("KioscoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("PorcentajeDescuento")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal?>("PrecioCombo")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ProductoIdCantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductoIdPorcentaje")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.HasKey("PromocionId");
+
+                    b.HasIndex("Activa");
+
+                    b.HasIndex("CategoriaIdPorcentaje");
+
+                    b.HasIndex("KioscoId");
+
+                    b.HasIndex("ProductoIdCantidad");
+
+                    b.HasIndex("ProductoIdPorcentaje");
+
+                    b.ToTable("Promocion", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.PromocionProducto", b =>
+                {
+                    b.Property<int>("PromocionProductoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PromocionProductoId"));
+
+                    b.Property<int>("Cantidad")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PromocionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PromocionProductoId");
+
+                    b.HasIndex("ProductoId");
+
+                    b.HasIndex("PromocionId");
+
+                    b.ToTable("PromocionProducto", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.SaldoCaja", b =>
                 {
                     b.Property<int>("SaldoCajaId")
@@ -2251,7 +2359,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$8LvZbq602.H8zpIBIyYd4uuXgahCwuICOUsbyBfGxqkgLdRgj14Ta"
+                            Password = "$2a$11$Rg.Er3wtJM9qOryOZ7Hzt.L.Ti54JLMsNb719zQHZ.DiPLZckHfcO"
                         });
                 });
 
@@ -2387,6 +2495,17 @@ namespace Infraestructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Empleado");
+
+                    b.Navigation("Kiosco");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Categoria", b =>
+                {
+                    b.HasOne("Domain.Entities.Kiosco", "Kiosco")
+                        .WithMany()
+                        .HasForeignKey("KioscoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Kiosco");
                 });
@@ -2534,13 +2653,13 @@ namespace Infraestructure.Migrations
                     b.HasOne("Domain.Entities.Categoria", "Categoria")
                         .WithMany()
                         .HasForeignKey("CategoriaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Kiosco", "Kiosco")
                         .WithMany()
                         .HasForeignKey("KioscoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Categoria");
@@ -2565,6 +2684,57 @@ namespace Infraestructure.Migrations
                     b.Navigation("Producto");
 
                     b.Navigation("Venta");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Promocion", b =>
+                {
+                    b.HasOne("Domain.Entities.Categoria", "CategoriaPorcentaje")
+                        .WithMany()
+                        .HasForeignKey("CategoriaIdPorcentaje")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.Entities.Kiosco", "Kiosco")
+                        .WithMany()
+                        .HasForeignKey("KioscoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Producto", "ProductoCantidad")
+                        .WithMany()
+                        .HasForeignKey("ProductoIdCantidad")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.Entities.Producto", "ProductoPorcentaje")
+                        .WithMany()
+                        .HasForeignKey("ProductoIdPorcentaje")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("CategoriaPorcentaje");
+
+                    b.Navigation("Kiosco");
+
+                    b.Navigation("ProductoCantidad");
+
+                    b.Navigation("ProductoPorcentaje");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PromocionProducto", b =>
+                {
+                    b.HasOne("Domain.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Promocion", "Promocion")
+                        .WithMany("PromocionProductos")
+                        .HasForeignKey("PromocionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Producto");
+
+                    b.Navigation("Promocion");
                 });
 
             modelBuilder.Entity("Domain.Entities.SaldoCaja", b =>
@@ -2678,6 +2848,11 @@ namespace Infraestructure.Migrations
             modelBuilder.Entity("Domain.Entities.Producto", b =>
                 {
                     b.Navigation("ProductoVentas");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Promocion", b =>
+                {
+                    b.Navigation("PromocionProductos");
                 });
 
             modelBuilder.Entity("Domain.Entities.Turno", b =>

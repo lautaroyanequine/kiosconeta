@@ -129,19 +129,36 @@ const CategoriasPage: React.FC = () => {
       </div>
 
       {/* ── Búsqueda ── */}
-      <div className="px-6 py-3 bg-white border-b border-neutral-200">
-        <div className="relative max-w-sm">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input
-            type="text"
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            placeholder="Buscar categoría..."
-            className="w-full pl-9 pr-4 py-2 rounded-lg border border-neutral-300 text-sm
-                       outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-          />
-        </div>
-      </div>
+<div className="px-6 py-3 bg-white border-b border-neutral-200">
+  <div className="relative max-w-sm">
+    {/* Agregamos z-10 y pointer-events-none para que el icono no interfiera con el click */}
+    <Search 
+      size={16} 
+      className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 z-10 pointer-events-none" 
+    />
+    
+    <input
+      type="text"
+      value={busqueda}
+      onChange={e => setBusqueda(e.target.value)}
+      placeholder="Buscar categoría..."
+      style={{ paddingLeft: '2.5rem' }} 
+      className="
+        w-full 
+        pr-4 
+        py-2 
+        rounded-lg 
+        border 
+        border-neutral-300 
+        text-sm
+        outline-none 
+        focus:ring-2 
+        focus:ring-primary/30 
+        focus:border-primary
+      "
+    />
+  </div>
+</div>
 
       {/* ── Contenido ── */}
       <div className="flex-1 overflow-auto px-6 py-4">

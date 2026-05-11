@@ -45,16 +45,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     // Clases del input
     const inputClasses = classNames(
-  'px-4 py-2 border rounded-md transition-colors duration-200',
-  'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20',
-  leftIcon ? 'pl-10' : undefined,
-  rightIcon ? 'pr-10' : undefined,
-  error && 'border-danger focus:border-danger focus:ring-danger',
-  !error && 'border-neutral-300 focus:border-primary',
-  disabled && 'bg-neutral-100 cursor-not-allowed opacity-60',
-  fullWidth ? 'w-full' : undefined,
-  className
-);
+      'px-4 py-2 border rounded-md transition-colors duration-200',
+      'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20',
+      // Mantenemos las clases por si acaso, pero el style mandará
+      leftIcon ? 'pl-10' : undefined,
+      rightIcon ? 'pr-10' : undefined,
+      error && 'border-danger focus:border-danger focus:ring-danger',
+      !error && 'border-neutral-300 focus:border-primary',
+      disabled && 'bg-neutral-100 cursor-not-allowed opacity-60',
+      fullWidth ? 'w-full' : undefined,
+      className
+    );
 
     return (
       <div className={containerClasses}>
@@ -70,7 +71,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <div className="relative">
           {/* Left icon */}
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+            // Agregamos z-10 y pointer-events-none para evitar bloqueos de click
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 z-10 pointer-events-none">
               {leftIcon}
             </div>
           )}
@@ -81,28 +83,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className={inputClasses}
             disabled={disabled}
             {...props}
+            // --- LA SOLUCIÓN MAESTRA ---
+            style={{
+              ...props.style,
+              paddingLeft: leftIcon ? '2.8rem' : undefined,
+              paddingRight: rightIcon ? '2.8rem' : undefined,
+            }}
           />
 
           {/* Right icon */}
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 z-10 pointer-events-none">
               {rightIcon}
             </div>
           )}
         </div>
 
-        {/* Error message */}
-        {error && (
-          <span className="input-error">
-            {error}
-          </span>
-        )}
-
-        {/* Helper text */}
+        {/* Mensajes de error y helper... igual que antes */}
+        {error && <span className="input-error">{error}</span>}
         {!error && helperText && (
-          <span className="text-xs text-neutral-500 mt-1">
-            {helperText}
-          </span>
+          <span className="text-xs text-neutral-500 mt-1">{helperText}</span>
         )}
       </div>
     );

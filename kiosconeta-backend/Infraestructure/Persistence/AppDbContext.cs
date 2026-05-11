@@ -45,6 +45,9 @@ namespace Infraestructure.Persistence
         public DbSet<MovimientoCaja> MovimientosCaja { get; set; }
         public DbSet<SaldoCaja> SaldosCaja { get; set; }
 
+        public DbSet<Promocion> Promociones { get; set; }
+        public DbSet<PromocionProducto> PromocionProductos { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
@@ -98,12 +101,16 @@ namespace Infraestructure.Persistence
             new MovimientoCajaConfiguration(modelBuilder.Entity<MovimientoCaja>());
             new SaldoCajaConfiguration(modelBuilder.Entity<SaldoCaja>());
 
+
+            new PromocionConfiguration(modelBuilder.Entity<Promocion>());
+            new PromocionProductoConfiguration(modelBuilder.Entity<PromocionProducto>());
+
             //DATA
             UsuarioData.Seed(modelBuilder.Entity<Usuario>());
             KioscoData.Seed(modelBuilder.Entity<Kiosco>());
             TurnoData.Seed(modelBuilder.Entity<Turno>());
             MetodoPagoData.Seed(modelBuilder.Entity<MetodoDePago>());
-            CategoriaData.Seed(modelBuilder.Entity<Categoria>());
+           CategoriaData.Seed(modelBuilder.Entity<Categoria>());
             EmpleadoData.Seed(modelBuilder.Entity<Empleado>());
             ProductoData.Seed(modelBuilder.Entity<Producto>());
             PermisoData.Seed(modelBuilder.Entity<Permiso>());

@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Emit;
 
 namespace Infraestructure.Persistence.Config
 {
@@ -65,6 +66,17 @@ namespace Infraestructure.Persistence.Config
                 .WithOne(pv => pv.Producto)
                 .HasForeignKey(pv => pv.ProductoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entityBuilder.HasOne(p => p.Kiosco)
+                .WithMany()
+                .HasForeignKey(p => p.KioscoId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            entityBuilder
+                .HasOne(p => p.Categoria)
+                .WithMany()
+                .HasForeignKey(p => p.CategoriaId)
+                .OnDelete(DeleteBehavior.NoAction);
 
 
         }
