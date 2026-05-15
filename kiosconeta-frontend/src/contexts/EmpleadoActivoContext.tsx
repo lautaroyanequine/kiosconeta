@@ -1,7 +1,5 @@
 // ════════════════════════════════════════════════════════════════════════════
-// CONTEXT: EmpleadoActivo
-// Maneja qué empleado está usando el sistema ahora.
-// Su token JWT es el que se usa en todas las llamadas a la API.
+// CONTEXT: EmpleadoActivo — con soporte de permisos
 // ════════════════════════════════════════════════════════════════════════════
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
@@ -10,20 +8,10 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '../apis';
 import { setStorage, getStorage, removeStorage } from '../utils/helpers';
 import { STORAGE_KEYS, ROUTES } from '../utils/constants';
-import type { EmpleadoLoginDTO } from '../types';
-
-// Decodifica el payload del JWT sin verificar firma
-const decodeJWT = (token: string): Record<string, any> => {
-  try {
-    const payload = token.split('.')[1];
-    return JSON.parse(atob(payload));
-  } catch {
-    return {};
-  }
-};
+import type { EmpleadoLoginDTO } from '../types/auth';
 
 // ────────────────────────────────────────────────────────────────────────────
-// TYPES
+// TIPOS
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface EmpleadoActivo {
@@ -32,6 +20,7 @@ export interface EmpleadoActivo {
   legajo: string | null;
   esAdmin: boolean;
   kioscoId: number;
+  permisos: string[];   // ← nombres de permisos ej: ["ventas.crear", "productos.ver"]
 }
 
 interface EmpleadoActivoContextType {
@@ -40,6 +29,9 @@ interface EmpleadoActivoContextType {
   isSelecting: boolean;
   isVerifyingPin: boolean;
   pinError: string;
+  // Helpers de permisos
+  tienePermiso: (permiso: string) => boolean;
+  tieneAlgunPermiso: (permisos: string[]) => boolean;
   abrirSelector: () => void;
   cerrarSelector: () => void;
   confirmarPin: (pin: string, empleado: EmpleadoLoginDTO) => Promise<boolean>;
@@ -61,28 +53,35 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
   const [tokenEmpleado, setTokenEmpleado] = useState<string | null>(() =>
     getStorage<string>(STORAGE_KEYS.TOKEN) ?? null
   );
+  const [isSelecting,     setIsSelecting]    = useState(false);
+  const [isVerifyingPin,  setIsVerifyingPin] = useState(false);
+  const [pinError,        setPinError]       = useState('');
 
-  const [isSelecting, setIsSelecting]         = useState(false);
-  const [isVerifyingPin, setIsVerifyingPin]   = useState(false);
-  const [pinError, setPinError]               = useState('');
+  // ── Helpers de permisos ───────────────────────────────────────────────────
+
+  const tienePermiso = useCallback((permiso: string): boolean => {
+    if (!empleadoActivo) return false;
+    if (empleadoActivo.esAdmin) return true;    // admin bypassea todo
+    return empleadoActivo.permisos.includes(permiso);
+  }, [empleadoActivo]);
+
+  const tieneAlgunPermiso = useCallback((permisos: string[]): boolean => {
+    if (!empleadoActivo) return false;
+    if (empleadoActivo.esAdmin) return true;
+    return permisos.some(p => empleadoActivo.permisos.includes(p));
+  }, [empleadoActivo]);
+
   // ── Abrir / cerrar selector ───────────────────────────────────────────────
 
-  const abrirSelector = useCallback(() => {
-    setPinError('');
-    setIsSelecting(true);
-  }, []);
+  const abrirSelector  = useCallback(() => { setIsSelecting(true);  setPinError(''); }, []);
+  const cerrarSelector = useCallback(() => { setIsSelecting(false); setPinError(''); }, []);
 
-  const cerrarSelector = useCallback(() => {
-    setIsSelecting(false);
-    setPinError('');
-  }, []);
+  // ── Confirmar PIN ─────────────────────────────────────────────────────────
 
-
-
-  // ── Confirmar PIN → obtener token del empleado ────────────────────────────
-
-  const confirmarPin = useCallback(async (pin: string, pendingEmpleado: EmpleadoLoginDTO): Promise<boolean> => {
-    if (!pendingEmpleado) return false;
+  const confirmarPin = useCallback(async (
+    pin: string,
+    pendingEmpleado: EmpleadoLoginDTO
+  ): Promise<boolean> => {
     setIsVerifyingPin(true);
     setPinError('');
     try {
@@ -91,9 +90,8 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
         pin,
       });
 
-      // Leer esAdmin del JWT porque el backend lo hardcodea mal en el response
-      const jwtPayload = decodeJWT(response.token);
-      const esAdminReal = jwtPayload['EsAdmin'] === 'True' || jwtPayload['EsAdmin'] === true;
+      const esAdminReal = response.esAdmin === true ||
+        String(response.esAdmin).toLowerCase() === 'true';
 
       const activo: EmpleadoActivo = {
         empleadoId: response.empleadoId,
@@ -101,29 +99,28 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
         legajo:     pendingEmpleado.legajo,
         esAdmin:    esAdminReal,
         kioscoId:   response.kioscoId,
+        permisos:   esAdminReal ? [] : (response.permisos ?? []),  // admin no necesita lista
       };
 
-      // Guardar token del empleado — Axios lo usará en todas las llamadas
       setTokenEmpleado(response.token);
       setEmpleadoActivo(activo);
-      setStorage(STORAGE_KEYS.TOKEN, response.token);
-      setStorage(STORAGE_KEYS.USER, activo);
+      setStorage(STORAGE_KEYS.TOKEN,           response.token);
+      setStorage(STORAGE_KEYS.USER,            activo);
       setStorage(STORAGE_KEYS.EMPLEADO_ACTIVO, activo);
-
       setIsSelecting(false);
-  
-      // Redirigir al POS (o dashboard si es admin)
-      navigate(response.esAdmin ? ROUTES.DASHBOARD : ROUTES.POS);
+
+      navigate(esAdminReal ? ROUTES.DASHBOARD : ROUTES.POS);
       return true;
     } catch (err: any) {
-      setPinError(err.message || 'PIN incorrecto. Intentá de nuevo.');
+      const msg = err?.response?.data?.message ?? err?.message ?? 'PIN incorrecto';
+      setPinError(msg);
       return false;
     } finally {
       setIsVerifyingPin(false);
     }
   }, [navigate]);
 
-  // ── Liberar empleado (al cerrar turno) ────────────────────────────────────
+  // ── Liberar empleado ──────────────────────────────────────────────────────
 
   const liberarEmpleado = useCallback(() => {
     setEmpleadoActivo(null);
@@ -131,7 +128,6 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
     removeStorage(STORAGE_KEYS.EMPLEADO_ACTIVO);
     removeStorage(STORAGE_KEYS.TOKEN);
     removeStorage(STORAGE_KEYS.USER);
-    // Volver a pantalla de selección
     navigate(ROUTES.SELECCION_EMPLEADO);
   }, [navigate]);
 
@@ -142,6 +138,8 @@ export const EmpleadoActivoProvider = ({ children }: { children: ReactNode }) =>
       isSelecting,
       isVerifyingPin,
       pinError,
+      tienePermiso,
+      tieneAlgunPermiso,
       abrirSelector,
       cerrarSelector,
       confirmarPin,

@@ -62,6 +62,8 @@
         public int KioscoId { get; set; }
         public string Token { get; set; }
         public DateTime Expiracion { get; set; }
+        /// <summary>Lista de nombres de permisos asignados al empleado (vacía si es admin)</summary>
+        public List<string> Permisos { get; set; } = new();
     }
 
     // ════════════════════════════════════════════════

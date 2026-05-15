@@ -78,17 +78,25 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
                 new Permiso { PermisoID = 41, Nombre = "reportes.financiero", Descripcion = "Ver reportes financieros" },
 
                 // ════════════════════════════════════════════════
-                // MÉTODOS DE PAGO (3 permisos)
+                // MÉTODOS DE PAGO (4 permisos) ← era 3, faltaba eliminar
                 // ════════════════════════════════════════════════
                 new Permiso { PermisoID = 42, Nombre = "metodos_pago.ver", Descripcion = "Ver métodos de pago" },
                 new Permiso { PermisoID = 43, Nombre = "metodos_pago.crear", Descripcion = "Crear métodos de pago" },
                 new Permiso { PermisoID = 44, Nombre = "metodos_pago.editar", Descripcion = "Editar métodos de pago" },
+                new Permiso { PermisoID = 47, Nombre = "metodos_pago.eliminar", Descripcion = "Eliminar métodos de pago" }, // ← NUEVO
 
                 // ════════════════════════════════════════════════
                 // CONFIGURACIÓN (2 permisos)
                 // ════════════════════════════════════════════════
                 new Permiso { PermisoID = 45, Nombre = "configuracion.kiosco", Descripcion = "Configurar datos del kiosco" },
-                new Permiso { PermisoID = 46, Nombre = "configuracion.respaldos", Descripcion = "Crear respaldos de datos" }
+                new Permiso { PermisoID = 46, Nombre = "configuracion.respaldos", Descripcion = "Crear respaldos de datos" },
+
+                // ════════════════════════════════════════════════
+                // PROMOCIONES (3 permisos) ← NUEVOS
+                // ════════════════════════════════════════════════
+                new Permiso { PermisoID = 48, Nombre = "promociones.ver", Descripcion = "Ver promociones del kiosco" },
+                new Permiso { PermisoID = 49, Nombre = "promociones.crear", Descripcion = "Crear nuevas promociones" },
+                new Permiso { PermisoID = 50, Nombre = "promociones.editar", Descripcion = "Activar, desactivar y eliminar promociones" }
             );
         }
     }

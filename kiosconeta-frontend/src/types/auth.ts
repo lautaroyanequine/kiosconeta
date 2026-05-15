@@ -42,6 +42,7 @@ export interface AuthResponse {
   kioscoId: number;
   token: string;
   expiracion: string;       // ISO date string
+  permisos: string[];       // nombres de permisos del empleado
 }
 
 // ────────────────────────────────────────────────────────────────────────────

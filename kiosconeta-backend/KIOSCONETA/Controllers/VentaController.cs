@@ -8,7 +8,7 @@ namespace KIOSCONETA.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]  // ← Todos los endpoints requieren autenticación
+    [Authorize]
     public class VentasController : ControllerBase
     {
         private readonly IVentaService _ventaService;
@@ -18,167 +18,90 @@ namespace KIOSCONETA.Controllers
             _ventaService = ventaService;
         }
 
-        // ========== GET - CONSULTAS ==========
-        /// Obtener todas las ventas
+        // ── GET ───────────────────────────────────────────────────────────
 
         [HttpGet]
-        [RequierePermiso("productos.ver_todas")]
-
+        [RequierePermiso("ventas.ver_todas")]            // ← era "productos.ver_todas" (typo)
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetAll()
         {
-            try
-            {
-                var ventas = await _ventaService.GetAllAsync();
-                return Ok(ventas);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message });
-            }
+            try { return Ok(await _ventaService.GetAllAsync()); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message }); }
         }
 
-        /// Obtener venta por ID
-        
         [HttpGet("{id}")]
-        [RequierePermiso("productos.ver")]
+        [RequierePermiso("ventas.ver_detalle")]          // ← era "productos.ver"
         public async Task<ActionResult<VentaResponseDTO>> GetById(int id)
         {
             try
             {
                 var venta = await _ventaService.GetByIdAsync(id);
-                if (venta == null)
-                    return NotFound(new { message = $"Venta con ID {id} no encontrada" });
-
+                if (venta == null) return NotFound(new { message = $"Venta {id} no encontrada" });
                 return Ok(venta);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener venta", error = ex.Message });
-            }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al obtener venta", error = ex.Message }); }
         }
 
-        /// Obtener ventas de un kiosco
         [HttpGet("kiosco/{kioscoId}")]
-        [RequierePermiso("productos.ver")]
-
+        [RequierePermiso("ventas.ver_todas")]            // ← era "productos.ver"
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByKiosco(int kioscoId)
         {
-            try
-            {
-                var ventas = await _ventaService.GetByKioscoIdAsync(kioscoId);
-                return Ok(ventas);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message });
-            }
+            try { return Ok(await _ventaService.GetByKioscoIdAsync(kioscoId)); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message }); }
         }
 
-        /// Obtener ventas del día de un kiosco
         [HttpGet("kiosco/{kioscoId}/hoy")]
-        [RequierePermiso("productos.ver")]
-
+        [RequierePermiso("ventas.ver_todas")]            // ← era "productos.ver"
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetVentasDelDia(int kioscoId)
         {
-            try
-            {
-                var ventas = await _ventaService.GetVentasDelDiaAsync(kioscoId);
-                return Ok(ventas);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener ventas del día", error = ex.Message });
-            }
+            try { return Ok(await _ventaService.GetVentasDelDiaAsync(kioscoId)); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al obtener ventas del día", error = ex.Message }); }
         }
 
-        /// Obtener ventas de un empleado
         [HttpGet("empleado/{empleadoId}")]
-        [RequierePermiso("productos.ver_por_empleado")]
-
+        [RequierePermiso("ventas.ver_por_empleado")]     // ← era "productos.ver_por_empleado"
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByEmpleado(int empleadoId)
         {
-            try
-            {
-                var ventas = await _ventaService.GetByEmpleadoIdAsync(empleadoId);
-                return Ok(ventas);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message });
-            }
+            try { return Ok(await _ventaService.GetByEmpleadoIdAsync(empleadoId)); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message }); }
         }
 
-        /// Obtener ventas por rango de fechas
         [HttpGet("fecha")]
-        [RequierePermiso("productos.ver")]
-
+        [RequierePermiso("ventas.ver_todas")]            // ← era "productos.ver"
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByFecha(
-            [FromQuery] DateTime fechaDesde,
-            [FromQuery] DateTime fechaHasta)
+            [FromQuery] DateTime fechaDesde, [FromQuery] DateTime fechaHasta)
         {
-            try
-            {
-                var ventas = await _ventaService.GetByFechaAsync(fechaDesde, fechaHasta);
-                return Ok(ventas);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message });
-            }
+            try { return Ok(await _ventaService.GetByFechaAsync(fechaDesde, fechaHasta)); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message }); }
         }
 
-        /// Buscar ventas con filtros
         [HttpPost("kiosco/{kioscoId}/buscar")]
-        [RequierePermiso("productos.ver")]
-
+        [RequierePermiso("ventas.ver_todas")]            // ← era "productos.ver"
         public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> Buscar(
-            int kioscoId,
-            [FromBody] VentaFiltrosDTO filtros)
+            int kioscoId, [FromBody] VentaFiltrosDTO filtros)
         {
-            try
-            {
-                var ventas = await _ventaService.GetConFiltrosAsync(kioscoId, filtros);
-                return Ok(ventas);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al buscar ventas", error = ex.Message });
-            }
+            try { return Ok(await _ventaService.GetConFiltrosAsync(kioscoId, filtros)); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al buscar ventas", error = ex.Message }); }
         }
 
-        // ========== POST - CREAR ==========
+        // ── POST ──────────────────────────────────────────────────────────
 
-        /// Registrar nueva venta
         [HttpPost]
         [RequierePermiso("ventas.crear")]
-
         public async Task<ActionResult<VentaResponseDTO>> Create([FromBody] CreateVentaDTO dto)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
+                if (!ModelState.IsValid) return BadRequest(ModelState);
                 var venta = await _ventaService.CreateAsync(dto);
                 return CreatedAtAction(nameof(GetById), new { id = venta.VentaId }, venta);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al crear venta", error = ex.Message });
-            }
+            catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+            catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al crear venta", error = ex.Message }); }
         }
 
-        // ========== DELETE - ANULAR ==========
+        // ── ANULAR ────────────────────────────────────────────────────────
 
-        /// Anular venta (devuelve stock)
         [HttpPost("{id}/anular")]
         [RequierePermiso("ventas.anular")]
         public async Task<ActionResult> Anular(int id, [FromBody] AnularVentaDTO dto)
@@ -189,18 +112,9 @@ namespace KIOSCONETA.Controllers
                 await _ventaService.AnularVentaAsync(id, empleadoId, dto.Motivo);
                 return Ok(new { message = "Venta anulada correctamente. Stock devuelto." });
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al anular venta", error = ex.Message });
-            }
+            catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+            catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al anular venta", error = ex.Message }); }
         }
     }
 }

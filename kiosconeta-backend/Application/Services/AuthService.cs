@@ -102,6 +102,10 @@ namespace Application.Services
             if (!BC.Verify(dto.PIN, empleado.PIN))
                 throw new UnauthorizedAccessException("PIN incorrecto");
 
+            // Cargar permisos del empleado
+            var permisos = await _empleadoRepository.GetPermisosAsync(empleado.EmpleadoId);
+            var permisosNombres = permisos.Select(p => p.Permiso.Nombre).ToList();
+
             // Generar token JWT
             var token = GenerarTokenJWT(empleado);
 
@@ -115,7 +119,8 @@ namespace Application.Services
                 Token = token,
                 Expiracion = DateTime.Now.AddHours(
                     int.Parse(_configuration["Jwt:ExpirationHours"] ?? "8")
-                )
+                ),
+                Permisos = permisosNombres
             };
         }
 

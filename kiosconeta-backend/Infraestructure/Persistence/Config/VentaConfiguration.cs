@@ -20,13 +20,22 @@ namespace Infraestructure.Persistence.Config
                 .HasDefaultValueSql("GETDATE()")
                 .IsRequired();
 
+            entityBuilder.Property(v => v.Subtotal)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+
+            entityBuilder.Property(v => v.Descuento)
+                .HasColumnType("decimal(18,2)")
+                .HasDefaultValue(0)
+                .IsRequired();
+
             entityBuilder.Property(v => v.Total)
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
-            entityBuilder.Property(v => v.PrecioCosto)
-            .HasColumnType("decimal(18,2)")
-            .IsRequired();
 
+            entityBuilder.Property(v => v.PrecioCosto)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
 
             entityBuilder.Property(v => v.Detalles)
                 .HasMaxLength(300);
@@ -37,8 +46,6 @@ namespace Infraestructure.Persistence.Config
             entityBuilder.HasIndex(v => v.CierreTurnoId);
             entityBuilder.HasIndex(v => v.MetodoPagoId);
             entityBuilder.HasIndex(v => v.TurnoId);
-
         }
-
     }
 }

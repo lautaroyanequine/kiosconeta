@@ -11,6 +11,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import apiClient, { handleResponse } from '@/apis/client'
 import { formatCurrency } from '@/utils/formatters'
+import { ResumenMensual } from './ResumenMensual'
 
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -502,6 +503,9 @@ const DashboardPage: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* RESUMEN MENSUAL */}
+        <ResumenMensual />
 
       </div>
     </div>

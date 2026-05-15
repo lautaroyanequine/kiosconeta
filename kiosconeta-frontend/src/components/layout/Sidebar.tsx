@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 
 // ────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -31,7 +32,8 @@ interface NavItem {
   path: string;
   icon: React.ReactNode;
   adminOnly?: boolean;
-  destacado?: boolean;   // ← POS resaltado
+  destacado?: boolean;
+  permisos?: string[];   // al menos uno de estos para ver el ítem
 }
 
 interface SidebarProps {
@@ -65,21 +67,25 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Turnos',
     path: ROUTES.TURNOS,
     icon: <Clock size={20} />,
+    permisos: ['turnos.ver_todos', 'turnos.ver_propio'],
   },
   {
     label: 'Ventas',
     path: ROUTES.VENTAS,
     icon: <Receipt size={20} />,
+    permisos: ['ventas.ver_todas', 'ventas.ver_propias'],
   },
   {
     label: 'Productos',
     path: ROUTES.PRODUCTOS,
     icon: <Package size={20} />,
+    permisos: ['productos.ver'],
   },
   {
     label: 'Categorías',
     path: ROUTES.CATEGORIAS,
     icon: <Tag size={20} />,
+    permisos: ['categorias.ver'],
   },
   {
     label: 'Empleados',
@@ -107,10 +113,13 @@ const NAV_ITEMS: NavItem[] = [
 
 export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
   const { isAdmin } = useAuth();
+  const { tieneAlgunPermiso } = useEmpleadoActivo();
 
-  const visibleItems = NAV_ITEMS.filter(
-    (item) => !item.adminOnly || isAdmin()
-  );
+  const visibleItems = NAV_ITEMS.filter(item => {
+    if (item.adminOnly) return isAdmin();
+    if (item.permisos)  return isAdmin() || tieneAlgunPermiso(item.permisos);
+    return true;  // sin restricción (Inicio, POS)
+  });
 
   return (
     <aside

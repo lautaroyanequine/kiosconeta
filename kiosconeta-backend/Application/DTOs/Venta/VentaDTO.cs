@@ -8,6 +8,13 @@
         public int TurnoId { get; set; }
         public string? Detalles { get; set; }
         public List<ProductoVentaDTO> Productos { get; set; } = new();
+
+        /// <summary>
+        /// Descuento total a aplicar sobre el subtotal.
+        /// Puede venir de promos detectadas por el backend o de combos.
+        /// El backend lo valida contra el subtotal (no puede ser mayor).
+        /// </summary>
+        public decimal Descuento { get; set; } = 0;
     }
 
     // ─── PRODUCTO DENTRO DE LA VENTA ────────────────
@@ -15,7 +22,7 @@
     {
         public int ProductoId { get; set; }
         public int Cantidad { get; set; }
-        // PrecioUnitario se toma del producto actual, no lo envía el frontend
+        // PrecioUnitario se toma del producto en la BD, no lo envía el frontend
     }
 
     // ─── RESPUESTA DE VENTA ──────────────────────────
@@ -23,8 +30,10 @@
     {
         public int VentaId { get; set; }
         public DateTime Fecha { get; set; }
-        public decimal Total { get; set; }
-        public decimal PrecioCosto { get; set; }      // Costo total
+        public decimal Subtotal { get; set; }          // Suma precios reales sin descuento
+        public decimal Descuento { get; set; }         // Descuento aplicado
+        public decimal Total { get; set; }             // Subtotal - Descuento
+        public decimal PrecioCosto { get; set; }       // Costo total
         public decimal Ganancia { get; set; }          // Total - Costo (calculado)
         public decimal MargenGanancia { get; set; }    // % ganancia (calculado)
         public string? Detalles { get; set; }
@@ -66,6 +75,7 @@
         public int? TurnoId { get; set; }
         public bool? SoloAnuladas { get; set; }
     }
+
     public class AnularVentaDTO
     {
         public string Motivo { get; set; } = string.Empty;

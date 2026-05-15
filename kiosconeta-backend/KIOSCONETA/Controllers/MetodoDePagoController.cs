@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.MetodoDePago;
 using Application.Interfaces.Services;
+using KIOSCONETA.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,6 @@ namespace KIOSCONETA.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-
     public class MetodosDePagoController : ControllerBase
     {
         private readonly IMetodoDePagoService _metodoDePagoService;
@@ -18,102 +18,59 @@ namespace KIOSCONETA.Controllers
             _metodoDePagoService = metodoDePagoService;
         }
 
-        /// <summary>
-        /// Obtener todos los métodos de pago
-        /// </summary>
         [HttpGet]
+        // Sin RequierePermiso — el POS necesita cargar métodos sin restricción
         public async Task<ActionResult<IEnumerable<MetodoDePagoResponseDTO>>> GetAll()
         {
-            try
-            {
-                var metodos = await _metodoDePagoService.GetAllAsync();
-                return Ok(metodos);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener métodos de pago", error = ex.Message });
-            }
+            try { return Ok(await _metodoDePagoService.GetAllAsync()); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al obtener métodos de pago", error = ex.Message }); }
         }
 
-        /// <summary>
-        /// Obtener método de pago por ID
-        /// </summary>
         [HttpGet("{id}")]
+        [RequierePermiso("metodos_pago.ver")]
         public async Task<ActionResult<MetodoDePagoResponseDTO>> GetById(int id)
         {
             try
             {
                 var metodo = await _metodoDePagoService.GetByIdAsync(id);
-                if (metodo == null)
-                    return NotFound(new { message = $"Método de pago con ID {id} no encontrado" });
-
+                if (metodo == null) return NotFound(new { message = $"Método de pago {id} no encontrado" });
                 return Ok(metodo);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener método de pago", error = ex.Message });
-            }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al obtener método de pago", error = ex.Message }); }
         }
 
-        /// <summary>
-        /// Crear nuevo método de pago
-        /// </summary>
         [HttpPost]
+        [RequierePermiso("metodos_pago.crear")]   // ← antes sin permiso
         public async Task<ActionResult<MetodoDePagoResponseDTO>> Create([FromBody] CreateMetodoDePagoDTO dto)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
+                if (!ModelState.IsValid) return BadRequest(ModelState);
                 var metodo = await _metodoDePagoService.CreateAsync(dto);
                 return CreatedAtAction(nameof(GetById), new { id = metodo.MetodoDePagoID }, metodo);
             }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al crear método de pago", error = ex.Message });
-            }
+            catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al crear método de pago", error = ex.Message }); }
         }
 
-        /// <summary>
-        /// Actualizar método de pago
-        /// </summary>
         [HttpPut("{id}")]
+        [RequierePermiso("metodos_pago.editar")]   // ← antes sin permiso
         public async Task<ActionResult<MetodoDePagoResponseDTO>> Update(int id, [FromBody] UpdateMetodoDePagoDTO dto)
         {
             try
             {
-                if (id != dto.MetodoDePagoID)
-                    return BadRequest(new { message = "El ID de la URL no coincide con el ID del cuerpo" });
-
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
+                if (id != dto.MetodoDePagoID) return BadRequest(new { message = "ID no coincide" });
+                if (!ModelState.IsValid) return BadRequest(ModelState);
                 var metodo = await _metodoDePagoService.UpdateAsync(dto);
                 return Ok(metodo);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al actualizar método de pago", error = ex.Message });
-            }
+            catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+            catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al actualizar método de pago", error = ex.Message }); }
         }
 
-        /// <summary>
-        /// Eliminar método de pago (solo si no tiene ventas)
-        /// </summary>
         [HttpDelete("{id}")]
+        [RequierePermiso("metodos_pago.eliminar")]  // ← antes sin permiso
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -121,18 +78,9 @@ namespace KIOSCONETA.Controllers
                 await _metodoDePagoService.DeleteAsync(id);
                 return NoContent();
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al eliminar método de pago", error = ex.Message });
-            }
+            catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+            catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+            catch (Exception ex) { return StatusCode(500, new { message = "Error al eliminar método de pago", error = ex.Message }); }
         }
     }
 }

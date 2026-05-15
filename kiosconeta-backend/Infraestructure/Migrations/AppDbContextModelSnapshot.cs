@@ -2359,7 +2359,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$Rg.Er3wtJM9qOryOZ7Hzt.L.Ti54JLMsNb719zQHZ.DiPLZckHfcO"
+                            Password = "$2a$11$aDUw0/oXb9aPEna8b5Eb2OL44G.2WcqgzkJ5vvsgWwTEgV38tFt36"
                         });
                 });
 
@@ -2376,6 +2376,11 @@ namespace Infraestructure.Migrations
 
                     b.Property<int>("CierreTurnoId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Descuento")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("Detalles")
                         .HasMaxLength(300)
@@ -2396,6 +2401,9 @@ namespace Infraestructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("PrecioCosto")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Subtotal")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Total")

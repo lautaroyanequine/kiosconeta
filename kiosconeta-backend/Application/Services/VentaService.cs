@@ -21,7 +21,7 @@ namespace Application.Services
             IProductoRepository productoRepository,
             IEmpleadoRepository empleadoRepository,
             IMetodoDePagoRepository metodoDePagoRepository,
-            ICierreTurnoRepository cierreTurnoRepository, INumeradorRepository numeradorRepository,IAuditoriaService auditoriaService) 
+            ICierreTurnoRepository cierreTurnoRepository, INumeradorRepository numeradorRepository, IAuditoriaService auditoriaService)
         {
             _ventaRepository = ventaRepository;
             _productoRepository = productoRepository;
@@ -173,7 +173,9 @@ namespace Application.Services
                 TurnoId = dto.TurnoId,
                 CierreTurnoId = turnoAbierto.CierreTurnoId,
                 Detalles = dto.Detalles,
-                Total = totalVenta,
+                Subtotal = totalVenta,
+                Descuento = Math.Min(dto.Descuento, totalVenta), // nunca mayor al subtotal
+                Total = totalVenta - Math.Min(dto.Descuento, totalVenta),
                 PrecioCosto = costoTotal,
                 NumeroVenta = numeroVenta,
                 ProductoVentas = productosVenta,
@@ -225,6 +227,8 @@ namespace Application.Services
             return new VentaResponseDTO
             {
                 VentaId = venta.VentaId,
+                Subtotal = venta.Subtotal,
+                Descuento = venta.Descuento,
                 Fecha = venta.Fecha,
                 Total = venta.Total,
                 PrecioCosto = venta.PrecioCosto,

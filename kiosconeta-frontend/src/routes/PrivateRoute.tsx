@@ -8,44 +8,45 @@ import { ROUTES } from '../utils/constants';
 interface PrivateRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
-  requirePermission?: string;
+  requirePermission?: string;    // un permiso exacto
+  requireAnyPermission?: string[]; // al menos uno de estos
 }
 
 export const PrivateRoute = ({
   children,
   requireAdmin = false,
   requirePermission,
+  requireAnyPermission,
 }: PrivateRouteProps) => {
   const { isKioscoConfigured, isLoading } = useAuth();
-  const { empleadoActivo } = useEmpleadoActivo();
+  const { empleadoActivo, tienePermiso, tieneAlgunPermiso } = useEmpleadoActivo();
   const location = useLocation();
 
   if (isLoading) return null;
 
   // Sin sesión de kiosco → login
-  if (!isKioscoConfigured) {
+  if (!isKioscoConfigured)
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
-  }
 
   // Sin empleado activo → selección
-  if (!empleadoActivo) {
+  if (!empleadoActivo)
     return <Navigate to={ROUTES.SELECCION_EMPLEADO} replace />;
-  }
 
   // Admin siempre puede acceder a todo
-  if (empleadoActivo.esAdmin) {
+  if (empleadoActivo.esAdmin)
     return <MainLayout>{children}</MainLayout>;
-  }
 
   // Requiere ser admin y no lo es → POS
-  if (requireAdmin) {
+  if (requireAdmin)
     return <Navigate to={ROUTES.POS} replace />;
-  }
 
-  // Requiere un permiso específico — el backend lo validará,
-  // el frontend solo verifica que el empleado esté autenticado
-  // Si querés bloquear en frontend también, podés cargar los permisos
-  // del empleado activo y verificar acá
+  // Verificar permiso específico
+  if (requirePermission && !tienePermiso(requirePermission))
+    return <Navigate to={ROUTES.POS} replace />;
+
+  // Verificar al menos uno de varios permisos
+  if (requireAnyPermission && !tieneAlgunPermiso(requireAnyPermission))
+    return <Navigate to={ROUTES.POS} replace />;
 
   return <MainLayout>{children}</MainLayout>;
 };

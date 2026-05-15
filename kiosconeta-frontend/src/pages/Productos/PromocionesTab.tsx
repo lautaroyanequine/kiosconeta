@@ -337,33 +337,38 @@ const PromocionForm: React.FC<{
 
               <div className="space-y-2">
                 {form.productosCombo.map((pc, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <div className="relative flex-1">
+                  <div key={idx} className="flex items-center gap-2 bg-white rounded-lg border border-blue-100 px-3 py-2">
+                    {/* Nombre del producto — ocupa todo el espacio */}
+                    <div className="relative flex-1 min-w-0">
                       <select
                         value={pc.productoId || ''}
                         onChange={e => actualizarProductoCombo(idx, 'productoId', Number(e.target.value))}
-                        className="w-full appearance-none px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary bg-white pr-8"
+                        className="w-full appearance-none bg-transparent border-none text-sm font-semibold text-neutral-800 focus:outline-none pr-5 truncate"
                       >
                         <option value="">Seleccionar producto...</option>
                         {productos.map(p => (
                           <option key={p.productoId} value={p.productoId}>{p.nombre}</option>
                         ))}
                       </select>
-                      <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+                      <ChevronDown size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-neutral-300 pointer-events-none" />
                     </div>
-                    <input
-                      type="number" min="1"
-                      value={pc.cantidad}
-                      onChange={e => actualizarProductoCombo(idx, 'cantidad', Number(e.target.value))}
-                      className="w-16 px-2 py-2 border border-neutral-300 rounded-lg text-sm text-center focus:outline-none focus:border-primary"
-                      title="Cantidad"
-                    />
+                    {/* Cantidad — chica, al costado */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="text-[10px] text-neutral-400">×</span>
+                      <input
+                        type="number" min="1"
+                        value={pc.cantidad}
+                        onChange={e => actualizarProductoCombo(idx, 'cantidad', Number(e.target.value))}
+                        className="w-10 text-center text-sm font-bold text-blue-600 border border-blue-200 rounded-md py-0.5 focus:outline-none focus:border-blue-400 bg-blue-50"
+                        title="Cantidad"
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={() => quitarProductoCombo(idx)}
-                      className="text-neutral-300 hover:text-red-500 transition-colors"
+                      className="text-neutral-200 hover:text-red-400 transition-colors shrink-0 ml-1"
                     >
-                      <X size={16} />
+                      <X size={14} />
                     </button>
                   </div>
                 ))}
@@ -516,20 +521,23 @@ const PromocionForm: React.FC<{
 
             {/* Cantidad mínima para precio por volumen */}
             {form.productoIdPorcentaje !== '' && (
-              <div>
-                <label className="block text-xs font-medium text-neutral-600 mb-1">
-                  Cantidad mínima <span className="text-neutral-400 font-normal">(opcional — precio por volumen)</span>
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 space-y-2">
+                <p className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
+                  <Hash size={12} /> Precio por volumen <span className="font-normal text-orange-400">(opcional)</span>
+                </p>
+                <label className="block text-xs text-neutral-600">
+                  ¿A partir de cuántas unidades aplicar el descuento?
                 </label>
                 <input
                   type="number" min="2"
                   value={form.cantidadMinimaDescuento}
                   onChange={e => set('cantidadMinimaDescuento', e.target.value)}
-                  placeholder="Ej: 3 → aplica solo si lleva 3 o más"
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary"
+                  placeholder="Ej: 3 → si lleva 3 o más, se aplica el % de arriba"
+                  className="w-full px-3 py-2 border border-orange-200 bg-white rounded-lg text-sm focus:outline-none focus:border-orange-400"
                 />
                 {form.cantidadMinimaDescuento && Number(form.cantidadMinimaDescuento) >= 2 && form.porcentajeDescuento && (
-                  <p className="text-xs text-orange-600 mt-1 bg-white border border-orange-200 rounded-lg px-3 py-2">
-                    Si llevá {form.cantidadMinimaDescuento} o más → {form.porcentajeDescuento}% off en todas las unidades
+                  <p className="text-xs text-orange-700 font-medium bg-orange-100 rounded-lg px-3 py-2">
+                    ✓ Si lleva {form.cantidadMinimaDescuento} o más → {form.porcentajeDescuento}% off en todas las unidades
                   </p>
                 )}
               </div>

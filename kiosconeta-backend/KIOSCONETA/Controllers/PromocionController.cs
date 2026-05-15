@@ -15,6 +15,7 @@ namespace KIOSCONETA.Controllers
         public PromocionController(IPromocionService service) => _service = service;
 
         [HttpGet("kiosco/{kioscoId}")]
+        [RequierePermiso("promociones.ver")]
         public async Task<IActionResult> GetByKiosco(int kioscoId)
         {
             var promos = await _service.GetByKioscoAsync(kioscoId);
@@ -22,7 +23,7 @@ namespace KIOSCONETA.Controllers
         }
 
         [HttpPost("kiosco/{kioscoId}")]
-        [RequierePermiso("configuracion.kiosco")]
+        [RequierePermiso("promociones.crear")]
         public async Task<IActionResult> Create(int kioscoId, [FromBody] CreatePromocionDTO dto)
         {
             try
@@ -37,7 +38,7 @@ namespace KIOSCONETA.Controllers
         }
 
         [HttpPatch("{id}/toggle")]
-        [RequierePermiso("configuracion.kiosco")]
+        [RequierePermiso("promociones.editar")]
         public async Task<IActionResult> Toggle(int id)
         {
             try
@@ -56,7 +57,7 @@ namespace KIOSCONETA.Controllers
         }
 
         [HttpDelete("{id}")]
-        [RequierePermiso("configuracion.kiosco")]
+        [RequierePermiso("promociones.editar")]
         public async Task<IActionResult> Delete(int id)
         {
             try
