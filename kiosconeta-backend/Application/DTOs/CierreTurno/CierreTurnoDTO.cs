@@ -9,6 +9,7 @@ namespace Application.DTOs.CierreTurno
         public int EmpleadoId { get; set; }
         public int TurnoId { get; set; }
         public decimal EfectivoInicial { get; set; }
+        public decimal VirtualInicial { get; set; }  // ← agregar
         public string? Observaciones { get; set; }
     }
 
@@ -48,6 +49,7 @@ namespace Application.DTOs.CierreTurno
         // Montos
         public decimal EfectivoInicial { get; set; }
         public decimal EfectivoFinal { get; set; }
+        public decimal VirtualInicial { get; set; }
         public decimal VirtualFinal { get; set; }
         public decimal MontoEsperado { get; set; }
         public decimal MontoReal { get; set; }
@@ -89,6 +91,7 @@ namespace Application.DTOs.CierreTurno
 
         // Efectivo
         public decimal EfectivoInicial { get; set; }
+        public decimal VirtualInicial { get; set; }
         public decimal EfectivoEsperado { get; set; } 
 
         // Ventas

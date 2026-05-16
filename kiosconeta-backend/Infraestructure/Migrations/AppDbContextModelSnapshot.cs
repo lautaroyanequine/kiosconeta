@@ -172,6 +172,9 @@ namespace Infraestructure.Migrations
                     b.Property<decimal>("VirtualFinal")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("VirtualInicial")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("CierreTurnoId");
 
                     b.HasIndex("TurnoId");
@@ -1145,6 +1148,12 @@ namespace Infraestructure.Migrations
                         },
                         new
                         {
+                            PermisoID = 47,
+                            Descripcion = "Eliminar métodos de pago",
+                            Nombre = "metodos_pago.eliminar"
+                        },
+                        new
+                        {
                             PermisoID = 45,
                             Descripcion = "Configurar datos del kiosco",
                             Nombre = "configuracion.kiosco"
@@ -1154,6 +1163,24 @@ namespace Infraestructure.Migrations
                             PermisoID = 46,
                             Descripcion = "Crear respaldos de datos",
                             Nombre = "configuracion.respaldos"
+                        },
+                        new
+                        {
+                            PermisoID = 48,
+                            Descripcion = "Ver promociones del kiosco",
+                            Nombre = "promociones.ver"
+                        },
+                        new
+                        {
+                            PermisoID = 49,
+                            Descripcion = "Crear nuevas promociones",
+                            Nombre = "promociones.crear"
+                        },
+                        new
+                        {
+                            PermisoID = 50,
+                            Descripcion = "Activar, desactivar y eliminar promociones",
+                            Nombre = "promociones.editar"
                         });
                 });
 
@@ -2359,7 +2386,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$aDUw0/oXb9aPEna8b5Eb2OL44G.2WcqgzkJ5vvsgWwTEgV38tFt36"
+                            Password = "$2a$11$wfg8aHELPIED00TZwJkbRuVTrcKT4jH0Xp5r.GXCr.nMjiqBBHulC"
                         });
                 });
 

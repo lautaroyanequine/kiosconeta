@@ -23,7 +23,7 @@ namespace Domain.Entities
         public decimal EfectivoInicial { get; private set; }
         public decimal EfectivoFinal { get; private set; }
         public decimal VirtualFinal { get; private set; }
-
+        public decimal VirtualInicial { get; private set; }
         public decimal MontoEsperado { get; private set; }
         public decimal MontoReal { get; private set; }
         public decimal Diferencia { get; private set; }
@@ -41,7 +41,7 @@ namespace Domain.Entities
         // Constructor vacío para EF
         protected CierreTurno() { }
 
-        private CierreTurno(int kioscoId, decimal efectivoInicial, string observaciones,int turnoId)
+        private CierreTurno(int kioscoId, decimal efectivoInicial, decimal virtualInicial,string observaciones,int turnoId)
         {
             if (efectivoInicial < 0)
                 throw new InvalidOperationException("El efectivo inicial no puede ser negativo");
@@ -54,6 +54,7 @@ namespace Domain.Entities
 
             EfectivoInicial = efectivoInicial;
             EfectivoFinal = 0;
+            VirtualInicial = virtualInicial;
             VirtualFinal = 0;
             TurnoId = turnoId;
 
@@ -67,9 +68,9 @@ namespace Domain.Entities
 
         // ───────────── FACTORY METHOD ─────────────
 
-        public static CierreTurno Abrir(int kioscoId, decimal efectivoInicial, string observaciones, int turnoId)
+        public static CierreTurno Abrir(int kioscoId, decimal efectivoInicial, decimal virtualInicial, string observaciones, int turnoId)
         {
-            return new CierreTurno(kioscoId, efectivoInicial, observaciones,turnoId);
+            return new CierreTurno(kioscoId, efectivoInicial, virtualInicial, observaciones, turnoId);
         }
 
         // ───────────── LÓGICA DE CIERRE ─────────────

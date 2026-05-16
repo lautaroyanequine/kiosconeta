@@ -59,13 +59,13 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
   const { liberarEmpleado } = useEmpleadoActivo()
 
   // ── Estado del formulario ─────────────────────────────────────────────────
-  const [efectivoContado, setEfectivoContado]     = useState('')
+  const [efectivoContado, setEfectivoContado] = useState('')
   const [virtualAcreditado, setVirtualAcreditado] = useState('')
-  const [observaciones, setObservaciones]         = useState('')
-  const [isSubmitting, setIsSubmitting]           = useState(false)
-  const [error, setError]                         = useState('')
-  const [confirmando, setConfirmando]             = useState(false)
-  const [turnoFinalizado, setTurnoFinalizado]     = useState<CierreTurnoResponse | null>(null)
+  const [observaciones, setObservaciones] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [confirmando, setConfirmando] = useState(false)
+  const [turnoFinalizado, setTurnoFinalizado] = useState<CierreTurnoResponse | null>(null)
 
   // ── Diferencia en tiempo real ─────────────────────────────────────────────
   const diferencia = useMemo(() => {
@@ -74,6 +74,15 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
     return contado - turno.efectivoEsperado
   }, [efectivoContado, turno.efectivoEsperado])
 
+
+  // ── Diferencia virtual en tiempo real ───────────────────────────────────────
+  const diferenciaVirtual = useMemo(() => {
+    const acreditado = parseFloat(virtualAcreditado)
+    if (isNaN(acreditado)) return null
+
+    const esperado = (turno.virtualInicial ?? 0) + turno.totalVirtual
+    return acreditado - esperado
+  }, [virtualAcreditado, turno.virtualInicial, turno.totalVirtual])
   // ── Validación ────────────────────────────────────────────────────────────
   const puedesCerrar = efectivoContado !== '' &&
     !isNaN(parseFloat(efectivoContado)) &&
@@ -94,8 +103,8 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
         virtualAcreditado: parseFloat(virtualAcreditado) || 0,
         observaciones: observaciones || undefined,
       })
-          console.log ('Resultado BACKEND',resultado)
-      if(!resultado){ throw new Error('El backend no devolvio datos del cierre')}
+      console.log('Resultado BACKEND', resultado)
+      if (!resultado) { throw new Error('El backend no devolvio datos del cierre') }
       setTurnoFinalizado(resultado as any)
       setConfirmando(false)
     } catch (err: any) {
@@ -157,11 +166,12 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
           {/* Detalle */}
           <div className="bg-white rounded-xl border border-neutral-200 p-5">
             <h3 className="text-sm font-semibold text-neutral-700 mb-3">Detalle del turno</h3>
-            <FilaResumen label="Efectivo inicial"          valor={turno.efectivoInicial}  icono={<DollarSign size={15} />} />
-            <FilaResumen label="Ventas en efectivo"        valor={turno.totalEfectivo}    icono={<DollarSign size={15} />} />
-            <FilaResumen label="Ventas virtuales"          valor={turno.totalVirtual}     icono={<Smartphone size={15} />} />
-            <FilaResumen label="Gastos del turno"          valor={turno.totalGastos}      icono={<Wallet size={15} />} colorValor="text-danger" />
-            <FilaResumen label="Total ventas"              valor={turno.totalVentas}      icono={<TrendingUp size={15} />} />
+            <FilaResumen label="Efectivo inicial" valor={turno.efectivoInicial} icono={<DollarSign size={15} />} />
+            <FilaResumen label="Virtual inicial" valor={turno.virtualInicial ?? 0} icono={<Smartphone size={15} />} />
+            <FilaResumen label="Ventas en efectivo" valor={turno.totalEfectivo} icono={<DollarSign size={15} />} />
+            <FilaResumen label="Ventas virtuales" valor={turno.totalVirtual} icono={<Smartphone size={15} />} />
+            <FilaResumen label="Gastos del turno" valor={turno.totalGastos} icono={<Wallet size={15} />} colorValor="text-danger" />
+            <FilaResumen label="Total ventas" valor={turno.totalVentas} icono={<TrendingUp size={15} />} />
             <FilaResumen label="Efectivo esperado en caja" valor={turno.efectivoEsperado} icono={<DollarSign size={15} />} destacado />
           </div>
 
@@ -236,6 +246,26 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
                   />
                 </div>
               </div>
+
+              {diferenciaVirtual !== null && (
+                <div className={`mt-2 flex items-center justify-between px-3 py-2 rounded-lg text-sm
+    ${diferenciaVirtual >= 0 ? 'bg-success-50 text-success-700' : 'bg-danger-50 text-danger'}`}>
+
+                  <span>
+                    {diferenciaVirtual === 0
+                      ? '✓ Cuadra exacto'
+                      : diferenciaVirtual > 0
+                        ? 'Sobra virtual'
+                        : 'Falta virtual'}
+                  </span>
+
+                  {diferenciaVirtual !== 0 && (
+                    <span className="font-bold">
+                      {formatCurrency(Math.abs(diferenciaVirtual))}
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Observaciones */}
               <div>
@@ -363,6 +393,12 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
                   <span className="text-neutral-500">Efectivo inicial (caja de cambio)</span>
                   <span className="font-medium text-neutral-400">-{formatCurrency(turnoFinalizado.efectivoInicial)}</span>
                 </div>
+                {(turnoFinalizado.virtualInicial ?? 0) > 0 && (
+                  <div className="flex justify-between py-2 border-b border-neutral-100">
+                    <span className="text-neutral-500">Virtual inicial</span>
+                    <span className="font-medium text-neutral-400">{formatCurrency(turnoFinalizado.virtualInicial)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between py-2 border-b border-neutral-100">
                   <span className="text-neutral-500">Efectivo del turno</span>
                   <span className="font-medium">{formatCurrency(turnoFinalizado.montoReal - turnoFinalizado.efectivoInicial)}</span>
@@ -390,13 +426,13 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
                   ${turnoFinalizado.diferencia === 0
                     ? 'bg-success-50 text-success-700'
                     : turnoFinalizado.diferencia > 0
-                    ? 'bg-success-50 text-success-700'
-                    : 'bg-danger-50 text-danger'}`}>
+                      ? 'bg-success-50 text-success-700'
+                      : 'bg-danger-50 text-danger'}`}>
                   <span>
                     {turnoFinalizado.diferencia === 0
                       ? '✓ Cuadra exacto'
                       : turnoFinalizado.diferencia > 0
-                      ? 'Sobrante' : 'Faltante'}
+                        ? 'Sobrante' : 'Faltante'}
                   </span>
                   {turnoFinalizado.diferencia !== 0 && (
                     <span>{formatCurrency(Math.abs(turnoFinalizado.diferencia))}</span>

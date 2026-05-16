@@ -101,6 +101,7 @@ export interface TurnoActual {
   fechaApertura: string;
   fechaAperturaFormateada: string;
   efectivoInicial: number;
+  virtualInicial: number ;
   efectivoEsperado: number;    // ← efectivo inicial + ventas efectivo - gastos
   cantidadVentas: number;
   totalVentas: number;
@@ -131,6 +132,7 @@ export interface AbrirTurnoDTO {
   kioscoId: number;
   empleadoId: number;
   efectivoInicial: number;
+  virtualInicial: number;
   turnoId: number;
   observaciones?: string;
 }
@@ -156,6 +158,7 @@ export interface CierreTurnoResponse {
   turnoNombre: string
   // Montos del cierre
   efectivoInicial: number;
+  virtualInicial: number;
   efectivoFinal: number;
   virtualFinal: number;
   montoEsperado: number;

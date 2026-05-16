@@ -121,6 +121,7 @@ namespace Infraestructure.Migrations
                     EfectivoInicial = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     EfectivoFinal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     VirtualFinal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    VirtualInicial = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MontoEsperado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MontoReal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Diferencia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -640,7 +641,11 @@ namespace Infraestructure.Migrations
                     { 43, "Crear métodos de pago", "metodos_pago.crear" },
                     { 44, "Editar métodos de pago", "metodos_pago.editar" },
                     { 45, "Configurar datos del kiosco", "configuracion.kiosco" },
-                    { 46, "Crear respaldos de datos", "configuracion.respaldos" }
+                    { 46, "Crear respaldos de datos", "configuracion.respaldos" },
+                    { 47, "Eliminar métodos de pago", "metodos_pago.eliminar" },
+                    { 48, "Ver promociones del kiosco", "promociones.ver" },
+                    { 49, "Crear nuevas promociones", "promociones.crear" },
+                    { 50, "Activar, desactivar y eliminar promociones", "promociones.editar" }
                 });
 
             migrationBuilder.InsertData(
@@ -656,7 +661,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$aDUw0/oXb9aPEna8b5Eb2OL44G.2WcqgzkJ5vvsgWwTEgV38tFt36" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$wfg8aHELPIED00TZwJkbRuVTrcKT4jH0Xp5r.GXCr.nMjiqBBHulC" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",

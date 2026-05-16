@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, DollarSign, Clock, AlertCircle } from 'lucide-react';
+import { ShoppingBag, DollarSign, Clock, AlertCircle,Smartphone  } from 'lucide-react';
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { turnosApi } from '@/apis/turnosApi';
 import { setStorage } from '@/utils/helpers';
@@ -16,6 +16,7 @@ export const AbrirTurno: React.FC<AbrirTurnoProps> = ({ onAbierto }) => {
   const [turnos, setTurnos]                       = useState<Turno[]>([]);
   const [turnoSeleccionado, setTurnoSeleccionado] = useState<number | ''>('');
   const [efectivoInicial, setEfectivoInicial]     = useState('');
+  const [virtualInicial, setVirtualInicial] = useState('');
   const [observaciones, setObservaciones]         = useState('');
   const [isSubmitting, setIsSubmitting]           = useState(false);
   const [error, setError]                         = useState('');
@@ -50,6 +51,7 @@ export const AbrirTurno: React.FC<AbrirTurnoProps> = ({ onAbierto }) => {
         empleadoId:      empleadoActivo.empleadoId,
         turnoId:         Number(turnoSeleccionado),
         efectivoInicial: parseFloat(efectivoInicial),
+        virtualInicial:  parseFloat(virtualInicial) || 0,
         observaciones:   observaciones || undefined,
       });
       setStorage(STORAGE_KEYS.TURNO_ID, Number(turnoSeleccionado));
@@ -105,6 +107,7 @@ export const AbrirTurno: React.FC<AbrirTurnoProps> = ({ onAbierto }) => {
                 </div>
               )}
             </div>
+            
 
             <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">
@@ -124,6 +127,24 @@ export const AbrirTurno: React.FC<AbrirTurnoProps> = ({ onAbierto }) => {
                   />
                   <p className="text-xs text-neutral-400 mt-1">Contá el dinero en caja antes de abrir</p>
                 </div>
+                <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+              <Smartphone size={14} className="inline mr-1.5 text-neutral-400" />
+              Virtual en cuenta al abrir
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={virtualInicial}
+                onChange={e => setVirtualInicial(e.target.value)}
+                placeholder="0"
+                min="0"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-neutral-300 text-sm
+                          outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+              />
+            </div>
+            <p className="text-xs text-neutral-400 mt-1">Saldo acumulado en MercadoPago, transferencias, etc.</p>
+          </div>
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                 Observaciones <span className="text-neutral-400 font-normal ml-1">(opcional)</span>

@@ -70,6 +70,7 @@ namespace Application.Services
                 TurnoNombre = turno.Turno?.Nombre ?? "",
                 FechaApertura = turno.FechaApertura,
                 EfectivoInicial = turno.EfectivoInicial,
+                VirtualInicial = turno.VirtualInicial,
                 CantidadVentas = ventas.Count,
                 TotalVentas = totalVentas,
                 TotalEfectivo = totalEfectivo,
@@ -105,11 +106,12 @@ namespace Application.Services
 
             // El dominio crea el turno
             var cierre = CierreTurno.Abrir(
-                dto.KioscoId,
-                dto.EfectivoInicial,
-                dto.Observaciones ?? string.Empty,dto.TurnoId
-         
-            );
+            dto.KioscoId,
+            dto.EfectivoInicial,
+            dto.VirtualInicial,  
+            dto.Observaciones ?? string.Empty,
+            dto.TurnoId
+        );
 
             await _cierreTurnoRepository.CreateAsync(cierre);
 
@@ -207,7 +209,7 @@ namespace Application.Services
                 Fecha = cierre.FechaApertura,
                 Estado = cierre.Estado,
                 EstadoNombre = cierre.Estado.ToString(),
-
+                VirtualInicial = cierre.VirtualInicial,
                 EfectivoInicial = cierre.EfectivoInicial,
                 EfectivoFinal = cierre.Estado == EstadoCierre.Cerrado ? cierre.EfectivoFinal : 0,
                 VirtualFinal = cierre.VirtualFinal,
