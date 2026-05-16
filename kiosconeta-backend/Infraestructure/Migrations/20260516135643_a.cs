@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -17,9 +18,9 @@ namespace Infraestructure.Migrations
                 name: "MetodoDePago",
                 columns: table => new
                 {
-                    MetodoDePagoID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    MetodoDePagoID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -30,10 +31,10 @@ namespace Infraestructure.Migrations
                 name: "Permiso",
                 columns: table => new
                 {
-                    PermisoID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    PermisoID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Descripcion = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,9 +45,9 @@ namespace Infraestructure.Migrations
                 name: "Turno",
                 columns: table => new
                 {
-                    TurnoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    TurnoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,11 +58,11 @@ namespace Infraestructure.Migrations
                 name: "Usuario",
                 columns: table => new
                 {
-                    UsuarioID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    UsuarioID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Password = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,11 +73,11 @@ namespace Infraestructure.Migrations
                 name: "Kiosco",
                 columns: table => new
                 {
-                    KioscoID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Direccion = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    UsuarioID = table.Column<int>(type: "int", nullable: false)
+                    KioscoID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Direccion = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    UsuarioID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -93,10 +94,10 @@ namespace Infraestructure.Migrations
                 name: "Categoria",
                 columns: table => new
                 {
-                    CategoriaID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    KioscoId = table.Column<int>(type: "int", nullable: false)
+                    CategoriaID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,22 +113,22 @@ namespace Infraestructure.Migrations
                 name: "CierresTurno",
                 columns: table => new
                 {
-                    CierreTurnoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FechaApertura = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FechaCierre = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Estado = table.Column<int>(type: "int", nullable: false),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    EfectivoInicial = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    EfectivoFinal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    VirtualFinal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    VirtualInicial = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MontoEsperado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MontoReal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Diferencia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CantidadVentas = table.Column<int>(type: "int", nullable: false),
-                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    TurnoId = table.Column<int>(type: "int", nullable: false)
+                    CierreTurnoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FechaApertura = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    FechaCierre = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Estado = table.Column<int>(type: "integer", nullable: false),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false),
+                    EfectivoInicial = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    EfectivoFinal = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    VirtualFinal = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    VirtualInicial = table.Column<decimal>(type: "numeric", nullable: false),
+                    MontoEsperado = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    MontoReal = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Diferencia = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    CantidadVentas = table.Column<int>(type: "integer", nullable: false),
+                    Observaciones = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    TurnoId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -150,16 +151,16 @@ namespace Infraestructure.Migrations
                 name: "Empleado",
                 columns: table => new
                 {
-                    EmpleadoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Legajo = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Telefono = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
-                    PIN = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    EsAdmin = table.Column<bool>(type: "bit", nullable: false),
-                    UsuarioID = table.Column<int>(type: "int", nullable: true),
-                    Activo = table.Column<bool>(type: "bit", nullable: false),
-                    KioscoID = table.Column<int>(type: "int", nullable: false)
+                    EmpleadoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Legajo = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    Telefono = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: true),
+                    PIN = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    EsAdmin = table.Column<bool>(type: "boolean", nullable: false),
+                    UsuarioID = table.Column<int>(type: "integer", nullable: true),
+                    Activo = table.Column<bool>(type: "boolean", nullable: false),
+                    KioscoID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -181,11 +182,11 @@ namespace Infraestructure.Migrations
                 name: "NumeradoresVenta",
                 columns: table => new
                 {
-                    NumeradorVentaId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    UltimoNumero = table.Column<int>(type: "int", nullable: false),
-                    UltimaActualizacion = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    NumeradorVentaId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false),
+                    UltimoNumero = table.Column<int>(type: "integer", nullable: false),
+                    UltimaActualizacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -202,11 +203,11 @@ namespace Infraestructure.Migrations
                 name: "SaldoCaja",
                 columns: table => new
                 {
-                    SaldoCajaId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    SaldoInicial = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    FechaActualizacion = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
+                    SaldoCajaId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false),
+                    SaldoInicial = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    FechaActualizacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()")
                 },
                 constraints: table =>
                 {
@@ -223,12 +224,12 @@ namespace Infraestructure.Migrations
                 name: "TipoDeGasto",
                 columns: table => new
                 {
-                    TipoDeGastoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    Activo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    KioscoId = table.Column<int>(type: "int", nullable: false)
+                    TipoDeGastoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Descripcion = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    Activo = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -245,24 +246,24 @@ namespace Infraestructure.Migrations
                 name: "Producto",
                 columns: table => new
                 {
-                    ProductoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    PrecioCosto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PrecioVenta = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CategoriaId = table.Column<int>(type: "int", nullable: false),
-                    Distribuidor = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CodigoBarra = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    Imagen = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    StockActual = table.Column<int>(type: "int", nullable: false),
-                    StockMinimo = table.Column<int>(type: "int", nullable: false),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    FechaModificacion = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Activo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    FechaVencimiento = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Suelto = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                    ProductoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    PrecioCosto = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    PrecioVenta = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    CategoriaId = table.Column<int>(type: "integer", nullable: false),
+                    Distribuidor = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    CodigoBarra = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Descripcion = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    Imagen = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    StockActual = table.Column<int>(type: "integer", nullable: false),
+                    StockMinimo = table.Column<int>(type: "integer", nullable: false),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false),
+                    FechaCreacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    FechaModificacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Activo = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    FechaVencimiento = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Suelto = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -283,16 +284,16 @@ namespace Infraestructure.Migrations
                 name: "AuditoriaLog",
                 columns: table => new
                 {
-                    AuditoriaLogId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    EmpleadoId = table.Column<int>(type: "int", nullable: false),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    TipoEvento = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    DatosJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EsSospechoso = table.Column<bool>(type: "bit", nullable: false),
-                    MotivoSospecha = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
+                    AuditoriaLogId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    EmpleadoId = table.Column<int>(type: "integer", nullable: false),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false),
+                    TipoEvento = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Descripcion = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    DatosJson = table.Column<string>(type: "text", nullable: true),
+                    EsSospechoso = table.Column<bool>(type: "boolean", nullable: false),
+                    MotivoSospecha = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -313,8 +314,8 @@ namespace Infraestructure.Migrations
                 name: "CierreTurnoEmpleado",
                 columns: table => new
                 {
-                    CierreTurnoId = table.Column<int>(type: "int", nullable: false),
-                    EmpleadoId = table.Column<int>(type: "int", nullable: false)
+                    CierreTurnoId = table.Column<int>(type: "integer", nullable: false),
+                    EmpleadoId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -337,12 +338,12 @@ namespace Infraestructure.Migrations
                 name: "EmpleadoPermiso",
                 columns: table => new
                 {
-                    EmpleadoPermisoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EmpleadoId = table.Column<int>(type: "int", nullable: false),
-                    PermisoId = table.Column<int>(type: "int", nullable: false),
-                    FechaAsignacion = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    Activo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                    EmpleadoPermisoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EmpleadoId = table.Column<int>(type: "integer", nullable: false),
+                    PermisoId = table.Column<int>(type: "integer", nullable: false),
+                    FechaAsignacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    Activo = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true)
                 },
                 constraints: table =>
                 {
@@ -365,14 +366,14 @@ namespace Infraestructure.Migrations
                 name: "MovimientoCaja",
                 columns: table => new
                 {
-                    MovimientoCajaId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Tipo = table.Column<int>(type: "int", nullable: false),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    EmpleadoId = table.Column<int>(type: "int", nullable: false)
+                    MovimientoCajaId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    Descripcion = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    Monto = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Tipo = table.Column<int>(type: "integer", nullable: false),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false),
+                    EmpleadoId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -393,20 +394,20 @@ namespace Infraestructure.Migrations
                 name: "Venta",
                 columns: table => new
                 {
-                    VentaId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    PrecioCosto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Subtotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Descuento = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
-                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Detalles = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    EmpleadoId = table.Column<int>(type: "int", nullable: false),
-                    CierreTurnoId = table.Column<int>(type: "int", nullable: false),
-                    MetodoPagoId = table.Column<int>(type: "int", nullable: false),
-                    TurnoId = table.Column<int>(type: "int", nullable: false),
-                    NumeroVenta = table.Column<int>(type: "int", nullable: false),
-                    Anulada = table.Column<bool>(type: "bit", nullable: false)
+                    VentaId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    PrecioCosto = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Subtotal = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Descuento = table.Column<decimal>(type: "numeric(18,2)", nullable: false, defaultValue: 0m),
+                    Total = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Detalles = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    EmpleadoId = table.Column<int>(type: "integer", nullable: false),
+                    CierreTurnoId = table.Column<int>(type: "integer", nullable: false),
+                    MetodoPagoId = table.Column<int>(type: "integer", nullable: false),
+                    TurnoId = table.Column<int>(type: "integer", nullable: false),
+                    NumeroVenta = table.Column<int>(type: "integer", nullable: false),
+                    Anulada = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -441,16 +442,16 @@ namespace Infraestructure.Migrations
                 name: "Gasto",
                 columns: table => new
                 {
-                    GastoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    EmpleadoId = table.Column<int>(type: "int", nullable: false),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    CierreTurnoId = table.Column<int>(type: "int", nullable: true),
-                    TipoDeGastoId = table.Column<int>(type: "int", nullable: false)
+                    GastoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    Descripcion = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    Monto = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    EmpleadoId = table.Column<int>(type: "integer", nullable: false),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false),
+                    CierreTurnoId = table.Column<int>(type: "integer", nullable: true),
+                    TipoDeGastoId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -484,23 +485,23 @@ namespace Infraestructure.Migrations
                 name: "Promocion",
                 columns: table => new
                 {
-                    PromocionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    Tipo = table.Column<int>(type: "int", nullable: false),
-                    Activa = table.Column<bool>(type: "bit", nullable: false),
-                    FechaDesde = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    FechaHasta = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    KioscoId = table.Column<int>(type: "int", nullable: false),
-                    PrecioCombo = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    CantidadRequerida = table.Column<int>(type: "int", nullable: true),
-                    CantidadPaga = table.Column<int>(type: "int", nullable: true),
-                    ProductoIdCantidad = table.Column<int>(type: "int", nullable: true),
-                    PorcentajeDescuento = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
-                    ProductoIdPorcentaje = table.Column<int>(type: "int", nullable: true),
-                    CategoriaIdPorcentaje = table.Column<int>(type: "int", nullable: true),
-                    CantidadMinimaDescuento = table.Column<int>(type: "int", nullable: true)
+                    PromocionId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Descripcion = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    Tipo = table.Column<int>(type: "integer", nullable: false),
+                    Activa = table.Column<bool>(type: "boolean", nullable: false),
+                    FechaDesde = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    FechaHasta = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    KioscoId = table.Column<int>(type: "integer", nullable: false),
+                    PrecioCombo = table.Column<decimal>(type: "numeric(18,2)", nullable: true),
+                    CantidadRequerida = table.Column<int>(type: "integer", nullable: true),
+                    CantidadPaga = table.Column<int>(type: "integer", nullable: true),
+                    ProductoIdCantidad = table.Column<int>(type: "integer", nullable: true),
+                    PorcentajeDescuento = table.Column<decimal>(type: "numeric(5,2)", nullable: true),
+                    ProductoIdPorcentaje = table.Column<int>(type: "integer", nullable: true),
+                    CategoriaIdPorcentaje = table.Column<int>(type: "integer", nullable: true),
+                    CantidadMinimaDescuento = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -532,12 +533,12 @@ namespace Infraestructure.Migrations
                 name: "ProductoVenta",
                 columns: table => new
                 {
-                    ProductoVentaId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductoId = table.Column<int>(type: "int", nullable: false),
-                    VentaId = table.Column<int>(type: "int", nullable: false),
-                    Cantidad = table.Column<int>(type: "int", nullable: false),
-                    PrecioUnitario = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    ProductoVentaId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ProductoId = table.Column<int>(type: "integer", nullable: false),
+                    VentaId = table.Column<int>(type: "integer", nullable: false),
+                    Cantidad = table.Column<int>(type: "integer", nullable: false),
+                    PrecioUnitario = table.Column<decimal>(type: "numeric(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -560,11 +561,11 @@ namespace Infraestructure.Migrations
                 name: "PromocionProducto",
                 columns: table => new
                 {
-                    PromocionProductoId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PromocionId = table.Column<int>(type: "int", nullable: false),
-                    ProductoId = table.Column<int>(type: "int", nullable: false),
-                    Cantidad = table.Column<int>(type: "int", nullable: false, defaultValue: 1)
+                    PromocionProductoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PromocionId = table.Column<int>(type: "integer", nullable: false),
+                    ProductoId = table.Column<int>(type: "integer", nullable: false),
+                    Cantidad = table.Column<int>(type: "integer", nullable: false, defaultValue: 1)
                 },
                 constraints: table =>
                 {
@@ -661,7 +662,7 @@ namespace Infraestructure.Migrations
             migrationBuilder.InsertData(
                 table: "Usuario",
                 columns: new[] { "UsuarioID", "Email", "Nombre", "Password" },
-                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$wfg8aHELPIED00TZwJkbRuVTrcKT4jH0Xp5r.GXCr.nMjiqBBHulC" });
+                values: new object[] { 1, "admin@kiosconeta.com", "Admin", "$2a$11$Z66rXj1RWhDZD7977zpc.umjnKr17GY2GEin/ceL8.revuuSOIpjq" });
 
             migrationBuilder.InsertData(
                 table: "Kiosco",
@@ -748,90 +749,15 @@ namespace Infraestructure.Migrations
                 columns: new[] { "ProductoId", "Activo", "CategoriaId", "CodigoBarra", "Descripcion", "Distribuidor", "FechaCreacion", "FechaModificacion", "FechaVencimiento", "Imagen", "KioscoId", "Nombre", "PrecioCosto", "PrecioVenta", "StockActual", "StockMinimo" },
                 values: new object[,]
                 {
-                    { 1, true, 1, "7790895000017", "Gaseosa Coca Cola sabor original 500ml", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Coca Cola 500ml", 1100m, 2000m, 50, 10 },
-                    { 2, true, 1, "7790895000024", "Gaseosa Coca Cola sabor original 1.5 litros", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Coca Cola 1.5L", 2000m, 3500m, 30, 6 },
-                    { 3, true, 1, "7790310980316", "Gaseosa Pepsi sabor original 500ml", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Pepsi 500ml", 950m, 1800m, 40, 10 },
-                    { 4, true, 1, "7790895001090", "Gaseosa Sprite lima-limón 500ml", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Sprite 500ml", 950m, 1800m, 35, 8 },
-                    { 5, true, 1, "7790895001083", "Gaseosa Fanta sabor naranja 500ml", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Fanta Naranja 500ml", 950m, 1800m, 30, 8 },
-                    { 6, true, 1, "7790310980323", "Gaseosa 7UP lima-limón 500ml", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "7UP 500ml", 950m, 1800m, 25, 6 },
-                    { 7, true, 1, "7798062541016", "Agua mineral sin gas 500ml", "Danone", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Agua Villavicencio 500ml", 600m, 1200m, 60, 15 },
-                    { 8, true, 1, "7791813001147", "Agua mineral sin gas Ser 500ml", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Agua Ser 500ml", 550m, 1100m, 50, 12 },
-                    { 9, true, 1, "5099337012015", "Bebida energizante Monster original lata 473ml", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Monster Energy Original 473ml", 2200m, 3800m, 24, 6 },
-                    { 10, true, 1, "9002490100070", "Bebida energizante Red Bull lata 250ml", "Red Bull", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Red Bull 250ml", 2500m, 4200m, 18, 6 },
-                    { 11, true, 1, "7790895005821", "Jugo Cepita sabor naranja caja 200ml", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Jugo Cepita Naranja 200ml", 500m, 950m, 40, 10 },
-                    { 12, true, 1, "7790895006804", "Bebida isotónica Powerade Mountain Blast 500ml", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Powerade Azul 500ml", 1100m, 2000m, 20, 6 },
-                    { 13, true, 1, "7790310980422", "Bebida isotónica Gatorade Cool Blue 500ml", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Gatorade Azul 500ml", 1100m, 2000m, 20, 6 },
-                    { 14, true, 1, "7790310980521", "Infusión Lipton Ice Tea sabor durazno 500ml", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Té Lipton Durazno 500ml", 900m, 1700m, 24, 6 },
-                    { 15, true, 1, "7790435000190", "Cerveza Quilmes Cristal lata 473ml", "Quilmes", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Cerveza Quilmes Lata 473ml", 1300m, 2400m, 36, 12 },
-                    { 16, true, 2, "7790580054878", "Alfajor triple Guaymallen chocolate", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Alfajor Guaymallen Chocolate", 200m, 500m, 100, 20 },
-                    { 17, true, 2, "7790580054885", "Alfajor triple Guaymallen dulce de leche", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Alfajor Guaymallen Leche", 200m, 500m, 100, 20 },
-                    { 18, true, 2, "7622210449443", "Alfajor Milka chocolate con leche", "Mondelez", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Alfajor Milka", 500m, 1000m, 50, 10 },
-                    { 19, true, 2, "7791240003459", "Alfajor Jorgito dulce de leche", "Jorgito", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Alfajor Jorgito", 180m, 400m, 80, 20 },
-                    { 20, true, 2, "7622210421609", "Tableta chocolate Milka con leche 100g", "Mondelez", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Chocolate Milka 100g", 800m, 1500m, 30, 8 },
-                    { 21, true, 2, "7622300861032", "Chocolate suizo Toblerone con miel y almendras 100g", "Mondelez", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Chocolate Toblerone 100g", 1200m, 2200m, 20, 5 }
+                    { 3, true, 1, "7790310980316", "Gaseosa Pepsi sabor original 500ml", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "", 1, "Pepsi 500ml", 950m, 1800m, 40, 10 },
+                    { 4, true, 1, "7790895001090", "Gaseosa Sprite lima-limón 500ml", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "", 1, "Sprite 500ml", 950m, 1800m, 35, 8 },
+                    { 5, true, 1, "7790895001083", "Gaseosa Fanta sabor naranja 500ml", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "", 1, "Fanta Naranja 500ml", 950m, 1800m, 30, 8 },
+                    { 6, true, 1, "7790310980323", "Gaseosa 7UP lima-limón 500ml", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "", 1, "7UP 500ml", 950m, 1800m, 25, 6 },
+                    { 7, true, 1, "7798062541016", "Agua mineral sin gas 500ml", "Danone", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "", 1, "Agua Villavicencio 500ml", 600m, 1200m, 60, 15 },
+                    { 8, true, 1, "7791813001147", "Agua mineral sin gas Ser 500ml", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "", 1, "Agua Ser 500ml", 550m, 1100m, 50, 12 },
+                    { 9, true, 1, "5099337012015", "Bebida energizante Monster original lata 473ml", "Coca-Cola FEMSA", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "", 1, "Monster Energy Original 473ml", 2200m, 3800m, 24, 6 },
+                    { 10, true, 1, "9002490100070", "Bebida energizante Red Bull lata 250ml", "Red Bull", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, null, "", 1, "Red Bull 250ml", 2500m, 4200m, 18, 6 }
                 });
-
-            migrationBuilder.InsertData(
-                table: "Producto",
-                columns: new[] { "ProductoId", "Activo", "CategoriaId", "CodigoBarra", "Descripcion", "Distribuidor", "FechaCreacion", "FechaModificacion", "FechaVencimiento", "Imagen", "KioscoId", "Nombre", "PrecioCosto", "PrecioVenta", "StockActual", "StockMinimo", "Suelto" },
-                values: new object[] { 22, true, 2, "", "Caramelo de menta Menthoplus individual", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Caramelo Menthoplus", 30m, 80m, 300, 100, true });
-
-            migrationBuilder.InsertData(
-                table: "Producto",
-                columns: new[] { "ProductoId", "Activo", "CategoriaId", "CodigoBarra", "Descripcion", "Distribuidor", "FechaCreacion", "FechaModificacion", "FechaVencimiento", "Imagen", "KioscoId", "Nombre", "PrecioCosto", "PrecioVenta", "StockActual", "StockMinimo" },
-                values: new object[,]
-                {
-                    { 23, true, 2, "7790580007157", "Confites de chocolate Rocklets tubo", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Rocklets Tubo", 350m, 700m, 40, 10 },
-                    { 24, true, 2, "7622210358110", "Chicle Beldent sabor menta blister", "Mondelez", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Chicle Beldent Menta", 200m, 450m, 60, 15 },
-                    { 25, true, 2, "7622210358127", "Chicle Beldent sabor frutas blister", "Mondelez", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Chicle Beldent Frutas", 200m, 450m, 60, 15 },
-                    { 26, true, 2, "7790580030162", "Gomitas frutales Arcor bolsa 100g", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Gomitas Arcor Frutales", 250m, 600m, 50, 10 },
-                    { 27, true, 2, "7790580010263", "Paleta Cabsha cubierta de chocolate", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Paleta Cabsha Chocolate", 120m, 300m, 60, 15 }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Producto",
-                columns: new[] { "ProductoId", "Activo", "CategoriaId", "CodigoBarra", "Descripcion", "Distribuidor", "FechaCreacion", "FechaModificacion", "FechaVencimiento", "Imagen", "KioscoId", "Nombre", "PrecioCosto", "PrecioVenta", "StockActual", "StockMinimo", "Suelto" },
-                values: new object[,]
-                {
-                    { 28, true, 2, "7790580004545", "Bombón Bon o Bon relleno de maní 16g", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Bon o Bon Chocolate", 100m, 250m, 80, 20, true },
-                    { 29, true, 2, "", "Chupetín Arcor sabores surtidos", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Chupetín Arcor", 50m, 120m, 150, 30, true }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Producto",
-                columns: new[] { "ProductoId", "Activo", "CategoriaId", "CodigoBarra", "Descripcion", "Distribuidor", "FechaCreacion", "FechaModificacion", "FechaVencimiento", "Imagen", "KioscoId", "Nombre", "PrecioCosto", "PrecioVenta", "StockActual", "StockMinimo" },
-                values: new object[,]
-                {
-                    { 30, true, 2, "7791813110231", "Oblea Noel de vainilla", "Noel", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Oblea Noel", 80m, 200m, 60, 15 },
-                    { 31, true, 3, "7798073860011", "Cigarrillos Marlboro Red paquete x20", "Philip Morris", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Marlboro Rojo x20", 1500m, 2000m, 50, 10 },
-                    { 32, true, 3, "7798073860028", "Cigarrillos Marlboro Gold paquete x20", "Philip Morris", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Marlboro Gold x20", 1500m, 2000m, 50, 10 },
-                    { 33, true, 3, "7798073870019", "Cigarrillos Red Point Box paquete x20", "BAT", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Red Point Box 20", 1500m, 2100m, 40, 10 },
-                    { 34, true, 3, "7798073880017", "Cigarrillos Lucky Strike Red paquete x20", "BAT", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Lucky Strike Rojo x20", 1500m, 2000m, 40, 10 },
-                    { 35, true, 3, "7798073890015", "Cigarrillos Camel paquete x20", "Japan Tobacco", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Camel Azul x20", 1500m, 2000m, 30, 8 },
-                    { 36, true, 3, "7798073900019", "Cigarrillos Nevada Blue paquete x20", "Philip Morris", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Nevada Blue x20", 1200m, 1700m, 35, 8 },
-                    { 37, true, 3, "0070330700014", "Encendedor BIC maxi colores surtidos", "BIC", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Encendedor BIC", 400m, 800m, 30, 10 },
-                    { 38, true, 4, "7791813110248", "Papas fritas Lays sabor original 100g", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Papas Lays Original 100g", 700m, 1300m, 30, 8 },
-                    { 39, true, 4, "7791813110255", "Papas fritas Lays sabor queso 100g", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Papas Lays Queso 100g", 700m, 1300m, 25, 6 },
-                    { 40, true, 4, "7791813110262", "Snack de maíz Cheetos sabor queso 50g", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Cheetos 50g", 500m, 950m, 30, 8 },
-                    { 41, true, 4, "7791813110279", "Chips de maíz Doritos sabor Nacho Cheese 100g", "PepsiCo", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Doritos Nacho 100g", 700m, 1300m, 25, 6 },
-                    { 42, true, 4, "7793045001279", "Maní con cobertura de chocolate Georgalos 40g", "Georgalos", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Maní con Chocolate Georgalos", 300m, 600m, 40, 10 },
-                    { 43, true, 4, "", "Pancho con salchicha y pan", "", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Pancho Simple", 400m, 1500m, 30, 5 },
-                    { 44, true, 4, "", "Pancho con salchicha, pan, ketchup y mayonesa", "", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Pancho Completo", 600m, 2200m, 30, 5 },
-                    { 45, true, 4, "", "Sandwich de miga con jamón cocido y queso", "", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Sandwich de Miga Jamón y Queso", 500m, 1800m, 20, 5 },
-                    { 46, true, 4, "7622210064097", "Galletitas Oreo con relleno de crema 97g", "Mondelez", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Galletitas Oreo 97g", 600m, 1100m, 30, 8 },
-                    { 47, true, 4, "7790580041136", "Galletitas Pepitos chocolate 100g", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Galletitas Pepitos 100g", 400m, 800m, 35, 8 },
-                    { 48, true, 4, "7622210368928", "Galletitas de agua Ritz 170g", "Mondelez", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Galletitas Ritz 170g", 700m, 1300m, 25, 6 }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Producto",
-                columns: new[] { "ProductoId", "Activo", "CategoriaId", "CodigoBarra", "Descripcion", "Distribuidor", "FechaCreacion", "FechaModificacion", "FechaVencimiento", "Imagen", "KioscoId", "Nombre", "PrecioCosto", "PrecioVenta", "StockActual", "StockMinimo", "Suelto" },
-                values: new object[] { 49, true, 4, "7790580022373", "Turrón de maní Arcor 25g", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Turrón Mani Arcor", 150m, 350m, 60, 15, true });
-
-            migrationBuilder.InsertData(
-                table: "Producto",
-                columns: new[] { "ProductoId", "Activo", "CategoriaId", "CodigoBarra", "Descripcion", "Distribuidor", "FechaCreacion", "FechaModificacion", "FechaVencimiento", "Imagen", "KioscoId", "Nombre", "PrecioCosto", "PrecioVenta", "StockActual", "StockMinimo" },
-                values: new object[] { 50, true, 4, "7790580099748", "Snack de maíz Chizitos queso 50g", "Arcor", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "", 1, "Chizitos 50g", 450m, 900m, 30, 8 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuditoriaLog_EmpleadoId",

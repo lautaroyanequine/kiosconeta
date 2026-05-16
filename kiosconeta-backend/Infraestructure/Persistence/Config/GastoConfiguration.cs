@@ -18,8 +18,7 @@ namespace Infraestructure.Persistence.Config
         
 
             entityBuilder.Property(g => g.Fecha)
-                .HasColumnType("datetime2")
-                .HasDefaultValueSql("GETDATE()")
+                .HasDefaultValueSql("NOW()")
                 .IsRequired();
 
             entityBuilder.Property(g => g.Descripcion)

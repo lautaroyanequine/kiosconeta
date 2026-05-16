@@ -13,8 +13,7 @@ public class AuditoriaLogConfiguration
         builder.Property(a => a.AuditoriaLogId).ValueGeneratedOnAdd();
 
         builder.Property(a => a.Fecha)
-            .HasColumnType("datetime2")
-            .HasDefaultValueSql("GETDATE()")
+            .HasDefaultValueSql("NOW()")
             .IsRequired();
 
         builder.Property(a => a.TipoEvento).HasMaxLength(50).IsRequired();
@@ -37,5 +36,7 @@ public class AuditoriaLogConfiguration
             .WithMany()
             .HasForeignKey(a => a.KioscoId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Property(a => a.DatosJson).HasColumnType("text");
     }
 }

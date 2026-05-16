@@ -52,7 +52,7 @@ builder.Services.AddSwaggerGen(c =>
 // ========== BASE DE DATOS ==========
 var connectionString = builder.Configuration["ConnectionString"];
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql(connectionString));
 
 // ========== JWT AUTHENTICATION ==========
 var jwtKey = builder.Configuration["Jwt:Key"]

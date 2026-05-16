@@ -53,14 +53,11 @@ namespace Infraestructure.Persistence.Config
                 .HasDefaultValue(false);
 
             entityBuilder.Property(p => p.FechaCreacion)
-                .HasColumnType("datetime2")
-                .HasDefaultValueSql("GETDATE()");
+    .HasColumnType("timestamp with time zone")
+    .HasDefaultValueSql("NOW()");
 
-            entityBuilder.Property(p => p.FechaModificacion)
-                .HasColumnType("datetime2");
 
-            entityBuilder.Property(p => p.FechaVencimiento)
-                .HasColumnType("datetime2");
+
 
             entityBuilder.HasMany(p => p.ProductoVentas)
                 .WithOne(pv => pv.Producto)

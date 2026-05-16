@@ -1,11 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infraestructure.Persistence.Config
 {
@@ -21,8 +16,7 @@ namespace Infraestructure.Persistence.Config
                 .ValueGeneratedOnAdd();
 
             entityBuilder.Property(ep => ep.FechaAsignacion)
-                .HasColumnType("datetime2")
-                .HasDefaultValueSql("GETDATE()")
+                .HasDefaultValueSql("NOW()")
                 .IsRequired();
 
             entityBuilder.Property(ep => ep.Activo)

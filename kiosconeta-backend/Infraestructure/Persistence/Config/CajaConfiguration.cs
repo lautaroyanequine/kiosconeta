@@ -28,8 +28,7 @@ namespace Infraestructure.Persistence.Configurations
                 .IsRequired();
 
             entity.Property(m => m.Fecha)
-                .HasColumnType("datetime2")
-                .HasDefaultValueSql("GETDATE()")
+                .HasDefaultValueSql("NOW()")
                 .IsRequired();
 
             entity.HasIndex(m => m.Fecha);
@@ -63,8 +62,7 @@ namespace Infraestructure.Persistence.Configurations
                 .IsRequired();
 
             entity.Property(s => s.FechaActualizacion)
-                .HasColumnType("datetime2")
-                .HasDefaultValueSql("GETDATE()")
+                .HasDefaultValueSql("NOW()")
                 .IsRequired();
 
             // Un kiosco tiene un solo saldo de caja

@@ -54,8 +54,10 @@ namespace Infraestructure.Persistence
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-      //optionsBuilder.UseSqlServer(@"Server=localhost;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
-      optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=Kiosconeta;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=False");
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseNpgsql("Host=localhost;Database=Kiosconeta;Username=postgres;Password=tu_password");
+            }
 
         }
 
