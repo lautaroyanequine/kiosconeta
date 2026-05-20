@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260516135643_a")]
+    [Migration("20260520162808_a")]
     partial class a
     {
         /// <inheritdoc />
@@ -1633,7 +1633,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$Z66rXj1RWhDZD7977zpc.umjnKr17GY2GEin/ceL8.revuuSOIpjq"
+                            Password = "$2a$11$VuVagH3EQHXVKupzRFZk/eUeBd4kHDslXKka4IgjIFu.Lazoq1PXO"
                         });
                 });
 
