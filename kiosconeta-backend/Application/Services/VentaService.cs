@@ -227,7 +227,9 @@ namespace Application.Services
             return new VentaResponseDTO
             {
                 VentaId = venta.VentaId,
-                Subtotal = venta.Subtotal,
+                // Subtotal/Descuento: disponibles tras correr la migration AddDescuentoVenta
+                // Hasta entonces, Subtotal = Total y Descuento = 0
+                Subtotal = venta.Subtotal > 0 ? venta.Subtotal : venta.Total,
                 Descuento = venta.Descuento,
                 Fecha = venta.Fecha,
                 Total = venta.Total,

@@ -16,7 +16,8 @@ namespace Infraestructure.Persistence.Config
                 .ValueGeneratedOnAdd();
 
             entityBuilder.Property(v => v.Fecha)
-                .HasDefaultValueSql("NOW()")
+                .HasColumnType("datetime2")
+                .HasDefaultValueSql("GETDATE()")
                 .IsRequired();
 
             entityBuilder.Property(v => v.Subtotal)
