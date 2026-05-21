@@ -90,7 +90,7 @@ namespace Infraestructure.Repository
                          && p.Activo
                          && p.FechaVencimiento != null
                          && p.FechaVencimiento <= fechaLimite
-                         && p.FechaVencimiento >= DateTime.Now)
+                         && p.FechaVencimiento >= DateTime.UtcNow)
                 .OrderBy(p => p.FechaVencimiento)
                 .ToListAsync();
         }
@@ -132,7 +132,7 @@ namespace Infraestructure.Repository
 
         public async Task<Producto> UpdateAsync(Producto producto)
         {
-            producto.FechaModificacion = DateTime.Now;
+            producto.FechaModificacion = DateTime.UtcNow;
 
             _context.Productos.Update(producto);
             await _context.SaveChangesAsync();
@@ -159,8 +159,8 @@ namespace Infraestructure.Repository
             if (producto == null) return false;
 
             producto.Activo = activo;
-            producto.FechaModificacion = DateTime.Now;
-
+            producto.FechaModificacion = DateTime.UtcNow;
+           
             await _context.SaveChangesAsync();
             return true;
         }
@@ -171,7 +171,7 @@ namespace Infraestructure.Repository
             if (producto == null) return false;
 
             producto.StockActual += cantidad;
-            producto.FechaModificacion = DateTime.Now;
+            producto.FechaModificacion = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
@@ -192,7 +192,7 @@ namespace Infraestructure.Repository
 
         public async Task<IEnumerable<Producto>> GetSinMovimientoAsync(int kioscoId, int dias)
         {
-            var fechaLimite = DateTime.Now.AddDays(-dias);
+            var fechaLimite = DateTime.UtcNow.AddDays(-dias);
 
             // Obtener IDs de productos que SÍ tuvieron ventas en los últimos X días
             var productosConMovimiento = await _context.ProductosVenta

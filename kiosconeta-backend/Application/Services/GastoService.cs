@@ -111,7 +111,7 @@ namespace Application.Services
                 EmpleadoId = dto.EmpleadoId,
                 KioscoId = kioscoId,   // ← siempre del empleado, no del DTO
                 TipoDeGastoId = dto.TipoDeGastoId,
-                Fecha = DateTime.Now
+                Fecha = DateTime.UtcNow
             };
 
             // Asociar al turno abierto si existe — si no hay turno (gasto admin) queda null

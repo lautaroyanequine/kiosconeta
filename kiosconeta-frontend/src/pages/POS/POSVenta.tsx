@@ -473,6 +473,37 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
         </div>
       </div>
 
+
+
+          {/* Métodos de pago */}
+            <div>
+              <p className="text-xs font-medium text-neutral-400 mb-2 uppercase tracking-wide">
+                Método de pago
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {metodosPago.map(m => {
+                  const Icon = getMetodoIcon(m.nombre);
+                  const sel  = cart.metodoPagoId === m.metodoDePagoID;
+                  return (
+                    <button
+                      key={m.metodoDePagoID}
+                      onClick={() => { cart.setMetodoPagoId(m.metodoDePagoID); setMontoEfectivo(''); }}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all
+                        ${sel
+                          ? 'border-primary bg-primary/5 text-primary'
+                          : 'border-neutral-200 text-neutral-400 hover:border-neutral-300'}`}
+                    >
+                      <Icon size={20} />
+                      <span className="text-xs font-medium text-center leading-tight">
+                        {m.nombre}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+
       {/* Efectivo + vuelto */}
       {esEfectivo && cart.items.length > 0 && (
         <div className="space-y-2">

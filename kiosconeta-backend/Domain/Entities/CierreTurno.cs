@@ -48,7 +48,7 @@ namespace Domain.Entities
 
             KioscoId = kioscoId;
 
-            FechaApertura = DateTime.Now;
+            FechaApertura = DateTime.UtcNow;
             Estado = EstadoCierre.Abierto;
             TurnoId = turnoId;
 

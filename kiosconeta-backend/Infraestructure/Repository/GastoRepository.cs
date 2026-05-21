@@ -129,7 +129,7 @@ namespace Infraestructure.Repository
 
         public async Task<Gasto> CreateAsync(Gasto gasto)
         {
-            gasto.Fecha = DateTime.Now;
+            gasto.Fecha = DateTime.UtcNow;
             _context.Gastos.Add(gasto);
             await _context.SaveChangesAsync();
             return await GetByIdAsync(gasto.GastoId)

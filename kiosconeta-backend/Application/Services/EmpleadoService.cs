@@ -112,7 +112,7 @@ namespace Application.Services
             {
                 EmpleadoId = dto.EmpleadoId,
                 PermisoId = dto.PermisoId,
-                FechaAsignacion = DateTime.Now,
+                FechaAsignacion = DateTime.UtcNow,
                 Activo = true
             };
 

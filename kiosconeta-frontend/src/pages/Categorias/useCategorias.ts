@@ -47,7 +47,7 @@ export const useCategorias = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await categoriasApi.getAll();
+      const data = await categoriasApi.getByKiosco(user!.kioscoId);
       setCategorias(data);
     } catch (err: any) {
       setError(err.message || 'Error al cargar las categorías');

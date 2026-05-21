@@ -39,7 +39,7 @@ namespace Infraestructure.Repository
 
         public async Task<MovimientoCaja> CreateMovimientoAsync(MovimientoCaja movimiento)
         {
-            movimiento.Fecha = DateTime.Now;
+            movimiento.Fecha = DateTime.UtcNow;
             _context.MovimientosCaja.Add(movimiento);
             await _context.SaveChangesAsync();
             return await GetMovimientoByIdAsync(movimiento.MovimientoCajaId)
@@ -77,14 +77,14 @@ namespace Infraestructure.Repository
                 {
                     KioscoId = kioscoId,
                     SaldoInicial = saldoInicial,
-                    FechaActualizacion = DateTime.Now
+                    FechaActualizacion = DateTime.UtcNow
                 };
                 _context.SaldosCaja.Add(saldo);
             }
             else
             {
                 saldo.SaldoInicial = saldoInicial;
-                saldo.FechaActualizacion = DateTime.Now;
+                saldo.FechaActualizacion = DateTime.UtcNow;
                 _context.SaldosCaja.Update(saldo);
             }
 

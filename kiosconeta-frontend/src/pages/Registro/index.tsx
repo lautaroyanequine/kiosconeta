@@ -146,23 +146,39 @@ const Paso2: React.FC<{
   onSiguiente: () => void
   onAtras: () => void
 }> = ({ data, onChange, onSiguiente, onAtras }) => {
-  const [errores, setErrores]         = useState<Partial<FormData>>({})
+
+  const [errores, setErrores] = useState<Partial<FormData>>({})
+
   const [mostrarPass, setMostrarPass] = useState(false)
+  const [mostrarConfirmPass, setMostrarConfirmPass] = useState(false)
 
   const validar = () => {
     const e: Partial<FormData> = {}
-    if (!data.nombreAdmin.trim()) e.nombreAdmin = 'Tu nombre es obligatorio'
-    if (!data.email.trim())       e.email       = 'El email es obligatorio'
-    else if (!isValidEmail(data.email)) e.email = 'El email no es válido'
-    if (!data.password)           e.password    = 'La contraseña es obligatoria'
-    else if (data.password.length < 6) e.password = 'Mínimo 6 caracteres'
-    if (data.password !== data.confirmarPassword) e.confirmarPassword = 'Las contraseñas no coinciden'
+
+    if (!data.nombreAdmin.trim())
+      e.nombreAdmin = 'Tu nombre es obligatorio'
+
+    if (!data.email.trim())
+      e.email = 'El email es obligatorio'
+    else if (!isValidEmail(data.email))
+      e.email = 'El email no es válido'
+
+    if (!data.password)
+      e.password = 'La contraseña es obligatoria'
+    else if (data.password.length < 6)
+      e.password = 'Mínimo 6 caracteres'
+
+    if (data.password !== data.confirmarPassword)
+      e.confirmarPassword = 'Las contraseñas no coinciden'
+
     setErrores(e)
     return Object.keys(e).length === 0
   }
 
   return (
     <div className="space-y-4">
+
+      {/* HEADER */}
       <div className="text-center mb-6">
         <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3">
           <User size={28} className="text-primary" />
@@ -173,53 +189,113 @@ const Paso2: React.FC<{
         </p>
       </div>
 
+      {/* NOMBRE */}
       <Input
         label="Tu nombre"
         placeholder="Ej: Juan García"
         value={data.nombreAdmin}
-        onChange={e => { onChange('nombreAdmin', e.target.value); setErrores(p => ({ ...p, nombreAdmin: undefined })) }}
+        onChange={e => {
+          onChange('nombreAdmin', e.target.value)
+          setErrores(p => ({ ...p, nombreAdmin: undefined }))
+        }}
         error={errores.nombreAdmin}
         leftIcon={<User size={16} />}
         required
         autoFocus
       />
+
+      {/* EMAIL */}
       <Input
         label="Email"
         type="email"
         placeholder="admin@mikiosco.com"
         value={data.email}
-        onChange={e => { onChange('email', e.target.value); setErrores(p => ({ ...p, email: undefined })) }}
+        onChange={e => {
+          onChange('email', e.target.value)
+          setErrores(p => ({ ...p, email: undefined }))
+        }}
         error={errores.email}
         required
       />
-      <Input
-        label="Contraseña"
-        type={mostrarPass ? 'text' : 'password'}
-        placeholder="Mínimo 6 caracteres"
-        value={data.password}
-        onChange={e => { onChange('password', e.target.value); setErrores(p => ({ ...p, password: undefined })) }}
-        error={errores.password}
-        rightIcon={
-          <button type="button" onClick={() => setMostrarPass(v => !v)} className="text-neutral-400 hover:text-neutral-600">
-            {mostrarPass ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
-        }
-        required
-      />
-      <Input
-        label="Confirmar contraseña"
-        type="password"
-        placeholder="Repetí la contraseña"
-        value={data.confirmarPassword}
-        onChange={e => { onChange('confirmarPassword', e.target.value); setErrores(p => ({ ...p, confirmarPassword: undefined })) }}
-        error={errores.confirmarPassword}
-        required
-      />
 
+      {/* PASSWORD */}
+      <div>
+        <label className="block mb-1 text-sm font-medium">
+          Contraseña
+        </label>
+
+        <div className="relative">
+          <input
+            type={mostrarPass ? 'text' : 'password'}
+            placeholder="Mínimo 6 caracteres"
+            value={data.password}
+            onChange={e => {
+              onChange('password', e.target.value)
+              setErrores(p => ({ ...p, password: undefined }))
+            }}
+            className={`w-full px-4 py-2 pr-10 border rounded-md
+              focus:outline-none focus:ring-2 focus:ring-primary/20
+              ${errores.password ? 'border-danger' : 'border-neutral-300 focus:border-primary'}`}
+          />
+
+          <button
+            type="button"
+            onClick={() => setMostrarPass(v => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+          >
+            {mostrarPass ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+
+        {errores.password && (
+          <p className="text-danger text-xs mt-1">{errores.password}</p>
+        )}
+      </div>
+
+      {/* CONFIRMAR PASSWORD */}
+      <div>
+        <label className="block mb-1 text-sm font-medium">
+          Confirmar contraseña
+        </label>
+
+        <div className="relative">
+          <input
+            type={mostrarConfirmPass ? 'text' : 'password'}
+            placeholder="Repetí la contraseña"
+            value={data.confirmarPassword}
+            onChange={e => {
+              onChange('confirmarPassword', e.target.value)
+              setErrores(p => ({ ...p, confirmarPassword: undefined }))
+            }}
+            className={`w-full px-4 py-2 pr-10 border rounded-md
+              focus:outline-none focus:ring-2 focus:ring-primary/20
+              ${errores.confirmarPassword ? 'border-danger' : 'border-neutral-300 focus:border-primary'}`}
+          />
+
+          <button
+            type="button"
+            onClick={() => setMostrarConfirmPass(v => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+          >
+            {mostrarConfirmPass ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+
+        {errores.confirmarPassword && (
+          <p className="text-danger text-xs mt-1">{errores.confirmarPassword}</p>
+        )}
+      </div>
+
+      {/* BOTONES */}
       <div className="flex gap-2 mt-2">
-        <Button variant="outline" leftIcon={<ArrowLeft size={16} />} onClick={onAtras}>
+        <Button
+          variant="outline"
+          leftIcon={<ArrowLeft size={16} />}
+          onClick={onAtras}
+        >
           Atrás
         </Button>
+
         <Button
           variant="primary"
           fullWidth
@@ -245,9 +321,14 @@ const Paso3: React.FC<{
   isLoading: boolean
   apiError: string
 }> = ({ data, onChange, onRegistrar, onAtras, isLoading, apiError }) => {
+
   const [errores, setErrores] = useState<Partial<FormData>>({})
 
-  // Helpers de input PIN numérico
+  // 👇 estados para mostrar/ocultar
+  const [mostrarPin, setMostrarPin] = useState(false)
+  const [mostrarConfirmPin, setMostrarConfirmPin] = useState(false)
+
+  // Solo números (máx 6)
   const handlePinChange = (field: 'pin' | 'confirmarPin', value: string) => {
     if (/^\d{0,6}$/.test(value)) {
       onChange(field, value)
@@ -257,9 +338,13 @@ const Paso3: React.FC<{
 
   const validar = () => {
     const e: Partial<FormData> = {}
-    // PIN es opcional, pero si se ingresa debe ser válido
-    if (data.pin && data.pin.length < 4) e.pin = 'El PIN debe tener al menos 4 dígitos'
-    if (data.pin && data.pin !== data.confirmarPin) e.confirmarPin = 'Los PINs no coinciden'
+
+    if (data.pin && data.pin.length < 4)
+      e.pin = 'El PIN debe tener al menos 4 dígitos'
+
+    if (data.pin && data.pin !== data.confirmarPin)
+      e.confirmarPin = 'Los PINs no coinciden'
+
     setErrores(e)
     return Object.keys(e).length === 0
   }
@@ -268,19 +353,10 @@ const Paso3: React.FC<{
     if (validar()) onRegistrar()
   }
 
-  // Muestra círculos rellenos según dígitos ingresados
-  const PinDisplay: React.FC<{ value: string; max?: number }> = ({ value, max = 6 }) => (
-    <div className="flex gap-2 justify-center my-2">
-      {Array.from({ length: max }).map((_, i) => (
-        <div key={i} className={`w-3 h-3 rounded-full border-2 transition-all ${
-          i < value.length ? 'bg-primary border-primary' : 'border-neutral-300'
-        }`} />
-      ))}
-    </div>
-  )
-
   return (
     <div className="space-y-4">
+
+      {/* HEADER */}
       <div className="text-center mb-6">
         <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3">
           <Lock size={28} className="text-primary" />
@@ -292,52 +368,80 @@ const Paso3: React.FC<{
       </div>
 
       {/* PIN */}
-      <div className="input-group w-full">
-        <label className="input-label block mb-1">
+      <div>
+        <label className="block mb-1 text-sm font-medium">
           PIN <span className="text-neutral-400 font-normal">(opcional)</span>
         </label>
-        <input
-          type="password"
-          inputMode="numeric"
-          placeholder="4 a 6 dígitos"
-          value={data.pin}
-          onChange={e => handlePinChange('pin', e.target.value)}
-          className={`px-4 py-2 border rounded-md w-full text-center text-2xl tracking-widest
-            focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
-            ${errores.pin ? 'border-danger' : 'border-neutral-300 focus:border-primary'}`}
-          autoFocus
-        />
-      
-        {errores.pin && <span className="input-error">{errores.pin}</span>}
+
+        <div className="relative">
+          <input
+            type={mostrarPin ? 'text' : 'password'}
+            inputMode="numeric"
+            placeholder="4 a 6 dígitos"
+            value={data.pin}
+            onChange={e => handlePinChange('pin', e.target.value)}
+            className={`w-full px-4 py-2 pr-10 border rounded-md text-center text-2xl tracking-widest
+              focus:outline-none focus:ring-2 focus:ring-primary/20
+              ${errores.pin ? 'border-danger' : 'border-neutral-300 focus:border-primary'}`}
+            autoFocus
+          />
+
+          <button
+            type="button"
+            onClick={() => setMostrarPin(v => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+          >
+            {mostrarPin ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+
+        {errores.pin && (
+          <p className="text-danger text-xs mt-1">{errores.pin}</p>
+        )}
       </div>
 
-      {/* Confirmar PIN */}
+      {/* CONFIRMAR PIN */}
       {data.pin.length >= 4 && (
-        <div className="input-group w-full">
-          <label className="input-label block mb-1">Confirmar PIN</label>
-          <input
-            type="password"
-            inputMode="numeric"
-            placeholder="Repetí el PIN"
-            value={data.confirmarPin}
-            onChange={e => handlePinChange('confirmarPin', e.target.value)}
-            className={`px-4 py-2 border rounded-md w-full text-center text-2xl tracking-widest
-              focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
-              ${errores.confirmarPin ? 'border-danger' : 'border-neutral-300 focus:border-primary'}`}
-          />
-        
-          {errores.confirmarPin && <span className="input-error">{errores.confirmarPin}</span>}
+        <div>
+          <label className="block mb-1 text-sm font-medium">
+            Confirmar PIN
+          </label>
+
+          <div className="relative">
+            <input
+              type={mostrarConfirmPin ? 'text' : 'password'}
+              inputMode="numeric"
+              placeholder="Repetí el PIN"
+              value={data.confirmarPin}
+              onChange={e => handlePinChange('confirmarPin', e.target.value)}
+              className={`w-full px-4 py-2 pr-10 border rounded-md text-center text-2xl tracking-widest
+                focus:outline-none focus:ring-2 focus:ring-primary/20
+                ${errores.confirmarPin ? 'border-danger' : 'border-neutral-300 focus:border-primary'}`}
+            />
+
+            <button
+              type="button"
+              onClick={() => setMostrarConfirmPin(v => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+            >
+              {mostrarConfirmPin ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          {errores.confirmarPin && (
+            <p className="text-danger text-xs mt-1">{errores.confirmarPin}</p>
+          )}
         </div>
       )}
 
-      {/* Aviso si omite PIN */}
+      {/* AVISO */}
       {!data.pin && (
         <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
-          Sin PIN solo podés entrar escribiendo email y contraseña. Podés configurarlo después desde la página de Configuración.
+          Sin PIN solo podés entrar escribiendo email y contraseña. Podés configurarlo después desde Configuración.
         </div>
       )}
 
-      {/* Error de API */}
+      {/* ERROR API */}
       {apiError && (
         <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
           <AlertCircle size={15} />
@@ -345,10 +449,17 @@ const Paso3: React.FC<{
         </div>
       )}
 
+      {/* BOTONES */}
       <div className="flex gap-2 mt-2">
-        <Button variant="outline" leftIcon={<ArrowLeft size={16} />} onClick={onAtras} disabled={isLoading}>
+        <Button
+          variant="outline"
+          leftIcon={<ArrowLeft size={16} />}
+          onClick={onAtras}
+          disabled={isLoading}
+        >
           Atrás
         </Button>
+
         <Button
           variant="primary"
           fullWidth

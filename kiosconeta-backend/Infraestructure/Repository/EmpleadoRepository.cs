@@ -127,7 +127,7 @@ namespace Infraestructure.Repository
 
         public async Task<EmpleadoPermiso> AsignarPermisoAsync(EmpleadoPermiso empleadoPermiso)
         {
-            empleadoPermiso.FechaAsignacion = DateTime.Now;
+            empleadoPermiso.FechaAsignacion = DateTime.UtcNow;
             empleadoPermiso.Activo = true;
 
             _context.EmpleadoPermisos.Add(empleadoPermiso);

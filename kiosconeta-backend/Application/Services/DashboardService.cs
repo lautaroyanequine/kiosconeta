@@ -53,10 +53,10 @@ namespace Application.Services
                     : 0
             };
 
-            var ventasMes = await _ventaRepository.GetByFechaAsync(inicioMes, DateTime.Now);
+            var ventasMes = await _ventaRepository.GetByFechaAsync(inicioMes, DateTime.UtcNow);
             ventasMes = ventasMes.Where(v => v.Empleado.KioscoID == kioscoId && !v.Anulada);
 
-            var gastosMes = await _gastoRepository.GetByFechaAsync(inicioMes, DateTime.Now);
+            var gastosMes = await _gastoRepository.GetByFechaAsync(inicioMes, DateTime.UtcNow);
             gastosMes = gastosMes.Where(g => g.KioscoId == kioscoId);
 
             var ventasMesList = ventasMes.ToList();

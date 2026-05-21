@@ -23,7 +23,7 @@ public class NumeradorRepository : INumeradorRepository
             {
                 KioscoId = kioscoId,
                 UltimoNumero = 1,
-                UltimaActualizacion = DateTime.Now
+                UltimaActualizacion = DateTime.UtcNow
             };
 
             _context.NumeradorVentas.Add(numerador);
@@ -31,7 +31,7 @@ public class NumeradorRepository : INumeradorRepository
         else
         {
             numerador.UltimoNumero++;
-            numerador.UltimaActualizacion = DateTime.Now;
+            numerador.UltimaActualizacion = DateTime.UtcNow;
         }
 
         await _context.SaveChangesAsync();
