@@ -24,8 +24,6 @@ Console.WriteLine($"PGPASSWORD: '{Environment.GetEnvironmentVariable("PGPASSWORD
 Console.WriteLine($"PGDATABASE: '{Environment.GetEnvironmentVariable("PGDATABASE")}'");
 Console.WriteLine($"ConnectionString config: '{builder.Configuration["ConnectionString"]}'");
 Console.WriteLine("================================");
-var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
