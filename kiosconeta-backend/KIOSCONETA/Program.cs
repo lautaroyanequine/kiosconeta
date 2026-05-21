@@ -121,9 +121,18 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "http://localhost:4200", "http://localhost:7268", "http://localhost:5173")
+            var allowedOrigins = builder.Configuration["AllowedOrigins"]
+                ?.Split(",") ?? [];
+            policy.WithOrigins(
+                    "http://localhost:3000",
+                    "http://localhost:5173")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
+
+            if (allowedOrigins.Length > 0)
+                policy.WithOrigins(allowedOrigins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
         });
 });
 
@@ -143,4 +152,10 @@ app.UseAuthentication();    // ← Verifica el token
 app.UseAuthorization();     // ← Verifica los permisos
 
 app.MapControllers();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.Run();
