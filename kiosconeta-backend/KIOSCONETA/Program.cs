@@ -13,17 +13,6 @@ using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-// LOG TEMPORAL - BORRAR DESPUES
-Console.WriteLine("===== VARIABLES DE ENTORNO =====");
-Console.WriteLine($"DATABASE_URL: '{Environment.GetEnvironmentVariable("DATABASE_URL")}'");
-Console.WriteLine($"PGHOST: '{Environment.GetEnvironmentVariable("PGHOST")}'");
-Console.WriteLine($"PGPORT: '{Environment.GetEnvironmentVariable("PGPORT")}'");
-Console.WriteLine($"PGUSER: '{Environment.GetEnvironmentVariable("PGUSER")}'");
-Console.WriteLine($"PGPASSWORD: '{Environment.GetEnvironmentVariable("PGPASSWORD")}'");
-Console.WriteLine($"PGDATABASE: '{Environment.GetEnvironmentVariable("PGDATABASE")}'");
-Console.WriteLine($"ConnectionString config: '{builder.Configuration["ConnectionString"]}'");
-Console.WriteLine("================================");
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
