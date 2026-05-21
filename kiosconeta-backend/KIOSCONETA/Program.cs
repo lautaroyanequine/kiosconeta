@@ -51,6 +51,13 @@ builder.Services.AddSwaggerGen(c =>
 
 // ========== BASE DE DATOS ==========
 var connectionString = builder.Configuration["ConnectionString"];
+
+// Convertir formato URL de Railway a formato Npgsql
+if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("postgresql://"))
+{
+    var uri = new Uri(connectionString);
+    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={uri.UserInfo.Split(':')[0]};Password={uri.UserInfo.Split(':')[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
