@@ -43,7 +43,7 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<List<ProductoVenta>> GetUltimos30DiasAsync(int kioscoId)
         {
-            var hace30Dias = DateTime.Now.AddDays(-30);
+            var hace30Dias = DateTime.UtcNow.AddDays(-30);
 
             return await _context.ProductosVenta
                 .Include(pv => pv.Producto)

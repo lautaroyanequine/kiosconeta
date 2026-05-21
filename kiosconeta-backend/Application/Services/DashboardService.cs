@@ -34,7 +34,7 @@ namespace Application.Services
         public async Task<DashboardResponseDTO> GetDashboardAsync(int kioscoId)
         {
             var hoy = DateTime.Today;
-            var inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var inicioMes = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
             var ventasHoy = await _ventaRepository.GetVentasDelDiaAsync(kioscoId);
             var gastosHoy = await _gastoRepository.GetDelDiaAsync(kioscoId);
@@ -73,8 +73,8 @@ namespace Application.Services
 
             var resumenMes = new ResumenDelMesDTO
             {
-                Mes = DateTime.Now.Month,
-                Anio = DateTime.Now.Year,
+                Mes = DateTime.UtcNow.Month,
+                Anio = DateTime.UtcNow.Year,
                 CantidadVentas = ventasMesList.Count,
                 TotalVentas = totalVentasMes,
                 TotalGastos = totalGastosMes,
@@ -290,7 +290,7 @@ namespace Application.Services
             var productosActivos = productosList.Count(p => p.Activo);
             var productosBajoStock = productosList.Count(p => p.Activo && p.StockActual <= p.StockMinimo);
 
-            var hoy = DateTime.Now;
+            var hoy = DateTime.UtcNow;
 
             var proximosVencer = productosList.Count(p =>
                 p.Activo &&

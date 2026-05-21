@@ -22,7 +22,7 @@ public class PromocionRepository : IPromocionRepository
 
     public async Task<IEnumerable<Promocion>> GetActivasByKioscoAsync(int kioscoId)
     {
-        var hoy = DateTime.Now;
+        var hoy = DateTime.UtcNow;
         return await _context.Promociones
             .Include(p => p.PromocionProductos).ThenInclude(pp => pp.Producto)
                 .ThenInclude(prod => prod.Categoria)

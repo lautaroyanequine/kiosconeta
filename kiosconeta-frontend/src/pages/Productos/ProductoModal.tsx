@@ -33,6 +33,8 @@ interface FormState {
   stockMinimo: string;
   categoriaId: string;
   fechaVencimiento: string;
+  distribuidor: string;
+
 }
 
 const FORM_INICIAL: FormState = {
@@ -44,6 +46,8 @@ const FORM_INICIAL: FormState = {
   stockMinimo: '10',
   categoriaId: '',
   fechaVencimiento: '',
+  distribuidor: ''
+
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -73,6 +77,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
         stock: String(producto.stockActual),
         stockMinimo: String(producto.stockMinimo),
         categoriaId: String(producto.categoriaId),
+        distribuidor: producto.distribuidor ?? '',
         fechaVencimiento: producto.fechaVencimiento
           ? producto.fechaVencimiento.split('T')[0]
           : '',
@@ -127,6 +132,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
       stockActual: Number(form.stock),
       stockMinimo: Number(form.stockMinimo),
       categoriaId: Number(form.categoriaId),
+      distribuidor: form.distribuidor.trim() || undefined,
       fechaVencimiento: form.fechaVencimiento || undefined,
       suelto: false,
       kioscoId: user!.kioscoId,
@@ -304,6 +310,15 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
             <span className="input-error">{errores.categoriaId}</span>
           )}
         </div>
+
+
+          <Input
+          label="Distribuidor"
+          value={form.distribuidor ?? ''}
+          onChange={e => handleChange('distribuidor', e.target.value)}
+          placeholder="Ej: Hangar, Coca Cola, etc. (opcional)"
+          helperText="Opcional"
+        />
 
         {/* Fecha de vencimiento */}
         <Input

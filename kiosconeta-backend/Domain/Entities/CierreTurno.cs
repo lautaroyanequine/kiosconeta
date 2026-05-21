@@ -107,7 +107,7 @@ namespace Domain.Entities
             CantidadVentas = cantidadVentas;
 
             Estado = EstadoCierre.Cerrado;
-            FechaCierre = DateTime.Now;
+            FechaCierre = DateTime.UtcNow;
 
             if (!string.IsNullOrWhiteSpace(observacionesExtra))
                 Observaciones += "\n" + observacionesExtra;

@@ -60,7 +60,7 @@ namespace Application.Services
                 Email = usuario.Email,
                 KioscoId = empleado.KioscoID,
                 Token = token,
-                Expiracion = DateTime.Now.AddHours(
+                Expiracion = DateTime.UtcNow.AddHours(
                     int.Parse(_configuration["Jwt:ExpirationHours"] ?? "8")
                 )
             };
@@ -117,7 +117,7 @@ namespace Application.Services
                 Email = null,
                 KioscoId = empleado.KioscoID,
                 Token = token,
-                Expiracion = DateTime.Now.AddHours(
+                Expiracion = DateTime.UtcNow.AddHours(
                     int.Parse(_configuration["Jwt:ExpirationHours"] ?? "8")
                 ),
                 Permisos = permisosNombres
@@ -196,7 +196,7 @@ namespace Application.Services
                 Email = usuario.Email,
                 KioscoId = kiosco.KioscoID,
                 Token = token,
-                Expiracion = DateTime.Now.AddHours(
+                Expiracion = DateTime.UtcNow.AddHours(
                     int.Parse(_configuration["Jwt:ExpirationHours"] ?? "8")
                 )
             };
@@ -295,7 +295,7 @@ namespace Application.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(
+                expires: DateTime.UtcNow.AddHours(
                     int.Parse(_configuration["Jwt:ExpirationHours"] ?? "8")
                 ),
                 signingCredentials: credentials

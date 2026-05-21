@@ -82,7 +82,7 @@ namespace Infraestructure.Repository
 
         public async Task<IEnumerable<Producto>> GetProximosAVencerAsync(int kioscoId, int dias = 7)
         {
-            var fechaLimite = DateTime.Now.AddDays(dias);
+            var fechaLimite = DateTime.UtcNow.AddDays(dias);
 
             return await _context.Productos
                 .Include(p => p.Categoria)
@@ -121,7 +121,7 @@ namespace Infraestructure.Repository
 
         public async Task<Producto> CreateAsync(Producto producto)
         {
-            producto.FechaCreacion = DateTime.Now;
+            producto.FechaCreacion = DateTime.UtcNow;
             producto.Activo = true;
 
             _context.Productos.Add(producto);
@@ -147,7 +147,7 @@ namespace Infraestructure.Repository
 
             // Soft delete - solo desactivamos
             producto.Activo = false;
-            producto.FechaModificacion = DateTime.Now;
+            producto.FechaModificacion = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;

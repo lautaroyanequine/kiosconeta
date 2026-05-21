@@ -220,10 +220,10 @@ namespace Application.Services
         {
             var margen = producto.PrecioVenta - producto.PrecioCosto;
             var bajoStock = producto.StockActual <= producto.StockMinimo;
-            var vencido = producto.FechaVencimiento.HasValue && producto.FechaVencimiento.Value < DateTime.Now;
+            var vencido = producto.FechaVencimiento.HasValue && producto.FechaVencimiento.Value < DateTime.UtcNow;
             var proximoAVencer = producto.FechaVencimiento.HasValue
-                && producto.FechaVencimiento.Value >= DateTime.Now
-                && producto.FechaVencimiento.Value <= DateTime.Now.AddDays(7);
+                && producto.FechaVencimiento.Value >= DateTime.UtcNow
+                && producto.FechaVencimiento.Value <= DateTime.UtcNow.AddDays(7);
 
             return new ProductoResponseDTO
             {

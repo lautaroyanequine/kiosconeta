@@ -92,7 +92,7 @@ namespace Application.Services
                 Tipo = dto.Tipo,
                 KioscoId = kioscoId,
                 EmpleadoId = dto.EmpleadoId,
-                Fecha = DateTime.Now
+                Fecha = DateTime.UtcNow
             };
 
             var creado = await _cajaRepository.CreateMovimientoAsync(movimiento);
