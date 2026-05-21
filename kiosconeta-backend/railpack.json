@@ -1,9 +1,0 @@
-{
-  "provider": "dotnet",
-  "build": {
-    "command": "dotnet publish KIOSCONETA/KIOSCONETA.csproj -c Release -o out"
-  },
-  "deploy": {
-    "command": "dotnet out/KIOSCONETA.dll"
-  }
-}
