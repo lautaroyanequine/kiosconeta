@@ -204,7 +204,7 @@ const VentasPage: React.FC = () => {
     if (!ventaAAnular) return;
     setIsAnulando(true);
     try {
-      await ventasApi.anular(ventaAAnular.ventaId);
+      await ventasApi.anular(ventaAAnular.ventaId,"Anulación manual");
       setVentas((prev) =>
         prev.map((v) =>
           v.ventaId === ventaAAnular.ventaId ? { ...v, anulada: true } : v

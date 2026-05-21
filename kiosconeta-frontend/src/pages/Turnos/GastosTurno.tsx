@@ -75,14 +75,14 @@ export const GastosTurno: React.FC<GastosTurnoProps> = ({ cierreTurnoId }) => {
     try {
       const tipo = tiposGasto.find(t => t.tipoDeGastoId === tipoSeleccionado)
 
-      const nuevoGasto = await gastosApi.create({
-        descripcion: descripcion.trim(),
-        monto: parseFloat(monto),
-        empleadoId: empleadoActivo?.empleadoId ?? user?.empleadoId,
-        tipoDeGastoId: Number(tipoSeleccionado),
-        cierreTurnoId,
-      })
-
+const nuevoGasto = await gastosApi.create({
+  nombre: "Gasto",
+  descripcion: descripcion.trim(),
+  monto: parseFloat(monto),
+  empleadoId: empleadoActivo?.empleadoId ?? user?.empleadoId,
+  tipoDeGastoId: Number(tipoSeleccionado),
+  cierreTurnoId,
+})
       setGastos(prev => [...prev, nuevoGasto])
       limpiarYCerrar()
     } catch (err: any) {
