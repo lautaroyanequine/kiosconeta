@@ -50,13 +50,21 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // ========== BASE DE DATOS ==========
-var connectionString = builder.Configuration["ConnectionString"];
+// Lee DATABASE_URL (Railway) o ConnectionString (local/appsettings)
+var rawConnection = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration["ConnectionString"]
+    ?? throw new InvalidOperationException("No se encontró connection string");
 
-// Convertir formato URL de Railway a formato Npgsql
-if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("postgresql://"))
+string connectionString;
+if (rawConnection.StartsWith("postgresql://") || rawConnection.StartsWith("postgres://"))
 {
-    var uri = new Uri(connectionString);
-    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={uri.UserInfo.Split(':')[0]};Password={uri.UserInfo.Split(':')[1]};SSL Mode=Require;Trust Server Certificate=true";
+    var uri = new Uri(rawConnection);
+    var userInfo = uri.UserInfo.Split(':');
+    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
+else
+{
+    connectionString = rawConnection;
 }
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
