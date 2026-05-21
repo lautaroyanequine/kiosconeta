@@ -170,7 +170,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AllowFrontend");
 
 // ⚠️ IMPORTANTE: El orden es Authentication SIEMPRE antes de Authorization
