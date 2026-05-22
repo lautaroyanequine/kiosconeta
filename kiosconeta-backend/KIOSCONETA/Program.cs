@@ -15,6 +15,8 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+// Esto le dice al driver que deje de ser tan estricto con el Kind
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // ========== SWAGGER CON SOPORTE JWT ==========
 // Esto agrega el botón "Authorize" en Swagger para que puedas probar endpoints protegidos

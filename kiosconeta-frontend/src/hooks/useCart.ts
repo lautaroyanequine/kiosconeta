@@ -64,7 +64,8 @@ export const useCart = (kioscoId?: number) => {
 
   // ── Agregar ───────────────────────────────────────────────────────────────
 
-  const addItem = (producto: ProductoSimple) => {
+  const addItem = (producto: ProductoSimple,precioOverride?: number) => {
+    const precio = precioOverride ?? producto.precioVenta; 
     setItems(prev => {
       const existing = prev.find(i => i.productoId === producto.productoId);
       if (existing) {
@@ -81,9 +82,9 @@ export const useCart = (kioscoId?: number) => {
       return [...prev, {
         productoId:     producto.productoId,
         nombre:         producto.nombre,
-        precioUnitario: producto.precioVenta,
+        precioUnitario: precio,
         cantidad:       1,
-        subtotal:       producto.precioVenta,
+        subtotal:       precio,
         stock:          producto.stock,
       }];
     });

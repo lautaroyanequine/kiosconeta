@@ -101,6 +101,7 @@ namespace Application.Services
                     throw new InvalidOperationException($"Ya existe un producto con el código de barra: {dto.CodigoBarra}");
                 }
             }
+            
 
             // Mapear DTO a Entidad
             var producto = new Producto
@@ -116,7 +117,9 @@ namespace Application.Services
                 StockActual = dto.StockActual,
                 StockMinimo = dto.StockMinimo,
                 KioscoId = dto.KioscoId,
-                FechaVencimiento = dto.FechaVencimiento,
+                FechaVencimiento = dto.FechaVencimiento.HasValue
+                ? DateTime.SpecifyKind(dto.FechaVencimiento.Value, DateTimeKind.Utc)
+                : (DateTime?)null,
                 Suelto = dto.Suelto
             };
 
