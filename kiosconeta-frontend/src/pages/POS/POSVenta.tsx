@@ -162,6 +162,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   // ── Scanner ───────────────────────────────────────────────────────────────
 
   const buscarPorCodigo = useCallback(async (codigo: string) => {
+    setBusqueda('');
     setUltimoCodigo(codigo);
     try {
       const local = productos.find(p => (p as any).codigoBarra === codigo);
@@ -336,6 +337,12 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
           type="text"
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}
+          onKeyDown={async (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault(); // Evita que se recargue la página
+            await buscarPorCodigo(busqueda);
+          }
+        }}
           placeholder="Buscar por nombre o escanear código... (Enter para agregar)"
           style={{ paddingLeft: '2.5rem' }} // Forzamos espacio para la lupa
           className="w-full pr-4 py-2.5 rounded-lg border border-neutral-300 text-sm

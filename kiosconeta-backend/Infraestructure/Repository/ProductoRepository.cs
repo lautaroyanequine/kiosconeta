@@ -99,7 +99,8 @@ namespace Infraestructure.Repository
         {
             return await _context.Productos
                 .Include(p => p.Categoria)
-                .FirstOrDefaultAsync(p => p.CodigoBarra == codigoBarra && p.Activo);
+                .FirstOrDefaultAsync(p => p.CodigoBarra == codigoBarra && p.Activo == true);
+
         }
 
         public async Task<IEnumerable<Producto>> SearchAsync(string searchTerm, int kioscoId)

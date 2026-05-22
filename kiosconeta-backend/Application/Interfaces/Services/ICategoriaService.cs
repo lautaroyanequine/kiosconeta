@@ -9,5 +9,6 @@ namespace Application.Interfaces.Services
         Task<CategoriaResponseDTO> CreateAsync(CreateCategoriaDTO dto);
         Task<CategoriaResponseDTO> UpdateAsync(UpdateCategoriaDTO dto);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<CategoriaResponseDTO>> GetByKioscoIdAsync(int kioscoId);
     }
 }

@@ -152,6 +152,7 @@ namespace KIOSCONETA.Controllers
         {
             try
             {
+                string codigoLimpio = codigoBarra.Trim();
                 var producto = await _productoService.GetByCodigoBarraAsync(codigoBarra);
 
                 if (producto == null)
@@ -289,7 +290,7 @@ namespace KIOSCONETA.Controllers
         /// Actualizar stock de un producto (suma o resta)
         [HttpPatch("{id}/stock")]
         [RequierePermiso("productos.ajustar_stock")]
-        public async Task<ActionResult> ActualizarStock(int id, [FromQuery] int cantidad, int idEmpleado)
+        public async Task<ActionResult> ActualizarStock(int id, [FromQuery] int cantidad, [FromQuery] int idEmpleado)
         {
             try
             {

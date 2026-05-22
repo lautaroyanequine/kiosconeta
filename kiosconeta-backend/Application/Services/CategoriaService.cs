@@ -40,13 +40,14 @@ namespace Application.Services
                 throw new InvalidOperationException("El nombre de la categoría es obligatorio");
 
             // No puede haber categorías con el mismo nombre
-            var existe = await _categoriaRepository.ExistsNombreAsync(dto.Nombre);
+            var existe = await _categoriaRepository.ExistsNombreByKioscoAsync(dto.Nombre,dto.kioscoId);
             if (existe)
                 throw new InvalidOperationException($"Ya existe una categoría con el nombre '{dto.Nombre}'");
 
             var categoria = new Categoria
             {
-                Nombre = dto.Nombre.Trim()
+                Nombre = dto.Nombre.Trim(),
+                KioscoId = dto.kioscoId
             };
 
             var creada = await _categoriaRepository.CreateAsync(categoria);
@@ -89,7 +90,15 @@ namespace Application.Services
 
             return await _categoriaRepository.DeleteAsync(id);
         }
+        public async Task<IEnumerable<CategoriaResponseDTO>> GetByKioscoIdAsync(int kioscoId)
+        {
+            var categorias = await _categoriaRepository.GetAllByKioscoAsync(kioscoId);
+            var result = new List<CategoriaResponseDTO>();
+            foreach (var categoria in categorias)
+                result.Add(await MapToResponseDTO(categoria));
 
+            return result;
+        }
         // ========== MAPEO ==========
         private async Task<CategoriaResponseDTO> MapToResponseDTO(Categoria categoria)
         {

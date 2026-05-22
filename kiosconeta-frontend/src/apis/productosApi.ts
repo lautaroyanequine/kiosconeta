@@ -160,11 +160,12 @@ export const productosApi = {
   ajustarStock: async (
     id: number,
     cantidad: number,
+    idEmpleado: number,
     _operacion?: 'agregar' | 'quitar'
   ): Promise<void> => {
     try {
       await apiClient.patch(
-        `${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/stock?cantidad=${cantidad}`
+        `${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/stock?cantidad=${cantidad}&idEmpleado=${idEmpleado}`
       );
     } catch (error) {
       return handleError(error);

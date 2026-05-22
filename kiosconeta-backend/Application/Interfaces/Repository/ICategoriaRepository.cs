@@ -10,6 +10,12 @@ namespace Application.Interfaces.Repository
         Task<bool> ExistsAsync(int id);
         Task<bool> ExistsNombreAsync(string nombre);
 
+        Task<bool> ExistsNombreByKioscoAsync(string nombre, int kioscoId); 
+        
+      
+        Task<IEnumerable<Categoria>> GetAllByKioscoAsync(int kioscoId);
+
+
         // Comandos
         Task<Categoria> CreateAsync(Categoria categoria);
         Task<Categoria> UpdateAsync(Categoria categoria);

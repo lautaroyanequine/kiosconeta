@@ -69,7 +69,7 @@ export const useProductos = () => {
     try {
       const [prods, cats] = await Promise.all([
         productosApi.getByKiosco(user.kioscoId),  // ← solo este kiosco
-        categoriasApi.getAll(),
+        categoriasApi.getByKiosco(user.kioscoId),
       ]);
       setProductos(prods);
       setCategorias(cats);
@@ -181,7 +181,7 @@ export const useProductos = () => {
 
   const ajustarStock = async (productoId: number, cantidad: number) => {
     try {
-      await productosApi.ajustarStock(productoId, Math.abs(cantidad), cantidad > 0 ? 'agregar' : 'quitar');
+      await productosApi.ajustarStock(productoId, Math.abs(cantidad),user!.empleadoId, cantidad > 0 ? 'agregar' : 'quitar');
       setProductos((prev) =>
         prev.map((p) =>
           p.productoId === productoId
@@ -204,13 +204,13 @@ export const useProductos = () => {
     productoId: number,
     cantidad: number,
     distribuidor: string,
-    precioCosto: number
+    precioCosto: number,
   ) => {
     const producto = productos.find((p) => p.productoId === productoId);
     if (!producto) throw new Error('Producto no encontrado');
 
     // 1. Sumar stock
-    await productosApi.ajustarStock(productoId, cantidad, 'agregar');
+    await productosApi.ajustarStock(productoId, cantidad,user!.empleadoId, 'agregar',);
 
     // 2. Si cambió el costo o el distribuidor, actualizar el producto
     const costoCambio = precioCosto !== producto.precioCosto;

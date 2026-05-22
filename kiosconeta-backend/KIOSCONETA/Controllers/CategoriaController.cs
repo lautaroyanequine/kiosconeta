@@ -32,6 +32,19 @@ namespace KIOSCONETA.Controllers
             }
         }
 
+        [HttpGet("kiosco/{kioscoId}")]
+        public async Task<ActionResult<IEnumerable<CategoriaResponseDTO>>> GetByKiosco(int kioscoId)
+        {
+            try
+            {
+                var categorias = await _categoriaService.GetByKioscoIdAsync(kioscoId);
+                return Ok(categorias);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener categorías del kiosco", error = ex.Message });
+            }
+        }
         /// <summary>
         /// Obtener categoría por ID
         /// </summary>
