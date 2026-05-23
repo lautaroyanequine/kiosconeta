@@ -8,13 +8,9 @@
         public int TurnoId { get; set; }
         public string? Detalles { get; set; }
         public List<ProductoVentaDTO> Productos { get; set; } = new();
-
-        /// <summary>
-        /// Descuento total a aplicar sobre el subtotal.
-        /// Puede venir de promos detectadas por el backend o de combos.
-        /// El backend lo valida contra el subtotal (no puede ser mayor).
-        /// </summary>
+        public int? PromocionId { get; set; }
         public decimal Descuento { get; set; } = 0;
+        public int? CantidadCombos { get; set; }
     }
 
     // ─── PRODUCTO DENTRO DE LA VENTA ────────────────

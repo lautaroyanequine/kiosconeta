@@ -10,6 +10,8 @@ export interface Venta {
   ventaId: number;
   fecha: string;
   total: number;
+  subtotal: number;     
+  descuento: number; 
   precioCosto: number;
   ganancia: number;
   margenGanancia: number;
@@ -49,6 +51,8 @@ export interface CreateVentaDTO {
   detalles?: string;        // Observaciones opcionales
   productos: CreateProductoVentaDTO[];
   descuento?: number   
+  promocionId?:   number;   
+  cantidadCombos?: number; 
 }
 
 export interface CreateProductoVentaDTO {

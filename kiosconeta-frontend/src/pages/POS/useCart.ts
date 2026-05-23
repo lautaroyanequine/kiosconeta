@@ -25,30 +25,32 @@ export const useCart = (kioscoId?: number) => {
   // ── Detectar promos (debounced 500ms) ────────────────────────────────────
 
   const detectarPromos = useCallback(async (currentItems: ItemCarrito[]) => {
-    if (!kioscoId || currentItems.length === 0) {
-      setPromosAplicadas([]);
-      setTotalDescuento(0);
-      return;
-    }
-    setDetectandoPromos(true);
-    try {
-      const resultado = await promocionesApi.detectar(
-        kioscoId,
-        currentItems.map(i => ({
-          productoId:     i.productoId,
-          cantidad:       i.cantidad,
-          precioUnitario: i.precioUnitario,
-        }))
-      );
-      setPromosAplicadas(resultado.promocionesAplicadas);
-      setTotalDescuento(resultado.totalDescuento);
-    } catch {
-      setPromosAplicadas([]);
-      setTotalDescuento(0);
-    } finally {
-      setDetectandoPromos(false);
-    }
-  }, [kioscoId]);
+  const itemsReales = currentItems.filter(i => i.productoId > 0); // ← ignorar combos virtuales
+
+  if (!kioscoId || itemsReales.length === 0) {
+    setPromosAplicadas([]);
+    setTotalDescuento(0);
+    return;
+  }
+  setDetectandoPromos(true);
+  try {
+    const resultado = await promocionesApi.detectar(
+      kioscoId,
+      itemsReales.map(i => ({   // ← antes era currentItems
+        productoId:     i.productoId,
+        cantidad:       i.cantidad,
+        precioUnitario: i.precioUnitario,
+      }))
+    );
+    setPromosAplicadas(resultado.promocionesAplicadas);
+    setTotalDescuento(resultado.totalDescuento);
+  } catch {
+    setPromosAplicadas([]);
+    setTotalDescuento(0);
+  } finally {
+    setDetectandoPromos(false);
+  }
+}, [kioscoId]);
 
   // Cada vez que cambian los items, re-detectar con debounce
   useEffect(() => {
@@ -64,30 +66,32 @@ export const useCart = (kioscoId?: number) => {
 
   // ── Agregar ───────────────────────────────────────────────────────────────
 
-  const addItem = (producto: ProductoSimple) => {
-    setItems(prev => {
-      const existing = prev.find(i => i.productoId === producto.productoId);
-      if (existing) {
-        if (existing.cantidad >= existing.stock) {
-          alert('No hay stock suficiente');
-          return prev;
-        }
-        return prev.map(i =>
-          i.productoId === producto.productoId
-            ? { ...i, cantidad: i.cantidad + 1, subtotal: calcularSubtotal(i.precioUnitario, i.cantidad + 1) }
-            : i
-        );
+ const addItem = (producto: ProductoSimple, precioOverride?: number) => {
+  const precio = precioOverride ?? producto.precioVenta;  // ← usa override si existe
+
+  setItems(prev => {
+    const existing = prev.find(i => i.productoId === producto.productoId);
+    if (existing) {
+      if (existing.cantidad >= existing.stock) {
+        alert('No hay stock suficiente');
+        return prev;
       }
-      return [...prev, {
-        productoId:     producto.productoId,
-        nombre:         producto.nombre,
-        precioUnitario: producto.precioVenta,
-        cantidad:       1,
-        subtotal:       producto.precioVenta,
-        stock:          producto.stock,
-      }];
-    });
-  };
+      return prev.map(i =>
+        i.productoId === producto.productoId
+          ? { ...i, cantidad: i.cantidad + 1, subtotal: calcularSubtotal(i.precioUnitario, i.cantidad + 1) }
+          : i
+      );
+    }
+    return [...prev, {
+      productoId:     producto.productoId,
+      nombre:         producto.nombre,
+      precioUnitario: precio,    // ← antes era producto.precioVenta
+      cantidad:       1,
+      subtotal:       precio,    // ← antes era producto.precioVenta
+      stock:          producto.stock,
+    }];
+  });
+};
 
   // ── Quitar ────────────────────────────────────────────────────────────────
 

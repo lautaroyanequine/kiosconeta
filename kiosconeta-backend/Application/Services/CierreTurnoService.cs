@@ -195,9 +195,8 @@ namespace Application.Services
                                      .Sum(v => v.Total);
             var totalVirtual = ventas.Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") != true)
                                     .Sum(v => v.Total);
-            var gananciaTotal = ventas
-            .SelectMany(v => v.ProductoVentas ?? new List<ProductoVenta>())
-            .Sum(pv => (pv.PrecioUnitario - (pv.Producto?.PrecioCosto ?? 0)) * pv.Cantidad);
+            var gananciaTotal = ventas.Sum(v => v.Total - v.PrecioCosto);
+
 
             // Calcular gastos del turno (filtro exacto por CierreTurnoId, aplica siempre)
             var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(cierre.CierreTurnoId);

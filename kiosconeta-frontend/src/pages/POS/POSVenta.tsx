@@ -244,44 +244,73 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   // ── Cobrar ────────────────────────────────────────────────────────────────
 
-  const handleCobrar = useCallback(async () => {
-    if (!cart.isValid || !user) return;
-    if (esEfectivo && montoEfectivo) {
-      const monto = parseFloat(montoEfectivo);
-      if (!isNaN(monto) && monto < cart.total) {
-        alert('El monto ingresado es menor al total');
-        return;
+ const handleCobrar = useCallback(async () => {
+  if (!cart.isValid || !user) return;
+  if (esEfectivo && montoEfectivo) {
+    const monto = parseFloat(montoEfectivo);
+    if (!isNaN(monto) && monto < cart.total) {
+      alert('El monto ingresado es menor al total');
+      return;
+    }
+  }
+
+  setIsProcessing(true);
+  try {
+    // Expandir combos a sus productos reales
+    const productosParaVenta = cart.items.flatMap(item => {
+      if (item.productoId < 0) {
+        const combo = combosVirtuales.find(c => c.productoId === item.productoId);
+        if (!combo) return [];
+        return combo.productosCombo.map(pc => ({
+          productoId: pc.productoId,
+          cantidad:   pc.cantidad * item.cantidad,
+        }));
       }
-    }
+      return [{ productoId: item.productoId, cantidad: item.cantidad }];
+    });
 
-    setIsProcessing(true);
-    try {
-      const venta = await ventasApi.create({
-        empleadoId:   empleadoActivo?.empleadoId ?? user?.empleadoId,
-        metodoPagoId: cart.metodoPagoId!,
-        turnoId:      getStorage<number>(STORAGE_KEYS.TURNO_ID) ?? turnoActual.turnoId,
-        productos:    cart.items.map(i => ({ productoId: i.productoId, cantidad: i.cantidad })),
-        descuento:    cart.totalDescuento > 0 ? cart.totalDescuento : undefined,
-      });
+    // Detectar si hay un combo en el carrito
+    const itemCombo = cart.items.find(i => i.productoId < 0);
+    const promocionId   = itemCombo ? Math.abs(itemCombo.productoId) : undefined;
+    const cantidadCombos = itemCombo ? itemCombo.cantidad : undefined;
 
-      setVentaConfirmada({
-        ventaId:    venta.ventaId,
-        total:      cart.total,
-        metodoPago: metodoPagoSeleccionado?.nombre || '',
-        vuelto:     esEfectivo && vuelto !== null && vuelto >= 0 ? vuelto : undefined,
-        descuento:  cart.totalDescuento > 0 ? cart.totalDescuento : undefined,
-      });
+    const venta = await ventasApi.create({
+      empleadoId:    empleadoActivo?.empleadoId ?? user?.empleadoId,
+      metodoPagoId:  cart.metodoPagoId!,
+      turnoId:       getStorage<number>(STORAGE_KEYS.TURNO_ID) ?? turnoActual.turnoId,
+      productos:     productosParaVenta,
+      descuento:     cart.totalDescuento > 0 ? cart.totalDescuento : undefined,
+      promocionId,    // ← el backend calcula el descuento desde la BD
+      cantidadCombos, // ← cuántas veces se aplicó el combo
+    });
+console.log('RESPUESTA BACKEND:', {
+  ventaId:   venta.ventaId,
+  subtotal:  venta.subtotal,
+  descuento: venta.descuento,
+  total:     venta.total,
+});
+    setVentaConfirmada({
+      ventaId:    venta.ventaId,
+      total:      venta.total,      
+      metodoPago: metodoPagoSeleccionado?.nombre || '',
+      vuelto:     esEfectivo && montoEfectivo
+        ? Math.max(0, parseFloat(montoEfectivo) - venta.total)
+        : undefined,
+      descuento:  venta.descuento > 0 ? venta.descuento : undefined,
+    });
 
-      cart.clearCart();
-      setMontoEfectivo('');
-      setBusqueda('');
-      onTurnoActualizado();
-    } catch (err: any) {
-      alert(err.message || 'Error al procesar la venta');
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [cart, user, turnoActual, esEfectivo, montoEfectivo, vuelto, metodoPagoSeleccionado, onTurnoActualizado]);
+    cart.clearCart();
+    setMontoEfectivo('');
+    setBusqueda('');
+    onTurnoActualizado();
+  } catch (err: any) {
+    alert(err.message || 'Error al procesar la venta');
+  } finally {
+    setIsProcessing(false);
+  }
+}, [cart, user, turnoActual, esEfectivo, montoEfectivo, metodoPagoSeleccionado, onTurnoActualizado, combosVirtuales]);
+  //                                                                                                                                      ↑ agregar productos
+  //                                                                                                            
 
   // ── Loading ───────────────────────────────────────────────────────────────
 
@@ -623,14 +652,19 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               </button>
               <button
                 onClick={() => {
-                  comboModal.combo.productosCombo.forEach(pc => {
-                    const prod = productos.find(p => p.productoId === pc.productoId);
-                    if (!prod) return;
-                    const qty = comboModal.cantidades[pc.productoId] ?? pc.cantidad;
-                    for (let i = 0; i < qty; i++) cart.addItem(prod);
-                  });
-                  setComboModal(null);
-                }}
+  cart.addItem(
+    {
+      productoId: comboModal.combo.productoId,   // ya es negativo (-promocionId)
+      nombre:     comboModal.combo.nombre,
+      precioVenta: comboModal.combo.precioVenta, // precioCombo — ignorado por el override
+      stock:      999,
+      categoria:  'Combo',
+    },
+    comboModal.combo.precioVenta  // precioOverride = precioCombo
+  );
+  setComboModal(null);
+}}
+
                 className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 active:scale-[0.97] transition-all">
                 Agregar al carrito
               </button>

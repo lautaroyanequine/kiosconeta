@@ -3,6 +3,7 @@ using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Enums.Domain.Enums;
 
 public class VentaService : IVentaService
 {
@@ -13,6 +14,7 @@ public class VentaService : IVentaService
     private readonly ICierreTurnoRepository _cierreTurnoRepository;
     private readonly INumeradorRepository _numeradorRepository;
     private readonly IAuditoriaService _auditoriaService;
+    private readonly IPromocionRepository _promocionRepository;
 
     public VentaService(
         IVentaRepository ventaRepository,
@@ -21,7 +23,8 @@ public class VentaService : IVentaService
         IMetodoDePagoRepository metodoDePagoRepository,
         ICierreTurnoRepository cierreTurnoRepository,
         INumeradorRepository numeradorRepository,
-        IAuditoriaService auditoriaService)
+        IAuditoriaService auditoriaService,
+        IPromocionRepository promocionRepository )
     {
         _ventaRepository = ventaRepository;
         _productoRepository = productoRepository;
@@ -30,6 +33,7 @@ public class VentaService : IVentaService
         _cierreTurnoRepository = cierreTurnoRepository;
         _numeradorRepository = numeradorRepository;
         _auditoriaService = auditoriaService;
+        _promocionRepository = promocionRepository;
     }
 
     // ================== HELPERS (CLAVE) ==================
@@ -111,6 +115,7 @@ public class VentaService : IVentaService
 
     public async Task<VentaResponseDTO> CreateAsync(CreateVentaDTO dto)
     {
+
         if (dto.Productos == null || !dto.Productos.Any())
             throw new InvalidOperationException("La venta debe tener al menos un producto");
 
@@ -124,7 +129,6 @@ public class VentaService : IVentaService
             ?? throw new KeyNotFoundException($"Método de pago con ID {dto.MetodoPagoId} no encontrado");
 
         var turnoAbierto = await _cierreTurnoRepository.GetTurnoAbiertoAsync(empleado.KioscoID);
-
         if (turnoAbierto == null)
             throw new InvalidOperationException("No hay ningún turno abierto.");
 
@@ -133,7 +137,6 @@ public class VentaService : IVentaService
         var productosDict = productos.ToDictionary(p => p.ProductoId);
 
         var productosVenta = new List<ProductoVenta>();
-
         decimal totalVenta = 0;
         decimal costoTotal = 0;
 
@@ -158,8 +161,30 @@ public class VentaService : IVentaService
             {
                 ProductoId = producto.ProductoId,
                 Cantidad = productoDto.Cantidad,
-                PrecioUnitario = producto.PrecioVenta
+                PrecioUnitario = producto.PrecioVenta,
             });
+        }
+
+        // ── Si viene un combo, calcular el descuento desde la BD ─────────────
+        decimal descuentoFinal = Math.Min(dto.Descuento, totalVenta);
+
+        if (dto.PromocionId.HasValue)
+        {
+            var promo = await _promocionRepository.GetByIdAsync(dto.PromocionId.Value);
+
+            if (promo == null)
+                throw new KeyNotFoundException($"Promoción {dto.PromocionId} no encontrada");
+
+            if (!promo.Activa)
+                throw new InvalidOperationException($"La promoción '{promo.Nombre}' no está activa");
+
+            if (promo.Tipo == TipoPromocion.Combo && promo.PrecioCombo.HasValue)
+            {
+                // Reemplazar el total por el precio del combo directamente
+                // No importa si es mayor o menor que la suma de componentes
+                totalVenta = promo.PrecioCombo.Value * (dto.CantidadCombos ?? 1);
+                descuentoFinal = 0;
+            }
         }
 
         var numeroVenta = await _numeradorRepository.GenerarNumeroVentaAsync(empleado.KioscoID);
@@ -171,24 +196,19 @@ public class VentaService : IVentaService
             TurnoId = dto.TurnoId,
             CierreTurnoId = turnoAbierto.CierreTurnoId,
             Detalles = dto.Detalles,
-            Subtotal = totalVenta,
-            Descuento = Math.Min(dto.Descuento, totalVenta),
-            Total = totalVenta - Math.Min(dto.Descuento, totalVenta),
+            Subtotal = totalVenta,  // ya es el precio del combo
+            Descuento = descuentoFinal,
+            Total = totalVenta - descuentoFinal,
             PrecioCosto = costoTotal,
             NumeroVenta = numeroVenta,
             ProductoVentas = productosVenta,
-
-            // 🔥 FIX IMPORTANTE
             Fecha = DateTime.UtcNow,
-
-            Anulada = false
+            Anulada = false,
         };
-
+       
         var creada = await _ventaRepository.CreateAsync(venta);
-
         return MapToResponseDTO(creada);
     }
-
     // ================== ANULAR ==================
 
     public async Task<bool> AnularVentaAsync(int ventaId, int empleadoId, string motivo)
