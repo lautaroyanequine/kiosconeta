@@ -32,6 +32,6 @@ namespace Application.Interfaces.Repository
 
         // Validaciones
         Task<bool> ExistsAsync(int id);
-        Task<bool> ExistsCodigoBarraAsync(string codigoBarra);
+        Task<bool> ExistsCodigoBarraAsync(string codigoBarra,int kioscoId);
     }
 }

@@ -95,7 +95,7 @@ namespace Application.Services
 
             if (!string.IsNullOrEmpty(dto.CodigoBarra))
             {
-                var existeCodigo = await _productoRepository.ExistsCodigoBarraAsync(dto.CodigoBarra);
+                var existeCodigo = await _productoRepository.ExistsCodigoBarraAsync(dto.CodigoBarra,dto.KioscoId);
                 if (existeCodigo)
                 {
                     throw new InvalidOperationException($"Ya existe un producto con el código de barra: {dto.CodigoBarra}");
