@@ -103,6 +103,7 @@ builder.Services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();
 builder.Services.AddScoped<IVentaRepository, VentaRepository>();
 builder.Services.AddScoped<IProductoVentaRepository, ProductoVentaRepository>();
 builder.Services.AddScoped<ICajaRepository, CajaRepository>();
+builder.Services.AddScoped<IDistribuidorRepository,DistribuidorRepository>();
 
 builder.Services.AddScoped<ICierreTurnoRepository, CierreTurnoRepository>();
 builder.Services.AddScoped<IGastoRepository, GastoRepository>();

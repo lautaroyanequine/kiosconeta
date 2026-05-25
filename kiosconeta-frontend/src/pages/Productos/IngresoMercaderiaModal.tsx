@@ -8,7 +8,7 @@ import { Search, PackagePlus, X, TrendingUp } from 'lucide-react';
 import { Modal, Button, Input } from '@/components/commons';
 import { formatCurrency } from '@/utils/formatters';
 import { calcularMargenGanancia } from '@/utils/helpers';
-import type { Producto } from '@/types';
+import type { Producto ,Distribuidor} from '@/types';
 
 // ────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -18,10 +18,11 @@ interface IngresoMercaderiaModalProps {
   isOpen: boolean;
   productos: Producto[];
   onClose: () => void;
+  distribuidores: Distribuidor[]; 
   onConfirmar: (
     productoId: number,
     cantidad: number,
-    distribuidor: string,
+    distribuidorId: number | undefined,
     precioCosto: number
   ) => Promise<void>;
 }
@@ -33,13 +34,14 @@ interface IngresoMercaderiaModalProps {
 export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
   isOpen,
   productos,
+  distribuidores,
   onClose,
   onConfirmar,
 }) => {
   const [busqueda, setBusqueda] = useState('');
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
   const [cantidad, setCantidad] = useState('');
-  const [distribuidor, setDistribuidor] = useState('');
+  const [distribuidorId, setDistribuidorId] = useState<number | undefined>(undefined);
   const [precioCosto, setPrecioCosto] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -51,7 +53,7 @@ export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
       setBusqueda('');
       setProductoSeleccionado(null);
       setCantidad('');
-      setDistribuidor('');
+      setDistribuidorId(undefined);   
       setPrecioCosto('');
       setError('');
       setTimeout(() => searchRef.current?.focus(), 100);
@@ -70,7 +72,7 @@ export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
   const seleccionar = (p: Producto) => {
     setProductoSeleccionado(p);
     setBusqueda(p.nombre);
-    setDistribuidor(p.distribuidor ?? '');
+    setDistribuidorId(p.distribuidorId ?? undefined);
     setPrecioCosto(String(p.precioCosto));
     setError('');
   };
@@ -79,7 +81,7 @@ export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
     setProductoSeleccionado(null);
     setBusqueda('');
     setCantidad('');
-    setDistribuidor('');
+    setDistribuidorId(undefined);
     setPrecioCosto('');
     setError('');
     setTimeout(() => searchRef.current?.focus(), 50);
@@ -97,7 +99,7 @@ export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
     setIsSaving(true);
     setError('');
     try {
-      await onConfirmar(productoSeleccionado.productoId, n, distribuidor.trim(), costo);
+      await onConfirmar(productoSeleccionado.productoId, n, distribuidorId, costo);
     } catch (err: any) {
       setError(err.message || 'Error al registrar el ingreso');
     } finally {
@@ -261,13 +263,16 @@ export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
           </div>
 
           {/* Distribuidor */}
-          <Input
-            label="Distribuidor"
-            placeholder="Ej: Coca Cola S.A., Distribuidora Norte..."
-            value={distribuidor}
-            onChange={(e) => setDistribuidor(e.target.value)}
-            helperText="Se guardará en el producto para referencia futura"
-          />
+          <select
+  value={distribuidorId ?? ''}
+  onChange={e => setDistribuidorId(e.target.value ? Number(e.target.value) : undefined)}
+  className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary"
+>
+      <option value="">Sin distribuidor</option>
+      {distribuidores.filter((d: Distribuidor) => d.activo).map((d: Distribuidor) => (
+        <option key={d.distribuidorId} value={d.distribuidorId}>{d.nombre}</option>
+      ))}
+    </select>
         </>
       )}
 

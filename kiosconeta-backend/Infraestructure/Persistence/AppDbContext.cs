@@ -35,7 +35,7 @@ namespace Infraestructure.Persistence
         public DbSet<Producto> Productos { get; set; }
         public DbSet<ProductoVenta> ProductosVenta { get; set; } // intermedia
         public DbSet<Categoria> Categorias { get; set; }
-
+        public DbSet<Distribuidor> Distribuidores { get; set; }
         // ===== Gastos =====
         public DbSet<Gasto> Gastos { get; set; }
         public DbSet<TipoDeGasto> TiposDeGasto { get; set; }

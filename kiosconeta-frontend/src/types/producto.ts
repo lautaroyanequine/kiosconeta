@@ -22,7 +22,8 @@ export interface Producto {
   bajoStock?: boolean;
   margenGanancia?: number;
   suelto?: boolean;
-  distribuidor?: string;        // para ingreso de mercadería
+  distribuidorId?: number;        
+distribuidorNombre?: string;       
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -54,7 +55,8 @@ export interface UpdateProductoDTO {
   fechaVencimiento?: string;
   activo: boolean;
   suelto?: boolean;
-  distribuidor?: string;
+  distribuidorId?: number;         
+distribuidorNombre?: string; 
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -95,4 +97,21 @@ export interface ProductoFiltros {
   categoriaId?: number;
   stockBajo?: boolean;      // true = solo productos con stock < stockMinimo
   activo?: boolean;
+}
+
+export interface Distribuidor {
+  distribuidorId: number;
+  nombre: string;
+  telefono?: string;
+  email?: string;
+  notas?: string;
+  activo: boolean;
+  cantidadProductos: number;
+}
+
+export interface CreateDistribuidorDTO {
+  nombre: string;
+  telefono?: string;
+  email?: string;
+  notas?: string;
 }

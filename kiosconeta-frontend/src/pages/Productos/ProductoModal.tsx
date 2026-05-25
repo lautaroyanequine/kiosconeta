@@ -7,7 +7,7 @@ import { Modal, Input, Button } from '@/components/commons';
 import { calcularMargenGanancia } from '@/utils/helpers';
 import { formatCurrency } from '@/utils/formatters';
 import { useAuth } from '@/contexts/AuthContext'
-import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO } from '@/types';
+import type { Producto, Distribuidor,Categoria, CreateProductoDTO, UpdateProductoDTO } from '@/types';
 import type { ModalMode } from './useProductos';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -20,8 +20,12 @@ interface ProductoModalProps {
   categorias: Categoria[];
   isSaving: boolean;
   saveError: string | null;
+  distribuidores: Distribuidor[];
+
   onClose: () => void;
   onSave: (data: CreateProductoDTO | UpdateProductoDTO) => void;
+
+
 }
 
 interface FormState {
@@ -33,8 +37,7 @@ interface FormState {
   stockMinimo: string;
   categoriaId: string;
   fechaVencimiento: string;
-  distribuidor: string;
-
+  distribuidorId: string;      
 }
 
 const FORM_INICIAL: FormState = {
@@ -46,8 +49,7 @@ const FORM_INICIAL: FormState = {
   stockMinimo: '10',
   categoriaId: '',
   fechaVencimiento: '',
-  distribuidor: ''
-
+  distribuidorId: '',
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -58,6 +60,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
   mode,
   producto,
   categorias,
+  distribuidores,
   isSaving,
   saveError,
   onClose,
@@ -66,27 +69,26 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
   const [form, setForm] = useState<FormState>(FORM_INICIAL);
   const [errores, setErrores] = useState<Partial<FormState>>({});
 
-  // Poblar el form al editar
   useEffect(() => {
-    if (mode === 'editar' && producto) {
-      setForm({
-        nombre: producto.nombre,
-        codigoBarras: producto.codigoBarra || '',
-        precioCosto: String(producto.precioCosto),
-        precioVenta: String(producto.precioVenta),
-        stock: String(producto.stockActual),
-        stockMinimo: String(producto.stockMinimo),
-        categoriaId: String(producto.categoriaId),
-        distribuidor: producto.distribuidor ?? '',
-        fechaVencimiento: producto.fechaVencimiento
-          ? producto.fechaVencimiento.split('T')[0]
-          : '',
-      });
-    } else {
-      setForm(FORM_INICIAL);
-    }
-    setErrores({});
-  }, [mode, producto]);
+  if (mode === 'editar' && producto) {
+    setForm({
+      nombre: producto.nombre,
+      codigoBarras: producto.codigoBarra || '',
+      precioCosto: String(producto.precioCosto),
+      precioVenta: String(producto.precioVenta),
+      stock: String(producto.stockActual),
+      stockMinimo: String(producto.stockMinimo),
+      categoriaId: String(producto.categoriaId),
+      distribuidorId: producto.distribuidorId ? String(producto.distribuidorId) : '', // ← cambio
+      fechaVencimiento: producto.fechaVencimiento
+        ? producto.fechaVencimiento.split('T')[0]
+        : '',
+    });
+  } else {
+    setForm(FORM_INICIAL);
+  }
+  setErrores({});
+}, [mode, producto]);
 
   // ── Handlers ──────────────────────────────────────────────────────────
 
@@ -125,18 +127,18 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
     if (!validar()) return;
 
     const base = {
-      nombre: form.nombre.trim(),
-      codigoBarra: form.codigoBarras.trim() || undefined,
-      precioCosto: Number(form.precioCosto),
-      precioVenta: Number(form.precioVenta),
-      stockActual: Number(form.stock),
-      stockMinimo: Number(form.stockMinimo),
-      categoriaId: Number(form.categoriaId),
-      distribuidor: form.distribuidor.trim() || undefined,
-      fechaVencimiento: form.fechaVencimiento || undefined,
-      suelto: false,
-      kioscoId: user!.kioscoId,
-    };
+  nombre: form.nombre.trim(),
+  codigoBarra: form.codigoBarras.trim() || undefined,
+  precioCosto: Number(form.precioCosto),
+  precioVenta: Number(form.precioVenta),
+  stockActual: Number(form.stock),
+  stockMinimo: Number(form.stockMinimo),
+  categoriaId: Number(form.categoriaId),
+  distribuidorId: form.distribuidorId ? Number(form.distribuidorId) : undefined, // ← cambio
+  fechaVencimiento: form.fechaVencimiento || undefined,
+  suelto: false,
+  kioscoId: user!.kioscoId,
+};
 
     if (mode === 'editar' && producto) {
       onSave({
@@ -312,13 +314,16 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
         </div>
 
 
-          <Input
-          label="Distribuidor"
-          value={form.distribuidor ?? ''}
-          onChange={e => handleChange('distribuidor', e.target.value)}
-          placeholder="Ej: Hangar, Coca Cola, etc. (opcional)"
-          helperText="Opcional"
-        />
+         <select
+          value={form.distribuidorId}
+          onChange={e => handleChange('distribuidorId', e.target.value)}
+          className="px-3 py-2 border border-neutral-300 rounded-lg text-sm w-full focus:outline-none focus:border-primary"
+        >
+          <option value="">Sin distribuidor</option>
+          {distribuidores.filter((d: Distribuidor) => d.activo).map((d: Distribuidor) => (
+            <option key={d.distribuidorId} value={d.distribuidorId}>{d.nombre}</option>
+          ))}
+        </select>
 
         {/* Fecha de vencimiento */}
         <Input

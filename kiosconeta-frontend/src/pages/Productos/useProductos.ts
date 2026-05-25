@@ -5,8 +5,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { productosApi, categoriasApi } from '@/apis';
 import { useAuth } from '@/contexts/AuthContext';
-import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO } from '@/types';
-
+import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO ,Distribuidor} from '@/types';
+import { distribuidoresApi } from '@/apis/distribuidoresApi';
 // ────────────────────────────────────────────────────────────────────────────
 // TYPES
 // ────────────────────────────────────────────────────────────────────────────
@@ -30,6 +30,7 @@ export const useProductos = () => {
   // ── Estado: datos ──────────────────────────────────────────────────────
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [distribuidores, setDistribuidores] = useState<Distribuidor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,6 +71,7 @@ export const useProductos = () => {
       const [prods, cats] = await Promise.all([
         productosApi.getByKiosco(user.kioscoId),  // ← solo este kiosco
         categoriasApi.getByKiosco(user.kioscoId),
+        distribuidoresApi.getByKiosco(user.kioscoId),
       ]);
       setProductos(prods);
       setCategorias(cats);
@@ -201,53 +203,50 @@ export const useProductos = () => {
   // ────────────────────────────────────────────────────────────────────────
 
   const ingresarMercaderia = async (
-    productoId: number,
-    cantidad: number,
-    distribuidor: string,
-    precioCosto: number,
-  ) => {
-    const producto = productos.find((p) => p.productoId === productoId);
-    if (!producto) throw new Error('Producto no encontrado');
+  productoId: number,
+  cantidad: number,
+  distribuidorId: number | undefined,
+  precioCosto: number,
+) => {
+  const producto = productos.find(p => p.productoId === productoId);
+  if (!producto) throw new Error('Producto no encontrado');
 
-    // 1. Sumar stock
-    await productosApi.ajustarStock(productoId, cantidad,user!.empleadoId, 'agregar',);
+  await productosApi.ajustarStock(productoId, cantidad, user!.empleadoId, 'agregar');
 
-    // 2. Si cambió el costo o el distribuidor, actualizar el producto
-    const costoCambio = precioCosto !== producto.precioCosto;
-    const distribuidorCambio = distribuidor && distribuidor !== producto.distribuidor;
+  const costoCambio       = precioCosto !== producto.precioCosto;
+  const distribuidorCambio = distribuidorId !== producto.distribuidorId;
 
-    if (costoCambio || distribuidorCambio) {
-      await productosApi.update(productoId, {
-        productoId,
-        nombre: producto.nombre,
-        codigoBarra: producto.codigoBarra,
-        precioCosto: costoCambio ? precioCosto : producto.precioCosto,
-        precioVenta: producto.precioVenta,
-        stockActual: producto.stockActual + cantidad,
-        stockMinimo: producto.stockMinimo,
-        categoriaId: producto.categoriaId,
-        fechaVencimiento: producto.fechaVencimiento,
-        activo: producto.activo,
-        suelto: producto.suelto ?? false,
-        distribuidor: distribuidorCambio ? distribuidor : producto.distribuidor,
-      });
-    }
+  if (costoCambio || distribuidorCambio) {
+    await productosApi.update(productoId, {
+      productoId,
+      nombre:        producto.nombre,
+      codigoBarra:   producto.codigoBarra,
+      precioCosto:   costoCambio ? precioCosto : producto.precioCosto,
+      precioVenta:   producto.precioVenta,
+      stockActual:   producto.stockActual + cantidad,
+      stockMinimo:   producto.stockMinimo,
+      categoriaId:   producto.categoriaId,
+      distribuidorId: distribuidorCambio ? distribuidorId : producto.distribuidorId, // ← cambio
+      fechaVencimiento: producto.fechaVencimiento,
+      activo:        producto.activo,
+      suelto:        producto.suelto ?? false,
+    });
+  }
 
-    // Actualizar estado local
-    setProductos((prev) =>
-      prev.map((p) =>
-        p.productoId === productoId
-          ? {
-              ...p,
-              stockActual: p.stockActual + cantidad,
-              precioCosto: costoCambio ? precioCosto : p.precioCosto,
-              distribuidor: distribuidorCambio ? distribuidor : p.distribuidor,
-            }
-          : p
-      )
-    );
-    setModalIngreso(false);
-  };
+  setProductos(prev =>
+    prev.map(p =>
+      p.productoId === productoId
+        ? {
+            ...p,
+            stockActual:    p.stockActual + cantidad,
+            precioCosto:    costoCambio ? precioCosto : p.precioCosto,
+            distribuidorId: distribuidorCambio ? distribuidorId : p.distribuidorId,
+          }
+        : p
+    )
+  );
+  setModalIngreso(false);
+};
 
   // ────────────────────────────────────────────────────────────────────────
   // ELIMINAR
@@ -297,6 +296,7 @@ export const useProductos = () => {
     // Datos
     productos: productosFiltrados,
     categorias,
+    distribuidores,
     stats,
     isLoading,
     error,

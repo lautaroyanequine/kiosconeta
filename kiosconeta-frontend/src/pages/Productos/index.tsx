@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════════════════
-// PAGE: Productos — ABM + gestión de stock + Promociones (tab)
+// PAGE: Productos — ABM + gestión de stock + Promociones + Distribuidores
 // ════════════════════════════════════════════════════════════════════════════
 
 import React, { useState } from 'react';
@@ -25,19 +25,21 @@ import { ProductoModal } from './ProductoModal';
 import { StockModal } from './StockModal';
 import { IngresoMercaderiaModal } from './IngresoMercaderiaModal';
 import { PromocionesTab } from './PromocionesTab';
+import { DistribuidoresTab } from './DistribuidoresTab'; //
 import { useProductos } from './useProductos';
-import type { Producto } from '@/types';
+import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO } from '@/types';
+import { distribuidoresApi } from '@/apis/distribuidoresApi';
+import type { Distribuidor } from '@/types';
 
 // ────────────────────────────────────────────────────────────────────────────
 // TIPOS
 // ────────────────────────────────────────────────────────────────────────────
 
-type Tab = 'productos' | 'promociones';
+type Tab = 'productos' | 'promociones' | 'distribuidores'; // 2. AGREGAR EL TIPO DE TAB
 
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS UI
 // ────────────────────────────────────────────────────────────────────────────
-
 const StockBadge: React.FC<{ stock: number; stockMinimo: number }> = ({
   stock,
   stockMinimo,
@@ -85,6 +87,7 @@ const ProductosPage: React.FC = () => {
   const {
     productos,
     categorias,
+    distribuidores,
     stats,
     isLoading,
     error,
@@ -141,10 +144,10 @@ const ProductosPage: React.FC = () => {
       key: 'distribuidor',
       header: 'Distribuidor',
       render: (p: Producto) =>
-        p.distribuidor ? (
+        p.distribuidorNombre ? (
           <span className="text-xs text-neutral-600 flex items-center gap-1">
             <Truck size={11} className="text-neutral-400" />
-            {p.distribuidor}
+            {p.distribuidorNombre}
           </span>
         ) : (
           <span className="text-xs text-neutral-300">—</span>
@@ -284,6 +287,9 @@ const ProductosPage: React.FC = () => {
               </Button>
             </div>
           )}
+          
+          {/* 3. OPCIONAL: Botones específicos si estás en la pestaña de Distribuidores */}
+         
         </div>
 
         {/* ── TABS ────────────────────────────────────────────────────── */}
@@ -305,6 +311,7 @@ const ProductosPage: React.FC = () => {
                 {stats.total}
               </span>
             </button>
+            
             <button
               onClick={() => setTabActiva('promociones')}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
@@ -315,6 +322,24 @@ const ProductosPage: React.FC = () => {
             >
               <Tag size={15} />
               Promociones
+            </button>
+
+            {/* 4. BOTÓN DE LA NUEVA PESTAÑA */}
+            <button
+              onClick={() => setTabActiva('distribuidores')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
+                tabActiva === 'distribuidores'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              <Truck size={15} />
+              Distribuidores
+              <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                tabActiva === 'distribuidores' ? 'bg-primary/10 text-primary' : 'bg-neutral-100 text-neutral-500'
+              }`}>
+                {distribuidores.length}
+              </span>
             </button>
           </div>
         </div>
@@ -444,6 +469,10 @@ const ProductosPage: React.FC = () => {
           <PromocionesTab productos={productos} />
         )}
 
+        {/* ── 5. TAB: DISTRIBUIDORES ───────────────────────────────────── */}
+        {tabActiva === 'distribuidores' && (
+          <DistribuidoresTab />)}
+
       </div>
 
       {/* ── MODALES (solo para tab productos) ───────────────────────────── */}
@@ -452,6 +481,7 @@ const ProductosPage: React.FC = () => {
         mode={modalMode}
         producto={productoSeleccionado}
         categorias={categorias}
+        distribuidores={distribuidores} 
         isSaving={isSaving}
         saveError={saveError}
         onClose={cerrarModal}
@@ -467,6 +497,7 @@ const ProductosPage: React.FC = () => {
       <IngresoMercaderiaModal
         isOpen={modalIngreso}
         productos={productos}
+        distribuidores={distribuidores} 
         onClose={() => setModalIngreso(false)}
         onConfirmar={ingresarMercaderia}
       />

@@ -9,7 +9,8 @@
         public decimal PrecioCosto { get; set; }
         public decimal PrecioVenta { get; set; }
         public int CategoriaId { get; set; }
-        public string? Distribuidor { get; set; }
+        public int? DistribuidorId { get; set; }
+
         public string? CodigoBarra { get; set; }
         public string? Descripcion { get; set; }
         public string? Imagen { get; set; }

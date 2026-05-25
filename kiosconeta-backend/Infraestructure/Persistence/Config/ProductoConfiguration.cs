@@ -31,9 +31,6 @@ namespace Infraestructure.Persistence.Config
             entityBuilder.Property(p => p.CodigoBarra)
                 .HasMaxLength(50);
 
-            entityBuilder.Property(p => p.Distribuidor)
-                .HasMaxLength(100);
-
             entityBuilder.Property(p => p.Descripcion)
                 .HasMaxLength(300);
 
@@ -74,6 +71,10 @@ namespace Infraestructure.Persistence.Config
                 .WithMany()
                 .HasForeignKey(p => p.CategoriaId)
                 .OnDelete(DeleteBehavior.NoAction);
+            entityBuilder.HasOne(p => p.DistribuidorNav)
+                .WithMany(d => d.Productos)
+                .HasForeignKey(p => p.DistribuidorId)
+                .OnDelete(DeleteBehavior.SetNull);
 
 
         }

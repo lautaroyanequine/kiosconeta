@@ -13,8 +13,8 @@
         public int CategoriaId { get; set; }
         public Categoria Categoria { get; set; }
 
-        public string? Distribuidor { get; set; }
-
+        public int? DistribuidorId { get; set; }         
+        public Distribuidor? DistribuidorNav { get; set; }  
         public string CodigoBarra { get; set; }
 
         public string? Descripcion { get; set; }

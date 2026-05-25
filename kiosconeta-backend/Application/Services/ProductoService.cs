@@ -110,7 +110,7 @@ namespace Application.Services
                 PrecioCosto = dto.PrecioCosto,
                 PrecioVenta = dto.PrecioVenta,
                 CategoriaId = dto.CategoriaId,
-                Distribuidor = dto.Distribuidor,
+                DistribuidorId = dto.DistribuidorId,
                 CodigoBarra = dto.CodigoBarra,
                 Descripcion = dto.Descripcion,
                 Imagen = dto.Imagen,
@@ -150,7 +150,7 @@ namespace Application.Services
             productoExistente.PrecioCosto = dto.PrecioCosto;
             productoExistente.PrecioVenta = dto.PrecioVenta;
             productoExistente.CategoriaId = dto.CategoriaId;
-            productoExistente.Distribuidor = dto.Distribuidor;
+            productoExistente.DistribuidorId = dto.DistribuidorId;
             productoExistente.CodigoBarra = dto.CodigoBarra;
             productoExistente.Descripcion = dto.Descripcion;
             productoExistente.Imagen = dto.Imagen;
@@ -237,7 +237,7 @@ namespace Application.Services
                 MargenGanancia = margen,
                 CategoriaId = producto.CategoriaId,
                 CategoriaNombre = producto.Categoria?.Nombre ?? "Sin categoría",
-                Distribuidor = producto.Distribuidor,
+                DistribuidorId = producto.DistribuidorId,
                 CodigoBarra = producto.CodigoBarra,
                 Descripcion = producto.Descripcion,
                 Imagen = producto.Imagen,
