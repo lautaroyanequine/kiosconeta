@@ -185,12 +185,12 @@ namespace Infraestructure.Repository
             return await _context.Productos.AnyAsync(p => p.ProductoId == id);
         }
 
-        public async Task<bool> ExistsCodigoBarraAsync(string codigoBarra)
+        public async Task<bool> ExistsCodigoBarraAsync(string codigoBarra, int kioscoId)
         {
+    
             return await _context.Productos
-                .AnyAsync(p => p.CodigoBarra == codigoBarra && p.Activo);
+                .AnyAsync(p => p.CodigoBarra == codigoBarra && p.Activo && p.KioscoId == kioscoId);
         }
-
         public async Task<IEnumerable<Producto>> GetSinMovimientoAsync(int kioscoId, int dias)
         {
             var fechaLimite = DateTime.UtcNow.AddDays(-dias);
