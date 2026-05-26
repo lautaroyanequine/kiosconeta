@@ -10,6 +10,7 @@ namespace Application.DTOs.CierreTurno
         public int TurnoId { get; set; }
         public decimal EfectivoInicial { get; set; }
         public decimal VirtualInicial { get; set; }  // ← agregar
+        public DateTime? FechaDispositivo { get; set; }
         public string? Observaciones { get; set; }
     }
 
@@ -31,7 +32,7 @@ namespace Application.DTOs.CierreTurno
         /// Monto que realmente se acreditó en cuenta (tarjeta, MercadoPago, etc.)
         /// </summary>
         public decimal VirtualAcreditado { get; set; }
-
+        public DateTime? FechaDispositivo { get; set; }
         public string? Observaciones { get; set; }
     }
 

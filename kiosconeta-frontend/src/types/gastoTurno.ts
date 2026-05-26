@@ -135,6 +135,7 @@ export interface AbrirTurnoDTO {
   virtualInicial: number;
   turnoId: number;
   observaciones?: string;
+  fechaDispositivo?: string;
 }
 
 export interface CerrarTurnoDTO {
@@ -143,6 +144,7 @@ export interface CerrarTurnoDTO {
   efectivoContado: number
   virtualAcreditado: number
   observaciones?: string
+  fechaDispositivo?: string;
 }
 // ────────────────────────────────────────────────────────────────────────────
 // CIERRE DE TURNO (Detalle completo)

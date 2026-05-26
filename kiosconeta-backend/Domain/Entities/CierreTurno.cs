@@ -24,14 +24,20 @@ namespace Domain.Entities
         public decimal EfectivoFinal { get; private set; }
         public decimal VirtualFinal { get; private set; }
         public decimal VirtualInicial { get; private set; }
+
+        // MontoEsperado = Suma neta de lo vendido en el turno (fijo para el panel superior)
         public decimal MontoEsperado { get; private set; }
+
+        // MontoReal = Lo que realmente ingresó (Efectivo Contado Neto + Virtual Acreditado Neto)
         public decimal MontoReal { get; private set; }
+
+        // Diferencia = El sobrante (+) o faltante (-) real de la caja
         public decimal Diferencia { get; private set; }
 
         public int CantidadVentas { get; private set; }
 
         public string Observaciones { get; private set; } = string.Empty;
-      
+
         // ───────────── RELACIONES ─────────────
         public int TurnoId { get; private set; }
         public Turno Turno { get; private set; }
@@ -41,14 +47,16 @@ namespace Domain.Entities
         // Constructor vacío para EF
         protected CierreTurno() { }
 
-        private CierreTurno(int kioscoId, decimal efectivoInicial, decimal virtualInicial,string observaciones,int turnoId)
+        // ───────────── MODIFICACIÓN AL CONSTRUCTOR PRIVADO (Línea ~52) ─────────────
+        private CierreTurno(int kioscoId, decimal efectivoInicial, decimal virtualInicial, string observaciones, int turnoId, DateTime? fechaAperturaCliente = null)
         {
             if (efectivoInicial < 0)
                 throw new InvalidOperationException("El efectivo inicial no puede ser negativo");
 
             KioscoId = kioscoId;
 
-            FechaApertura = DateTime.UtcNow;
+            // 🌟 Si viene la fecha del dispositivo cliente, usamos esa; si no, cae en UtcNow
+            FechaApertura = fechaAperturaCliente ?? DateTime.UtcNow;
             Estado = EstadoCierre.Abierto;
             TurnoId = turnoId;
 
@@ -56,7 +64,6 @@ namespace Domain.Entities
             EfectivoFinal = 0;
             VirtualInicial = virtualInicial;
             VirtualFinal = 0;
-            TurnoId = turnoId;
 
             MontoEsperado = 0;
             MontoReal = 0;
@@ -66,15 +73,13 @@ namespace Domain.Entities
             Observaciones = observaciones ?? string.Empty;
         }
 
-        // ───────────── FACTORY METHOD ─────────────
-
-        public static CierreTurno Abrir(int kioscoId, decimal efectivoInicial, decimal virtualInicial, string observaciones, int turnoId)
+        // ───────────── MODIFICACIÓN AL FACTORY METHOD (Línea ~76) ─────────────
+        public static CierreTurno Abrir(int kioscoId, decimal efectivoInicial, decimal virtualInicial, string observaciones, int turnoId, DateTime? fechaAperturaCliente = null)
         {
-            return new CierreTurno(kioscoId, efectivoInicial, virtualInicial, observaciones, turnoId);
+            return new CierreTurno(kioscoId, efectivoInicial, virtualInicial, observaciones, turnoId, fechaAperturaCliente);
         }
 
-        // ───────────── LÓGICA DE CIERRE ─────────────
-
+        // ───────────── MODIFICACIÓN AL MÉTODO CERRAR (Línea ~83) ─────────────
         public void Cerrar(
             decimal totalEfectivoVentas,
             decimal totalVirtualVentas,
@@ -82,7 +87,8 @@ namespace Domain.Entities
             decimal efectivoContado,
             decimal virtualAcreditado,
             int cantidadVentas,
-            string observacionesExtra)
+            string observacionesExtra,
+            DateTime? fechaCierreCliente = null) // 🌟 Agregamos parámetro opcional
         {
             if (Estado != EstadoCierre.Abierto)
                 throw new InvalidOperationException("El turno ya está cerrado");
@@ -90,24 +96,23 @@ namespace Domain.Entities
             if (efectivoContado < 0)
                 throw new InvalidOperationException("El efectivo contado no puede ser negativo");
 
-            var efectivoEsperado = EfectivoInicial + totalEfectivoVentas - totalGastos;
-            var virtualEsperado = totalVirtualVentas;
+            var efectivoEsperadoEnCaja = EfectivoInicial + totalEfectivoVentas - totalGastos;
+            var virtualEsperadoEnCuenta = VirtualInicial + totalVirtualVentas;
 
-            var diferenciaEfectivo = efectivoContado - efectivoEsperado;
-            var diferenciaVirtual = virtualAcreditado - virtualEsperado;
+            var diferenciaEfectivo = efectivoContado - efectivoEsperadoEnCaja;
+            var diferenciaVirtual = virtualAcreditado - virtualEsperadoEnCuenta;
 
-            MontoEsperado = efectivoEsperado + virtualEsperado;
-            MontoReal = efectivoContado + virtualAcreditado;
-
+            MontoEsperado = totalEfectivoVentas + totalVirtualVentas;
             Diferencia = diferenciaEfectivo + diferenciaVirtual;
+            MontoReal = (efectivoContado - EfectivoInicial + totalGastos) + (virtualAcreditado - VirtualInicial);
 
             EfectivoFinal = efectivoContado;
             VirtualFinal = virtualAcreditado;
-
             CantidadVentas = cantidadVentas;
-
             Estado = EstadoCierre.Cerrado;
-            FechaCierre = DateTime.UtcNow;
+
+            // 🌟 Asignamos la fecha exacta capturada en el dispositivo de origen
+            FechaCierre = fechaCierreCliente ?? DateTime.UtcNow;
 
             if (!string.IsNullOrWhiteSpace(observacionesExtra))
                 Observaciones += "\n" + observacionesExtra;

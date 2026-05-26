@@ -110,7 +110,8 @@ namespace Application.Services
             dto.EfectivoInicial,
             dto.VirtualInicial,  
             dto.Observaciones ?? string.Empty,
-            dto.TurnoId
+            dto.TurnoId,
+            dto.FechaDispositivo
         );
 
             await _cierreTurnoRepository.CreateAsync(cierre);
@@ -155,7 +156,8 @@ namespace Application.Services
                 dto.EfectivoContado,
                 dto.VirtualAcreditado,
                 ventas.Count,
-                dto.Observaciones ?? string.Empty
+                dto.Observaciones ?? string.Empty,
+                dto.FechaDispositivo
             );
 
             await _cierreTurnoRepository.UpdateAsync(cierre);
@@ -191,16 +193,34 @@ namespace Application.Services
             var ventas = cierre.Ventas?.Where(v => !v.Anulada).ToList() ?? new List<Venta>();
 
             var totalVentas = ventas.Sum(v => v.Total);
+
             var totalEfectivo = ventas.Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") == true)
                                      .Sum(v => v.Total);
+
             var totalVirtual = ventas.Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") != true)
                                     .Sum(v => v.Total);
-            var gananciaTotal = ventas.Sum(v => v.Total - v.PrecioCosto);
 
+            var gananciaTotal = ventas.Sum(v => v.Total - v.PrecioCosto);
 
             // Calcular gastos del turno (filtro exacto por CierreTurnoId, aplica siempre)
             var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(cierre.CierreTurnoId);
             var totalGastos = gastos.Sum(g => g.Monto);
+
+            // ════════════════════════════════════════════════════════════════════════════
+            // RE-CÁLCULO MATEMÁTICO LIMPIO PARA EL FRONT-END
+            // ════════════════════════════════════════════════════════════════════════════
+
+            // El efectivo final real que cargó el empleado en la caja chica física.
+            // Si el turno está abierto, por defecto es 0 o lo acumulado esperado hasta el momento.
+            var efectivoContadoFisico = cierre.Estado == EstadoCierre.Cerrado ? cierre.EfectivoFinal : 0;
+
+            // Lo que DEBERÍA haber en la caja física (Billetes): Inicial + Ventas Cash - Gastos Cash
+            var efectivoEsperadoFisico = cierre.EfectivoInicial + totalEfectivo - totalGastos;
+
+            // La diferencia real del turno es puramente el descalce de dinero físico (lo contado vs lo esperado)
+            var diferenciaDeCaja = cierre.Estado == EstadoCierre.Cerrado
+                ? (efectivoContadoFisico - efectivoEsperadoFisico)
+                : 0;
 
             return new CierreTurnoResponseDTO
             {
@@ -210,11 +230,16 @@ namespace Application.Services
                 EstadoNombre = cierre.Estado.ToString(),
                 VirtualInicial = cierre.VirtualInicial,
                 EfectivoInicial = cierre.EfectivoInicial,
-                EfectivoFinal = cierre.Estado == EstadoCierre.Cerrado ? cierre.EfectivoFinal : 0,
+
+                // Forzamos al DTO a enviar los datos limpios y digeridos por carriles separados
+                EfectivoFinal = efectivoContadoFisico,
                 VirtualFinal = cierre.VirtualFinal,
-                MontoEsperado = cierre.MontoEsperado,
-                MontoReal = cierre.MontoReal,
-                Diferencia = cierre.Diferencia,
+
+                // Mapeos corregidos para las etiquetas de control que usa tu pantalla de React
+                MontoEsperado = efectivoEsperadoFisico, // Lo que la caja física debía tener
+                MontoReal = efectivoContadoFisico,     // Lo que la caja física realmente contó
+                Diferencia = diferenciaDeCaja,          // Cuadra exacto o muestra faltante/sobrante real
+
                 TurnoId = cierre.TurnoId,
                 TurnoNombre = cierre.Turno?.Nombre ?? "",
                 CantidadVentas = ventas.Count,
@@ -223,12 +248,9 @@ namespace Application.Services
                 TotalVirtual = totalVirtual,
                 TotalGastos = totalGastos,
 
-                FechaCierre = cierre.FechaCierre,        
-  
+                FechaCierre = cierre.FechaCierre,
                 GananciaTotal = gananciaTotal,
-
                 Observaciones = cierre.Observaciones,
-
                 KioscoId = cierre.KioscoId,
                 KioscoNombre = cierre.Kiosco?.Nombre ?? "",
 

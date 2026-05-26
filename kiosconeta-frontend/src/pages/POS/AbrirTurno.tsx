@@ -12,7 +12,10 @@ interface AbrirTurnoProps {
 
 export const AbrirTurno: React.FC<AbrirTurnoProps> = ({ onAbierto }) => {
   const { empleadoActivo } = useEmpleadoActivo();
-
+const getFechaLocalString = () => {
+    const tzOffset = (new Date()).getTimezoneOffset() * 60000; 
+    return (new Date(Date.now() - tzOffset)).toISOString().slice(0, -1);
+  };
   const [turnos, setTurnos]                       = useState<Turno[]>([]);
   const [turnoSeleccionado, setTurnoSeleccionado] = useState<number | ''>('');
   const [efectivoInicial, setEfectivoInicial]     = useState('');
@@ -53,6 +56,7 @@ export const AbrirTurno: React.FC<AbrirTurnoProps> = ({ onAbierto }) => {
         efectivoInicial: parseFloat(efectivoInicial),
         virtualInicial:  parseFloat(virtualInicial) || 0,
         observaciones:   observaciones || undefined,
+        fechaDispositivo: getFechaLocalString(),
       });
       setStorage(STORAGE_KEYS.TURNO_ID, Number(turnoSeleccionado));
       onAbierto();

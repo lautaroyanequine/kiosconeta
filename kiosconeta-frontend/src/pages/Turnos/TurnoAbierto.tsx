@@ -94,6 +94,7 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
 
     setIsSubmitting(true)
     setError('')
+const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000).toISOString().slice(0, -1);
 
     try {
       const resultado = await turnosApi.cerrar(empleadoActivo?.kioscoId ?? user?.kioscoId, {
@@ -102,6 +103,7 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
         efectivoContado: parseFloat(efectivoContado),
         virtualAcreditado: parseFloat(virtualAcreditado) || 0,
         observaciones: observaciones || undefined,
+        fechaDispositivo: fechaLocal,
       })
       console.log('Resultado BACKEND', resultado)
       if (!resultado) { throw new Error('El backend no devolvio datos del cierre') }
