@@ -14,6 +14,7 @@ namespace Application.Interfaces.Services
         Task<IEnumerable<ProductoResponseDTO>> GetByKioscoIdAsync(int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetActivosAsync(int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetByCategoriaAsync(int categoriaId);
+        Task<IEnumerable<ProductoResponseDTO>> GetSinStockAsync(int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetBajoStockAsync(int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetProximosAVencerAsync(int kioscoId);
         Task<ProductoResponseDTO?> GetByCodigoBarraAsync(string codigoBarra);

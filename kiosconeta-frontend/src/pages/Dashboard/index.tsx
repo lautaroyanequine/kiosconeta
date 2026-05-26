@@ -132,6 +132,7 @@ const DashboardPage: React.FC = () => {
   const [ventas, setVentas]             = useState<VentaResumen[]>([])
   const [productos, setProductos]       = useState<Producto[]>([])
   const [productosSinMov, setProductosSinMov] = useState<any[]>([])
+const [productosSinStock, setProductosSinStock] = useState<Producto[]>([])  
   const [caja, setCaja]                 = useState<CajaResumen | null>(null)
   const [turnos, setTurnos]             = useState<CierreTurno[]>([])
   const [loading, setLoading]           = useState(true)
@@ -143,18 +144,21 @@ const DashboardPage: React.FC = () => {
     setLoading(true)
     const id = user.kioscoId
     try {
-      const [ventasRes, productosRes, sinMovRes, cajaRes, turnosRes] = await Promise.allSettled([
+      const [ventasRes, productosRes, sinMovRes, cajaRes, turnosRes,sinStockRes] = await Promise.allSettled([
         apiClient.post(`/Ventas/kiosco/${id}/buscar`, {}).then(r => handleResponse(r)),
         apiClient.get(`/Productos/kiosco/${id}`).then(r => handleResponse(r)),
         apiClient.get(`/Productos/kiosco/${id}/sin-movimiento?dias=30`).then(r => handleResponse(r)),
         apiClient.get(`/Caja/kiosco/${id}`).then(r => handleResponse(r)),
         apiClient.get(`/CierreTurnos/kiosco/${id}`).then(r => handleResponse(r)),
+        apiClient.get(`/Productos/kiosco/${id}/sin-stock`).then(r => handleResponse(r)),
       ])
       setVentas(ventasRes.status === 'fulfilled' && Array.isArray(ventasRes.value) ? ventasRes.value : [])
       setProductos(productosRes.status === 'fulfilled' && Array.isArray(productosRes.value) ? productosRes.value : [])
       setProductosSinMov(sinMovRes.status === 'fulfilled' ? (sinMovRes.value?.productos ?? []) : [])
       setCaja(cajaRes.status === 'fulfilled' ? cajaRes.value : null)
       setTurnos(turnosRes.status === 'fulfilled' && Array.isArray(turnosRes.value) ? turnosRes.value : [])
+      setProductosSinStock(sinStockRes.status === 'fulfilled' && Array.isArray(sinStockRes.value) ? sinStockRes.value : [])
+
     } catch (err) {
       console.error('Error cargando dashboard:', err)
     } finally {
@@ -461,48 +465,80 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* SIN MOVIMIENTO + STOCK BAJO */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* ── SIN MOVIMIENTO + REPOSICIÓN Y QUIEBRE DE STOCK ────────────────────── */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-          <div className="bg-white rounded-xl border border-neutral-200 p-5">
-            <SeccionTitulo titulo="Sin ventas hace 30+ días" icono={<Package size={16}/>}/>
-            {productosSinMov.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-6 text-neutral-300">
-                <Package size={28} className="mb-2 opacity-30"/>
-                <p className="text-sm text-neutral-400">Todos los productos tienen movimiento</p>
-              </div>
-            ) : (
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {productosSinMov.slice(0, 8).map((p: any) => (
-                  <div key={p.productoId} className="flex items-center justify-between py-1.5">
-                    <p className="text-sm text-neutral-700 truncate flex-1">{p.nombre}</p>
-                    <span className="text-xs text-neutral-400 shrink-0 ml-2">Stock: {p.stockActual}</span>
-                  </div>
-                ))}
-                {productosSinMov.length > 8 && (
-                  <p className="text-xs text-neutral-400 text-center">+{productosSinMov.length - 8} más</p>
-                )}
-              </div>
-            )}
+  {/* Sin Movimiento */}
+  <div className="bg-white rounded-xl border border-neutral-200 p-5">
+    <SeccionTitulo titulo="Sin ventas hace 30+ días" icono={<Package size={16}/>}/>
+    {productosSinMov.length === 0 ? (
+      <div className="flex flex-col items-center justify-center py-6 text-neutral-300">
+        <Package size={28} className="mb-2 opacity-30"/>
+        <p className="text-sm text-neutral-400">Todos los productos tienen movimiento</p>
+      </div>
+    ) : (
+      <div className="space-y-2 max-h-48 overflow-y-auto">
+        {productosSinMov.slice(0, 8).map((p: any) => (
+          <div key={p.productoId} className="flex items-center justify-between py-1.5">
+            <p className="text-sm text-neutral-700 truncate flex-1">{p.nombre}</p>
+            <span className="text-xs text-neutral-400 shrink-0 ml-2">Stock: {p.stockActual}</span>
           </div>
+        ))}
+        {productosSinMov.length > 8 && (
+          <p className="text-xs text-neutral-400 text-center pt-1">+{productosSinMov.length - 8} más</p>
+        )}
+      </div>
+    )}
+  </div>
 
-          {stockBajo.length > 0 && (
-            <div className="bg-white rounded-xl border border-neutral-200 p-5">
-              <SeccionTitulo titulo="Alertas de stock bajo" icono={<AlertTriangle size={16}/>}/>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {stockBajo.slice(0, 8).map(p => (
-                  <div key={p.productoId}
-                    className="flex items-center justify-between p-2.5 bg-danger-50 rounded-xl border border-danger-100">
-                    <p className="text-xs font-medium text-danger truncate flex-1">{p.nombre}</p>
-                    <span className="text-xs font-bold text-danger ml-2 shrink-0">
-                      {p.stockActual} / {p.stockMinimo}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+  {/* Alertas de Stock Bajo */}
+  <div className="bg-white rounded-xl border border-neutral-200 p-5">
+    <SeccionTitulo titulo="Alertas de stock bajo" icono={<AlertTriangle size={16} className="text-amber-500"/>}/>
+    {stockBajo.length === 0 ? (
+      <p className="text-sm text-neutral-400 text-center py-8">No hay productos con stock mínimo</p>
+    ) : (
+      <div className="space-y-2 max-h-48 overflow-y-auto">
+        {stockBajo.slice(0, 8).map(p => (
+          <div key={p.productoId}
+            className="flex items-center justify-between p-2.5 bg-amber-50 rounded-xl border border-amber-100">
+            <p className="text-xs font-medium text-amber-800 truncate flex-1">{p.nombre}</p>
+            <span className="text-xs font-bold text-amber-700 ml-2 shrink-0">
+              {p.stockActual} / {p.stockMinimo}
+            </span>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+
+  {/* 🌟 NUEVO BLOCK: Productos Completamente Sin Stock */}
+  <div className="bg-white rounded-xl border border-neutral-200 p-5">
+    <SeccionTitulo titulo="Productos Agotados (0)" icono={<AlertTriangle size={16} className="text-danger"/>}/>
+    {productosSinStock.length === 0 ? (
+      <div className="flex flex-col items-center justify-center py-6 text-emerald-500">
+        <p className="text-sm text-neutral-400">¡Excelente! No tenés productos agotados</p>
+      </div>
+    ) : (
+      <div className="space-y-2 max-h-48 overflow-y-auto">
+        {productosSinStock.slice(0, 8).map(p => (
+          <div key={p.productoId}
+            className="flex items-center justify-between p-2.5 bg-red-50 rounded-xl border border-red-100">
+            <p className="text-xs font-medium text-red-800 truncate flex-1">{p.nombre}</p>
+            <span className="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-md ml-2 shrink-0">
+              Sin Stock
+            </span>
+          </div>
+        ))}
+        {productosSinStock.length > 8 && (
+          <p className="text-xs text-red-400 font-medium text-center pt-1">
+            +{productosSinStock.length - 8} productos más en cero
+          </p>
+        )}
+      </div>
+    )}
+  </div>
+
+</div>
 
         {/* RESUMEN MENSUAL */}
         <ResumenMensual />

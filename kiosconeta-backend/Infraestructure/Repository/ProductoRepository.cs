@@ -51,6 +51,14 @@ namespace Infraestructure.Repository
                 .Where(p => ids.Contains(p.ProductoId))
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Producto>> GetSinStockAsync(int kioscoId)
+        {
+            return await _context.Productos
+                .Include(p => p.Categoria) // Por si necesitás el nombre de la categoría en el DTO
+                .Where(p => p.KioscoId == kioscoId && p.StockActual <= 0 && p.Activo)
+                .ToListAsync();
+        }
         public async Task<IEnumerable<Producto>> GetActivosAsync(int kioscoId)
         {
             return await _context.Productos

@@ -148,7 +148,6 @@ namespace Application.Services
 
             var totalGastos = gastos.Sum(g => g.Monto);
 
-            // 🔥 El dominio hace todo el trabajo real
             cierre.Cerrar(
                 totalEfectivo,
                 totalVirtual,
@@ -161,9 +160,8 @@ namespace Application.Services
             );
 
             await _cierreTurnoRepository.UpdateAsync(cierre);
-            // Registrar en auditoría
             var diferencia = Math.Abs(cierre.Diferencia);
-            var esSospechoso = diferencia > 500; // más de $500 de diferencia
+            var esSospechoso = diferencia > 500; 
 
             await _auditoriaService.RegistrarAsync(
             empleadoId: empleadoId,

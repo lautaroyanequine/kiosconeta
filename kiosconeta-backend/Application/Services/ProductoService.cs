@@ -53,6 +53,11 @@ namespace Application.Services
             return productos.Select(MapToResponseDTO);
         }
 
+        public async Task<IEnumerable<ProductoResponseDTO>> GetSinStockAsync(int kioscoId)
+        {
+            var productos = await _productoRepository.GetSinStockAsync(kioscoId);
+            return productos.Select(MapToResponseDTO);
+        }
         public async Task<IEnumerable<ProductoResponseDTO>> GetBajoStockAsync(int kioscoId)
         {
             var productos = await _productoRepository.GetBajoStockAsync(kioscoId);

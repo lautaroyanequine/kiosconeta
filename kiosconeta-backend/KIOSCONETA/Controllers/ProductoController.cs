@@ -75,7 +75,12 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-
+        [HttpGet("kiosco/{kioscoId}/sin-stock")]
+        public async Task<ActionResult<IEnumerable<ProductoResponseDTO>>> GetSinStock(int kioscoId)
+        {
+            var productos = await _productoService.GetSinStockAsync(kioscoId);
+            return Ok(productos);
+        }
         /// Obtener productos activos de un kiosco
 
         [HttpGet("kiosco/{kioscoId}/activos")]

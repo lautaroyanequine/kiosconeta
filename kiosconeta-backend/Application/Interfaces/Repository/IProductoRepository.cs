@@ -14,6 +14,7 @@ namespace Application.Interfaces.Repository
         Task<IEnumerable<Producto>> GetAllAsync();
         Task<IEnumerable<Producto>> GetByKioscoIdAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetActivosAsync(int kioscoId);
+        Task<IEnumerable<Producto>> GetSinStockAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetByCategoriaAsync(int categoriaId);
         Task<List<Producto>> GetByIdsAsync(List<int> ids);
 
