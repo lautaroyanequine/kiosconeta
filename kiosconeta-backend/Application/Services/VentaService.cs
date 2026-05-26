@@ -180,9 +180,16 @@ public class VentaService : IVentaService
 
             if (promo.Tipo == TipoPromocion.Combo && promo.PrecioCombo.HasValue)
             {
-                // Reemplazar el total por el precio del combo directamente
-                // No importa si es mayor o menor que la suma de componentes
-                totalVenta = promo.PrecioCombo.Value * (dto.CantidadCombos ?? 1);
+                // Calcular subtotal SOLO de los productos que NO son del combo
+                var idsProductosCombo = promo.PromocionProductos.Select(pp => pp.ProductoId).ToList();
+
+                var subtotalSinCombo = productosVenta
+                    .Where(pv => !idsProductosCombo.Contains(pv.ProductoId))
+                    .Sum(pv => pv.PrecioUnitario * pv.Cantidad);
+
+                // costoTotal ya está bien — suma todos los costos reales
+                // totalVenta = precioCombo + productos sueltos
+                totalVenta = (promo.PrecioCombo.Value * (dto.CantidadCombos ?? 1)) + subtotalSinCombo;
                 descuentoFinal = 0;
             }
         }

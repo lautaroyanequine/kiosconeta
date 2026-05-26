@@ -32,6 +32,7 @@ export interface PromocionResponseDTO {
   productoNombreCantidad?: string;
   // Porcentaje
   porcentajeDescuento?: number;
+  precioFijoDescuento?: number;
   productoIdPorcentaje?: number;
   productoNombrePorcentaje?: string;
   categoriaIdPorcentaje?: number;
@@ -53,6 +54,7 @@ export interface CreatePromocionDTO {
   productoIdCantidad?: number;
   // Porcentaje
   porcentajeDescuento?: number;
+  precioFijoDescuento?: number;
   productoIdPorcentaje?: number;
   categoriaIdPorcentaje?: number;
 }

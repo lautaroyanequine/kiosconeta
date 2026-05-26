@@ -18,7 +18,7 @@ import { promocionesApi } from '@/apis/promocionesApi';
 import type { PromocionResponseDTO, PromocionAplicadaDTO } from '@/apis/promocionesApi';
 import type { ProductoSimple, MetodoPago } from '@/types';
 import type { TurnoActual } from '@/types/gastoTurno';
-
+import { VentaConfirmModal } from './VentaConfirmModal'; // ajustá la ruta
 
 
 interface POSVentaProps {
@@ -54,6 +54,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   const [isLoadingProductos, setIsLoadingProductos] = useState(true);
   // Modal de selección de combo
   const [comboModal, setComboModal] = useState<{ combo: typeof combosVirtuales[0]; cantidades: Record<number, number> } | null>(null);
+  const [sueltoModal, setSueltoModal] = useState<{ producto: ProductoSimple; cantidad: number } | null>(null);
 
   // Métodos de pago
   const [metodosPago, setMetodosPago]           = useState<MetodoPago[]>([]);
@@ -246,6 +247,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
  const handleCobrar = useCallback(async () => {
   if (!cart.isValid || !user) return;
+  console.log('INICIANDO COBRO');
+
   if (esEfectivo && montoEfectivo) {
     const monto = parseFloat(montoEfectivo);
     if (!isNaN(monto) && monto < cart.total) {
@@ -256,7 +259,6 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   setIsProcessing(true);
   try {
-    // Expandir combos a sus productos reales
     const productosParaVenta = cart.items.flatMap(item => {
       if (item.productoId < 0) {
         const combo = combosVirtuales.find(c => c.productoId === item.productoId);
@@ -269,10 +271,11 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       return [{ productoId: item.productoId, cantidad: item.cantidad }];
     });
 
-    // Detectar si hay un combo en el carrito
-    const itemCombo = cart.items.find(i => i.productoId < 0);
+    const itemCombo     = cart.items.find(i => i.productoId < 0);
     const promocionId   = itemCombo ? Math.abs(itemCombo.productoId) : undefined;
     const cantidadCombos = itemCombo ? itemCombo.cantidad : undefined;
+
+    console.log('ANTES DEL CREATE');  // ← acá, fuera del flatMap
 
     const venta = await ventasApi.create({
       empleadoId:    empleadoActivo?.empleadoId ?? user?.empleadoId,
@@ -280,15 +283,12 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       turnoId:       getStorage<number>(STORAGE_KEYS.TURNO_ID) ?? turnoActual.turnoId,
       productos:     productosParaVenta,
       descuento:     cart.totalDescuento > 0 ? cart.totalDescuento : undefined,
-      promocionId,    // ← el backend calcula el descuento desde la BD
-      cantidadCombos, // ← cuántas veces se aplicó el combo
+      promocionId,
+      cantidadCombos,
     });
-console.log('RESPUESTA BACKEND:', {
-  ventaId:   venta.ventaId,
-  subtotal:  venta.subtotal,
-  descuento: venta.descuento,
-  total:     venta.total,
-});
+
+    console.log('VENTA CREADA:', venta);  // ← acá, después del await
+
     setVentaConfirmada({
       ventaId:    venta.ventaId,
       total:      venta.total,      
@@ -302,8 +302,8 @@ console.log('RESPUESTA BACKEND:', {
     cart.clearCart();
     setMontoEfectivo('');
     setBusqueda('');
-    onTurnoActualizado();
   } catch (err: any) {
+    console.log('ERROR EN COBRO:', err);
     alert(err.message || 'Error al procesar la venta');
   } finally {
     setIsProcessing(false);
@@ -423,17 +423,20 @@ console.log('RESPUESTA BACKEND:', {
                 key={p.productoId}
                 producto={p}
                 isCombo={esCombo}
+                isSuelto={(p as any).suelto === true} 
                 onClick={() => {
-                  if (esCombo) {
-                    const combo = combosVirtuales.find(c => c.productoId === p.productoId)!;
-                    setComboModal({
-                      combo,
-                      cantidades: Object.fromEntries(combo.productosCombo.map(pc => [pc.productoId, pc.cantidad])),
-                    });
-                  } else {
-                    cart.addItem(p);
-                  }
-                }}
+  if (esCombo) {
+    const combo = combosVirtuales.find(c => c.productoId === p.productoId)!;
+    setComboModal({
+      combo,
+      cantidades: Object.fromEntries(combo.productosCombo.map(pc => [pc.productoId, pc.cantidad])),
+    });
+  } else if ((p as any).suelto) {  // ← agregar
+    setSueltoModal({ producto: p, cantidad: 1 });
+  } else {
+    cart.addItem(p);
+  }
+}}
               />
             );
           })}
@@ -674,21 +677,30 @@ console.log('RESPUESTA BACKEND:', {
       )}
 
       {/* Modal venta confirmada */}
-      {ventaConfirmada && (
-        <VentaModal
-          data={ventaConfirmada}
-          onClose={() => { setVentaConfirmada(null); busquedaRef.current?.focus(); }}
-        />
-      )}
+{ventaConfirmada && (
+  <VentaConfirmModal
+    isOpen={!!ventaConfirmada}
+    onClose={() => { setVentaConfirmada(null); busquedaRef.current?.focus();     onTurnoActualizado();
+}}
+    ventaId={ventaConfirmada.ventaId}
+    total={ventaConfirmada.total}
+    metodoPago={ventaConfirmada.metodoPago}
+    
+  />
+)}
+
     </div>
-  );
+  
+
+
+);
 };
 
 // ════════════════════════════════════════════════════════════════════════════
 // SUB-COMPONENTES
 // ════════════════════════════════════════════════════════════════════════════
 
-const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; onClick: () => void }> = ({ producto, isCombo, onClick }) => {
+const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; isSuelto?: boolean; onClick: () => void }> = ({ producto, isCombo, isSuelto, onClick }) => {
   const sinStock  = producto.stock === 0 && !isCombo;
   const stockBajo = !sinStock && !isCombo && producto.stock > 0 && producto.stock < 10;
 
@@ -697,34 +709,32 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; onCl
       className={`relative w-full bg-white rounded-xl p-3 text-left border-2 transition-all group flex flex-col gap-1.5
         ${sinStock  ? 'border-neutral-100 opacity-40 cursor-not-allowed'
         : isCombo   ? 'border-blue-200 hover:border-blue-400 hover:shadow-md active:scale-[0.97]'
+        : isSuelto  ? 'border-green-200 hover:border-green-400 hover:shadow-md active:scale-[0.97]'
                     : 'border-neutral-200 hover:border-primary hover:shadow-md active:scale-[0.97]'}`}>
 
-      {/* Icono + badge de stock (arriba) */}
       <div className="flex items-center justify-between gap-1">
         <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors
-          ${isCombo ? 'bg-blue-100 group-hover:bg-blue-500' : 'bg-primary/10 group-hover:bg-primary'}`}>
+          ${isCombo  ? 'bg-blue-100 group-hover:bg-blue-500'
+          : isSuelto ? 'bg-green-100 group-hover:bg-green-500'
+                     : 'bg-primary/10 group-hover:bg-primary'}`}>
           {isCombo
             ? <Tag     size={18} className="text-blue-600  group-hover:text-white transition-colors" />
-            : <Package size={18} className="text-primary   group-hover:text-white transition-colors" />}
+            : <Package size={18} className={`${isSuelto ? 'text-green-600' : 'text-primary'} group-hover:text-white transition-colors`} />}
         </div>
         {isCombo && (
-          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">
-            Combo
-          </span>
+          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">Combo</span>
+        )}
+        {isSuelto && !isCombo && (
+          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-600">Suelto</span>
         )}
         {!isCombo && sinStock && (
-          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-500">
-            Sin stock
-          </span>
+          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-500">Sin stock</span>
         )}
         {!isCombo && stockBajo && (
-          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">
-            {producto.stock}u
-          </span>
+          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">{producto.stock}u</span>
         )}
       </div>
 
-      {/* Nombre grande + cantidad al costado */}
       <div className="flex items-baseline gap-1.5 mt-0.5">
         <p className="font-bold text-neutral-900 leading-tight line-clamp-2 flex-1" style={{ fontSize: '0.95rem' }}>
           {producto.nombre}
@@ -734,8 +744,8 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; onCl
         )}
       </div>
 
-      {/* Precio */}
-      <p className={`text-base font-extrabold tracking-tight ${isCombo ? 'text-blue-600' : 'text-primary'}`}>
+      <p className={`text-base font-extrabold tracking-tight
+        ${isCombo ? 'text-blue-600' : isSuelto ? 'text-green-600' : 'text-primary'}`}>
         {formatCurrency(producto.precioVenta)}
       </p>
     </button>
@@ -806,6 +816,16 @@ const VentaModal: React.FC<{
         </button>
         <p className="text-xs text-neutral-400 mt-2">Se cierra en 4 segundos</p>
       </div>
+
+      
+        
+      
     </div>
+    
+
+    
+  
+  
+  
   );
 };

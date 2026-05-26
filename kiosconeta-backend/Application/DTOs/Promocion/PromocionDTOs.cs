@@ -29,6 +29,7 @@ namespace Application.DTOs.Promocion
 
         // Porcentaje
         public decimal? PorcentajeDescuento { get; set; }
+        public decimal? PrecioFijoDescuento { get; set; }
         public int? ProductoIdPorcentaje { get; set; }
         public string? ProductoNombrePorcentaje { get; set; }
         public int? CategoriaIdPorcentaje { get; set; }
@@ -66,6 +67,7 @@ namespace Application.DTOs.Promocion
 
         // Porcentaje
         public decimal? PorcentajeDescuento { get; set; }
+        public decimal? PrecioFijoDescuento { get; set; }
         public int? ProductoIdPorcentaje { get; set; }
         public int? CategoriaIdPorcentaje { get; set; }
 

@@ -44,6 +44,7 @@ type FormState = {
   productoIdCantidad: number | '';
   // Porcentaje
   porcentajeDescuento: string;
+  precioFijoDescuento: string;  
   productoIdPorcentaje: number | '';
   categoriaIdPorcentaje: number | '';
   cantidadMinimaDescuento: string;
@@ -61,6 +62,7 @@ const FORM_INICIAL: FormState = {
   cantidadPaga: '',
   productoIdCantidad: '',
   porcentajeDescuento: '',
+  precioFijoDescuento: '',
   productoIdPorcentaje: '',
   categoriaIdPorcentaje: '',
   cantidadMinimaDescuento: '',
@@ -161,11 +163,15 @@ const PromocionForm: React.FC<{
     }
 
     if (form.tipo === 3) {
-      if (!form.productoIdPorcentaje && !form.categoriaIdPorcentaje)
-        e.productoIdPorcentaje = 'Seleccioná un producto o categoría';
-      if (!form.porcentajeDescuento || Number(form.porcentajeDescuento) <= 0 || Number(form.porcentajeDescuento) > 100)
-        e.porcentajeDescuento = 'Ingresá un porcentaje entre 1 y 100';
-    }
+  if (!form.productoIdPorcentaje && !form.categoriaIdPorcentaje)
+    e.productoIdPorcentaje = 'Seleccioná un producto o categoría';
+  if (!form.porcentajeDescuento && !form.precioFijoDescuento)
+    e.porcentajeDescuento = 'Ingresá un porcentaje o un precio fijo';
+  if (form.porcentajeDescuento && (Number(form.porcentajeDescuento) <= 0 || Number(form.porcentajeDescuento) > 100))
+    e.porcentajeDescuento = 'Ingresá un porcentaje entre 1 y 100';
+  if (form.precioFijoDescuento && !form.cantidadMinimaDescuento)
+    e.cantidadMinimaDescuento = 'El precio fijo requiere una cantidad mínima';  // ← AGREGAR
+}
 
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -197,13 +203,14 @@ const PromocionForm: React.FC<{
       });
     }
     if (form.tipo === 3) {
-      Object.assign(base, {
-        porcentajeDescuento:     Number(form.porcentajeDescuento),
-        productoIdPorcentaje:    form.productoIdPorcentaje  ? Number(form.productoIdPorcentaje)  : undefined,
-        categoriaIdPorcentaje:   form.categoriaIdPorcentaje ? Number(form.categoriaIdPorcentaje) : undefined,
-        cantidadMinimaDescuento: form.cantidadMinimaDescuento ? Number(form.cantidadMinimaDescuento) : undefined,
-      });
-    }
+  Object.assign(base, {
+    porcentajeDescuento:     form.porcentajeDescuento ? Number(form.porcentajeDescuento) : undefined,
+    precioFijoDescuento:     form.precioFijoDescuento ? Number(form.precioFijoDescuento) : undefined,  // ← AGREGAR
+    productoIdPorcentaje:    form.productoIdPorcentaje  ? Number(form.productoIdPorcentaje)  : undefined,
+    categoriaIdPorcentaje:   form.categoriaIdPorcentaje ? Number(form.categoriaIdPorcentaje) : undefined,
+    cantidadMinimaDescuento: form.cantidadMinimaDescuento ? Number(form.cantidadMinimaDescuento) : undefined,
+  });
+}
 
     await onSave(base);
   };
@@ -444,106 +451,149 @@ const PromocionForm: React.FC<{
         )}
 
         {/* ── PORCENTAJE ───────────────────────────────────────────────────── */}
-        {form.tipo === 3 && (
-          <div className="space-y-3 p-4 bg-orange-50 border border-orange-200 rounded-xl">
-            <p className="text-sm font-semibold text-orange-700 flex items-center gap-2">
-              <Percent size={14} /> Configuración de Descuento por Porcentaje
-            </p>
+        {/* Porcentaje O precio fijo */}
+{/* ── PORCENTAJE ───────────────────────────────────────────────────── */}
+{form.tipo === 3 && (
+  <div className="space-y-3 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+    <p className="text-sm font-semibold text-orange-700 flex items-center gap-2">
+      <Percent size={14} /> Configuración de Descuento
+    </p>
 
-            <div>
-              <label className="block text-xs font-medium text-neutral-600 mb-1">
-                % de descuento <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="number" min="1" max="100"
-                  value={form.porcentajeDescuento}
-                  onChange={e => set('porcentajeDescuento', e.target.value)}
-                  placeholder="Ej: 15"
-                  className={`w-full pr-8 pl-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary ${errors.porcentajeDescuento ? 'border-red-400' : 'border-neutral-300'}`}
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">%</span>
-              </div>
-              {errors.porcentajeDescuento && <p className="text-xs text-red-500 mt-1">{errors.porcentajeDescuento}</p>}
-            </div>
+    {/* Porcentaje O precio fijo */}
+    <div className="grid grid-cols-2 gap-3">
+      <div>
+        <label className="block text-xs font-medium text-neutral-600 mb-1">
+          % de descuento
+        </label>
+        <div className="relative">
+          <input
+            type="number" min="1" max="100"
+            value={form.porcentajeDescuento}
+            onChange={e => {
+              set('porcentajeDescuento', e.target.value);
+              if (e.target.value) set('precioFijoDescuento', '');
+            }}
+            placeholder="Ej: 15"
+            disabled={!!form.precioFijoDescuento}
+            className={`w-full pr-8 pl-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary
+              ${errors.porcentajeDescuento ? 'border-red-400' : 'border-neutral-300'}
+              ${form.precioFijoDescuento ? 'opacity-40' : ''}`}
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">%</span>
+        </div>
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-neutral-600 mb-1">
+          O precio fijo total
+        </label>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
+          <input
+            type="number" min="0"
+            value={form.precioFijoDescuento}
+            onChange={e => {
+              set('precioFijoDescuento', e.target.value);
+              if (e.target.value) set('porcentajeDescuento', '');
+            }}
+            placeholder="Ej: 1000"
+            disabled={!!form.porcentajeDescuento}
+            className={`w-full pl-7 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary
+              ${form.porcentajeDescuento ? 'opacity-40' : 'border-neutral-300'}`}
+          />
+        </div>
+        <p className="text-[10px] text-neutral-400 mt-1">Requiere cantidad mínima</p>
+      </div>
+    </div>
+    {errors.porcentajeDescuento && <p className="text-xs text-red-500">{errors.porcentajeDescuento}</p>}
 
-            <p className="text-xs font-medium text-neutral-600">Aplicar a:</p>
+    {/* Aplicar a */}
+    <p className="text-xs font-medium text-neutral-600">Aplicar a:</p>
 
-            <div>
-              <label className="block text-xs text-neutral-500 mb-1">Producto específico</label>
-              <div className="relative">
-                <select
-                  value={form.productoIdPorcentaje}
-                  onChange={e => {
-                    set('productoIdPorcentaje', e.target.value ? Number(e.target.value) : '');
-                    if (e.target.value) set('categoriaIdPorcentaje', '');
-                    setErrors(prev => ({ ...prev, productoIdPorcentaje: undefined }));
-                  }}
-                  className="w-full appearance-none px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary bg-white pr-8"
-                >
-                  <option value="">Ninguno</option>
-                  {productos.map(p => (
-                    <option key={p.productoId} value={p.productoId}>{p.nombre}</option>
-                  ))}
-                </select>
-                <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
-              </div>
-            </div>
+    <div>
+      <label className="block text-xs text-neutral-500 mb-1">Producto específico</label>
+      <div className="relative">
+        <select
+          value={form.productoIdPorcentaje}
+          onChange={e => {
+            set('productoIdPorcentaje', e.target.value ? Number(e.target.value) : '');
+            if (e.target.value) set('categoriaIdPorcentaje', '');
+            setErrors(prev => ({ ...prev, productoIdPorcentaje: undefined }));
+          }}
+          className="w-full appearance-none px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary bg-white pr-8"
+        >
+          <option value="">Ninguno</option>
+          {productos.map(p => (
+            <option key={p.productoId} value={p.productoId}>{p.nombre}</option>
+          ))}
+        </select>
+        <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+      </div>
+    </div>
 
-            {categorias.length > 0 && (
-              <div>
-                <label className="block text-xs text-neutral-500 mb-1">
-                  O categoría completa
-                </label>
-                <div className="relative">
-                  <select
-                    value={form.categoriaIdPorcentaje}
-                    onChange={e => {
-                      set('categoriaIdPorcentaje', e.target.value ? Number(e.target.value) : '');
-                      if (e.target.value) set('productoIdPorcentaje', '');
-                      setErrors(prev => ({ ...prev, productoIdPorcentaje: undefined }));
-                    }}
-                    className="w-full appearance-none px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary bg-white pr-8"
-                  >
-                    <option value="">Ninguna</option>
-                    {categorias.map(c => (
-                      <option key={c.id} value={c.id}>{c.nombre}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
-                </div>
-              </div>
-            )}
+    {categorias.length > 0 && (
+      <div>
+        <label className="block text-xs text-neutral-500 mb-1">O categoría completa</label>
+        <div className="relative">
+          <select
+            value={form.categoriaIdPorcentaje}
+            onChange={e => {
+              set('categoriaIdPorcentaje', e.target.value ? Number(e.target.value) : '');
+              if (e.target.value) set('productoIdPorcentaje', '');
+              setErrors(prev => ({ ...prev, productoIdPorcentaje: undefined }));
+            }}
+            className="w-full appearance-none px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary bg-white pr-8"
+          >
+            <option value="">Ninguna</option>
+            {categorias.map(c => (
+              <option key={c.id} value={c.id}>{c.nombre}</option>
+            ))}
+          </select>
+          <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+        </div>
+      </div>
+    )}
 
-            {errors.productoIdPorcentaje && (
-              <p className="text-xs text-red-500">{errors.productoIdPorcentaje}</p>
-            )}
+    {errors.productoIdPorcentaje && (
+      <p className="text-xs text-red-500">{errors.productoIdPorcentaje}</p>
+    )}
 
-            {/* Cantidad mínima para precio por volumen */}
-            {form.productoIdPorcentaje !== '' && (
-              <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 space-y-2">
-                <p className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
-                  <Hash size={12} /> Precio por volumen <span className="font-normal text-orange-400">(opcional)</span>
-                </p>
-                <label className="block text-xs text-neutral-600">
-                  ¿A partir de cuántas unidades aplicar el descuento?
-                </label>
-                <input
-                  type="number" min="2"
-                  value={form.cantidadMinimaDescuento}
-                  onChange={e => set('cantidadMinimaDescuento', e.target.value)}
-                  placeholder="Ej: 3 → si lleva 3 o más, se aplica el % de arriba"
-                  className="w-full px-3 py-2 border border-orange-200 bg-white rounded-lg text-sm focus:outline-none focus:border-orange-400"
-                />
-                {form.cantidadMinimaDescuento && Number(form.cantidadMinimaDescuento) >= 2 && form.porcentajeDescuento && (
-                  <p className="text-xs text-orange-700 font-medium bg-orange-100 rounded-lg px-3 py-2">
-                    ✓ Si lleva {form.cantidadMinimaDescuento} o más → {form.porcentajeDescuento}% off en todas las unidades
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+    {/* Cantidad mínima */}
+    {form.productoIdPorcentaje !== '' && (
+      <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 space-y-2">
+        <p className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
+          <Hash size={12} /> Cantidad mínima <span className="font-normal text-orange-400">
+            {form.precioFijoDescuento ? '(requerida para precio fijo)' : '(opcional)'}
+          </span>
+        </p>
+        <label className="block text-xs text-neutral-600">
+          ¿A partir de cuántas unidades aplicar el descuento?
+        </label>
+        <input
+          type="number" min="2"
+          value={form.cantidadMinimaDescuento}
+          onChange={e => set('cantidadMinimaDescuento', e.target.value)}
+          placeholder="Ej: 3 → si lleva 3 o más, se aplica el descuento"
+          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-orange-400 bg-white
+            ${errors.cantidadMinimaDescuento ? 'border-red-400' : 'border-orange-200'}`}
+        />
+        {errors.cantidadMinimaDescuento && (
+          <p className="text-xs text-red-500">{errors.cantidadMinimaDescuento}</p>
         )}
+        {form.cantidadMinimaDescuento && Number(form.cantidadMinimaDescuento) >= 2 && (
+          form.precioFijoDescuento ? (
+            <p className="text-xs text-orange-700 font-medium bg-orange-100 rounded-lg px-3 py-2">
+              ✓ Si lleva {form.cantidadMinimaDescuento} o más → precio total ${form.precioFijoDescuento}
+            </p>
+          ) : form.porcentajeDescuento ? (
+            <p className="text-xs text-orange-700 font-medium bg-orange-100 rounded-lg px-3 py-2">
+              ✓ Si lleva {form.cantidadMinimaDescuento} o más → {form.porcentajeDescuento}% off en todas las unidades
+            </p>
+          ) : null
+        )}
+      </div>
+    )}
+  </div>
+)}
 
         {/* Fechas de vigencia (opcionales) */}
         <div>

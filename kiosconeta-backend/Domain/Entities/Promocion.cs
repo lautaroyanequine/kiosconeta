@@ -26,6 +26,8 @@ namespace Domain.Entities
 
         // Para Porcentaje
         public decimal? PorcentajeDescuento { get; set; }
+        public decimal? PrecioFijoDescuento { get; set; } 
+
         public int? ProductoIdPorcentaje { get; set; }
         public Producto? ProductoPorcentaje { get; set; }
         public int? CategoriaIdPorcentaje { get; set; }

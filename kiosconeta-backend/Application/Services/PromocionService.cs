@@ -37,6 +37,7 @@ public class PromocionService : IPromocionService
             CantidadPaga = dto.CantidadPaga,
             ProductoIdCantidad = dto.ProductoIdCantidad,
             PorcentajeDescuento = dto.PorcentajeDescuento,
+            PrecioFijoDescuento = dto.PrecioFijoDescuento,
             ProductoIdPorcentaje = dto.ProductoIdPorcentaje,
             CategoriaIdPorcentaje = dto.CategoriaIdPorcentaje,
             CantidadMinimaDescuento = dto.CantidadMinimaDescuento,   // ← NUEVO
@@ -171,41 +172,59 @@ public class PromocionService : IPromocionService
 
     private async Task<PromocionAplicadaDTO?> DetectarPorcentajeAsync(Promocion promo, List<ItemCarritoDTO> carrito)
     {
-        if (promo.PorcentajeDescuento == null) return null;
+        // Necesita al menos uno de los dos
+        if (promo.PorcentajeDescuento == null && promo.PrecioFijoDescuento == null) return null;
 
         decimal baseDescuento = 0;
+        int cantidadAplicable = 0;
 
         if (promo.ProductoIdPorcentaje != null)
         {
             var item = carrito.FirstOrDefault(c => c.ProductoId == promo.ProductoIdPorcentaje);
             if (item == null) return null;
 
-            // Precio por volumen: verificar cantidad mínima
             if (promo.CantidadMinimaDescuento.HasValue && item.Cantidad < promo.CantidadMinimaDescuento.Value)
                 return null;
 
             baseDescuento = item.PrecioUnitario * item.Cantidad;
+            cantidadAplicable = item.Cantidad;
         }
         else if (promo.CategoriaIdPorcentaje != null)
         {
-            // Traer los IDs de productos que pertenecen a esa categoría
             var productosCategoria = await _productoRepo.GetByCategoriaAsync(promo.CategoriaIdPorcentaje.Value);
             var idsCategoria = productosCategoria.Select(p => p.ProductoId).ToHashSet();
-
             baseDescuento = carrito
                 .Where(c => idsCategoria.Contains(c.ProductoId))
                 .Sum(c => c.PrecioUnitario * c.Cantidad);
-
             if (baseDescuento == 0) return null;
         }
 
         if (baseDescuento == 0) return null;
 
-        var descuento = baseDescuento * (promo.PorcentajeDescuento.Value / 100);
+        decimal descuento;
+        string descripcion;
 
-        var descripcion = promo.CantidadMinimaDescuento.HasValue
-            ? $"{promo.CantidadMinimaDescuento}+ unidades → {promo.PorcentajeDescuento}% off: {promo.Nombre}"
-            : $"{promo.PorcentajeDescuento}% off: {promo.Nombre}";
+        if (promo.PrecioFijoDescuento.HasValue && promo.CantidadMinimaDescuento.HasValue)
+        {
+            // Precio fijo por N unidades — calcular cuántos grupos de N tiene el cliente
+            var grupos = cantidadAplicable / promo.CantidadMinimaDescuento.Value;
+            var precioSinPromo = baseDescuento;
+            var precioConPromo = (grupos * promo.PrecioFijoDescuento.Value)
+                + ((cantidadAplicable % promo.CantidadMinimaDescuento.Value)
+                   * (baseDescuento / cantidadAplicable)); // unidades sueltas a precio normal
+            descuento = precioSinPromo - precioConPromo;
+            descripcion = $"{promo.CantidadMinimaDescuento} x ${promo.PrecioFijoDescuento}: {promo.Nombre}";
+        }
+        else if (promo.PorcentajeDescuento.HasValue)
+        {
+            descuento = baseDescuento * (promo.PorcentajeDescuento.Value / 100);
+            descripcion = promo.CantidadMinimaDescuento.HasValue
+                ? $"{promo.CantidadMinimaDescuento}+ unidades → {promo.PorcentajeDescuento}% off: {promo.Nombre}"
+                : $"{promo.PorcentajeDescuento}% off: {promo.Nombre}";
+        }
+        else return null;
+
+        if (descuento <= 0) return null;
 
         return new PromocionAplicadaDTO
         {
@@ -234,6 +253,7 @@ public class PromocionService : IPromocionService
         ProductoIdCantidad = p.ProductoIdCantidad,
         ProductoNombreCantidad = p.ProductoCantidad?.Nombre,
         PorcentajeDescuento = p.PorcentajeDescuento,
+        PrecioFijoDescuento = p.PrecioFijoDescuento, 
         ProductoIdPorcentaje = p.ProductoIdPorcentaje,
         ProductoNombrePorcentaje = p.ProductoPorcentaje?.Nombre,
         CategoriaIdPorcentaje = p.CategoriaIdPorcentaje,
