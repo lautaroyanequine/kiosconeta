@@ -110,7 +110,7 @@ namespace Infraestructure.Repository
             return await _context.CierresTurno
                 .Where(ct => ct.KioscoId == kioscoId
                     && ct.Estado == EstadoCierre.Cerrado)
-                .SumAsync(ct => (decimal?)ct.VirtualFinal) ?? 0;
+                .SumAsync(ct => (decimal?)(ct.VirtualFinal - ct.VirtualInicial)) ?? 0;
         }
 
         public async Task<decimal> GetTotalGastosAsync(int kioscoId)

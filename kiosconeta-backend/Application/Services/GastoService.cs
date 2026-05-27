@@ -114,10 +114,7 @@ namespace Application.Services
                 Fecha = DateTime.UtcNow
             };
 
-            // Asociar al turno abierto si existe — si no hay turno (gasto admin) queda null
-            var turnoAbierto = await _cierreTurnoRepository.GetTurnoAbiertoAsync(kioscoId);
-            if (turnoAbierto != null)
-                gasto.CierreTurnoId = turnoAbierto.CierreTurnoId;
+            gasto.CierreTurnoId = dto.CierreTurnoId;
 
             var creado = await _gastoRepository.CreateAsync(gasto);
             return MapToResponseDTO(creado);

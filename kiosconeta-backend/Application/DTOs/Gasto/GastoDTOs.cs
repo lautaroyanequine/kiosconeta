@@ -10,6 +10,7 @@
         public string? Descripcion { get; set; }
         public decimal Monto { get; set; }
         public int EmpleadoId { get; set; }
+        public bool EsAdministrativo { get; set; }
         public int? CierreTurnoId { get; set; }
         // KioscoId se obtiene automáticamente del empleado en el backend
         public int TipoDeGastoId { get; set; }

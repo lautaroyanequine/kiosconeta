@@ -47,7 +47,9 @@ export interface CreateGastoDTO {
   monto: number
   empleadoId: number
   tipoDeGastoId: number
-  cierreTurnoId?: number   // opcional — null si es gasto admin
+cierreTurnoId?: number | null
+  esAdministrativo?: boolean
+
 }
 
 // ────────────────────────────────────────────────────────────────────────────

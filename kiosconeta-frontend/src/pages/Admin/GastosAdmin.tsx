@@ -70,6 +70,8 @@ export const GastosAdmin: React.FC = () => {
         monto: parseFloat(monto),
         empleadoId: user.empleadoId,
         tipoDeGastoId: Number(tipoSeleccionado),
+        cierreTurnoId: null,
+
       })
       setGastos(prev => [nuevo, ...prev])
       cerrarModalGasto()
