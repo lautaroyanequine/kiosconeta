@@ -20,6 +20,7 @@ interface CierreTurno {
   turnoNombre: string
   montoReal: number
   virtualFinal: number
+  virtualInicial: number  
   efectivoInicial: number
   estadoNombre: string
 }
@@ -48,7 +49,7 @@ interface FilaDia {
 // ────────────────────────────────────────────────────────────────────────────
 
 const facturadoTurno = (t: CierreTurno) =>
-  (t.montoReal - t.efectivoInicial) + t.virtualFinal
+  (t.montoReal - t.efectivoInicial) + (t.virtualFinal - (t.virtualInicial ?? 0))
 
 const NOMBRES_MANANA = ['mañana', 'manana', 'morning']
 const NOMBRES_TARDE  = ['tarde', 'afternoon']

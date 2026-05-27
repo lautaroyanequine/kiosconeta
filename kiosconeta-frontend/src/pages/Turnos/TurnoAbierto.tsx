@@ -77,12 +77,11 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
 
   // ── Diferencia virtual en tiempo real ───────────────────────────────────────
   const diferenciaVirtual = useMemo(() => {
-    const acreditado = parseFloat(virtualAcreditado)
-    if (isNaN(acreditado)) return null
-
-    const esperado = (turno.virtualInicial ?? 0) + turno.totalVirtual
-    return acreditado - esperado
-  }, [virtualAcreditado, turno.virtualInicial, turno.totalVirtual])
+  const acreditado = parseFloat(virtualAcreditado)
+  if (isNaN(acreditado)) return null
+  const esperado = (turno.virtualInicial ?? 0) + turno.totalVirtual  // ← incluye virtualInicial
+  return acreditado - esperado
+}, [virtualAcreditado, turno.virtualInicial, turno.totalVirtual])
   // ── Validación ────────────────────────────────────────────────────────────
   const puedesCerrar = efectivoContado !== '' &&
     !isNaN(parseFloat(efectivoContado)) &&
@@ -407,39 +406,41 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
                 </div>
 
                 {/* Virtual */}
-                <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
-                  Virtual
-                </p>
-                <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Virtual acreditado</span>
-                  <span className="font-medium">{formatCurrency(turnoFinalizado.virtualFinal)}</span>
-                </div>
+<p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
+  Virtual
+</p>
+<div className="flex justify-between py-2 border-b border-neutral-100">
+  <span className="text-neutral-500">Ventas virtuales</span>
+  <span className="font-medium">{formatCurrency(turnoFinalizado.totalVirtual)}</span>
+</div>
 
-                {/* Total del turno */}
-                <div className="flex justify-between py-2.5 px-3 rounded-xl bg-primary/5 font-semibold">
-                  <span className="text-primary">Total del turno</span>
-                  <span className="text-primary">
-                    {formatCurrency((turnoFinalizado.montoReal - turnoFinalizado.efectivoInicial) + turnoFinalizado.virtualFinal)}
-                  </span>
-                </div>
+{/* Total del turno */}
+<div className="flex justify-between py-2.5 px-3 rounded-xl bg-primary/5 font-semibold">
+  <span className="text-primary">Total del turno</span>
+  <span className="text-primary">
+    {formatCurrency(
+      (turnoFinalizado.montoReal - turnoFinalizado.efectivoInicial) + turnoFinalizado.totalVirtual
+    )}
+  </span>
+</div>
 
                 {/* Diferencia */}
                 <div className={`flex justify-between py-2.5 px-3 rounded-xl font-semibold
-                  ${turnoFinalizado.diferencia === 0
-                    ? 'bg-success-50 text-success-700'
-                    : turnoFinalizado.diferencia > 0
-                      ? 'bg-success-50 text-success-700'
-                      : 'bg-danger-50 text-danger'}`}>
-                  <span>
-                    {turnoFinalizado.diferencia === 0
-                      ? '✓ Cuadra exacto'
-                      : turnoFinalizado.diferencia > 0
-                        ? 'Sobrante' : 'Faltante'}
-                  </span>
-                  {turnoFinalizado.diferencia !== 0 && (
-                    <span>{formatCurrency(Math.abs(turnoFinalizado.diferencia))}</span>
-                  )}
-                </div>
+            ${turnoFinalizado.diferencia === 0
+              ? 'bg-success-50 text-success-700'
+              : turnoFinalizado.diferencia > 0
+                ? 'bg-success-50 text-success-700'
+                : 'bg-danger-50 text-danger'}`}>
+            <span>
+              {turnoFinalizado.diferencia === 0
+                ? '✓ Cuadra exacto'
+                : turnoFinalizado.diferencia > 0
+                  ? 'Sobrante' : 'Faltante'}
+            </span>
+            {turnoFinalizado.diferencia !== 0 && (
+              <span>{formatCurrency(Math.abs(turnoFinalizado.diferencia))}</span>
+            )}
+          </div>
               </div>
 
               {/* Observaciones */}

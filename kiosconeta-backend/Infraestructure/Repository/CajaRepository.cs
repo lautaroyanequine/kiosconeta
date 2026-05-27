@@ -98,21 +98,25 @@ namespace Infraestructure.Repository
 
         public async Task<decimal> GetTotalVentasEfectivoAsync(int kioscoId)
         {
-            // Solo sumamos el MontoReal (lo que el cajero entregó por ventas).
-            // NO restamos el efectivo inicial aquí.
-            return await _context.CierresTurno
-                .Where(ct => ct.KioscoId == kioscoId && ct.Estado == EstadoCierre.Cerrado)
-                .SumAsync(ct => (decimal?)ct.MontoReal) ?? 0;
+            return await _context.Ventas
+                .Where(v =>
+                    v.CierreTurno.KioscoId == kioscoId &&
+                    v.CierreTurno.Estado == EstadoCierre.Cerrado &&
+                    v.Anulada == false &&
+                    v.MetodoPago.Nombre.ToLower().Contains("efectivo"))
+                .SumAsync(v => (decimal?)v.Total) ?? 0;
         }
 
         public async Task<decimal> GetTotalVentasVirtualAsync(int kioscoId)
         {
-            return await _context.CierresTurno
-                .Where(ct => ct.KioscoId == kioscoId
-                    && ct.Estado == EstadoCierre.Cerrado)
-                .SumAsync(ct => (decimal?)(ct.VirtualFinal - ct.VirtualInicial)) ?? 0;
+            return await _context.Ventas
+                .Where(v =>
+                    v.CierreTurno.KioscoId == kioscoId &&
+                    v.CierreTurno.Estado == EstadoCierre.Cerrado &&
+                    v.Anulada == false &&
+                    !v.MetodoPago.Nombre.ToLower().Contains("efectivo"))
+                .SumAsync(v => (decimal?)v.Total) ?? 0;
         }
-
         public async Task<decimal> GetTotalGastosAsync(int kioscoId)
         {
             return await _context.Gastos
