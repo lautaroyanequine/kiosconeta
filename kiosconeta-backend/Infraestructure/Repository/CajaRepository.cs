@@ -98,10 +98,11 @@ namespace Infraestructure.Repository
 
         public async Task<decimal> GetTotalVentasEfectivoAsync(int kioscoId)
         {
+            // Solo sumamos el MontoReal (lo que el cajero entregó por ventas).
+            // NO restamos el efectivo inicial aquí.
             return await _context.CierresTurno
-                .Where(ct => ct.KioscoId == kioscoId
-                    && ct.Estado == EstadoCierre.Cerrado)
-                .SumAsync(ct => (decimal?)(ct.MontoReal - ct.EfectivoInicial)) ?? 0;
+                .Where(ct => ct.KioscoId == kioscoId && ct.Estado == EstadoCierre.Cerrado)
+                .SumAsync(ct => (decimal?)ct.MontoReal) ?? 0;
         }
 
         public async Task<decimal> GetTotalVentasVirtualAsync(int kioscoId)
@@ -115,7 +116,8 @@ namespace Infraestructure.Repository
         public async Task<decimal> GetTotalGastosAsync(int kioscoId)
         {
             return await _context.Gastos
-                .Where(g => g.KioscoId == kioscoId)
+                .Where(g => g.KioscoId == kioscoId
+                    && g.CierreTurnoId == null)  // ← solo gastos admin
                 .SumAsync(g => (decimal?)g.Monto) ?? 0;
         }
 
@@ -144,10 +146,11 @@ namespace Infraestructure.Repository
         public async Task<decimal> GetGananciaTotalAsync(int kioscoId)
         {
             return await _context.ProductosVenta
-                .Include(pv => pv.Producto)
-                .Include(pv => pv.Venta)
-                    .ThenInclude(v => v.CierreTurno)
-                .Where(pv => pv.Venta.CierreTurno.KioscoId == kioscoId && !pv.Venta.Anulada)
+                .Where(pv =>
+                    pv.Venta.CierreTurno.KioscoId == kioscoId &&
+                    pv.Venta.CierreTurno.Estado == EstadoCierre.Cerrado && // 👈 Aseguramos que el turno ya rindió cuentas
+                    pv.Venta.Anulada == false // 👈 Filtramos las anuladas explícitamente
+                )
                 .SumAsync(pv => (decimal?)((pv.PrecioUnitario - pv.Producto.PrecioCosto) * pv.Cantidad)) ?? 0;
         }
     }

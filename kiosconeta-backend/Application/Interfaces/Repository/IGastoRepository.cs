@@ -45,7 +45,7 @@ namespace Application.Interfaces.Repository
         Task<IEnumerable<TipoDeGasto>> GetAllAsync();
         Task<IEnumerable<TipoDeGasto>> GetActivosAsync();
         Task<bool> ExistsAsync(int id);
-        Task<bool> ExistsNombreAsync(string nombre);
+        Task<bool> ExistsNombreAsync(string nombre, int kioscoId);
 
         // Comandos
         Task<TipoDeGasto> CreateAsync(TipoDeGasto tipo);

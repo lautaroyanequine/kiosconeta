@@ -235,7 +235,7 @@ namespace Application.Services
             if (string.IsNullOrWhiteSpace(dto.Nombre))
                 throw new InvalidOperationException("El nombre del tipo de gasto es obligatorio");
 
-            var existe = await _tipoDeGastoRepository.ExistsNombreAsync(dto.Nombre);
+            var existe = await _tipoDeGastoRepository.ExistsNombreAsync(dto.Nombre, dto.KioscoId);
             if (existe)
                 throw new InvalidOperationException($"Ya existe un tipo de gasto con el nombre '{dto.Nombre}'");
 
@@ -263,7 +263,7 @@ namespace Application.Services
             // Verificar nombre duplicado solo si cambió
             if (tipo.Nombre.ToLower() != dto.Nombre.ToLower())
             {
-                var existe = await _tipoDeGastoRepository.ExistsNombreAsync(dto.Nombre);
+                var existe = await _tipoDeGastoRepository.ExistsNombreAsync(dto.Nombre, tipo.KioscoId);
                 if (existe)
                     throw new InvalidOperationException($"Ya existe un tipo de gasto con el nombre '{dto.Nombre}'");
             }

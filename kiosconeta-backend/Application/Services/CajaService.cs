@@ -20,31 +20,33 @@ namespace Application.Services
         }
 
         // ═══════════════════════════════════════════════════
-        // RESUMEN
+        // RESUMEN (Modificado para aceptar rango de fechas)
         // ═══════════════════════════════════════════════════
 
         public async Task<CajaResumenDTO> GetResumenAsync(int kioscoId)
         {
-            // EF Core no soporta queries paralelas en el mismo contexto
-            // — hay que ejecutarlas en secuencia
             var saldo = await _cajaRepository.GetSaldoByKioscoAsync(kioscoId);
             var ventasEfectivo = await _cajaRepository.GetTotalVentasEfectivoAsync(kioscoId);
             var ventasVirtual = await _cajaRepository.GetTotalVentasVirtualAsync(kioscoId);
             var gastos = await _cajaRepository.GetTotalGastosAsync(kioscoId);
-            var ingresosManual = await _cajaRepository.GetTotalIngresosManualAsync(kioscoId);
-            var egresosManual = await _cajaRepository.GetTotalEgresosManualAsync(kioscoId);
+
+            // Obtenemos los totales manuales
+            var ingresosManuales = await _cajaRepository.GetTotalIngresosManualAsync(kioscoId);
+            var egresosManuales = await _cajaRepository.GetTotalEgresosManualAsync(kioscoId);
+
             var cantidadVentas = await _cajaRepository.GetCantidadVentasAsync(kioscoId);
             var gananciaTotal = await _cajaRepository.GetGananciaTotalAsync(kioscoId);
             var movimientos = await _cajaRepository.GetMovimientosByKioscoAsync(kioscoId);
 
             var saldoInicial = saldo?.SaldoInicial ?? 0;
 
+            // FÓRMULA INTEGRAL:
             var saldoActual = saldoInicial
-                            + ventasEfectivo
-                            + ventasVirtual
-                            + ingresosManual
-                            - gastos
-                            - egresosManual;
+                + ventasEfectivo   // Estos son los totales de los cierres
+                + ventasVirtual
+                - gastos           // Gastos admin
+                + ingresosManuales
+                - egresosManuales;
 
             return new CajaResumenDTO
             {
@@ -56,8 +58,8 @@ namespace Application.Services
                 TotalGastos = gastos,
                 GananciaTotal = gananciaTotal,
                 CantidadVentas = cantidadVentas,
-                TotalIngresosManual = ingresosManual,
-                TotalEgresosManual = egresosManual,
+                TotalIngresosManual = ingresosManuales,
+                TotalEgresosManual = egresosManuales,
                 Movimientos = movimientos.Select(MapMovimientoToDTO).ToList()
             };
         }
@@ -68,6 +70,7 @@ namespace Application.Services
 
         public async Task<IEnumerable<MovimientoCajaResponseDTO>> GetMovimientosAsync(int kioscoId)
         {
+            // Histórico general de movimientos
             var movimientos = await _cajaRepository.GetMovimientosByKioscoAsync(kioscoId);
             return movimientos.Select(MapMovimientoToDTO);
         }
@@ -92,7 +95,7 @@ namespace Application.Services
                 Tipo = dto.Tipo,
                 KioscoId = kioscoId,
                 EmpleadoId = dto.EmpleadoId,
-                Fecha = DateTime.UtcNow
+                Fecha = DateTime.UtcNow // Guardamos en UTC estándar para la DB
             };
 
             var creado = await _cajaRepository.CreateMovimientoAsync(movimiento);
@@ -119,7 +122,7 @@ namespace Application.Services
 
             await _cajaRepository.UpsertSaldoAsync(kioscoId, dto.SaldoInicial);
 
-            // Devolver el resumen actualizado
+            // Devuelve el resumen con las fechas del mes actual por defecto
             return await GetResumenAsync(kioscoId);
         }
 

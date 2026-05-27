@@ -219,10 +219,11 @@ namespace Infraestructure.Repository
                 .AnyAsync(t => t.TipoDeGastoId == id);
         }
 
-        public async Task<bool> ExistsNombreAsync(string nombre)
+        public async Task<bool> ExistsNombreAsync(string nombre, int kioscoId)
         {
             return await _context.TiposDeGasto
-                .AnyAsync(t => t.Nombre.ToLower() == nombre.ToLower());
+                .AnyAsync(t => t.Nombre.ToLower() == nombre.ToLower()
+                            && t.KioscoId == kioscoId);  // ← filtrar por kiosco
         }
 
         public async Task<TipoDeGasto> CreateAsync(TipoDeGasto tipo)
