@@ -20,12 +20,12 @@ namespace Infraestructure.Repository
 
         // ========== QUERIES - CONSULTAS ==========
 
-        public async Task<Producto?> GetByIdAsync(int id)
+        public async Task<Producto?> GetByIdAsync(int id, int kioscoId)
         {
             return await _context.Productos
                 .Include(p => p.Categoria)
                 .Include(p => p.Kiosco)
-                .FirstOrDefaultAsync(p => p.ProductoId == id);
+                .FirstOrDefaultAsync(p => p.ProductoId == id && p.KioscoId == kioscoId);
         }
 
         public async Task<IEnumerable<Producto>> GetAllAsync()

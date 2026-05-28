@@ -10,7 +10,7 @@ namespace Application.Interfaces.Repository
     public interface IProductoRepository
     {
         // Queries - Consultas
-        Task<Producto?> GetByIdAsync(int id);
+        Task<Producto?> GetByIdAsync(int id,int kioscoId);
         Task<IEnumerable<Producto>> GetAllAsync();
         Task<IEnumerable<Producto>> GetByKioscoIdAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetActivosAsync(int kioscoId);

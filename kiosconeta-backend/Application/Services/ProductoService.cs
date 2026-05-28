@@ -23,9 +23,9 @@ namespace Application.Services
 
         // ========== CONSULTAS ==========
 
-        public async Task<ProductoResponseDTO?> GetByIdAsync(int id)
+        public async Task<ProductoResponseDTO?> GetByIdAsync(int id, int kioscoId)
         {
-            var producto = await _productoRepository.GetByIdAsync(id);
+            var producto = await _productoRepository.GetByIdAsync(id,kioscoId);
             return producto != null ? MapToResponseDTO(producto) : null;
         }
 
@@ -131,14 +131,14 @@ namespace Application.Services
             var productoCreado = await _productoRepository.CreateAsync(producto);
 
             // Recargar con relaciones
-            var productoCompleto = await _productoRepository.GetByIdAsync(productoCreado.ProductoId);
+            var productoCompleto = await _productoRepository.GetByIdAsync(productoCreado.ProductoId,dto.KioscoId);
             return MapToResponseDTO(productoCompleto!);
         }
 
         public async Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto)
         {
             // Validar que existe
-            var productoExistente = await _productoRepository.GetByIdAsync(dto.ProductoId);
+            var productoExistente = await _productoRepository.GetByIdAsync(dto.ProductoId,dto.KioscoId);
             if (productoExistente == null)
             {
                 throw new KeyNotFoundException($"No se encontró el producto con ID: {dto.ProductoId}");
@@ -168,7 +168,7 @@ namespace Application.Services
             var productoActualizado = await _productoRepository.UpdateAsync(productoExistente);
 
             // Recargar con relaciones
-            var productoCompleto = await _productoRepository.GetByIdAsync(productoActualizado.ProductoId);
+            var productoCompleto = await _productoRepository.GetByIdAsync(productoActualizado.ProductoId,productoActualizado.KioscoId);
             return MapToResponseDTO(productoCompleto!);
         }
 
@@ -194,9 +194,9 @@ namespace Application.Services
             return await _productoRepository.ActivarDesactivarAsync(id, activo);
         }
 
-        public async Task<bool> ActualizarStockAsync(int id, int cantidad, int empleadoId)
+        public async Task<bool> ActualizarStockAsync(int id, int cantidad, int empleadoId,int kioscoId)
         {
-            var producto = await _productoRepository.GetByIdAsync(id);
+            var producto = await _productoRepository.GetByIdAsync(id,kioscoId);
             if (producto == null)
                 throw new KeyNotFoundException($"No se encontró el producto con ID: {id}");
 

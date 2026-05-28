@@ -6,6 +6,7 @@
     public class UpdateProductoDTO
     {
         public int ProductoId { get; set; }
+        public int KioscoId { get; set; }
         public string Nombre { get; set; }
         public decimal PrecioCosto { get; set; }
         public decimal PrecioVenta { get; set; }

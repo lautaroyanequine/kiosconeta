@@ -9,7 +9,7 @@ namespace Application.Interfaces.Services
     public interface IProductoService
     {
         // Consultas
-        Task<ProductoResponseDTO?> GetByIdAsync(int id);
+        Task<ProductoResponseDTO?> GetByIdAsync(int id,int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetAllAsync();
         Task<IEnumerable<ProductoResponseDTO>> GetByKioscoIdAsync(int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetActivosAsync(int kioscoId);
@@ -26,6 +26,6 @@ namespace Application.Interfaces.Services
         Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto);
         Task<bool> DeleteAsync(int id);
         Task<bool> ActivarDesactivarAsync(int id, bool activo);
-        Task<bool> ActualizarStockAsync(int id, int cantidad,int idEmpleado);
+        Task<bool> ActualizarStockAsync(int id, int cantidad,int idEmpleado,int kioscoId);
     }
 }

@@ -40,23 +40,19 @@ namespace KIOSCONETA.Controllers
 
         /// Obtener producto por ID
         [HttpGet("{id}")]
-        [RequierePermiso("productos.ver")]
         public async Task<ActionResult<ProductoResponseDTO>> GetById(int id)
         {
-            try
-            {
-                var producto = await _productoService.GetByIdAsync(id);
+            // Obtener el KioscoId desde los Claims del usuario autenticado
+            var kioscoId = int.Parse(User.FindFirst("KioscoId")?.Value ?? "0");
 
-                if (producto == null)
-                    return NotFound(new { message = $"Producto con ID {id} no encontrado" });
+            var producto = await _productoService.GetByIdAsync(id, kioscoId);
 
-                return Ok(producto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener producto", error = ex.Message });
-            }
+            if (producto == null)
+                return NotFound(); // O "Forbidden" si quieres ser más estricto
+
+            return Ok(producto);
         }
+        
 
         /// Obtener productos por kiosco
 
@@ -295,11 +291,11 @@ namespace KIOSCONETA.Controllers
         /// Actualizar stock de un producto (suma o resta)
         [HttpPatch("{id}/stock")]
         [RequierePermiso("productos.ajustar_stock")]
-        public async Task<ActionResult> ActualizarStock(int id, [FromQuery] int cantidad, [FromQuery] int idEmpleado)
+        public async Task<ActionResult> ActualizarStock(int id, [FromQuery] int cantidad, [FromQuery] int idEmpleado, int kioscoId)
         {
             try
             {
-                await _productoService.ActualizarStockAsync(id, cantidad, idEmpleado);
+                await _productoService.ActualizarStockAsync(id, cantidad, idEmpleado,kioscoId);
                 return Ok(new { message = "Stock actualizado correctamente", cantidad });
             }
             catch (KeyNotFoundException ex)

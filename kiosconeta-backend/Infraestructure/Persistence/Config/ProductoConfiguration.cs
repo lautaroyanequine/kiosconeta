@@ -75,7 +75,7 @@ namespace Infraestructure.Persistence.Config
                 .WithMany(d => d.Productos)
                 .HasForeignKey(p => p.DistribuidorId)
                 .OnDelete(DeleteBehavior.SetNull);
-
+            
 
         }
     }
