@@ -37,7 +37,8 @@ interface FormState {
   stockMinimo: string;
   categoriaId: string;
   fechaVencimiento: string;
-  distribuidorId: string;      
+  distribuidorId: string;  
+  suelto: boolean;     
 }
 
 const FORM_INICIAL: FormState = {
@@ -50,6 +51,7 @@ const FORM_INICIAL: FormState = {
   categoriaId: '',
   fechaVencimiento: '',
   distribuidorId: '',
+  suelto: false,
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -80,6 +82,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
       stockMinimo: String(producto.stockMinimo),
       categoriaId: String(producto.categoriaId),
       distribuidorId: producto.distribuidorId ? String(producto.distribuidorId) : '', // ← cambio
+      suelto: producto.suelto ?? false, 
       fechaVencimiento: producto.fechaVencimiento
         ? producto.fechaVencimiento.split('T')[0]
         : '',
@@ -136,7 +139,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
   categoriaId: Number(form.categoriaId),
   distribuidorId: form.distribuidorId ? Number(form.distribuidorId) : undefined, // ← cambio
   fechaVencimiento: form.fechaVencimiento || undefined,
-  suelto: false,
+  suelto: form.suelto,
   kioscoId: user!.kioscoId,
 };
 
@@ -312,6 +315,26 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
             <span className="input-error">{errores.categoriaId}</span>
           )}
         </div>
+
+
+        {/* Producto suelto */}
+<div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+  <div>
+    <p className="text-sm font-medium text-neutral-700">Producto suelto</p>
+    <p className="text-xs text-neutral-400">Al venderlo pedirá la cantidad (caramelos, cigarrillos, etc.)</p>
+  </div>
+  <button
+    type="button"
+    onClick={() => setForm(prev => ({ ...prev, suelto: !prev.suelto }))}
+    className={`relative w-11 h-6 rounded-full transition-colors ${
+      form.suelto ? 'bg-green-500' : 'bg-neutral-300'
+    }`}
+  >
+    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+      form.suelto ? 'translate-x-5' : 'translate-x-0.5'
+    }`} />
+  </button>
+</div>
 
 
          <select

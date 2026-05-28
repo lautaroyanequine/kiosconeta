@@ -52,10 +52,11 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   const [busqueda, setBusqueda]                     = useState('');
   const [categoriaActiva, setCategoriaActiva]       = useState('todas');
   const [isLoadingProductos, setIsLoadingProductos] = useState(true);
-  // Modal de selección de combo
-  const [comboModal, setComboModal] = useState<{ combo: typeof combosVirtuales[0]; cantidades: Record<number, number> } | null>(null);
   const [sueltoModal, setSueltoModal] = useState<{ producto: ProductoSimple; cantidad: number } | null>(null);
 
+  // Modal de selección de combo
+  const [comboModal, setComboModal] = useState<{ combo: typeof combosVirtuales[0]; cantidades: Record<number, number> } | null>(null);
+  
   // Métodos de pago
   const [metodosPago, setMetodosPago]           = useState<MetodoPago[]>([]);
   const [isLoadingMetodos, setIsLoadingMetodos] = useState(true);
@@ -431,8 +432,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       combo,
       cantidades: Object.fromEntries(combo.productosCombo.map(pc => [pc.productoId, pc.cantidad])),
     });
-  } else if ((p as any).suelto) {  // ← agregar
-    setSueltoModal({ producto: p, cantidad: 1 });
+  } else if ((p as any).suelto) {  
+    setSueltoModal({ producto: p, cantidad: 1, });
   } else {
     cart.addItem(p);
   }
@@ -675,6 +676,94 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
           </div>
         </div>
       )}
+
+      {/* Modal cantidad suelto */}
+{sueltoModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+    onClick={() => setSueltoModal(null)}>
+    <div className="bg-white rounded-2xl p-6 shadow-2xl w-80 max-w-[90vw]"
+      onClick={e => e.stopPropagation()}>
+
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+          <Package size={20} className="text-green-600" />
+        </div>
+        <div>
+          <h3 className="font-bold text-neutral-900 text-base leading-tight">{sueltoModal.producto.nombre}</h3>
+          <p className="text-xs text-green-600">{formatCurrency(sueltoModal.producto.precioVenta)} c/u</p>
+        </div>
+      </div>
+      <p className="text-xs text-neutral-400 mb-4">¿Cuántas unidades querés agregar?</p>
+      {/* Selector de cantidad */}
+{/* Selector de cantidad */}
+<div className="flex items-center justify-center gap-3 mb-6">
+  <button
+    onClick={() => setSueltoModal(prev => prev && ({ 
+      ...prev, 
+      cantidad: Math.max(1, Number(prev.cantidad) - 1) 
+    }))}
+    className="w-12 h-12 rounded-xl border-2 border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all active:scale-90 text-xl font-bold">
+    −
+  </button>
+  <input
+    type="number"
+    min="1"
+    value={sueltoModal.cantidad}
+    onChange={e => {
+      const v = Number(e.target.value);
+      if (!isNaN(v) && v >= 1) {
+        setSueltoModal(prev => prev && ({ 
+          ...prev, 
+          cantidad: Math.min(Number(prev.producto.stock) || 999, v)
+        }));
+      }
+    }}
+    onFocus={e => e.target.select()}
+    onKeyDown={e => e.stopPropagation()} 
+    className="w-24 text-center text-3xl font-bold text-neutral-900 border-2 border-neutral-200 rounded-xl py-2 focus:outline-none focus:border-primary"
+  />
+  <button
+    onClick={() => setSueltoModal(prev => prev && ({ 
+      ...prev, 
+      cantidad: Math.min(Number(prev.producto.stock) || 999, Number(prev.cantidad) + 1) 
+    }))}
+    className="w-12 h-12 rounded-xl border-2 border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all active:scale-90 text-xl font-bold">
+    +
+  </button>
+</div>
+
+
+
+      {/* Total preview */}
+      <div className="bg-neutral-50 rounded-xl px-4 py-3 mb-5 flex justify-between items-center">
+  <span className="text-sm text-neutral-500">
+    {sueltoModal.cantidad || 0} × {formatCurrency(sueltoModal.producto.precioVenta)}
+  </span>
+  <span className="text-lg font-bold text-primary">
+    {formatCurrency(sueltoModal.producto.precioVenta * (sueltoModal.cantidad || 0))}
+  </span>
+</div>
+<div className="flex gap-2">
+  <button onClick={() => setSueltoModal(null)}
+    className="flex-1 py-2.5 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-600 hover:bg-neutral-50">
+    Cancelar
+  </button>
+  <button
+    onClick={() => {
+      for (let i = 0; i < sueltoModal.cantidad; i++) {
+        cart.addItem(sueltoModal.producto);
+      }
+      setSueltoModal(null);
+    }}
+    className="flex-1 py-2.5 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 active:scale-[0.97] transition-all">
+    Agregar al carrito
+  </button>
+</div>
+
+      
+    </div>
+  </div>
+)}
 
       {/* Modal venta confirmada */}
 {ventaConfirmada && (
