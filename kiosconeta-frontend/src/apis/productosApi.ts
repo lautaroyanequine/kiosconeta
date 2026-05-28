@@ -161,12 +161,12 @@ export const productosApi = {
     id: number,
     cantidad: number,
     idEmpleado: number,
+    kioscoId: number,
     _operacion?: 'agregar' | 'quitar'
   ): Promise<void> => {
     try {
       await apiClient.patch(
-        `${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/stock?cantidad=${cantidad}&idEmpleado=${idEmpleado}`
-      );
+`${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/stock?cantidad=${cantidad}&idEmpleado=${idEmpleado}&kioscoId=${kioscoId}`      );
     } catch (error) {
       return handleError(error);
     }

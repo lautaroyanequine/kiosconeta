@@ -23,7 +23,8 @@ interface IngresoMercaderiaModalProps {
     productoId: number,
     cantidad: number,
     distribuidorId: number | undefined,
-    precioCosto: number
+    precioCosto: number,
+    kioscoId: number
   ) => Promise<void>;
 }
 
@@ -99,7 +100,7 @@ export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
     setIsSaving(true);
     setError('');
     try {
-      await onConfirmar(productoSeleccionado.productoId, n, distribuidorId, costo);
+      await onConfirmar(productoSeleccionado.productoId, n, distribuidorId, costo,productoSeleccionado.kioscoId);
     } catch (err: any) {
       setError(err.message || 'Error al registrar el ingreso');
     } finally {

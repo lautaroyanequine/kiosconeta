@@ -183,7 +183,7 @@ export const useProductos = () => {
 
   const ajustarStock = async (productoId: number, cantidad: number) => {
     try {
-      await productosApi.ajustarStock(productoId, Math.abs(cantidad),user!.empleadoId, cantidad > 0 ? 'agregar' : 'quitar');
+      await productosApi.ajustarStock(productoId, Math.abs(cantidad),user!.empleadoId, Number(user!.kioscoId),cantidad > 0 ? 'agregar' : 'quitar');
       setProductos((prev) =>
         prev.map((p) =>
           p.productoId === productoId
@@ -211,7 +211,7 @@ export const useProductos = () => {
   const producto = productos.find(p => p.productoId === productoId);
   if (!producto) throw new Error('Producto no encontrado');
 
-  await productosApi.ajustarStock(productoId, cantidad, user!.empleadoId, 'agregar');
+  await productosApi.ajustarStock(productoId, cantidad, user!.empleadoId,Number(user!.kioscoId), 'agregar');
 
   const costoCambio       = precioCosto !== producto.precioCosto;
   const distribuidorCambio = distribuidorId !== producto.distribuidorId;
