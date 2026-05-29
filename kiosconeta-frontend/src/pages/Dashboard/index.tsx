@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import apiClient, { handleResponse } from '@/apis/client'
 import { formatCurrency } from '@/utils/formatters'
 import { ResumenMensual } from './ResumenMensual'
+import { AnalisisProductos } from './AnalisisProductos'
 
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -543,6 +544,10 @@ const [productosSinStock, setProductosSinStock] = useState<Producto[]>([])
         {/* RESUMEN MENSUAL */}
         <ResumenMensual />
 
+
+      <AnalisisProductos />
+
+      
       </div>
     </div>
   )

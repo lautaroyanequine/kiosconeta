@@ -2,6 +2,8 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
+using System.Linq;
+
 
 namespace Application.Services
 {
@@ -138,6 +140,65 @@ namespace Application.Services
                 TopProductos = topProductos,
                 MetodosPago = metodosPago,
                 Balance = balance
+            };
+        }
+
+
+        public async Task<AnalisisProductosResponseDTO> GetAnalisisProductosAsync(int kioscoId, DateTime fechaDesde, DateTime fechaHasta)
+        {
+            var diasAnalizados = Math.Max(1, (int)(fechaHasta - fechaDesde).TotalDays);
+            var productosVenta = await _productoVentaRepository.GetByKioscoYPeriodoAsync(kioscoId, fechaDesde, fechaHasta);
+
+            var agrupado = productosVenta
+                .GroupBy(pv => new {
+                    pv.ProductoId,
+                    pv.Producto.Nombre,
+                    Categoria = pv.Producto.Categoria?.Nombre ?? "Sin categoría",
+                    pv.Producto.PrecioCosto,
+                    pv.Producto.StockActual,
+                })
+                .Select(g => {
+                    var unidades = g.Sum(pv => pv.Cantidad);
+                    var ingresos = g.Sum(pv => pv.PrecioUnitario * pv.Cantidad);
+                    var costo = g.Sum(pv => pv.Producto.PrecioCosto * pv.Cantidad);
+                    var ganancia = ingresos - costo;
+
+                    var promDiario = (decimal)unidades / diasAnalizados;
+                    var recomendacion = (int)Math.Ceiling(promDiario * diasAnalizados * 1.1m);
+
+                    // Calculamos el costo de esa reposición basada en el costo actual del producto
+                    var costoReposicion = recomendacion * g.Key.PrecioCosto;
+
+                    return new AnalisisProductoDTO
+                    {
+                        ProductoId = g.Key.ProductoId,
+                        Nombre = g.Key.Nombre,
+                        Categoria = g.Key.Categoria,
+                        UnidadesVendidas = unidades,
+                        TotalIngresos = ingresos,
+                        TotalCosto = costo,
+                        Ganancia = ganancia,
+                        MargenGanancia = ingresos > 0 ? Math.Round((ganancia / ingresos) * 100, 1) : 0,
+                        StockActual = g.Key.StockActual,
+                        DiasAnalizados = diasAnalizados,
+                        PromedioVentasDiarias = Math.Round(promDiario, 2),
+                        RecomendacionCompra = recomendacion,
+                        CostoTotalRecomendado = costoReposicion // Nuevo cálculo
+                    };
+                })
+                .OrderByDescending(p => p.UnidadesVendidas)
+                .ToList();
+
+            return new AnalisisProductosResponseDTO
+            {
+                DiasAnalizados = diasAnalizados,
+                FechaDesde = fechaDesde,
+                FechaHasta = fechaHasta,
+                TotalProductosVendidos = agrupado.Count,
+                TotalIngresos = agrupado.Sum(p => p.TotalIngresos),
+                TotalGanancia = agrupado.Sum(p => p.Ganancia),
+                TotalInversionNecesaria = agrupado.Sum(p => p.CostoTotalRecomendado), // Nueva suma
+                Productos = agrupado,
             };
         }
 

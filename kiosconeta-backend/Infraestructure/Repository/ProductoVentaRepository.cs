@@ -54,5 +54,30 @@ namespace Infrastructure.Persistence.Repositories
                           && pv.Venta.Fecha >= hace30Dias)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<ProductoVenta>> GetByKioscoYPeriodoAsync(int kioscoId, DateTime desde, DateTime hasta)
+        {
+            return await _context.ProductosVenta
+                .Include(pv => pv.Producto).ThenInclude(p => p.Categoria)
+                .Include(pv => pv.Venta).ThenInclude(v => v.CierreTurno)
+                .Where(pv =>
+                    pv.Venta.CierreTurno.KioscoId == kioscoId &&
+                    !pv.Venta.Anulada &&
+                    pv.Venta.Fecha >= desde &&
+                    pv.Venta.Fecha <= hasta)
+                .ToListAsync();
+        }
+
+
+        public IQueryable<ProductoVenta> GetQueryableVentasPorKiosco(int kioscoId, DateTime desde, DateTime hasta)
+        {
+            return _context.ProductosVenta
+                .Include(pv => pv.Producto).ThenInclude(p => p.Categoria)
+                .Include(pv => pv.Venta)
+                .Where(pv => pv.Venta.CierreTurno.KioscoId == kioscoId
+                          && !pv.Venta.Anulada
+                          && pv.Venta.Fecha >= desde
+                          && pv.Venta.Fecha <= hasta);
+        }
     }
 }

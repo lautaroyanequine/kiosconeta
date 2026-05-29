@@ -9,5 +9,7 @@ namespace Application.Interfaces.Repository
         Task<List<ProductoVenta>> GetByKioscoYFechaAsync(int kioscoId, DateTime desde, DateTime hasta);
 
         Task<List<ProductoVenta>> GetUltimos30DiasAsync(int kioscoId);
+        Task<IEnumerable<ProductoVenta>> GetByKioscoYPeriodoAsync(int kioscoId, DateTime desde, DateTime hasta);
+        IQueryable<ProductoVenta> GetQueryableVentasPorKiosco(int kioscoId, DateTime desde, DateTime hasta);
     }
 }

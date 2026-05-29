@@ -74,6 +74,26 @@ namespace KIOSCONETA.Controllers
             }
         }
 
+
+        [HttpPost("kiosco/{kioscoId}/analisis-productos")]
+        [RequierePermiso("reportes.dashboard_completo")]
+        public async Task<ActionResult<AnalisisProductosResponseDTO>> GetAnalisisProductos(
+    int kioscoId, [FromBody] ReporteFiltrosDTO filtros)
+        {
+            try
+            {
+                var resultado = await _dashboardService.GetAnalisisProductosAsync(
+                    kioscoId, filtros.FechaDesde, filtros.FechaHasta);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al generar análisis", error = ex.Message });
+            }
+        }
+
+
+
         /// <summary>
         /// Obtener reporte financiero
         /// </summary>
