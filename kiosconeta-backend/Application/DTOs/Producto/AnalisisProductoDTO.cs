@@ -8,12 +8,15 @@
     public decimal TotalCosto { get; set; }
     public decimal Ganancia { get; set; }
     public decimal MargenGanancia { get; set; }
-    public decimal CostoTotalRecomendado { get; set; }
     public int StockActual { get; set; }
     public int DiasAnalizados { get; set; }
+    public decimal PromedioVentasDiarias { get; set; }
+    public int RecomendacionCompra { get; set; }
+    public decimal CostoTotalRecomendado { get; set; }
     public int StockMinimo { get; set; }
-    public decimal PromedioVentasDiarias { get; set; }  // unidades/día
-    public int RecomendacionCompra { get; set; }        // unidades sugeridas para el próximo período
+
+    public decimal DiasStockRestante { get; set; }   
+    public DateTime? UltimaVenta { get; set; }        
 }
 
 public class AnalisisProductosResponseDTO

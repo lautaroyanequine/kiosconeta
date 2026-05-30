@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import apiClient, { handleResponse } from '@/apis/client'
 import { formatCurrency } from '@/utils/formatters'
 import { ResumenMensual } from './ResumenMensual'
-import { AnalisisProductos } from './AnalisisProductos'
+import { AnalisisProductosCompleto } from './AnalisisProductosCompleto'
 
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -137,6 +137,7 @@ const [productosSinStock, setProductosSinStock] = useState<Producto[]>([])
   const [caja, setCaja]                 = useState<CajaResumen | null>(null)
   const [turnos, setTurnos]             = useState<CierreTurno[]>([])
   const [loading, setLoading]           = useState(true)
+const [tabActiva, setTabActiva] = useState<'metricas' | 'productos'>('metricas')
 
   useEffect(() => { cargarDatos() }, [])
 
@@ -308,247 +309,135 @@ const [productosSinStock, setProductosSinStock] = useState<Producto[]>([])
         )}
       </div>
 
+      {/* TABS */}
+<div className="border-b border-neutral-200 bg-white px-6 shrink-0">
+  <div className="flex gap-0">
+    <button
+      onClick={() => setTabActiva('metricas')}
+      className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
+        tabActiva === 'metricas'
+          ? 'border-primary text-primary'
+          : 'border-transparent text-neutral-500 hover:text-neutral-700'
+      }`}>
+      <BarChart2 size={15} /> Métricas
+    </button>
+    <button
+      onClick={() => setTabActiva('productos')}
+      className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
+        tabActiva === 'productos'
+          ? 'border-primary text-primary'
+          : 'border-transparent text-neutral-500 hover:text-neutral-700'
+      }`}>
+      <Package size={15} /> Análisis de productos
+    </button>
+  </div>
+</div>
+
       {/* CONTENIDO */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+<div className="flex-1 overflow-y-auto p-6 space-y-6">
 
-        {/* MÉTRICAS PRINCIPALES */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Tarjeta label="Total vendido" valor={formatCurrency(totalVentas)}
-            icono={<TrendingUp size={20}/>} color="primary"/>
-          <Tarjeta label="Cantidad de ventas" valor={ventasFiltradas.length}
-            icono={<ShoppingCart size={20}/>} color="success"/>
-          <Tarjeta label="Saldo en caja" valor={formatCurrency(caja?.saldoActual ?? 0)}
-            icono={<Wallet size={20}/>} color={(caja?.saldoActual ?? 0) >= 0 ? 'success' : 'danger'}/>
-          <Tarjeta label="Ganancia total" valor={formatCurrency(caja?.gananciaTotal ?? 0)}
-            icono={<DollarSign size={20}/>} color="success"/>
-        </div>
+  {tabActiva === 'metricas' && (
+    <>
+      {/* MÉTRICAS PRINCIPALES */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Tarjeta label="Total vendido" valor={formatCurrency(totalVentas)}
+          icono={<TrendingUp size={20}/>} color="primary"/>
+        <Tarjeta label="Cantidad de ventas" valor={ventasFiltradas.length}
+          icono={<ShoppingCart size={20}/>} color="success"/>
+        <Tarjeta label="Saldo en caja" valor={formatCurrency(caja?.saldoActual ?? 0)}
+          icono={<Wallet size={20}/>} color={(caja?.saldoActual ?? 0) >= 0 ? 'success' : 'danger'}/>
+        <Tarjeta label="Ganancia total" valor={formatCurrency(caja?.gananciaTotal ?? 0)}
+          icono={<DollarSign size={20}/>} color="success"/>
+      </div>
 
-        {/* EFECTIVO VS VIRTUAL + TURNOS HOY */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-          {/* Efectivo vs Virtual */}
-          <div className="bg-white rounded-xl border border-neutral-200 p-5">
-            <SeccionTitulo titulo="Efectivo vs Virtual" icono={<BarChart2 size={16}/>}/>
-            <div className="space-y-4">
-              {[
-                { label: 'Efectivo', valor: totalEfectivo, color: 'bg-primary' },
-                { label: 'Virtual', valor: totalVirtual, color: 'bg-success' },
-              ].map(item => (
-                <div key={item.label}>
-                  <div className="flex justify-between text-sm mb-1.5">
-                    <span className="text-neutral-600">{item.label}</span>
-                    <span className="font-semibold">{formatCurrency(item.valor)}</span>
-                  </div>
-                  <div className="h-2.5 bg-neutral-100 rounded-full overflow-hidden">
-                    <div className={`h-full ${item.color} rounded-full transition-all duration-500`}
-                      style={{ width: totalVentas > 0 ? `${(item.valor / totalVentas) * 100}%` : '0%' }}/>
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    {totalVentas > 0 ? ((item.valor / totalVentas) * 100).toFixed(1) : 0}% del total
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Turnos de hoy */}
-          <div className="bg-white rounded-xl border border-neutral-200 p-5">
-            <SeccionTitulo titulo="Turnos de hoy" icono={<Clock size={16}/>}/>
-            {turnosHoy.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-neutral-300">
-                <Clock size={32} className="mb-2 opacity-30"/>
-                <p className="text-sm text-neutral-400">No hay turnos hoy</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {turnosHoy.map(t => (
-                  <div key={t.cierreTurnoId}
-                    className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-neutral-800">{t.turnoNombre || 'Turno'}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium
-                          ${t.estadoNombre === 'Abierto' ? 'bg-success-50 text-success-700' : 'bg-neutral-100 text-neutral-500'}`}>
-                          {t.estadoNombre}
-                        </span>
-                      </div>
-                      <p className="text-xs text-neutral-400 mt-0.5">
-                        {t.empleados?.map(e => e.empleadoNombre).join(', ')}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-primary">
-                        {formatCurrency(t.montoReal + t.virtualFinal - t.efectivoInicial)}
-                      </p>
-                      <p className="text-xs text-neutral-400">{t.cantidadVentas} ventas</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* TOP PRODUCTOS — con barras visuales */}
+      {/* EFECTIVO VS VIRTUAL + TURNOS HOY */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl border border-neutral-200 p-5">
-          <SeccionTitulo titulo="Productos más vendidos" icono={<TrendingUp size={16}/>}/>
-          {topProductos.length === 0 ? (
-            <p className="text-sm text-neutral-400 text-center py-8">Sin ventas en el período seleccionado</p>
+          <SeccionTitulo titulo="Efectivo vs Virtual" icono={<BarChart2 size={16}/>}/>
+          <div className="space-y-4">
+            {[
+              { label: 'Efectivo', valor: totalEfectivo, color: 'bg-primary' },
+              { label: 'Virtual', valor: totalVirtual, color: 'bg-success' },
+            ].map(item => (
+              <div key={item.label}>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-neutral-600">{item.label}</span>
+                  <span className="font-semibold">{formatCurrency(item.valor)}</span>
+                </div>
+                <div className="h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+                  <div className={`h-full ${item.color} rounded-full transition-all duration-500`}
+                    style={{ width: totalVentas > 0 ? `${(item.valor / totalVentas) * 100}%` : '0%' }}/>
+                </div>
+                <p className="text-xs text-neutral-400 mt-1">
+                  {totalVentas > 0 ? ((item.valor / totalVentas) * 100).toFixed(1) : 0}% del total
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-neutral-200 p-5">
+          <SeccionTitulo titulo="Turnos de hoy" icono={<Clock size={16}/>}/>
+          {turnosHoy.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-neutral-300">
+              <Clock size={32} className="mb-2 opacity-30"/>
+              <p className="text-sm text-neutral-400">No hay turnos hoy</p>
+            </div>
           ) : (
-            <div className="space-y-3">
-              {topProductos.map((p, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  {/* Número/medalla */}
-                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0
-                    ${i === 0 ? 'bg-warning-100 text-warning-700'
-                    : i === 1 ? 'bg-neutral-200 text-neutral-600'
-                    : i === 2 ? 'bg-orange-100 text-orange-600'
-                    : 'bg-neutral-50 text-neutral-400'}`}>
-                    {i + 1}
-                  </span>
-                  {/* Nombre + barra */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-medium text-neutral-800 truncate">{p.nombre}</p>
-                      <div className="flex items-center gap-3 shrink-0 ml-3">
-                        <span className="text-xs text-neutral-400">{formatCurrency(p.total)}</span>
-                        <span className="text-sm font-bold text-primary w-16 text-right">{p.cantidad} u.</span>
-                      </div>
+            <div className="space-y-2">
+              {turnosHoy.map(t => (
+                <div key={t.cierreTurnoId}
+                  className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-neutral-800">{t.turnoNombre || 'Turno'}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium
+                        ${t.estadoNombre === 'Abierto' ? 'bg-success-50 text-success-700' : 'bg-neutral-100 text-neutral-500'}`}>
+                        {t.estadoNombre}
+                      </span>
                     </div>
-                    <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-500
-                        ${i === 0 ? 'bg-primary' : i === 1 ? 'bg-primary/70' : 'bg-primary/40'}`}
-                        style={{ width: `${(p.cantidad / maxCantidad) * 100}%` }}/>
-                    </div>
+                    <p className="text-xs text-neutral-400 mt-0.5">
+                      {t.empleados?.map(e => e.empleadoNombre).join(', ')}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-primary">
+                      {formatCurrency(t.montoReal + t.virtualFinal - t.efectivoInicial)}
+                    </p>
+                    <p className="text-xs text-neutral-400">{t.cantidadVentas} ventas</p>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-
-        {/* MENOR ROTACIÓN + PARES */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-          <div className="bg-white rounded-xl border border-neutral-200 p-5">
-            <SeccionTitulo titulo="Menor rotación en el período" icono={<TrendingDown size={16}/>}/>
-            {menorRotacion.length === 0 ? (
-              <p className="text-sm text-neutral-400 text-center py-6">Sin datos</p>
-            ) : (
-              <div className="space-y-2">
-                {menorRotacion.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between py-1.5">
-                    <p className="text-sm text-neutral-700 truncate flex-1">{p.nombre}</p>
-                    <span className="text-sm font-semibold text-warning-700 shrink-0 ml-2">{p.cantidad} u.</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white rounded-xl border border-neutral-200 p-5">
-            <SeccionTitulo titulo="Productos que salen juntos" icono={<ShoppingCart size={16}/>}/>
-            {productosPares.length === 0 ? (
-              <p className="text-sm text-neutral-400 text-center py-6">No hay ventas con múltiples productos</p>
-            ) : (
-              <div className="space-y-2">
-                {productosPares.map((par, i) => (
-                  <div key={i} className="flex items-center justify-between p-2.5 bg-neutral-50 rounded-xl">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-neutral-700 truncate">{par.nombre1}</p>
-                      <p className="text-xs text-neutral-400 truncate">+ {par.nombre2}</p>
-                    </div>
-                    <span className="text-xs font-bold text-primary shrink-0 ml-2">{par.veces}x</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── SIN MOVIMIENTO + REPOSICIÓN Y QUIEBRE DE STOCK ────────────────────── */}
-<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-  {/* Sin Movimiento */}
-  <div className="bg-white rounded-xl border border-neutral-200 p-5">
-    <SeccionTitulo titulo="Sin ventas hace 30+ días" icono={<Package size={16}/>}/>
-    {productosSinMov.length === 0 ? (
-      <div className="flex flex-col items-center justify-center py-6 text-neutral-300">
-        <Package size={28} className="mb-2 opacity-30"/>
-        <p className="text-sm text-neutral-400">Todos los productos tienen movimiento</p>
       </div>
-    ) : (
-      <div className="space-y-2 max-h-48 overflow-y-auto">
-        {productosSinMov.slice(0, 8).map((p: any) => (
-          <div key={p.productoId} className="flex items-center justify-between py-1.5">
-            <p className="text-sm text-neutral-700 truncate flex-1">{p.nombre}</p>
-            <span className="text-xs text-neutral-400 shrink-0 ml-2">Stock: {p.stockActual}</span>
-          </div>
-        ))}
-        {productosSinMov.length > 8 && (
-          <p className="text-xs text-neutral-400 text-center pt-1">+{productosSinMov.length - 8} más</p>
-        )}
-      </div>
-    )}
-  </div>
 
-  {/* Alertas de Stock Bajo */}
-  <div className="bg-white rounded-xl border border-neutral-200 p-5">
-    <SeccionTitulo titulo="Alertas de stock bajo" icono={<AlertTriangle size={16} className="text-amber-500"/>}/>
-    {stockBajo.length === 0 ? (
-      <p className="text-sm text-neutral-400 text-center py-8">No hay productos con stock mínimo</p>
-    ) : (
-      <div className="space-y-2 max-h-48 overflow-y-auto">
-        {stockBajo.slice(0, 8).map(p => (
-          <div key={p.productoId}
-            className="flex items-center justify-between p-2.5 bg-amber-50 rounded-xl border border-amber-100">
-            <p className="text-xs font-medium text-amber-800 truncate flex-1">{p.nombre}</p>
-            <span className="text-xs font-bold text-amber-700 ml-2 shrink-0">
-              {p.stockActual} / {p.stockMinimo}
-            </span>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
+     
 
-  {/* 🌟 NUEVO BLOCK: Productos Completamente Sin Stock */}
-  <div className="bg-white rounded-xl border border-neutral-200 p-5">
-    <SeccionTitulo titulo="Productos Agotados (0)" icono={<AlertTriangle size={16} className="text-danger"/>}/>
-    {productosSinStock.length === 0 ? (
-      <div className="flex flex-col items-center justify-center py-6 text-emerald-500">
-        <p className="text-sm text-neutral-400">¡Excelente! No tenés productos agotados</p>
-      </div>
-    ) : (
-      <div className="space-y-2 max-h-48 overflow-y-auto">
-        {productosSinStock.slice(0, 8).map(p => (
-          <div key={p.productoId}
-            className="flex items-center justify-between p-2.5 bg-red-50 rounded-xl border border-red-100">
-            <p className="text-xs font-medium text-red-800 truncate flex-1">{p.nombre}</p>
-            <span className="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-md ml-2 shrink-0">
-              Sin Stock
-            </span>
-          </div>
-        ))}
-        {productosSinStock.length > 8 && (
-          <p className="text-xs text-red-400 font-medium text-center pt-1">
-            +{productosSinStock.length - 8} productos más en cero
-          </p>
-        )}
-      </div>
-    )}
-  </div>
+      {/* RESUMEN MENSUAL */}
+      <ResumenMensual />
+    </>
+  )}
+
+  {tabActiva === 'productos' && (
+    <AnalisisProductosCompleto
+      ventasFiltradas={ventasFiltradas}
+      productos={productos}
+      productosSinMov={productosSinMov}
+      productosSinStock={productosSinStock}
+      stockBajo={stockBajo}
+    />
+  )}
 
 </div>
 
-        {/* RESUMEN MENSUAL */}
-        <ResumenMensual />
-
-
-      <AnalisisProductos />
-
       
-      </div>
+      
+
+
+
+
     </div>
   )
 }

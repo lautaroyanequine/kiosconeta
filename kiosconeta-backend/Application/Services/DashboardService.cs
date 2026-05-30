@@ -177,6 +177,15 @@ namespace Application.Services
                     ? (int)Math.Ceiling(promDiario * diasAnalizados * 1.1m)
                     : 0;
 
+                var diasStock = promDiario > 0
+                ? Math.Round((decimal)p.StockActual / promDiario, 1)
+                : 999;
+
+                var ultimaVenta = ventasProducto.Any()
+                    ? ventasProducto.Max(v => v.Venta.Fecha)
+                    : (DateTime?)null;
+
+
                 return new AnalisisProductoDTO
                 {
                     ProductoId = p.ProductoId,
@@ -192,7 +201,9 @@ namespace Application.Services
                     DiasAnalizados = diasAnalizados,
                     PromedioVentasDiarias = Math.Round(promDiario, 2),
                     RecomendacionCompra = recomendacion,
-                    CostoTotalRecomendado = recomendacion * p.PrecioCosto
+                    CostoTotalRecomendado = recomendacion * p.PrecioCosto,
+                    DiasStockRestante = diasStock,  
+                    UltimaVenta = ultimaVenta,
                 };
             })
             .OrderByDescending(p => p.UnidadesVendidas)
