@@ -67,21 +67,21 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
   const [confirmando, setConfirmando] = useState(false)
   const [turnoFinalizado, setTurnoFinalizado] = useState<CierreTurnoResponse | null>(null)
 
-  // ── Diferencia en tiempo real ─────────────────────────────────────────────
+  // ── Diferencia efectivo en tiempo real ────────────────────────────────────
   const diferencia = useMemo(() => {
     const contado = parseFloat(efectivoContado)
     if (isNaN(contado)) return null
     return contado - turno.efectivoEsperado
   }, [efectivoContado, turno.efectivoEsperado])
 
-
-  // ── Diferencia virtual en tiempo real ───────────────────────────────────────
+  // ── Diferencia virtual en tiempo real ─────────────────────────────────────
   const diferenciaVirtual = useMemo(() => {
-  const acreditado = parseFloat(virtualAcreditado)
-  if (isNaN(acreditado)) return null
-  const esperado = (turno.virtualInicial ?? 0) + turno.totalVirtual  // ← incluye virtualInicial
-  return acreditado - esperado
-}, [virtualAcreditado, turno.virtualInicial, turno.totalVirtual])
+    const acreditado = parseFloat(virtualAcreditado)
+    if (isNaN(acreditado)) return null
+    const esperado = (turno.virtualInicial ?? 0) + turno.totalVirtual
+    return acreditado - esperado
+  }, [virtualAcreditado, turno.virtualInicial, turno.totalVirtual])
+
   // ── Validación ────────────────────────────────────────────────────────────
   const puedesCerrar = efectivoContado !== '' &&
     !isNaN(parseFloat(efectivoContado)) &&
@@ -90,22 +90,19 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
   // ── Cerrar turno ──────────────────────────────────────────────────────────
   const handleCerrar = async () => {
     if (!user || !puedesCerrar) return
-
     setIsSubmitting(true)
     setError('')
-const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000).toISOString().slice(0, -1);
-
+    const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000).toISOString().slice(0, -1)
     try {
       const resultado = await turnosApi.cerrar(empleadoActivo?.kioscoId ?? user?.kioscoId, {
         turnoId: turno.turnoId,
-        turnoNombre: turno.turnoNombre ?? '',   // ← nombre real del turno
+        turnoNombre: turno.turnoNombre ?? '',
         efectivoContado: parseFloat(efectivoContado),
         virtualAcreditado: parseFloat(virtualAcreditado) || 0,
         observaciones: observaciones || undefined,
         fechaDispositivo: fechaLocal,
       })
-      console.log('Resultado BACKEND', resultado)
-      if (!resultado) { throw new Error('El backend no devolvio datos del cierre') }
+      if (!resultado) throw new Error('El backend no devolvió datos del cierre')
       setTurnoFinalizado(resultado as any)
       setConfirmando(false)
     } catch (err: any) {
@@ -117,7 +114,6 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
-
   return (
     <div className="h-full flex flex-col bg-neutral-50 overflow-hidden">
 
@@ -125,7 +121,6 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
       <div className="bg-white border-b border-neutral-200 px-6 py-4 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Muestra el nombre del turno (Mañana/Tarde/Noche) */}
             <h1 className="text-xl font-bold text-neutral-900">
               Turno {turno.turnoNombre || 'en curso'}
             </h1>
@@ -135,8 +130,6 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
               Desde {turno.fechaAperturaFormateada}
             </span>
           </div>
-
-          {/* Empleados del turno */}
           {turno.empleados?.length > 0 && (
             <div className="flex items-center gap-2 text-sm text-neutral-500">
               <Users size={15} />
@@ -149,10 +142,9 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
       {/* ── CONTENIDO ─────────────────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden p-6 gap-6">
 
-        {/* ── PANEL IZQUIERDO: Resumen + Gastos (scrolleable) ───────────── */}
+        {/* ── PANEL IZQUIERDO ───────────────────────────────────────────── */}
         <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
 
-          {/* Tarjetas rápidas */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white rounded-xl p-4 border border-neutral-200">
               <p className="text-xs text-neutral-500 mb-1">Ventas realizadas</p>
@@ -164,7 +156,6 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
             </div>
           </div>
 
-          {/* Detalle */}
           <div className="bg-white rounded-xl border border-neutral-200 p-5">
             <h3 className="text-sm font-semibold text-neutral-700 mb-3">Detalle del turno</h3>
             <FilaResumen label="Efectivo inicial" valor={turno.efectivoInicial} icono={<DollarSign size={15} />} />
@@ -176,9 +167,7 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
             <FilaResumen label="Efectivo esperado en caja" valor={turno.efectivoEsperado} icono={<DollarSign size={15} />} destacado />
           </div>
 
-          {/* Gastos del turno */}
           <GastosTurno cierreTurnoId={turno.cierreTurnoId} />
-
         </div>
 
         {/* ── PANEL DERECHO: Formulario de cierre ───────────────────────── */}
@@ -211,13 +200,12 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
                     min="0"
                     autoFocus
                     className="flex-1 px-4 py-2.5 rounded-xl border border-neutral-300 text-sm
-                 outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                               outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
                   />
                 </div>
-
                 {diferencia !== null && (
                   <div className={`mt-2 flex items-center justify-between px-3 py-2 rounded-lg text-sm
-      ${diferencia >= 0 ? 'bg-success-50 text-success-700' : 'bg-danger-50 text-danger'}`}>
+                    ${diferencia >= 0 ? 'bg-success-50 text-success-700' : 'bg-danger-50 text-danger'}`}>
                     <span>
                       {diferencia === 0 ? '✓ Cuadra exacto' : diferencia > 0 ? 'Sobran' : 'Faltan'}
                     </span>
@@ -243,30 +231,25 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
                     placeholder="0"
                     min="0"
                     className="flex-1 px-4 py-2.5 rounded-xl border border-neutral-300 text-sm
-                 outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                               outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
                   />
                 </div>
-              </div>
-
-              {diferenciaVirtual !== null && (
-                <div className={`mt-2 flex items-center justify-between px-3 py-2 rounded-lg text-sm
-    ${diferenciaVirtual >= 0 ? 'bg-success-50 text-success-700' : 'bg-danger-50 text-danger'}`}>
-
-                  <span>
-                    {diferenciaVirtual === 0
-                      ? '✓ Cuadra exacto'
-                      : diferenciaVirtual > 0
-                        ? 'Sobra virtual'
-                        : 'Falta virtual'}
-                  </span>
-
-                  {diferenciaVirtual !== 0 && (
-                    <span className="font-bold">
-                      {formatCurrency(Math.abs(diferenciaVirtual))}
+                {diferenciaVirtual !== null && (
+                  <div className={`mt-2 flex items-center justify-between px-3 py-2 rounded-lg text-sm
+                    ${diferenciaVirtual >= 0 ? 'bg-success-50 text-success-700' : 'bg-danger-50 text-danger'}`}>
+                    <span>
+                      {diferenciaVirtual === 0
+                        ? '✓ Cuadra exacto'
+                        : diferenciaVirtual > 0
+                          ? 'Sobra virtual'
+                          : 'Falta virtual'}
                     </span>
-                  )}
-                </div>
-              )}
+                    {diferenciaVirtual !== 0 && (
+                      <span className="font-bold">{formatCurrency(Math.abs(diferenciaVirtual))}</span>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Observaciones */}
               <div>
@@ -285,7 +268,7 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
                 />
               </div>
 
-              {/* Botón cerrar con confirmación */}
+              {/* Botón cerrar */}
               {!confirmando ? (
                 <button
                   onClick={() => setConfirmando(true)}
@@ -344,14 +327,12 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
                 <CheckCircle2 size={32} className="text-white" />
               </div>
               <h2 className="text-xl font-bold">¡Turno finalizado!</h2>
-              {/* Nombre del turno y fecha */}
               <p className="text-white/90 font-semibold mt-1">
                 Turno {turnoFinalizado.turnoNombre}
               </p>
               <p className="text-white/70 text-sm mt-0.5">
                 {turnoFinalizado.fechaFormateada}
               </p>
-              {/* Empleados que trabajaron */}
               {turnoFinalizado.empleados?.length > 0 && (
                 <div className="flex items-center justify-center gap-1.5 mt-2 text-white/80 text-xs">
                   <Users size={12} />
@@ -377,70 +358,71 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
 
               {/* Detalle */}
               <div className="space-y-2 text-sm">
+
                 <div className="flex justify-between py-2 border-b border-neutral-100">
                   <span className="text-neutral-500">Gastos del turno</span>
                   <span className="font-medium text-danger">-{formatCurrency(turnoFinalizado.totalGastos)}</span>
                 </div>
 
-                {/* Separador efectivo */}
+                {/* ── EFECTIVO ── */}
                 <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
                   Efectivo
                 </p>
                 <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Efectivo contado</span>
-                  <span className="font-medium">{formatCurrency(turnoFinalizado.montoReal)}</span>
+                  <span className="text-neutral-500">Efectivo inicial</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.efectivoInicial)}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Efectivo inicial (caja de cambio)</span>
-                  <span className="font-medium text-neutral-400">-{formatCurrency(turnoFinalizado.efectivoInicial)}</span>
+                  <span className="text-neutral-500">Ventas en efectivo</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.totalEfectivo)}</span>
                 </div>
+                <div className="flex justify-between py-2 border-b border-neutral-100">
+                  <span className="text-neutral-500">Efectivo contado en caja</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.efectivoFinal)}</span>
+                </div>
+
+                {/* ── VIRTUAL ── */}
+                <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
+                  Virtual
+                </p>
                 {(turnoFinalizado.virtualInicial ?? 0) > 0 && (
                   <div className="flex justify-between py-2 border-b border-neutral-100">
                     <span className="text-neutral-500">Virtual inicial</span>
-                    <span className="font-medium text-neutral-400">{formatCurrency(turnoFinalizado.virtualInicial)}</span>
+                    <span className="font-medium">{formatCurrency(turnoFinalizado.virtualInicial)}</span>
                   </div>
                 )}
                 <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Efectivo del turno</span>
-                  <span className="font-medium">{formatCurrency(turnoFinalizado.montoReal - turnoFinalizado.efectivoInicial)}</span>
+                  <span className="text-neutral-500">Ventas virtuales</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.totalVirtual)}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-neutral-100">
+                  <span className="text-neutral-500">Virtual acreditado declarado</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.virtualFinal)}</span>
                 </div>
 
-                {/* Virtual */}
-<p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
-  Virtual
-</p>
-<div className="flex justify-between py-2 border-b border-neutral-100">
-  <span className="text-neutral-500">Ventas virtuales</span>
-  <span className="font-medium">{formatCurrency(turnoFinalizado.totalVirtual)}</span>
-</div>
+                {/* ── TOTAL VENDIDO ── */}
+                <div className="flex justify-between py-2.5 px-3 rounded-xl bg-primary/5 font-semibold">
+                  <span className="text-primary">Total vendido en el turno</span>
+                  <span className="text-primary">{formatCurrency(turnoFinalizado.totalVentas)}</span>
+                </div>
 
-{/* Total del turno */}
-<div className="flex justify-between py-2.5 px-3 rounded-xl bg-primary/5 font-semibold">
-  <span className="text-primary">Total del turno</span>
-  <span className="text-primary">
-    {formatCurrency(
-      (turnoFinalizado.montoReal - turnoFinalizado.efectivoInicial) + turnoFinalizado.totalVirtual
-    )}
-  </span>
-</div>
-
-                {/* Diferencia */}
+                {/* ── DIFERENCIA ── */}
                 <div className={`flex justify-between py-2.5 px-3 rounded-xl font-semibold
-            ${turnoFinalizado.diferencia === 0
-              ? 'bg-success-50 text-success-700'
-              : turnoFinalizado.diferencia > 0
-                ? 'bg-success-50 text-success-700'
-                : 'bg-danger-50 text-danger'}`}>
-            <span>
-              {turnoFinalizado.diferencia === 0
-                ? '✓ Cuadra exacto'
-                : turnoFinalizado.diferencia > 0
-                  ? 'Sobrante' : 'Faltante'}
-            </span>
-            {turnoFinalizado.diferencia !== 0 && (
-              <span>{formatCurrency(Math.abs(turnoFinalizado.diferencia))}</span>
-            )}
-          </div>
+                  ${turnoFinalizado.diferencia === 0
+                    ? 'bg-success-50 text-success-700'
+                    : turnoFinalizado.diferencia > 0
+                      ? 'bg-success-50 text-success-700'
+                      : 'bg-danger-50 text-danger'}`}>
+                  <span>
+                    {turnoFinalizado.diferencia === 0
+                      ? '✓ Cuadra exacto'
+                      : turnoFinalizado.diferencia > 0
+                        ? 'Sobrante' : 'Faltante'}
+                  </span>
+                  {turnoFinalizado.diferencia !== 0 && (
+                    <span>{formatCurrency(Math.abs(turnoFinalizado.diferencia))}</span>
+                  )}
+                </div>
               </div>
 
               {/* Observaciones */}
@@ -458,7 +440,7 @@ const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 6000
                 onClick={() => {
                   setTurnoFinalizado(null)
                   onCerrado()
-                  liberarEmpleado() // volver a pantalla de selección de empleado
+                  liberarEmpleado()
                 }}
                 className="w-full py-3 bg-primary text-white rounded-xl font-bold
                            hover:bg-primary-600 transition-colors"

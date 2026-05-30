@@ -140,26 +140,28 @@ export const ResumenMensual: React.FC = () => {
       let turnoAbierto = false
 
       turnosDia.forEach(t => {
-        const tipo = clasificarTurno(t.turnoNombre)
-        const valor = t.estadoNombre === 'Abierto'
-          ? null  // turno abierto, no tiene cierre todavía
-          : facturadoTurno(t)
+  const tipo = clasificarTurno(t.turnoNombre)
+  const valor = t.estadoNombre === 'Abierto'
+    ? null
+    : facturadoTurno(t)
 
-        if (t.estadoNombre === 'Abierto') turnoAbierto = true
+  if (t.estadoNombre === 'Abierto') turnoAbierto = true
 
-        if (tipo === 'manana') manana = valor
-        else if (tipo === 'tarde') tarde = valor
-        else if (tipo === 'noche') noche = valor
-        else {
-          // Si no tiene nombre clasificable, ponerlo donde haya espacio
-          if (manana === null && !turnosDia.find(x => clasificarTurno(x.turnoNombre) === 'manana'))
-            manana = valor
-          else if (tarde === null)
-            tarde = valor
-          else
-            noche = valor
-        }
-      })
+  if (valor === null) return  // turno abierto, no sumar
+
+  if (tipo === 'manana') manana = (manana ?? 0) + valor       // ← sumar en lugar de asignar
+  else if (tipo === 'tarde') tarde = (tarde ?? 0) + valor     // ← idem
+  else if (tipo === 'noche') noche = (noche ?? 0) + valor     // ← idem
+  else {
+    // Sin nombre clasificable — acumular en el primer slot disponible
+    if (tipo === null && !turnosDia.some(x => clasificarTurno(x.turnoNombre) === 'manana'))
+      manana = (manana ?? 0) + valor
+    else if (tarde === null || tipo === null)
+      tarde = (tarde ?? 0) + valor
+    else
+      noche = (noche ?? 0) + valor
+  }
+})
 
       const total   = (manana ?? 0) + (tarde ?? 0) + (noche ?? 0)
       const balance = total - gastosDia

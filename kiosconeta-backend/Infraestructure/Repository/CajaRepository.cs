@@ -98,25 +98,23 @@ namespace Infraestructure.Repository
 
         public async Task<decimal> GetTotalVentasEfectivoAsync(int kioscoId)
         {
-            return await _context.Ventas
-                .Where(v =>
-                    v.CierreTurno.KioscoId == kioscoId &&
-                    v.CierreTurno.Estado == EstadoCierre.Cerrado &&
-                    v.Anulada == false &&
-                    v.MetodoPago.Nombre.ToLower().Contains("efectivo"))
-                .SumAsync(v => (decimal?)v.Total) ?? 0;
+            // Usa MontoReal que refleja lo físicamente contado
+            // Restamos la parte virtual para quedarnos solo con efectivo
+            return await _context.CierresTurno
+                .Where(ct => ct.KioscoId == kioscoId && ct.Estado == EstadoCierre.Cerrado)
+                .SumAsync(ct => (decimal?)(ct.MontoReal - (ct.VirtualFinal - ct.VirtualInicial))) ?? 0;
         }
+
 
         public async Task<decimal> GetTotalVentasVirtualAsync(int kioscoId)
         {
-            return await _context.Ventas
-                .Where(v =>
-                    v.CierreTurno.KioscoId == kioscoId &&
-                    v.CierreTurno.Estado == EstadoCierre.Cerrado &&
-                    v.Anulada == false &&
-                    !v.MetodoPago.Nombre.ToLower().Contains("efectivo"))
-                .SumAsync(v => (decimal?)v.Total) ?? 0;
+            // VirtualFinal - VirtualInicial = lo realmente acreditado en el período
+            // Incluye sobrantes virtuales
+            return await _context.CierresTurno
+                .Where(ct => ct.KioscoId == kioscoId && ct.Estado == EstadoCierre.Cerrado)
+                .SumAsync(ct => (decimal?)(ct.VirtualFinal - ct.VirtualInicial)) ?? 0;
         }
+
         public async Task<decimal> GetTotalGastosAsync(int kioscoId)
         {
             return await _context.Gastos

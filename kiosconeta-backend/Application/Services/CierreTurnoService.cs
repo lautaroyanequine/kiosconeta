@@ -121,33 +121,49 @@ namespace Application.Services
 
             return await MapToResponseDTO(cierre);
         }
-        public async Task<CierreTurnoResponseDTO>CerrarTurnoAsync(int kioscoId, CerrarTurnoDTO dto , int empleadoId)
+        public async Task<CierreTurnoResponseDTO> CerrarTurnoAsync(int kioscoId, CerrarTurnoDTO dto, int empleadoId)
         {
-            var cierre = await _cierreTurnoRepository
-                .GetTurnoAbiertoAsync(kioscoId);
-
+            var cierre = await _cierreTurnoRepository.GetTurnoAbiertoAsync(kioscoId);
             if (cierre == null)
                 throw new InvalidOperationException("No existe turno abierto.");
 
-            // Obtener ventas válidas
+            // Obtener ventas válidas del turno
             var ventas = cierre.Ventas?
                 .Where(v => !v.Anulada)
                 .ToList() ?? new List<Venta>();
 
+            // ── TOTALES POR MÉTODO DE PAGO ────────────────────────────────────────
+            // Usamos comparación case-insensitive + Trim para evitar bugs con nombres
+            // que difieran en mayúsculas o espacios ("efectivo" vs "Efectivo")
             var totalEfectivo = ventas
-                .Where(v => v.MetodoPago.Nombre == "Efectivo")
+                .Where(v => v.MetodoPago != null &&
+                            v.MetodoPago.Nombre.Trim().ToLower().Contains("efectivo"))
                 .Sum(v => v.Total);
-
 
             var totalVirtual = ventas
-                .Where(v => v.MetodoPago.Nombre == "Virtual")
+                .Where(v => v.MetodoPago != null &&
+                            !v.MetodoPago.Nombre.Trim().ToLower().Contains("efectivo"))
                 .Sum(v => v.Total);
-            // Obtener gastos del turno (filtro exacto por CierreTurnoId)
+
+            // ── DIAGNÓSTICO (solo en desarrollo, borrar en producción) ────────────
+            // Si ambos totales son 0 pero hay ventas, el MetodoPago no está cargado
+            if (ventas.Any() && totalEfectivo == 0 && totalVirtual == 0)
+            {
+                // Fallback: sumar todas las ventas como efectivo si no hay MetodoPago
+                var ventasSinMetodo = ventas.Where(v => v.MetodoPago == null).ToList();
+                if (ventasSinMetodo.Any())
+                {
+                    totalEfectivo = ventas.Sum(v => v.Total);
+                    totalVirtual = 0;
+                }
+            }
+
+            // ── GASTOS ────────────────────────────────────────────────────────────
             var gastos = await _gastoRepository
                 .GetByCierreTurnoIdAsync(cierre.CierreTurnoId);
-
             var totalGastos = gastos.Sum(g => g.Monto);
 
+            // ── CERRAR ────────────────────────────────────────────────────────────
             cierre.Cerrar(
                 totalEfectivo,
                 totalVirtual,
@@ -160,28 +176,39 @@ namespace Application.Services
             );
 
             await _cierreTurnoRepository.UpdateAsync(cierre);
+
+            // ── AUDITORÍA ─────────────────────────────────────────────────────────
             var diferencia = Math.Abs(cierre.Diferencia);
-            var esSospechoso = diferencia > 500; 
+            var esSospechoso = diferencia > 500;
 
             await _auditoriaService.RegistrarAsync(
-            empleadoId: empleadoId,
-            kioscoId: kioscoId,
-            tipoEvento: esSospechoso
-                ? TipoEventoAuditoria.TurnoCerradoConDiferencia
-                : TipoEventoAuditoria.TurnoCerrado,
-            descripcion: $"Turno cerrado. Diferencia de caja: ${cierre.Diferencia:F2}. Ventas: {ventas.Count}",
-            datos: new
-            {
-                cierreTurnoId = cierre.CierreTurnoId,
-                diferencia = cierre.Diferencia,
-                montoEsperado = cierre.MontoEsperado,
-                montoReal = cierre.MontoReal
-            },
-            esSospechoso: esSospechoso,
-            motivoSospecha: esSospechoso
-                ? $"Diferencia de caja mayor a $500: ${cierre.Diferencia:F2}"
-                : null
-        );
+                empleadoId: empleadoId,
+                kioscoId: kioscoId,
+                tipoEvento: esSospechoso
+                                   ? TipoEventoAuditoria.TurnoCerradoConDiferencia
+                                   : TipoEventoAuditoria.TurnoCerrado,
+                descripcion: $"Turno cerrado. Diferencia: ${cierre.Diferencia:F2}. " +
+                               $"Efectivo ventas: ${totalEfectivo:F2}. " +
+                               $"Virtual ventas: ${totalVirtual:F2}. " +
+                               $"Ventas: {ventas.Count}",
+                datos: new
+                {
+                    cierreTurnoId = cierre.CierreTurnoId,
+                    diferencia = cierre.Diferencia,
+                    montoEsperado = cierre.MontoEsperado,
+                    montoReal = cierre.MontoReal,
+                    totalEfectivo,
+                    totalVirtual,
+                    totalGastos,
+                    efectivoContado = dto.EfectivoContado,
+                    virtualAcreditado = dto.VirtualAcreditado,
+                },
+                esSospechoso: esSospechoso,
+                motivoSospecha: esSospechoso
+                    ? $"Diferencia de caja mayor a $500: ${cierre.Diferencia:F2}"
+                    : null
+            );
+
             return await MapToResponseDTO(cierre);
         }
         // ========== MAPEO ==========
@@ -189,36 +216,41 @@ namespace Application.Services
         private async Task<CierreTurnoResponseDTO> MapToResponseDTO(CierreTurno cierre)
         {
             var ventas = cierre.Ventas?.Where(v => !v.Anulada).ToList() ?? new List<Venta>();
-
             var totalVentas = ventas.Sum(v => v.Total);
-
-            var totalEfectivo = ventas.Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") == true)
-                                     .Sum(v => v.Total);
-
-            var totalVirtual = ventas.Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") != true)
-                                    .Sum(v => v.Total);
-
+            var totalEfectivo = ventas
+                .Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") == true)
+                .Sum(v => v.Total);
+            var totalVirtual = ventas
+                .Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") != true)
+                .Sum(v => v.Total);
             var gananciaTotal = ventas.Sum(v => v.Total - v.PrecioCosto);
 
-            // Calcular gastos del turno (filtro exacto por CierreTurnoId, aplica siempre)
             var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(cierre.CierreTurnoId);
             var totalGastos = gastos.Sum(g => g.Monto);
 
-            // ════════════════════════════════════════════════════════════════════════════
-            // RE-CÁLCULO MATEMÁTICO LIMPIO PARA EL FRONT-END
-            // ════════════════════════════════════════════════════════════════════════════
-
-            // El efectivo final real que cargó el empleado en la caja chica física.
-            // Si el turno está abierto, por defecto es 0 o lo acumulado esperado hasta el momento.
-            var efectivoContadoFisico = cierre.Estado == EstadoCierre.Cerrado ? cierre.EfectivoFinal : 0;
-
-            // Lo que DEBERÍA haber en la caja física (Billetes): Inicial + Ventas Cash - Gastos Cash
-            var efectivoEsperadoFisico = cierre.EfectivoInicial + totalEfectivo - totalGastos;
-
-            // La diferencia real del turno es puramente el descalce de dinero físico (lo contado vs lo esperado)
-            var diferenciaDeCaja = cierre.Estado == EstadoCierre.Cerrado
-                ? (efectivoContadoFisico - efectivoEsperadoFisico)
+            // ── EFECTIVO ──────────────────────────────────────────────────────────
+            // Lo que debería haber en la caja física
+            var efectivoEsperado = cierre.EfectivoInicial + totalEfectivo - totalGastos;
+            // Lo que el cajero contó
+            var efectivoContado = cierre.Estado == EstadoCierre.Cerrado ? cierre.EfectivoFinal : 0;
+            var diferenciaEfectivo = cierre.Estado == EstadoCierre.Cerrado
+                ? efectivoContado - efectivoEsperado
                 : 0;
+
+            // ── VIRTUAL ───────────────────────────────────────────────────────────
+            // Lo que debería haberse acreditado (ventas virtuales del turno)
+            var virtualEsperado = cierre.VirtualInicial + totalVirtual;
+            // Lo que el cajero declaró como acreditado
+            var virtualDeclarado = cierre.Estado == EstadoCierre.Cerrado ? cierre.VirtualFinal : 0;
+            var diferenciaVirtual = cierre.Estado == EstadoCierre.Cerrado
+                ? virtualDeclarado - virtualEsperado
+                : 0;
+
+            // ── DIFERENCIA TOTAL ──────────────────────────────────────────────────
+            // Incluye tanto efectivo como virtual
+            // Ejemplo: cajero no registró venta de $500 virtual pero declara $500
+            //   → virtualDeclarado($500) - virtualEsperado($0) = +$500 sobrante ✅
+            var diferenciaTotal = diferenciaEfectivo + diferenciaVirtual;
 
             return new CierreTurnoResponseDTO
             {
@@ -226,18 +258,13 @@ namespace Application.Services
                 Fecha = cierre.FechaApertura,
                 Estado = cierre.Estado,
                 EstadoNombre = cierre.Estado.ToString(),
-                VirtualInicial = cierre.VirtualInicial,
                 EfectivoInicial = cierre.EfectivoInicial,
-
-                // Forzamos al DTO a enviar los datos limpios y digeridos por carriles separados
-                EfectivoFinal = efectivoContadoFisico,
-                VirtualFinal = cierre.VirtualFinal,
-
-                // Mapeos corregidos para las etiquetas de control que usa tu pantalla de React
-                MontoEsperado = efectivoEsperadoFisico, // Lo que la caja física debía tener
-                MontoReal = efectivoContadoFisico,     // Lo que la caja física realmente contó
-                Diferencia = diferenciaDeCaja,          // Cuadra exacto o muestra faltante/sobrante real
-
+                VirtualInicial = cierre.VirtualInicial,
+                EfectivoFinal = efectivoContado,
+                VirtualFinal = virtualDeclarado,
+                MontoEsperado = efectivoEsperado + virtualEsperado,  // total esperado ambos canales
+                MontoReal = efectivoContado + virtualDeclarado, // total declarado ambos canales
+                Diferencia = diferenciaTotal,                     // ← ahora incluye virtual
                 TurnoId = cierre.TurnoId,
                 TurnoNombre = cierre.Turno?.Nombre ?? "",
                 CantidadVentas = ventas.Count,
@@ -245,18 +272,17 @@ namespace Application.Services
                 TotalEfectivo = totalEfectivo,
                 TotalVirtual = totalVirtual,
                 TotalGastos = totalGastos,
-
                 FechaCierre = cierre.FechaCierre,
                 GananciaTotal = gananciaTotal,
                 Observaciones = cierre.Observaciones,
                 KioscoId = cierre.KioscoId,
                 KioscoNombre = cierre.Kiosco?.Nombre ?? "",
-
-                Empleados = cierre.CierreTurnoEmpleados?.Select(cte => new EmpleadoTurnoDTO
-                {
-                    EmpleadoId = cte.EmpleadoId,
-                    EmpleadoNombre = cte.Empleado?.Nombre ?? ""
-                }).ToList() ?? new List<EmpleadoTurnoDTO>()
+                Empleados = cierre.CierreTurnoEmpleados?
+                    .Select(cte => new EmpleadoTurnoDTO
+                    {
+                        EmpleadoId = cte.EmpleadoId,
+                        EmpleadoNombre = cte.Empleado?.Nombre ?? ""
+                    }).ToList() ?? new List<EmpleadoTurnoDTO>()
             };
         }
     }

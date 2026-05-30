@@ -22,6 +22,7 @@ interface AnalisisProducto {
   stockActual: number
   diasAnalizados: number
   promedioVentasDiarias: number
+  stockMinimo: number
   recomendacionCompra: number
   costoTotalRecomendado: number
 }
@@ -80,22 +81,28 @@ const [soloStockBajo, setSoloStockBajo] = useState(false)
     if (sortKey === key) setSortAsc(prev => !prev)
     else { setSortKey(key); setSortAsc(false) }
   }
+// Esta función define la regla de "Crítico"
+const esProductoCritico = (p: AnalisisProducto) => {
+  // Asegúrate de que los nombres aquí coincidan con tu objeto
+  return p.stockActual < p.stockMinimo;
+};
 
-  const productosFiltrados = (data?.productos ?? [])
-  .filter(p => {
-    // Cálculo de stock bajo (mismo criterio que usas en el render)
-    const stockBajo = p.stockActual <= p.recomendacionCompra * 0.3
+  const productosFiltrados = (data?.productos ?? []).filter(p => {
+    // 1. Verificación básica
+    const esCritico = p.stockActual < p.stockMinimo;
     
-    // Filtros combinados
-    const coincideBusqueda = p.nombre.toLowerCase().includes(busqueda.toLowerCase())
-    const coincideFiltroStock = soloStockBajo ? stockBajo : true
+    // 2. LOG PARA DEPURAR (Abre la consola F12 en tu navegador)
+    console.log(`Producto: ${p.nombre} | Actual: ${p.stockActual} | Mínimo: ${p.stockMinimo} | ¿Es Crítico?: ${esCritico}`);
     
-    return coincideBusqueda && coincideFiltroStock
-  })
+    const coincideBusqueda = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideFiltroStock = soloStockBajo ? esCritico : true;
+    
+    return coincideBusqueda && coincideFiltroStock;
+})
   .sort((a, b) => {
-    const diff = a[sortKey] - b[sortKey]
-    return sortAsc ? diff : -diff
-  })
+    const diff = a[sortKey] - b[sortKey];
+    return sortAsc ? diff : -diff;
+  });
 
   const SortIcon: React.FC<{ col: SortKey }> = ({ col }) =>
     sortKey === col
