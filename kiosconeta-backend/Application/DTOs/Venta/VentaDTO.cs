@@ -8,9 +8,15 @@
         public int TurnoId { get; set; }
         public string? Detalles { get; set; }
         public List<ProductoVentaDTO> Productos { get; set; } = new();
-        public int? PromocionId { get; set; }
         public decimal Descuento { get; set; } = 0;
         public int? CantidadCombos { get; set; }
+        public List<ComboVentaDTO> Combos { get; set; } = new(); // ← reemplaza PromocionId
+
+    }
+    public class ComboVentaDTO
+    {
+        public int PromocionId { get; set; }
+        public int Cantidad { get; set; }
     }
 
     // ─── PRODUCTO DENTRO DE LA VENTA ────────────────

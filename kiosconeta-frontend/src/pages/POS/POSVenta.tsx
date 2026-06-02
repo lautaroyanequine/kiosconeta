@@ -260,6 +260,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   setIsProcessing(true);
   try {
+    // Expandir combos a sus productos reales
     const productosParaVenta = cart.items.flatMap(item => {
       if (item.productoId < 0) {
         const combo = combosVirtuales.find(c => c.productoId === item.productoId);
@@ -272,27 +273,30 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       return [{ productoId: item.productoId, cantidad: item.cantidad }];
     });
 
-    const itemCombo     = cart.items.find(i => i.productoId < 0);
-    const promocionId   = itemCombo ? Math.abs(itemCombo.productoId) : undefined;
-    const cantidadCombos = itemCombo ? itemCombo.cantidad : undefined;
+    // Construir lista de TODOS los combos (puede haber múltiples)
+    const combosEnVenta = cart.items
+      .filter(item => item.productoId < 0)
+      .map(item => ({
+        promocionId: Math.abs(item.productoId),
+        cantidad:    item.cantidad,
+      }));
 
-    console.log('ANTES DEL CREATE');  // ← acá, fuera del flatMap
+    console.log('ANTES DEL CREATE');
 
     const venta = await ventasApi.create({
-      empleadoId:    empleadoActivo?.empleadoId ?? user?.empleadoId,
-      metodoPagoId:  cart.metodoPagoId!,
-      turnoId:       getStorage<number>(STORAGE_KEYS.TURNO_ID) ?? turnoActual.turnoId,
-      productos:     productosParaVenta,
-      descuento:     cart.totalDescuento > 0 ? cart.totalDescuento : undefined,
-      promocionId,
-      cantidadCombos,
+      empleadoId:   empleadoActivo?.empleadoId ?? user?.empleadoId,
+      metodoPagoId: cart.metodoPagoId!,
+      turnoId:      getStorage<number>(STORAGE_KEYS.TURNO_ID) ?? turnoActual.turnoId,
+      productos:    productosParaVenta,
+      descuento:    cart.totalDescuento > 0 ? cart.totalDescuento : undefined,
+      combos:       combosEnVenta.length > 0 ? combosEnVenta : undefined, // ← lista completa
     });
 
-    console.log('VENTA CREADA:', venta);  // ← acá, después del await
+    console.log('VENTA CREADA:', venta);
 
     setVentaConfirmada({
       ventaId:    venta.ventaId,
-      total:      venta.total,      
+      total:      venta.total,
       metodoPago: metodoPagoSeleccionado?.nombre || '',
       vuelto:     esEfectivo && montoEfectivo
         ? Math.max(0, parseFloat(montoEfectivo) - venta.total)

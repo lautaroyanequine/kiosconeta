@@ -51,8 +51,9 @@ export interface CreateVentaDTO {
   detalles?: string;        // Observaciones opcionales
   productos: CreateProductoVentaDTO[];
   descuento?: number   
-  promocionId?:   number;   
-  cantidadCombos?: number; 
+  cantidadCombos?: number;
+  combos?: { promocionId: number; cantidad: number }[]  // ← reemplaza promocionId/cantidadCombos
+ 
 }
 
 export interface CreateProductoVentaDTO {
