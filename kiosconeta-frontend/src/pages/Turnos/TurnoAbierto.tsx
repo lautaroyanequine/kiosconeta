@@ -66,21 +66,23 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
   const [error, setError] = useState('')
   const [confirmando, setConfirmando] = useState(false)
   const [turnoFinalizado, setTurnoFinalizado] = useState<CierreTurnoResponse | null>(null)
+  
+  // Estados nuevos para el fondo
+  const [efectivoFinalFondo, setEfectivoFinalFondo] = useState('')
+  const [virtualFinalFondo, setVirtualFinalFondo]   = useState('')
 
   // ── Diferencia efectivo en tiempo real ────────────────────────────────────
   const diferencia = useMemo(() => {
     const contado = parseFloat(efectivoContado)
     if (isNaN(contado)) return null
-    return contado - turno.efectivoEsperado
-  }, [efectivoContado, turno.efectivoEsperado])
+    return contado - (turno.totalEfectivo - turno.totalGastos)
+  }, [efectivoContado, turno.totalEfectivo, turno.totalGastos])
 
-  // ── Diferencia virtual en tiempo real ─────────────────────────────────────
   const diferenciaVirtual = useMemo(() => {
     const acreditado = parseFloat(virtualAcreditado)
     if (isNaN(acreditado)) return null
-    const esperado = (turno.virtualInicial ?? 0) + turno.totalVirtual
-    return acreditado - esperado
-  }, [virtualAcreditado, turno.virtualInicial, turno.totalVirtual])
+    return acreditado - turno.totalVirtual
+  }, [virtualAcreditado, turno.totalVirtual])
 
   // ── Validación ────────────────────────────────────────────────────────────
   const puedesCerrar = efectivoContado !== '' &&
@@ -89,21 +91,31 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
 
   // ── Cerrar turno ──────────────────────────────────────────────────────────
   const handleCerrar = async () => {
+    console.log('CERRANDO TURNO:', {
+  efectivoContado: parseFloat(efectivoContado),
+  virtualAcreditado: parseFloat(virtualAcreditado) || 0,
+  efectivoFinalFondo: parseFloat(efectivoFinalFondo) || 0,
+  virtualFinalFondo: parseFloat(virtualFinalFondo) || 0,
+})
     if (!user || !puedesCerrar) return
     setIsSubmitting(true)
     setError('')
     const fechaLocal = new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000).toISOString().slice(0, -1)
     try {
       const resultado = await turnosApi.cerrar(empleadoActivo?.kioscoId ?? user?.kioscoId, {
-        turnoId: turno.turnoId,
-        turnoNombre: turno.turnoNombre ?? '',
-        efectivoContado: parseFloat(efectivoContado),
-        virtualAcreditado: parseFloat(virtualAcreditado) || 0,
-        observaciones: observaciones || undefined,
-        fechaDispositivo: fechaLocal,
+        turnoId:            turno.turnoId,
+        turnoNombre:        turno.turnoNombre ?? '',
+        efectivoContado:    parseFloat(efectivoContado),
+        virtualAcreditado:  parseFloat(virtualAcreditado) || 0,
+        efectivoFinalFondo: parseFloat(efectivoFinalFondo) || 0,
+        virtualFinalFondo:  parseFloat(virtualFinalFondo)  || 0,
+        observaciones:      observaciones || undefined,
+        fechaDispositivo:   fechaLocal,
       })
       if (!resultado) throw new Error('El backend no devolvió datos del cierre')
-      setTurnoFinalizado(resultado as any)
+      
+      // Casteo seguro para evitar el error de incompatibilidad de TypeScript
+      setTurnoFinalizado(resultado as unknown as CierreTurnoResponse);
       setConfirmando(false)
     } catch (err: any) {
       setError(err.message || 'Error al cerrar el turno')
@@ -142,37 +154,32 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
       {/* ── CONTENIDO ─────────────────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden p-6 gap-6">
 
-        {/* ── PANEL IZQUIERDO ───────────────────────────────────────────── */}
+        {/* ── PANEL IZQUIERDO: Estadísticas y Resúmenes ─────────────────── */}
         <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-xl p-4 border border-neutral-200">
-              <p className="text-xs text-neutral-500 mb-1">Ventas realizadas</p>
-              <p className="text-3xl font-bold text-neutral-900">{turno.cantidadVentas}</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 border border-neutral-200">
-              <p className="text-xs text-neutral-500 mb-1">Total vendido</p>
-              <p className="text-2xl font-bold text-primary">{formatCurrency(turno.totalVentas)}</p>
-            </div>
-          </div>
-
+          
+          {/* Tarjeta de ventas de la izquierda */}
           <div className="bg-white rounded-xl border border-neutral-200 p-5">
-            <h3 className="text-sm font-semibold text-neutral-700 mb-3">Detalle del turno</h3>
-            <FilaResumen label="Efectivo inicial" valor={turno.efectivoInicial} icono={<DollarSign size={15} />} />
-            <FilaResumen label="Virtual inicial" valor={turno.virtualInicial ?? 0} icono={<Smartphone size={15} />} />
+            <h3 className="text-sm font-semibold text-neutral-700 mb-3">Ventas del turno</h3>
             <FilaResumen label="Ventas en efectivo" valor={turno.totalEfectivo} icono={<DollarSign size={15} />} />
-            <FilaResumen label="Ventas virtuales" valor={turno.totalVirtual} icono={<Smartphone size={15} />} />
-            <FilaResumen label="Gastos del turno" valor={turno.totalGastos} icono={<Wallet size={15} />} colorValor="text-danger" />
-            <FilaResumen label="Total ventas" valor={turno.totalVentas} icono={<TrendingUp size={15} />} />
-            <FilaResumen label="Efectivo esperado en caja" valor={turno.efectivoEsperado} icono={<DollarSign size={15} />} destacado />
+            <FilaResumen label="Ventas virtuales"   valor={turno.totalVirtual}  icono={<Smartphone size={15} />} />
+            <FilaResumen label="Gastos del turno"   valor={turno.totalGastos}   icono={<Wallet size={15} />} colorValor="text-danger" />
+            <FilaResumen label="Total vendido"      valor={turno.totalVentas}   icono={<TrendingUp size={15} />} destacado />
           </div>
 
+          {/* Tarjeta de fondos de la izquierda */}
+          <div className="bg-white rounded-xl border border-neutral-200 p-5">
+            <h3 className="text-sm font-semibold text-neutral-700 mb-3">Fondo inicial</h3>
+            <FilaResumen label="Efectivo en caja al abrir" valor={turno.efectivoInicial} icono={<DollarSign size={15} />} />
+            <FilaResumen label="Virtual en cuenta al abrir" valor={turno.virtualInicial ?? 0} icono={<Smartphone size={15} />} />
+          </div>
+
+          {/* Listado secundario de gastos */}
           <GastosTurno cierreTurnoId={turno.cierreTurnoId} />
         </div>
 
         {/* ── PANEL DERECHO: Formulario de cierre ───────────────────────── */}
         <div className="w-[400px] shrink-0 flex flex-col gap-4">
-          <div className="bg-white rounded-xl border border-neutral-200 p-5 flex-1">
+          <div className="bg-white rounded-xl border border-neutral-200 p-5 flex-1 overflow-y-auto">
             <h3 className="text-base font-bold text-neutral-800 mb-5">Cerrar turno</h3>
 
             {error && (
@@ -249,6 +256,44 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
                     )}
                   </div>
                 )}
+              </div>
+
+              {/* Efectivo para fondo */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+                  Efectivo para fondo (próximo turno)
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-neutral-400 font-medium text-sm shrink-0">$</span>
+                  <input
+                    type="number"
+                    value={efectivoFinalFondo}
+                    onChange={e => setEfectivoFinalFondo(e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-neutral-300 text-sm
+                               outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              {/* Virtual para fondo */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+                  Virtual para fondo (próximo turno)
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-neutral-400 font-medium text-sm shrink-0">$</span>
+                  <input
+                    type="number"
+                    value={virtualFinalFondo}
+                    onChange={e => setVirtualFinalFondo(e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-neutral-300 text-sm
+                               outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                </div>
               </div>
 
               {/* Observaciones */}
@@ -341,9 +386,8 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
               )}
             </div>
 
-            {/* Resumen del cierre */}
-            <div className="p-6 space-y-3">
-
+            {/* Detalle del cierre */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
               {/* Stats rápidos */}
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="bg-neutral-50 rounded-xl p-3 text-center">
@@ -356,78 +400,90 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
                 </div>
               </div>
 
-              {/* Detalle */}
               <div className="space-y-2 text-sm">
-
-                <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Gastos del turno</span>
-                  <span className="font-medium text-danger">-{formatCurrency(turnoFinalizado.totalGastos)}</span>
-                </div>
-
-                {/* ── EFECTIVO ── */}
+                {/* ── VENTAS DEL TURNO ── */}
                 <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
-                  Efectivo
+                  Ventas del turno
                 </p>
-                <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Efectivo inicial</span>
-                  <span className="font-medium">{formatCurrency(turnoFinalizado.efectivoInicial)}</span>
-                </div>
                 <div className="flex justify-between py-2 border-b border-neutral-100">
                   <span className="text-neutral-500">Ventas en efectivo</span>
                   <span className="font-medium">{formatCurrency(turnoFinalizado.totalEfectivo)}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Efectivo contado en caja</span>
-                  <span className="font-medium">{formatCurrency(turnoFinalizado.efectivoFinal)}</span>
-                </div>
-
-                {/* ── VIRTUAL ── */}
-                <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
-                  Virtual
-                </p>
-                {(turnoFinalizado.virtualInicial ?? 0) > 0 && (
-                  <div className="flex justify-between py-2 border-b border-neutral-100">
-                    <span className="text-neutral-500">Virtual inicial</span>
-                    <span className="font-medium">{formatCurrency(turnoFinalizado.virtualInicial)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between py-2 border-b border-neutral-100">
                   <span className="text-neutral-500">Ventas virtuales</span>
                   <span className="font-medium">{formatCurrency(turnoFinalizado.totalVirtual)}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-neutral-100">
-                  <span className="text-neutral-500">Virtual acreditado declarado</span>
+                  <span className="text-neutral-500">Gastos del turno</span>
+                  <span className="font-medium text-danger">-{formatCurrency(turnoFinalizado.totalGastos)}</span>
+                </div>
+                <div className="flex justify-between py-2.5 px-3 rounded-xl bg-primary/5 font-semibold mb-2">
+                  <span className="text-primary">Total neto del turno</span>
+                  <span className="text-primary">
+                    {formatCurrency(turnoFinalizado.totalVentas - turnoFinalizado.totalGastos)}
+                  </span>
+                </div>
+
+                {/* ── CONTROL DE CAJA ── */}
+                <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
+                  Control de caja (sin fondo)
+                </p>
+                <div className="flex justify-between py-2 border-b border-neutral-100">
+                  <span className="text-neutral-500">Efectivo declarado</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.efectivoFinal)}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-neutral-100">
+                  <span className="text-neutral-500">Virtual declarado</span>
                   <span className="font-medium">{formatCurrency(turnoFinalizado.virtualFinal)}</span>
                 </div>
 
-                {/* ── TOTAL VENDIDO ── */}
-                <div className="flex justify-between py-2.5 px-3 rounded-xl bg-primary/5 font-semibold">
-                  <span className="text-primary">Total vendido en el turno</span>
-                  <span className="text-primary">{formatCurrency(turnoFinalizado.totalVentas)}</span>
+                {/* Diferencia efectivo */}
+                <div className={`flex justify-between py-2 px-3 rounded-lg font-semibold
+                  ${turnoFinalizado.diferenciaEfectivo === 0 ? 'bg-success-50 text-success-700'
+                  : turnoFinalizado.diferenciaEfectivo > 0   ? 'bg-success-50 text-success-700'
+                  : 'bg-danger-50 text-danger'}`}>
+                  <span>
+                    {turnoFinalizado.diferenciaEfectivo === 0 ? '✓ Efectivo cuadra'
+                    : turnoFinalizado.diferenciaEfectivo > 0  ? 'Sobra efectivo'
+                    : 'Falta efectivo'}
+                  </span>
+                  {turnoFinalizado.diferenciaEfectivo !== 0 && (
+                    <span>{formatCurrency(Math.abs(turnoFinalizado.diferenciaEfectivo))}</span>
+                  )}
                 </div>
 
-                {/* ── DIFERENCIA ── */}
-                <div className={`flex justify-between py-2.5 px-3 rounded-xl font-semibold
-                  ${turnoFinalizado.diferencia === 0
-                    ? 'bg-success-50 text-success-700'
-                    : turnoFinalizado.diferencia > 0
-                      ? 'bg-success-50 text-success-700'
-                      : 'bg-danger-50 text-danger'}`}>
+                {/* Diferencia virtual */}
+                <div className={`flex justify-between py-2 px-3 rounded-lg font-semibold
+                  ${turnoFinalizado.diferenciaVirtual === 0 ? 'bg-success-50 text-success-700'
+                  : turnoFinalizado.diferenciaVirtual > 0   ? 'bg-success-50 text-success-700'
+                  : 'bg-danger-50 text-danger'}`}>
                   <span>
-                    {turnoFinalizado.diferencia === 0
-                      ? '✓ Cuadra exacto'
-                      : turnoFinalizado.diferencia > 0
-                        ? 'Sobrante' : 'Faltante'}
+                    {turnoFinalizado.diferenciaVirtual === 0 ? '✓ Virtual cuadra'
+                    : turnoFinalizado.diferenciaVirtual > 0  ? 'Sobra virtual'
+                    : 'Falta virtual'}
                   </span>
-                  {turnoFinalizado.diferencia !== 0 && (
-                    <span>{formatCurrency(Math.abs(turnoFinalizado.diferencia))}</span>
+                  {turnoFinalizado.diferenciaVirtual !== 0 && (
+                    <span>{formatCurrency(Math.abs(turnoFinalizado.diferenciaVirtual))}</span>
                   )}
+                </div>
+
+                {/* ── FONDO ── */}
+                <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide pt-1">
+                  Fondo para el próximo turno
+                </p>
+                <div className="flex justify-between py-2 border-b border-neutral-100">
+                  <span className="text-neutral-500">Efectivo que dejaron</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.efectivoFinalFondo)}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-neutral-100">
+                  <span className="text-neutral-500">Virtual que dejaron</span>
+                  <span className="font-medium">{formatCurrency(turnoFinalizado.virtualFinalFondo)}</span>
                 </div>
               </div>
 
-              {/* Observaciones */}
+              {/* Observaciones extra */}
               {turnoFinalizado.observaciones && (
-                <div className="bg-neutral-50 rounded-xl p-3">
+                <div className="bg-neutral-50 rounded-xl p-3 mt-3">
                   <p className="text-xs text-neutral-500 mb-1">Observaciones</p>
                   <p className="text-sm text-neutral-700">{turnoFinalizado.observaciones}</p>
                 </div>
@@ -435,7 +491,7 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
             </div>
 
             {/* Botón OK */}
-            <div className="px-6 pb-6">
+            <div className="px-6 pb-6 pt-2">
               <button
                 onClick={() => {
                   setTurnoFinalizado(null)

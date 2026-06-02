@@ -147,6 +147,8 @@ export interface CerrarTurnoDTO {
   virtualAcreditado: number
   observaciones?: string
   fechaDispositivo?: string;
+  efectivoFinalFondo?: number   // ← NUEVO
+  virtualFinalFondo?: number
 }
 // ────────────────────────────────────────────────────────────────────────────
 // CIERRE DE TURNO (Detalle completo)
@@ -179,7 +181,10 @@ export interface CierreTurnoResponse {
   fechaCierre: string | null
   fechaCierreFormateada: string | null
   gananciaTotal: number
-
+efectivoFinalFondo: number   // ← NUEVO
+  virtualFinalFondo: number    // ← NUEVO
+  diferenciaEfectivo: number   // ← NUEVO
+  diferenciaVirtual: number 
   // Info extra
   observaciones: string;
   kioscoId: number;

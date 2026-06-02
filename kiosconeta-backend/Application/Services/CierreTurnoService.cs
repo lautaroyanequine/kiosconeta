@@ -133,8 +133,6 @@ namespace Application.Services
                 .ToList() ?? new List<Venta>();
 
             // ── TOTALES POR MÉTODO DE PAGO ────────────────────────────────────────
-            // Usamos comparación case-insensitive + Trim para evitar bugs con nombres
-            // que difieran en mayúsculas o espacios ("efectivo" vs "Efectivo")
             var totalEfectivo = ventas
                 .Where(v => v.MetodoPago != null &&
                             v.MetodoPago.Nombre.Trim().ToLower().Contains("efectivo"))
@@ -146,10 +144,8 @@ namespace Application.Services
                 .Sum(v => v.Total);
 
             // ── DIAGNÓSTICO (solo en desarrollo, borrar en producción) ────────────
-            // Si ambos totales son 0 pero hay ventas, el MetodoPago no está cargado
             if (ventas.Any() && totalEfectivo == 0 && totalVirtual == 0)
             {
-                // Fallback: sumar todas las ventas como efectivo si no hay MetodoPago
                 var ventasSinMetodo = ventas.Where(v => v.MetodoPago == null).ToList();
                 if (ventasSinMetodo.Any())
                 {
@@ -170,6 +166,8 @@ namespace Application.Services
                 totalGastos,
                 dto.EfectivoContado,
                 dto.VirtualAcreditado,
+                dto.EfectivoFinalFondo,
+                dto.VirtualFinalFondo,
                 ventas.Count,
                 dto.Observaciones ?? string.Empty,
                 dto.FechaDispositivo
@@ -211,6 +209,7 @@ namespace Application.Services
 
             return await MapToResponseDTO(cierre);
         }
+
         // ========== MAPEO ==========
 
         private async Task<CierreTurnoResponseDTO> MapToResponseDTO(CierreTurno cierre)
@@ -228,29 +227,36 @@ namespace Application.Services
             var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(cierre.CierreTurnoId);
             var totalGastos = gastos.Sum(g => g.Monto);
 
-            // ── EFECTIVO ──────────────────────────────────────────────────────────
-            // Lo que debería haber en la caja física
-            var efectivoEsperado = cierre.EfectivoInicial + totalEfectivo - totalGastos;
-            // Lo que el cajero contó
-            var efectivoContado = cierre.Estado == EstadoCierre.Cerrado ? cierre.EfectivoFinal : 0;
+            // ── EFECTIVO (CÁLCULO SIN FONDO) ──────────────────────────────────────
+            // Esperamos SOLO lo que se vendió en efectivo (menos gastos)
+            var efectivoEsperadoSinFondo = totalEfectivo - totalGastos;
+
+            // El cajero declara SOLO lo que tiene de ventas (EfectivoContado, que llega al EfectivoFinal)
+            var efectivoContadoSinFondo = cierre.Estado == EstadoCierre.Cerrado ? cierre.EfectivoFinal : 0;
+
             var diferenciaEfectivo = cierre.Estado == EstadoCierre.Cerrado
-                ? efectivoContado - efectivoEsperado
+                ? efectivoContadoSinFondo - efectivoEsperadoSinFondo
                 : 0;
 
-            // ── VIRTUAL ───────────────────────────────────────────────────────────
-            // Lo que debería haberse acreditado (ventas virtuales del turno)
-            var virtualEsperado = cierre.VirtualInicial + totalVirtual;
-            // Lo que el cajero declaró como acreditado
-            var virtualDeclarado = cierre.Estado == EstadoCierre.Cerrado ? cierre.VirtualFinal : 0;
+            // ── VIRTUAL (CÁLCULO SIN FONDO) ───────────────────────────────────────
+            // Esperamos SOLO lo que ingresó virtualmente
+            var virtualEsperadoSinFondo = totalVirtual;
+
+            // El cajero declara SOLO los ingresos virtuales
+            var virtualContadoSinFondo = cierre.Estado == EstadoCierre.Cerrado ? cierre.VirtualFinal : 0;
+
             var diferenciaVirtual = cierre.Estado == EstadoCierre.Cerrado
-                ? virtualDeclarado - virtualEsperado
+                ? virtualContadoSinFondo - virtualEsperadoSinFondo
                 : 0;
 
-            // ── DIFERENCIA TOTAL ──────────────────────────────────────────────────
-            // Incluye tanto efectivo como virtual
-            // Ejemplo: cajero no registró venta de $500 virtual pero declara $500
-            //   → virtualDeclarado($500) - virtualEsperado($0) = +$500 sobrante ✅
+            // ── DIFERENCIA TOTAL (SIN FONDO) ──────────────────────────────────────
+            // Esta es la suma real para que la cabecera muestre el número correcto
             var diferenciaTotal = diferenciaEfectivo + diferenciaVirtual;
+
+            // ── TOTALES GLOBALES (CON FONDO) ──────────────────────────────────────
+            // Estos se usan para saber la plata total física real que hay en el kiosco
+            var montoEsperadoGlobal = cierre.EfectivoInicial + cierre.VirtualInicial + totalVentas - totalGastos;
+            var montoRealGlobal = efectivoContadoSinFondo + virtualContadoSinFondo + cierre.EfectivoFinalFondo + cierre.VirtualFinalFondo;
 
             return new CierreTurnoResponseDTO
             {
@@ -260,17 +266,21 @@ namespace Application.Services
                 EstadoNombre = cierre.Estado.ToString(),
                 EfectivoInicial = cierre.EfectivoInicial,
                 VirtualInicial = cierre.VirtualInicial,
-                EfectivoFinal = efectivoContado,
-                VirtualFinal = virtualDeclarado,
-                MontoEsperado = efectivoEsperado + virtualEsperado,  // total esperado ambos canales
-                MontoReal = efectivoContado + virtualDeclarado, // total declarado ambos canales
-                Diferencia = diferenciaTotal,                     // ← ahora incluye virtual
+                EfectivoFinal = efectivoContadoSinFondo,
+                VirtualFinal = virtualContadoSinFondo,
+                MontoEsperado = montoEsperadoGlobal,
+                MontoReal = montoRealGlobal,
+                Diferencia = diferenciaTotal,          // ← AHORA COINCIDE CON EL CÁLCULO SIN FONDO
                 TurnoId = cierre.TurnoId,
                 TurnoNombre = cierre.Turno?.Nombre ?? "",
                 CantidadVentas = ventas.Count,
                 TotalVentas = totalVentas,
                 TotalEfectivo = totalEfectivo,
                 TotalVirtual = totalVirtual,
+                EfectivoFinalFondo = cierre.EfectivoFinalFondo,
+                VirtualFinalFondo = cierre.VirtualFinalFondo,
+                DiferenciaEfectivo = diferenciaEfectivo, // ← PERFECTO PARA EL TEXTO "Cuadra"
+                DiferenciaVirtual = diferenciaVirtual,   // ← PERFECTO PARA EL TEXTO "Cuadra"
                 TotalGastos = totalGastos,
                 FechaCierre = cierre.FechaCierre,
                 GananciaTotal = gananciaTotal,

@@ -50,6 +50,7 @@ const periodoPresets = [
 
 interface VentaResumen {
   ventaId: number; fecha: string; total: number
+  cierreTurnoId: number;
   metodoPagoNombre: string; anulada: boolean; empleadoNombre: string
   productos: { productoId: number; productoNombre: string; cantidad: number; precioUnitario: number }[]
 }
@@ -64,6 +65,7 @@ interface CierreTurno {
   cierreTurnoId: number; fecha: string; fechaFormateada: string
   estadoNombre: string; turnoNombre: string; cantidadVentas: number
   montoReal: number; virtualFinal: number; efectivoInicial: number
+  totalVentas: number;
   empleados: { empleadoNombre: string }[]
 }
 
@@ -142,46 +144,92 @@ const [tabActiva, setTabActiva] = useState<'metricas' | 'productos'>('metricas')
   useEffect(() => { cargarDatos() }, [])
 
   const cargarDatos = async () => {
-    if (!user?.kioscoId) return
-    setLoading(true)
-    const id = user.kioscoId
-    try {
-      const [ventasRes, productosRes, sinMovRes, cajaRes, turnosRes,sinStockRes] = await Promise.allSettled([
-        apiClient.post(`/Ventas/kiosco/${id}/buscar`, {}).then(r => handleResponse(r)),
-        apiClient.get(`/Productos/kiosco/${id}`).then(r => handleResponse(r)),
-        apiClient.get(`/Productos/kiosco/${id}/sin-movimiento?dias=30`).then(r => handleResponse(r)),
-        apiClient.get(`/Caja/kiosco/${id}`).then(r => handleResponse(r)),
-        apiClient.get(`/CierreTurnos/kiosco/${id}`).then(r => handleResponse(r)),
-        apiClient.get(`/Productos/kiosco/${id}/sin-stock`).then(r => handleResponse(r)),
-      ])
-      setVentas(ventasRes.status === 'fulfilled' && Array.isArray(ventasRes.value) ? ventasRes.value : [])
-      setProductos(productosRes.status === 'fulfilled' && Array.isArray(productosRes.value) ? productosRes.value : [])
-      setProductosSinMov(sinMovRes.status === 'fulfilled' ? (sinMovRes.value?.productos ?? []) : [])
-      setCaja(cajaRes.status === 'fulfilled' ? cajaRes.value : null)
-      setTurnos(turnosRes.status === 'fulfilled' && Array.isArray(turnosRes.value) ? turnosRes.value : [])
-      setProductosSinStock(sinStockRes.status === 'fulfilled' && Array.isArray(sinStockRes.value) ? sinStockRes.value : [])
+  if (!user?.kioscoId) return
+  setLoading(true)
+  const id = user.kioscoId
+  try {
+    const [ventasRes, productosRes, sinMovRes, cajaRes, turnosRes, sinStockRes] = await Promise.allSettled([
+      apiClient.post(`/Ventas/kiosco/${id}/buscar`, {}).then(r => handleResponse(r)),
+      apiClient.get(`/Productos/kiosco/${id}`).then(r => handleResponse(r)),
+      apiClient.get(`/Productos/kiosco/${id}/sin-movimiento?dias=30`).then(r => handleResponse(r)),
+      apiClient.get(`/Caja/kiosco/${id}`).then(r => handleResponse(r)),
+      apiClient.get(`/CierreTurnos/kiosco/${id}`).then(r => handleResponse(r)),
+      apiClient.get(`/Productos/kiosco/${id}/sin-stock`).then(r => handleResponse(r)),
+    ])
 
-    } catch (err) {
-      console.error('Error cargando dashboard:', err)
-    } finally {
-      setLoading(false)
+    // --- LOGS DE DIAGNÓSTICO ---
+    console.log("Respuesta Bruta Ventas:", ventasRes);
+    if (ventasRes.status === 'fulfilled') {
+      console.log("Contenido de ventasRes.value:", ventasRes.value);
     }
-  }
+    // ---------------------------
 
+    // 1. Guardar Ventas
+    const ventasData = ventasRes.status === 'fulfilled' ? ventasRes.value : [];
+    const listaVentas = Array.isArray(ventasData) ? ventasData : (ventasData?.data || ventasData?.items || []);
+    setVentas(listaVentas);
+    console.log("Estado final de Ventas:", listaVentas);
+
+    // 2. Guardar Productos
+    const productosData = productosRes.status === 'fulfilled' ? productosRes.value : [];
+    const listaProductos = Array.isArray(productosData) ? productosData : (productosData?.data || productosData?.items || []);
+    setProductos(listaProductos);
+
+    // 3. Guardar el resto de los estados
+    setProductosSinMov(sinMovRes.status === 'fulfilled' ? (sinMovRes.value?.productos ?? []) : [])
+    setCaja(cajaRes.status === 'fulfilled' ? cajaRes.value : null)
+    setTurnos(turnosRes.status === 'fulfilled' && Array.isArray(turnosRes.value) ? turnosRes.value : [])
+    setProductosSinStock(sinStockRes.status === 'fulfilled' && Array.isArray(sinStockRes.value) ? sinStockRes.value : [])
+
+  } catch (err) {
+    console.error('Error cargando dashboard:', err)
+  } finally {
+    setLoading(false)
+  }
+}
   // ── Ventas filtradas por período ──────────────────────────────────────────
-  const ventasFiltradas = useMemo(
-    () => ventas.filter(v => !v.anulada && new Date(v.fecha) >= desde && new Date(v.fecha) <= hasta),
-    [ventas, desde, hasta]
-  )
+ const ventasFiltradas = useMemo(() => {
+  // Convertimos los rangos a un formato comparable (YYYYMMDD)
+  const desdeStr = desde.toISOString().split('T')[0].replace(/-/g, '');
+  const hastaStr = hasta.toISOString().split('T')[0].replace(/-/g, '');
+
+  return ventas.filter(v => {
+    if (v.anulada) return false;
+
+
+    
+    // Extraemos la fecha de la venta (YYYY-MM-DD) y le quitamos los guiones
+    const fechaVentaStr = v.fecha.split('T')[0].replace(/-/g, '');
+    
+    // Comparamos como números (ej: 20260601 <= 20260601 <= 20260602)
+    return parseInt(fechaVentaStr) >= parseInt(desdeStr) && 
+           parseInt(fechaVentaStr) <= parseInt(hastaStr);
+  });
+}, [ventas, desde, hasta]);
 
   // ── Métricas ──────────────────────────────────────────────────────────────
-  const totalVentas = useMemo(() => ventasFiltradas.reduce((s, v) => s + v.total, 0), [ventasFiltradas])
+// Usa la misma fórmula que HistorialTurnos:
+// Total por turno = (montoReal - efectivoInicial) + virtualFinal
+const totalVentas = useMemo(() =>
+  turnos
+    .filter(t => { const f = new Date(t.fecha); return f >= desde && f <= hasta; })
+    .reduce((s, t) => s + (t.montoReal || 0), 0),
+  [turnos, desde, hasta]
+)
 
-  const totalEfectivo = useMemo(
-    () => ventasFiltradas.filter(v => v.metodoPagoNombre?.toLowerCase().includes('efectivo')).reduce((s, v) => s + v.total, 0),
-    [ventasFiltradas]
-  )
-  const totalVirtual = useMemo(() => totalVentas - totalEfectivo, [totalVentas, totalEfectivo])
+ const totalEfectivo = useMemo(() =>
+  turnos
+    .filter(t => { const f = new Date(t.fecha); return f >= desde && f <= hasta; })
+    .reduce((s, t) => s + Math.max(0, (t.montoReal || 0) - (t.efectivoInicial || 0)), 0),
+  [turnos, desde, hasta]
+)
+
+const totalVirtual = useMemo(() =>
+  turnos
+    .filter(t => { const f = new Date(t.fecha); return f >= desde && f <= hasta; })
+    .reduce((s, t) => s + (t.virtualFinal || 0), 0),
+  [turnos, desde, hasta]
+)
 
   // Top productos más vendidos
   const topProductos = useMemo(() => {
@@ -230,10 +278,17 @@ const [tabActiva, setTabActiva] = useState<'metricas' | 'productos'>('metricas')
   )
 
   // Turnos de hoy
-  const turnosHoy = useMemo(() => {
-    const hoy = new Date(); hoy.setHours(0,0,0,0)
-    return turnos.filter(t => new Date(t.fecha) >= hoy)
-  }, [turnos])
+const turnosHoy = useMemo(() => {
+  const hoy = new Date(); hoy.setHours(0,0,0,0)
+  const vistos = new Set<number>()
+  return turnos
+    .filter(t => new Date(t.fecha) >= hoy)
+    .filter(t => {
+      if (vistos.has(t.cierreTurnoId)) return false
+      vistos.add(t.cierreTurnoId)
+      return true
+    })
+}, [turnos])
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -376,42 +431,43 @@ const [tabActiva, setTabActiva] = useState<'metricas' | 'productos'>('metricas')
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-neutral-200 p-5">
-          <SeccionTitulo titulo="Turnos de hoy" icono={<Clock size={16}/>}/>
-          {turnosHoy.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-neutral-300">
-              <Clock size={32} className="mb-2 opacity-30"/>
-              <p className="text-sm text-neutral-400">No hay turnos hoy</p>
+        {/* Turnos de hoy */}
+<div className="bg-white rounded-xl border border-neutral-200 p-5">
+  <SeccionTitulo titulo="Turnos de hoy" icono={<Clock size={16}/>}/>
+  {turnosHoy.length === 0 ? (
+    <div className="flex flex-col items-center justify-center py-8 text-neutral-300">
+      <Clock size={32} className="mb-2 opacity-30"/>
+      <p className="text-sm text-neutral-400">No hay turnos hoy</p>
+    </div>
+  ) : (
+    <div className="space-y-2">
+      {turnosHoy.map(t => (
+        <div key={t.cierreTurnoId} className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-neutral-800">{t.turnoNombre || 'Turno'}</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${t.estadoNombre === 'Abierto' ? 'bg-success-50 text-success-700' : 'bg-neutral-100 text-neutral-500'}`}>
+                {t.estadoNombre}
+              </span>
             </div>
-          ) : (
-            <div className="space-y-2">
-              {turnosHoy.map(t => (
-                <div key={t.cierreTurnoId}
-                  className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-neutral-800">{t.turnoNombre || 'Turno'}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium
-                        ${t.estadoNombre === 'Abierto' ? 'bg-success-50 text-success-700' : 'bg-neutral-100 text-neutral-500'}`}>
-                        {t.estadoNombre}
-                      </span>
-                    </div>
-                    <p className="text-xs text-neutral-400 mt-0.5">
-                      {t.empleados?.map(e => e.empleadoNombre).join(', ')}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-primary">
-                      {formatCurrency(t.montoReal + t.virtualFinal - t.efectivoInicial)}
-                    </p>
-                    <p className="text-xs text-neutral-400">{t.cantidadVentas} ventas</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+            <p className="text-xs text-neutral-400 mt-0.5">{t.empleados?.map(e => e.empleadoNombre).join(', ')}</p>
+          </div>
+          
+         <div className="text-right">
+  {/* Calculamos el total usando la misma lógica que en HistorialTurnos */}
+  <p className="text-sm font-bold text-primary">
+{formatCurrency(t.montoReal || 0)}
+</p>
+  <p className="text-xs text-neutral-400">{t.cantidadVentas} ventas</p>
+</div>
+          
         </div>
+      ))}
+    </div>
+  )}
+</div>
       </div>
+
 
      
 

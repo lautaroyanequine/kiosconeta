@@ -1,4 +1,4 @@
-/// ════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════
 // COMPONENT: HistorialTurnos
 // Lista de turnos cerrados con filtros y detalle expandible.
 // ════════════════════════════════════════════════════════════════════════════
@@ -153,13 +153,18 @@ export const HistorialTurnos: React.FC = () => {
         <div className="text-center py-12 text-neutral-400 bg-white rounded-xl border border-neutral-200">
           <Clock size={40} className="mx-auto mb-3 opacity-30" />
           <p className="text-sm">
-            {hayFiltros ? 'No hay turnos que coincidan con los filtros' : 'No hay turnos cerrados todavía'}
+            {hayFiltros ? 'No hay turnos que coincidan con los filtros' : 'No hay turnos closed todavía'}
           </p>
         </div>
       ) : (
         <div className="space-y-2">
           {turnosFiltrados.map(turno => {
             const estaExpandido = expandido === turno.cierreTurnoId
+
+            // Calcular el total vendido real sumando los sobrantes no registrados de caja
+            const sobranteEfectivo = Math.max(0, turno.diferenciaEfectivo ?? 0)
+            const sobranteVirtual = Math.max(0, turno.diferenciaVirtual ?? 0)
+            const totalVendidoCalculado = turno.totalVentas + sobranteEfectivo + sobranteVirtual
 
             return (
               <div key={turno.cierreTurnoId} className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
@@ -170,38 +175,37 @@ export const HistorialTurnos: React.FC = () => {
                   className="w-full flex items-center gap-4 px-5 py-4 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="flex-1 min-w-0">
-  <div className="flex items-center gap-2 mb-1">
-    <span className="text-sm font-semibold text-neutral-800">
-      {/* 🌟 Usamos la fecha formateada de apertura directo de C# */}
-      {turno.fechaFormateada ? turno.fechaFormateada.split(' ')[0] : (turno.fecha ? turno.fecha.split('T')[0].split('-').reverse().join('/') : '—')}
-    </span>
-    <span className="text-xs text-neutral-400">
-      {/* 🌟 Extraemos los caracteres de la hora (HH:MM) directo del string sin pasar por new Date */}
-      {turno.fecha ? turno.fecha.split('T')[1].substring(0, 5) : '—'}
-      {turno.fechaCierreFormateada && ` → ${turno.fechaCierreFormateada}`}
-    </span>
-    {turno.turnoNombre && (
-      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
-        {turno.turnoNombre}
-      </span>
-    )}
-  </div>
-  {turno.empleados?.length > 0 && (
-    <div className="flex items-center gap-1 text-xs text-neutral-400">
-      <Users size={11} />
-      <span>{turno.empleados.map(e => e.empleadoNombre).join(', ')}</span>
-    </div>
-  )}
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-semibold text-neutral-800">
+                        {turno.fechaFormateada ? turno.fechaFormateada.split(' ')[0] : (turno.fecha ? turno.fecha.split('T')[0].split('-').reverse().join('/') : '—')}
+                      </span>
+                      <span className="text-xs text-neutral-400">
+                        {turno.fecha ? turno.fecha.split('T')[1].substring(0, 5) : '—'}
+                        {turno.fechaCierreFormateada && ` → ${turno.fechaCierreFormateada}`}
+                      </span>
+                      {turno.turnoNombre && (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                          {turno.turnoNombre}
+                        </span>
+                      )}
+                    </div>
+                    {turno.empleados?.length > 0 && (
+                      <div className="flex items-center gap-1 text-xs text-neutral-400">
+                        <Users size={11} />
+                        <span>{turno.empleados.map(e => e.empleadoNombre).join(', ')}</span>
+                      </div>
+                    )}
+                  </div>
+<div className="text-right hidden sm:block shrink-0">
+  <p className="text-xs text-neutral-400 mb-0.5">Ventas</p>
+  {/* Eliminamos turno.amountVentas para quitar el error de TS */}
+  <p className="text-sm font-semibold text-neutral-800">{turno.cantidadVentas}</p>
 </div>
 
-                  <div className="text-right hidden sm:block shrink-0">
-                    <p className="text-xs text-neutral-400 mb-0.5">Ventas</p>
-                    <p className="text-sm font-semibold text-neutral-800">{turno.cantidadVentas}</p>
-                  </div>
-
+                  {/* Mostramos el total vendido real incluyendo los sobrantes */}
                   <div className="text-right hidden md:block shrink-0">
                     <p className="text-xs text-neutral-400 mb-0.5">Total vendido</p>
-                    <p className="text-sm font-semibold text-primary">{formatCurrency(turno.totalVentas)}</p>
+                    <p className="text-sm font-semibold text-primary">{formatCurrency(totalVendidoCalculado)}</p>
                   </div>
 
                   <div className="text-right shrink-0">
@@ -224,78 +228,123 @@ export const HistorialTurnos: React.FC = () => {
                   </div>
                 </button>
 
-                {/* ── Detalle expandido ────────────────────────────────────── */}
                 {/* ── Detalle expandido corregido ────────────────────────────────────── */}
-{estaExpandido && (
-  <div className="border-t border-neutral-100 px-5 py-4 bg-neutral-50">
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {estaExpandido && (
+                  <div className="border-t border-neutral-100 px-5 py-4 bg-neutral-50">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
 
-      <div>
-        <p className="text-xs text-neutral-400 mb-1">Apertura</p>
-        <p className="text-sm font-semibold text-neutral-800">{turno.fechaFormateada}</p>
-      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Apertura</p>
+                        <p className="text-sm font-semibold text-neutral-800">{turno.fechaFormateada}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Cierre</p>
+                        <p className="text-sm font-semibold text-neutral-800">{turno.fechaCierreFormateada ?? '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Ganancia total</p>
+                        <p className="text-sm font-bold text-success">{formatCurrency(turno.gananciaTotal)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Gastos del turno</p>
+                        <p className="text-sm font-semibold text-danger">-{formatCurrency(turno.totalGastos)}</p>
+                      </div>
 
-      <div>
-        <p className="text-xs text-neutral-400 mb-1">Cierre</p>
-        <p className="text-sm font-semibold text-neutral-800">{turno.fechaCierreFormateada ?? '—'}</p>
-      </div>
+                      {/* ── VENTAS ── */}
+                      <div className="col-span-4">
+                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-2">
+                          Ventas del turno
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Ventas en efectivo</p>
+                        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.totalEfectivo)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Ventas virtuales</p>
+                        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.totalVirtual)}</p>
+                      </div>
+                      
+                      {/* Tarjeta de total vendido recalculado */}
+                      <div className="col-span-2 bg-primary/5 rounded-xl px-3 py-2.5">
+                        <p className="text-xs text-neutral-400 mb-1">Total vendido (con sobrantes)</p>
+                        <p className="text-sm font-bold text-primary">{formatCurrency(totalVendidoCalculado)}</p>
+                      </div>
 
-      <div>
-        <p className="text-xs text-neutral-400 mb-1">Efectivo inicial</p>
-        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.efectivoInicial)}</p>
-      </div>
+                      {/* ── CONTROL DE CAJA ── */}
+                      <div className="col-span-4">
+                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-2">
+                          Control de caja (sin fondo)
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Efectivo declarado</p>
+                        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.efectivoFinal)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Virtual declarado</p>
+                        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.virtualFinal)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Diferencia efectivo</p>
+                        <p className={`text-sm font-bold
+                          ${(turno.diferenciaEfectivo ?? 0) === 0 ? 'text-success'
+                          : (turno.diferenciaEfectivo ?? 0) > 0  ? 'text-success'
+                          : 'text-danger'}`}>
+                          {(turno.diferenciaEfectivo ?? 0) === 0
+                            ? '✓ Cuadra'
+                            : `${(turno.diferenciaEfectivo ?? 0) > 0 ? '+' : ''}${formatCurrency(turno.diferenciaEfectivo ?? 0)}`}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Diferencia virtual</p>
+                        <p className={`text-sm font-bold
+                          ${(turno.diferenciaVirtual ?? 0) === 0 ? 'text-success'
+                          : (turno.diferenciaVirtual ?? 0) > 0   ? 'text-success'
+                          : 'text-danger'}`}>
+                          {(turno.diferenciaVirtual ?? 0) === 0
+                            ? '✓ Cuadra'
+                            : `${(turno.diferenciaVirtual ?? 0) > 0 ? '+' : ''}${formatCurrency(turno.diferenciaVirtual ?? 0)}`}
+                        </p>
+                      </div>
 
-      <div>
-        <p className="text-xs text-neutral-400 mb-1">Ganancia total</p>
-        <p className="text-sm font-bold text-success">{formatCurrency(turno.gananciaTotal)}</p>
-      </div>
+                      {/* ── FONDO ── */}
+                      <div className="col-span-4">
+                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-2">
+                          Fondo
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Efectivo inicial</p>
+                        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.efectivoInicial)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Virtual inicial</p>
+                        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.virtualInicial ?? 0)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Efectivo que dejaron</p>
+                        <p className="text-sm font-semibold text-neutral-800">
+                          {formatCurrency(turno.efectivoFinalFondo ?? 0)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-neutral-400 mb-1">Virtual que dejaron</p>
+                        <p className="text-sm font-semibold text-neutral-800">
+                          {formatCurrency(turno.virtualFinalFondo ?? 0)}
+                        </p>
+                      </div>
 
-      <div>
-        <p className="text-xs text-neutral-400 mb-1">Gastos del turno</p>
-        <p className="text-sm font-semibold text-danger">-{formatCurrency(turno.totalGastos)}</p>
-      </div>
+                    </div>
 
-      <div>
-        <p className="text-xs text-neutral-400 mb-1">Efectivo esperado (Caja)</p>
-        <p className="text-sm font-semibold text-neutral-800">
-          {formatCurrency(turno.efectivoInicial + turno.totalEfectivo - turno.totalGastos)}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-xs text-neutral-400 mb-1">Efectivo contado (Caja)</p>
-        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.efectivoFinal)}</p>
-      </div>
-
-      <div>
-        <p className="text-xs text-neutral-400 mb-1">Virtual acreditado</p>
-        <p className="text-sm font-semibold text-neutral-800">{formatCurrency(turno.totalVirtual)}</p>
-      </div>
-
-      <div className="col-span-2 bg-primary/5 rounded-xl px-3 py-2.5">
-        <p className="text-xs text-neutral-400 mb-1">Total vendido en el turno</p>
-        <p className="text-sm font-bold text-primary">
-          {formatCurrency(turno.totalVentas)}
-        </p>
-      </div>
-
-      <div className="col-span-2">
-        <p className="text-xs text-neutral-400 mb-1">Diferencia de caja (Efectivo)</p>
-        <p className={`text-sm font-bold
-          ${turno.diferencia === 0 ? 'text-success' : turno.diferencia < 0 ? 'text-danger' : 'text-success'}`}>
-          {turno.diferencia === 0 ? '✓ Cuadra exacto' : formatCurrency(turno.diferencia)}
-        </p>
-      </div>
-    </div>
-
-    {turno.observaciones && (
-      <div className="bg-white rounded-lg px-4 py-3 border border-neutral-200">
-        <p className="text-xs text-neutral-400 mb-1">Observaciones</p>
-        <p className="text-sm text-neutral-700">{turno.observaciones}</p>
-      </div>
-    )}
-  </div>
-)}
+                    {turno.observaciones && (
+                      <div className="bg-white rounded-lg px-4 py-3 border border-neutral-200">
+                        <p className="text-xs text-neutral-400 mb-1">Observaciones</p>
+                        <p className="text-sm text-neutral-700">{turno.observaciones}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )
           })}

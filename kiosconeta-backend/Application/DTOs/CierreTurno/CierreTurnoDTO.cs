@@ -17,21 +17,13 @@ namespace Application.DTOs.CierreTurno
     // ─── CERRAR TURNO ────────────────────────────────
     public class CerrarTurnoDTO
     {
-        //   public int CierreTurnoId { get; set; }
-
-        /// <summary>
-        /// Efectivo físico que el empleado contó en la caja
-        /// </summary>
-        /// 
-
         public int EmpleadoId { get; set; }
-        public decimal EfectivoContado { get; set; }
-        public int TurnoId { get; set; }    
+        public int TurnoId { get; set; }
         public string TurnoNombre { get; set; }
-        /// <summary>
-        /// Monto que realmente se acreditó en cuenta (tarjeta, MercadoPago, etc.)
-        /// </summary>
-        public decimal VirtualAcreditado { get; set; }
+        public decimal EfectivoContado { get; set; }      // efectivo de ventas (sin fondo)
+        public decimal VirtualAcreditado { get; set; }    // virtual de ventas (sin fondo)
+        public decimal EfectivoFinalFondo { get; set; }   // ← NUEVO: fondo que dejan al cerrar
+        public decimal VirtualFinalFondo { get; set; }    // ← NUEVO: virtual que dejan al cerrar
         public DateTime? FechaDispositivo { get; set; }
         public string? Observaciones { get; set; }
     }
@@ -51,6 +43,10 @@ namespace Application.DTOs.CierreTurno
         public decimal EfectivoInicial { get; set; }
         public decimal EfectivoFinal { get; set; }
         public decimal VirtualInicial { get; set; }
+        public decimal EfectivoFinalFondo { get; set; }   // ← NUEVO
+        public decimal VirtualFinalFondo { get; set; }    // ← NUEVO
+        public decimal DiferenciaEfectivo { get; set; }   // ← NUEVO (solo ventas)
+        public decimal DiferenciaVirtual { get; set; }
         public decimal VirtualFinal { get; set; }
         public decimal MontoEsperado { get; set; }
         public decimal MontoReal { get; set; }

@@ -25,6 +25,9 @@ namespace Domain.Entities
         public decimal VirtualFinal { get; private set; }
         public decimal VirtualInicial { get; private set; }
 
+        public decimal EfectivoFinalFondo { get; set; } = 0;  // ← NUEVO
+        public decimal VirtualFinalFondo { get; set; } = 0;   // ← NUEVO
+
         // MontoEsperado = Suma neta de lo vendido en el turno (fijo para el panel superior)
         public decimal MontoEsperado { get; private set; }
 
@@ -84,34 +87,33 @@ namespace Domain.Entities
             decimal totalEfectivoVentas,
             decimal totalVirtualVentas,
             decimal totalGastos,
-            decimal efectivoContado,
-            decimal virtualAcreditado,
+            decimal efectivoContado,      // ventas sin fondo
+            decimal virtualAcreditado,    // ventas sin fondo
+            decimal efectivoFinalFondo,   // ← NUEVO
+            decimal virtualFinalFondo,    // ← NUEVO
             int cantidadVentas,
             string observacionesExtra,
-            DateTime? fechaCierreCliente = null) // 🌟 Agregamos parámetro opcional
+            DateTime? fechaCierreCliente = null)
         {
             if (Estado != EstadoCierre.Abierto)
                 throw new InvalidOperationException("El turno ya está cerrado");
 
-            if (efectivoContado < 0)
-                throw new InvalidOperationException("El efectivo contado no puede ser negativo");
+            // Diferencias solo de ventas (sin fondo)
+            var efectivoEsperadoVentas = totalEfectivoVentas - totalGastos;
+            var diferenciaEfectivo = efectivoContado - efectivoEsperadoVentas;
+            var diferenciaVirtual = virtualAcreditado - totalVirtualVentas;
 
-            var efectivoEsperadoEnCaja = EfectivoInicial + totalEfectivoVentas - totalGastos;
-            var virtualEsperadoEnCuenta = VirtualInicial + totalVirtualVentas;
-
-            var diferenciaEfectivo = efectivoContado - efectivoEsperadoEnCaja;
-            var diferenciaVirtual = virtualAcreditado - virtualEsperadoEnCuenta;
-
-            MontoEsperado = totalEfectivoVentas + totalVirtualVentas;
+            // MontoReal = lo que generó el turno (sin fondo)
+            MontoReal = efectivoContado + virtualAcreditado;
+            MontoEsperado = totalEfectivoVentas + totalVirtualVentas - totalGastos;
             Diferencia = diferenciaEfectivo + diferenciaVirtual;
-            MontoReal = (efectivoContado - EfectivoInicial + totalGastos) + (virtualAcreditado - VirtualInicial);
 
             EfectivoFinal = efectivoContado;
             VirtualFinal = virtualAcreditado;
+            EfectivoFinalFondo = efectivoFinalFondo;  // ← NUEVO
+            VirtualFinalFondo = virtualFinalFondo;   // ← NUEVO
             CantidadVentas = cantidadVentas;
             Estado = EstadoCierre.Cerrado;
-
-            // 🌟 Asignamos la fecha exacta capturada en el dispositivo de origen
             FechaCierre = fechaCierreCliente ?? DateTime.UtcNow;
 
             if (!string.IsNullOrWhiteSpace(observacionesExtra))
