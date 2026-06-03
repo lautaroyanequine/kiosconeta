@@ -124,7 +124,8 @@ const VentaDetalleModal: React.FC<{
           <span>Total</span>
           <span>{formatCurrency(venta.total)}</span>
         </div>
-      </div>
+      </div> 
+      
     </Modal>
   );
 };
@@ -256,9 +257,9 @@ const VentasPage: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { label: 'Ventas', value: stats.total, icon: <Receipt size={18} className="text-purple-600" />, color: 'bg-purple-50', fmt: String(stats.total) },
-            { label: 'Total vendido', value: stats.monto, icon: <DollarSign size={18} className="text-blue-600" />, color: 'bg-blue-50', fmt: formatCurrency(stats.monto) },
+            { /*label: 'Total vendido', value: stats.monto, icon: <DollarSign size={18} className="text-blue-600" />, color: 'bg-blue-50', fmt: formatCurrency(stats.monto) },
             { label: 'Ganancia', value: stats.ganancia, icon: <TrendingUp size={18} className="text-green-600" />, color: 'bg-green-50', fmt: formatCurrency(stats.ganancia) },
-            { label: 'Anuladas', value: stats.anuladas, icon: <Ban size={18} className="text-red-500" />, color: 'bg-red-50', fmt: String(stats.anuladas) },
+            { */label: 'Anuladas', value: stats.anuladas, icon: <Ban size={18} className="text-red-500" />, color: 'bg-red-50', fmt: String(stats.anuladas) },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-3">
               <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${s.color}`}>
