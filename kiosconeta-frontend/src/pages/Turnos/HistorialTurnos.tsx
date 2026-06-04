@@ -204,9 +204,11 @@ export const HistorialTurnos: React.FC = () => {
 
                   {/* Mostramos el total vendido real incluyendo los sobrantes */}
                   <div className="text-right hidden md:block shrink-0">
-                    <p className="text-xs text-neutral-400 mb-0.5">Total vendido</p>
-                    <p className="text-sm font-semibold text-primary">{formatCurrency(totalVendidoCalculado)}</p>
-                  </div>
+  <p className="text-xs text-neutral-400 mb-0.5">Total declarado</p>
+  <p className="text-sm font-semibold text-primary">
+    {formatCurrency(turno.efectivoFinal + turno.virtualFinal)}
+  </p>
+</div>
 
                   <div className="text-right shrink-0">
                     <p className="text-xs text-neutral-400 mb-0.5">Ganancia</p>
@@ -214,14 +216,16 @@ export const HistorialTurnos: React.FC = () => {
                   </div>
 
                   <div className="text-right shrink-0">
-                    <p className="text-xs text-neutral-400 mb-0.5">Diferencia</p>
-                    <p className={`text-sm font-bold
-                      ${turno.diferencia === 0 ? 'text-success' : turno.diferencia < 0 ? 'text-danger' : 'text-success'}`}>
-                      {turno.diferencia === 0
-                        ? '✓ $0'
-                        : `${turno.diferencia > 0 ? '+' : ''}${formatCurrency(turno.diferencia)}`}
-                    </p>
-                  </div>
+  <p className="text-xs text-neutral-400 mb-0.5">Diferencia</p>
+  <p className={`text-sm font-bold
+    ${turno.diferencia === 0 ? 'text-success'
+    : turno.diferencia > 0  ? 'text-success'
+    : 'text-danger'}`}>
+    {turno.diferencia === 0
+      ? '✓ $0'
+      : `${turno.diferencia > 0 ? '+' : ''}${formatCurrency(turno.diferencia)}`}
+  </p>
+</div>
 
                   <div className="text-neutral-400 shrink-0">
                     {estaExpandido ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -267,9 +271,23 @@ export const HistorialTurnos: React.FC = () => {
                       
                       {/* Tarjeta de total vendido recalculado */}
                       <div className="col-span-2 bg-primary/5 rounded-xl px-3 py-2.5">
-                        <p className="text-xs text-neutral-400 mb-1">Total vendido (con sobrantes)</p>
-                        <p className="text-sm font-bold text-primary">{formatCurrency(totalVendidoCalculado)}</p>
-                      </div>
+  <p className="text-xs text-neutral-400 mb-1">Total declarado</p>
+  <p className="text-sm font-bold text-primary">
+    {formatCurrency(turno.efectivoFinal + turno.virtualFinal)}
+  </p>
+</div>
+
+<div className="col-span-2">
+  <p className="text-xs text-neutral-400 mb-1">Diferencia total</p>
+  <p className={`text-sm font-bold
+    ${(turno.diferenciaEfectivo + turno.diferenciaVirtual) === 0 ? 'text-success'
+    : (turno.diferenciaEfectivo + turno.diferenciaVirtual) > 0  ? 'text-success'
+    : 'text-danger'}`}>
+    {(turno.diferenciaEfectivo + turno.diferenciaVirtual) === 0
+      ? '✓ Cuadra exacto'
+      : formatCurrency(turno.diferenciaEfectivo + turno.diferenciaVirtual)}
+  </p>
+</div>
 
                       {/* ── CONTROL DE CAJA ── */}
                       <div className="col-span-4">
