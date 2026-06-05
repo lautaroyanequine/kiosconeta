@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Venta;
+﻿using Application.DTOs.Common;
+using Application.DTOs.Venta;
 using Application.Interfaces.Services;
 using KIOSCONETA.Attributes;
 using Microsoft.AspNetCore.Authorization;
@@ -42,11 +43,19 @@ namespace KIOSCONETA.Controllers
         }
 
         [HttpGet("kiosco/{kioscoId}")]
-        [RequierePermiso("ventas.ver_todas")]            // ← era "productos.ver"
-        public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> GetByKiosco(int kioscoId)
+        [RequierePermiso("ventas.ver_todas")]
+        public async Task<ActionResult<ResultadoPaginadoDTO<VentaResponseDTO>>> GetByKiosco(
+     int kioscoId, [FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
-            try { return Ok(await _ventaService.GetByKioscoIdAsync(kioscoId)); }
-            catch (Exception ex) { return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message }); }
+            try
+            {
+                var filtros = new VentaFiltrosDTO { Pagina = pagina, TamanoPagina = tamanoPagina };
+                return Ok(await _ventaService.GetConFiltrosPaginadosAsync(kioscoId, filtros));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener ventas", error = ex.Message });
+            }
         }
 
         [HttpGet("kiosco/{kioscoId}/hoy")]
@@ -76,11 +85,17 @@ namespace KIOSCONETA.Controllers
 
         [HttpPost("kiosco/{kioscoId}/buscar")]
         [RequierePermiso("ventas.ver_todas")]            // ← era "productos.ver"
-        public async Task<ActionResult<IEnumerable<VentaResponseDTO>>> Buscar(
-            int kioscoId, [FromBody] VentaFiltrosDTO filtros)
+        public async Task<ActionResult<ResultadoPaginadoDTO<VentaResponseDTO>>> Buscar(
+    int kioscoId, [FromBody] VentaFiltrosDTO filtros)
         {
-            try { return Ok(await _ventaService.GetConFiltrosAsync(kioscoId, filtros)); }
-            catch (Exception ex) { return StatusCode(500, new { message = "Error al buscar ventas", error = ex.Message }); }
+            try
+            {
+                return Ok(await _ventaService.GetConFiltrosPaginadosAsync(kioscoId, filtros));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al buscar ventas", error = ex.Message });
+            }
         }
 
         // ── POST ──────────────────────────────────────────────────────────

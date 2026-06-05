@@ -8,7 +8,7 @@ import type {
   Venta,
   CreateVentaDTO,
   VentaFiltros,
-  MetodoPago,
+  MetodoPago,ResultadoPaginado,
 } from '../types';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -20,23 +20,25 @@ export const ventasApi = {
    * Ventas del kiosco con filtros — POST /ventas/kiosco/{id}/buscar
    */
   getByKiosco: async (kioscoId: number, filtros?: {
-    fechaDesde?: string;
-    fechaHasta?: string;
-    empleadoId?: number;
-    metodoPagoId?: number;
-    turnoId?: number;
-    soloAnuladas?: boolean;
-  }): Promise<Venta[]> => {
-    try {
-      const response = await apiClient.post<Venta[]>(
-        `/ventas/kiosco/${kioscoId}/buscar`,
-        filtros ?? {}
-      );
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error);
-    }
-  },
+  fechaDesde?: string;
+  fechaHasta?: string;
+  empleadoId?: number;
+  metodoPagoId?: number;
+  turnoId?: number;
+  soloAnuladas?: boolean;
+  pagina?: number;
+  tamanoPagina?: number;
+}): Promise<ResultadoPaginado<Venta>> => {
+  try {
+    const response = await apiClient.post<ResultadoPaginado<Venta>>(
+      `/ventas/kiosco/${kioscoId}/buscar`,
+      { pagina: 1, tamanoPagina: 20, ...filtros }
+    );
+    return handleResponse(response);
+  } catch (error) {
+    return handleError(error);
+  }
+},
 
   /**
    * Ventas de hoy — GET /ventas/kiosco/{id}/hoy

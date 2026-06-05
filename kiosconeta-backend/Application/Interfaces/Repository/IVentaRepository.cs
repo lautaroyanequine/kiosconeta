@@ -12,7 +12,7 @@ namespace Application.Interfaces.Repository
         Task<IEnumerable<Venta>> GetByEmpleadoIdAsync(int empleadoId);
         Task<IEnumerable<Venta>> GetByFechaAsync(DateTime fechaDesde, DateTime fechaHasta);
         Task<IEnumerable<Venta>> GetVentasDelDiaAsync(int kioscoId);
-        Task<IEnumerable<Venta>> GetConFiltrosAsync(int kioscoId, VentaFiltrosDTO filtros);
+        Task<(IEnumerable<Venta> Items, int Total)> GetConFiltrosAsync(int kioscoId, VentaFiltrosDTO filtros);
 
         // Comandos
         Task<Venta> CreateAsync(Venta venta);

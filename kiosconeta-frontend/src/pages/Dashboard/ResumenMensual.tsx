@@ -84,21 +84,28 @@ export const ResumenMensual: React.FC = () => {
   useEffect(() => { cargar() }, [mes, anio])
 
   const cargar = async () => {
-    if (!user?.kioscoId) return
-    setLoading(true)
-    try {
-      const [turnosRes, gastosRes] = await Promise.allSettled([
-        apiClient.get(`/CierreTurnos/kiosco/${user.kioscoId}`).then(r => handleResponse(r)),
-        apiClient.get(`/Gastos/kiosco/${user.kioscoId}`).then(r => handleResponse(r)),
-      ])
-      setTurnos(turnosRes.status === 'fulfilled' ? turnosRes.value ?? [] : [])
-      setGastos(gastosRes.status === 'fulfilled' ? gastosRes.value ?? [] : [])
-    } catch (err) {
-      console.error('Error cargando resumen mensual:', err)
-    } finally {
-      setLoading(false)
-    }
+  if (!user?.kioscoId) return;
+  setLoading(true);
+  try {
+    const primerDiaMes = new Date(anio, mes, 1);
+    const ultimoDiaMes = new Date(anio, mes + 1, 0, 23, 59, 59);
+
+    const [turnosRes, gastosRes] = await Promise.allSettled([
+      apiClient.get(
+        `/CierreTurnos/kiosco/${user.kioscoId}/fecha?fechaDesde=${primerDiaMes.toISOString()}&fechaHasta=${ultimoDiaMes.toISOString()}`
+      ).then(r => handleResponse(r)),
+      apiClient.get(`/Gastos/kiosco/${user.kioscoId}`).then(r => handleResponse(r)),
+    ]);
+
+    // El endpoint de /fecha devuelve array directo, no paginado
+    setTurnos(turnosRes.status === 'fulfilled' ? turnosRes.value ?? [] : []);
+    setGastos(gastosRes.status === 'fulfilled' ? gastosRes.value ?? [] : []);
+  } catch (err) {
+    console.error('Error cargando resumen mensual:', err);
+  } finally {
+    setLoading(false);
   }
+};
 
   // ── Filtrar por mes/año ───────────────────────────────────────────────────
   const turnosMes = useMemo(() =>

@@ -3,7 +3,7 @@
 // Lista de turnos cerrados con filtros y detalle expandible.
 // ════════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo,useCallback, useRef  } from 'react'
 import { Clock, ChevronDown, ChevronUp, Users, Search } from 'lucide-react'
 import { turnosApi } from '@/apis/turnosApi'
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
@@ -11,33 +11,59 @@ import { formatCurrency } from '@/utils/formatters'
 import type { CierreTurnoResponse } from '@/types/gastoTurno'
 
 export const HistorialTurnos: React.FC = () => {
-  const { empleadoActivo: user } = useEmpleadoActivo()
-  const { empleadoActivo } = useEmpleadoActivo()
+  const { empleadoActivo: user } = useEmpleadoActivo();
+  const { empleadoActivo } = useEmpleadoActivo();
 
-  const [turnos, setTurnos]       = useState<CierreTurnoResponse[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [expandido, setExpandido] = useState<number | null>(null)
+  const [turnos, setTurnos] = useState<CierreTurnoResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [cargandoMas, setCargandoMas] = useState(false);
+  const [hayMas, setHayMas] = useState(true);
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [expandido, setExpandido] = useState<number | null>(null);
+  const observerRef = useRef<HTMLDivElement>(null);
 
-  // ── Filtros ───────────────────────────────────────────────────────────────
-  const [filtroBusqueda, setFiltroBusqueda]   = useState('')
-  const [filtroTurno, setFiltroTurno]         = useState('')
-  const [filtroFechaDesde, setFiltroFechaDesde] = useState('')
-  const [filtroFechaHasta, setFiltroFechaHasta] = useState('')
+  const [filtroBusqueda, setFiltroBusqueda] = useState('');
+  const [filtroTurno, setFiltroTurno] = useState('');
+  const [filtroFechaDesde, setFiltroFechaDesde] = useState('');
+  const [filtroFechaHasta, setFiltroFechaHasta] = useState('');
 
-  useEffect(() => { cargarHistorial() }, [])
+  const cargarHistorial = useCallback(async (pagina: number, resetear = false) => {
+    const kioscoId = empleadoActivo?.kioscoId ?? user?.kioscoId;
+    if (!kioscoId) return;
 
-  const cargarHistorial = async () => {
-    if (!user?.kioscoId) return
-    setLoading(true)
+    if (pagina === 1) setLoading(true);
+    else setCargandoMas(true);
+
     try {
-      const data = await turnosApi.getByKiosco(empleadoActivo?.kioscoId ?? user?.kioscoId)
-      setTurnos(data)
+      const resultado = await turnosApi.getByKiosco(kioscoId, pagina, 10);
+      setTurnos(prev => resetear ? resultado.items : [...prev, ...resultado.items]);
+      setHayMas(resultado.tienePaginaSiguiente);
+      setPaginaActual(pagina);
     } catch (err) {
-      console.error('Error cargando historial:', err)
+      console.error('Error cargando historial:', err);
     } finally {
-      setLoading(false)
+      setLoading(false);
+      setCargandoMas(false);
     }
-  }
+  }, [empleadoActivo?.kioscoId, user?.kioscoId]);
+
+  useEffect(() => {
+    cargarHistorial(1, true);
+  }, [cargarHistorial]);
+
+  // Scroll infinito
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hayMas && !cargandoMas && !loading) {
+          cargarHistorial(paginaActual + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (observerRef.current) observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [hayMas, cargandoMas, loading, paginaActual, cargarHistorial]);
 
   const turnosDisponibles = useMemo(() => {
     const nombres = [...new Set(turnos.map(t => t.turnoNombre).filter(Boolean))]

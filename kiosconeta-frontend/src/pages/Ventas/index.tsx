@@ -2,7 +2,7 @@
 // PAGE: Ventas — Historial, detalle y anulación
 // ════════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo,useRef } from 'react';
 import {
   Search, RefreshCw, ChevronRight, AlertTriangle,
   Receipt, TrendingUp, DollarSign, Ban, X, Filter,
@@ -139,7 +139,11 @@ const VentasPage: React.FC = () => {
 
   const [ventas, setVentas] = useState<Venta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [cargandoMas, setCargandoMas] = useState(false);
+  const [hayMas, setHayMas] = useState(true);
+  const [paginaActual, setPaginaActual] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  const observerRef = useRef<HTMLDivElement>(null);
 
   const [filtros, setFiltros] = useState<Filtros>({
     fechaDesde: haceDias(7),
@@ -152,64 +156,82 @@ const VentasPage: React.FC = () => {
   const [ventaAAnular, setVentaAAnular] = useState<Venta | null>(null);
   const [isAnulando, setIsAnulando] = useState(false);
 
-  // ── Cargar ventas ────────────────────────────────────────────────────
-
-  const cargarVentas = useCallback(async () => {
+  // ── Cargar ventas ────────────────────────────────────────────────────────
+  const cargarVentas = useCallback(async (pagina: number, resetear = false) => {
     if (!user?.kioscoId) return;
-    setIsLoading(true);
+    if (pagina === 1) setIsLoading(true);
+    else setCargandoMas(true);
     setError(null);
+
     try {
-      const data = await ventasApi.getByKiosco(user.kioscoId, {
+      const resultado = await ventasApi.getByKiosco(user.kioscoId, {
         fechaDesde: filtros.fechaDesde ? `${filtros.fechaDesde}T00:00:00` : undefined,
         fechaHasta: filtros.fechaHasta ? `${filtros.fechaHasta}T23:59:59` : undefined,
         soloAnuladas: filtros.soloAnuladas || undefined,
+        pagina,
+        tamanoPagina: 20,
       });
-      setVentas(data);
+
+      setVentas(prev => resetear ? resultado.items : [...prev, ...resultado.items]);
+      setHayMas(resultado.tienePaginaSiguiente);
+      setPaginaActual(pagina);
     } catch (err: any) {
       setError(err.message || 'Error al cargar las ventas');
     } finally {
       setIsLoading(false);
+      setCargandoMas(false);
     }
   }, [user?.kioscoId, filtros.fechaDesde, filtros.fechaHasta, filtros.soloAnuladas]);
 
-  useEffect(() => { cargarVentas(); }, [cargarVentas]);
+  // Cuando cambian los filtros, resetear desde página 1
+  useEffect(() => {
+    cargarVentas(1, true);
+  }, [cargarVentas]);
 
-  // ── Filtro local por búsqueda ─────────────────────────────────────────
+  // Scroll infinito — detectar cuando el div del final es visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hayMas && !cargandoMas && !isLoading) {
+          cargarVentas(paginaActual + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (observerRef.current) observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [hayMas, cargandoMas, isLoading, paginaActual, cargarVentas]);
 
+  // ── Filtro local por búsqueda ─────────────────────────────────────────────
   const ventasFiltradas = useMemo(() => {
     if (!filtros.busqueda.trim()) return ventas;
     const q = filtros.busqueda.toLowerCase();
-    return ventas.filter(
-      (v) =>
-        v.empleadoNombre.toLowerCase().includes(q) ||
-        String(v.numeroVenta).includes(q) ||
-        v.metodoPagoNombre.toLowerCase().includes(q)
+    return ventas.filter(v =>
+      v.empleadoNombre.toLowerCase().includes(q) ||
+      String(v.numeroVenta).includes(q) ||
+      v.metodoPagoNombre.toLowerCase().includes(q)
     );
   }, [ventas, filtros.busqueda]);
 
-  // ── Stats ─────────────────────────────────────────────────────────────
-
+  // ── Stats ─────────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
-    const activas = ventasFiltradas.filter((v) => !v.anulada);
+    const activas = ventasFiltradas.filter(v => !v.anulada);
     return {
       total: activas.length,
       monto: activas.reduce((s, v) => s + v.total, 0),
       ganancia: activas.reduce((s, v) => s + v.ganancia, 0),
-      anuladas: ventasFiltradas.filter((v) => v.anulada).length,
+      anuladas: ventasFiltradas.filter(v => v.anulada).length,
     };
   }, [ventasFiltradas]);
 
-  // ── Anular ────────────────────────────────────────────────────────────
-
+  // ── Anular ────────────────────────────────────────────────────────────────
   const handleAnular = async () => {
     if (!ventaAAnular) return;
     setIsAnulando(true);
     try {
-      await ventasApi.anular(ventaAAnular.ventaId,"Anulación manual");
-      setVentas((prev) =>
-        prev.map((v) =>
-          v.ventaId === ventaAAnular.ventaId ? { ...v, anulada: true } : v
-        )
+      await ventasApi.anular(ventaAAnular.ventaId, "Anulación manual");
+      setVentas(prev =>
+        prev.map(v => v.ventaId === ventaAAnular.ventaId ? { ...v, anulada: true } : v)
       );
       setVentaAAnular(null);
       setVentaDetalle(null);
@@ -220,10 +242,8 @@ const VentasPage: React.FC = () => {
     }
   };
 
-  // ── Shortcuts de fecha ────────────────────────────────────────────────
-
   const setRango = (dias: number) => {
-    setFiltros((prev) => ({ ...prev, fechaDesde: haceDias(dias), fechaHasta: hoy() }));
+    setFiltros(prev => ({ ...prev, fechaDesde: haceDias(dias), fechaHasta: hoy() }));
   };
 
   if (isLoading) return <LoadingOverlay message="Cargando ventas..." />;
@@ -231,21 +251,19 @@ const VentasPage: React.FC = () => {
   return (
     <>
       <div className="p-6 space-y-6">
-
-        {/* ── HEADER ────────────────────────────────────────────────── */}
+        {/* ── HEADER ──────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-neutral-900">Ventas</h1>
-            <p className="text-sm text-neutral-500 mt-0.5">
-              Historial de ventas del kiosco
-            </p>
+            <p className="text-sm text-neutral-500 mt-0.5">Historial de ventas del kiosco</p>
           </div>
-          <Button variant="ghost" size="sm" leftIcon={<RefreshCw size={15} />} onClick={cargarVentas}>
+          <Button variant="ghost" size="sm" leftIcon={<RefreshCw size={15} />}
+            onClick={() => cargarVentas(1, true)}>
             Actualizar
           </Button>
         </div>
 
-        {/* ── ERROR ─────────────────────────────────────────────────── */}
+        {/* ── ERROR ────────────────────────────────────────────────────── */}
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center gap-2">
             <AlertTriangle size={15} /> {error}
@@ -253,18 +271,14 @@ const VentasPage: React.FC = () => {
           </div>
         )}
 
-        {/* ── STATS ─────────────────────────────────────────────────── */}
+        {/* ── STATS ────────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Ventas', value: stats.total, icon: <Receipt size={18} className="text-purple-600" />, color: 'bg-purple-50', fmt: String(stats.total) },
-            { /*label: 'Total vendido', value: stats.monto, icon: <DollarSign size={18} className="text-blue-600" />, color: 'bg-blue-50', fmt: formatCurrency(stats.monto) },
-            { label: 'Ganancia', value: stats.ganancia, icon: <TrendingUp size={18} className="text-green-600" />, color: 'bg-green-50', fmt: formatCurrency(stats.ganancia) },
-            { */label: 'Anuladas', value: stats.anuladas, icon: <Ban size={18} className="text-red-500" />, color: 'bg-red-50', fmt: String(stats.anuladas) },
-          ].map((s) => (
+            { label: 'Ventas', icon: <Receipt size={18} className="text-purple-600" />, color: 'bg-purple-50', fmt: String(stats.total) },
+            { label: 'Anuladas', icon: <Ban size={18} className="text-red-500" />, color: 'bg-red-50', fmt: String(stats.anuladas) },
+          ].map(s => (
             <div key={s.label} className="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${s.color}`}>
-                {s.icon}
-              </div>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${s.color}`}>{s.icon}</div>
               <div>
                 <p className="text-xl font-bold text-neutral-900">{s.fmt}</p>
                 <p className="text-xs text-neutral-500">{s.label}</p>
@@ -273,50 +287,38 @@ const VentasPage: React.FC = () => {
           ))}
         </div>
 
-        {/* ── FILTROS ───────────────────────────────────────────────── */}
+        {/* ── FILTROS ──────────────────────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-neutral-200 p-4 space-y-3">
           <div className="flex flex-wrap gap-3 items-end">
-            {/* Búsqueda */}
             <div className="flex-1 min-w-[200px]">
               <Input
                 placeholder="Buscar por empleado, nro. venta o método de pago..."
                 value={filtros.busqueda}
-                onChange={(e) => setFiltros((p) => ({ ...p, busqueda: e.target.value }))}
+                onChange={e => setFiltros(p => ({ ...p, busqueda: e.target.value }))}
                 leftIcon={<Search size={16} />}
               />
             </div>
-
-            {/* Fechas */}
             <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={filtros.fechaDesde}
-                onChange={(e) => setFiltros((p) => ({ ...p, fechaDesde: e.target.value }))}
+              <input type="date" value={filtros.fechaDesde}
+                onChange={e => setFiltros(p => ({ ...p, fechaDesde: e.target.value }))}
                 className="px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:border-primary"
               />
               <span className="text-neutral-400 text-sm">—</span>
-              <input
-                type="date"
-                value={filtros.fechaHasta}
-                onChange={(e) => setFiltros((p) => ({ ...p, fechaHasta: e.target.value }))}
+              <input type="date" value={filtros.fechaHasta}
+                onChange={e => setFiltros(p => ({ ...p, fechaHasta: e.target.value }))}
                 className="px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:border-primary"
               />
             </div>
-
-            {/* Toggle anuladas */}
             <button
-              onClick={() => setFiltros((p) => ({ ...p, soloAnuladas: !p.soloAnuladas }))}
+              onClick={() => setFiltros(p => ({ ...p, soloAnuladas: !p.soloAnuladas }))}
               className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
                 filtros.soloAnuladas
                   ? 'bg-red-50 border-red-400 text-red-700'
                   : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-400'
-              }`}
-            >
+              }`}>
               Solo anuladas
             </button>
           </div>
-
-          {/* Shortcuts de rango */}
           <div className="flex gap-2">
             <span className="text-xs text-neutral-400 self-center mr-1">Rango rápido:</span>
             {[
@@ -324,27 +326,25 @@ const VentasPage: React.FC = () => {
               { label: '7 días', dias: 7 },
               { label: '30 días', dias: 30 },
               { label: '90 días', dias: 90 },
-            ].map((r) => (
-              <button
-                key={r.label}
+            ].map(r => (
+              <button key={r.label}
                 onClick={() => r.dias === 0
-                  ? setFiltros((p) => ({ ...p, fechaDesde: hoy(), fechaHasta: hoy() }))
+                  ? setFiltros(p => ({ ...p, fechaDesde: hoy(), fechaHasta: hoy() }))
                   : setRango(r.dias)
                 }
-                className="px-3 py-1 text-xs rounded-full border border-neutral-200 text-neutral-600 hover:border-primary hover:text-primary transition-colors"
-              >
+                className="px-3 py-1 text-xs rounded-full border border-neutral-200 text-neutral-600 hover:border-primary hover:text-primary transition-colors">
                 {r.label}
               </button>
             ))}
             <span className="ml-auto text-xs text-neutral-400 self-center">
-              {ventasFiltradas.length} resultado{ventasFiltradas.length !== 1 ? 's' : ''}
+              {ventasFiltradas.length} cargadas
             </span>
           </div>
         </div>
 
-        {/* ── TABLA ─────────────────────────────────────────────────── */}
+        {/* ── TABLA ────────────────────────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
-          {ventasFiltradas.length === 0 ? (
+          {ventasFiltradas.length === 0 && !isLoading ? (
             <div className="py-16 text-center text-neutral-400">
               <Receipt size={40} className="mx-auto mb-3 opacity-30" />
               <p>No se encontraron ventas en el período seleccionado</p>
@@ -364,16 +364,11 @@ const VentasPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {ventasFiltradas.map((venta) => (
-                  <tr
-                    key={venta.ventaId}
-                    onClick={() => setVentaDetalle(venta)}
-                    className="cursor-pointer hover:bg-neutral-50 transition-colors border-b border-neutral-100 last:border-0"
-                  >
+                {ventasFiltradas.map(venta => (
+                  <tr key={venta.ventaId} onClick={() => setVentaDetalle(venta)}
+                    className="cursor-pointer hover:bg-neutral-50 transition-colors border-b border-neutral-100 last:border-0">
                     <td className="py-3 pl-6 pr-3">
-                      <span className="text-sm font-mono text-neutral-500">
-                        #{venta.numeroVenta}
-                      </span>
+                      <span className="text-sm font-mono text-neutral-500">#{venta.numeroVenta}</span>
                     </td>
                     <td className="py-3 px-3">
                       <p className="text-sm text-neutral-800">{formatDate(venta.fecha)}</p>
@@ -400,11 +395,7 @@ const VentasPage: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-3 px-3 text-center">
-                      {venta.anulada ? (
-                        <Badge variant="danger">Anulada</Badge>
-                      ) : (
-                        <Badge variant="success">Ok</Badge>
-                      )}
+                      {venta.anulada ? <Badge variant="danger">Anulada</Badge> : <Badge variant="success">Ok</Badge>}
                     </td>
                     <td className="py-3 pl-3 pr-6">
                       <ChevronRight size={16} className="text-neutral-300" />
@@ -414,42 +405,42 @@ const VentasPage: React.FC = () => {
               </tbody>
             </table>
           )}
+
+          {/* ── TRIGGER SCROLL INFINITO ─────────────────────────────── */}
+          <div ref={observerRef} className="h-4" />
+          {cargandoMas && (
+            <div className="flex items-center justify-center py-4 gap-2 text-sm text-neutral-400">
+              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              Cargando más ventas...
+            </div>
+          )}
+          {!hayMas && ventas.length > 0 && (
+            <div className="text-center py-4 text-xs text-neutral-400 border-t border-neutral-100">
+              — Todas las ventas cargadas ({ventas.length} en total) —
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── MODAL DETALLE ─────────────────────────────────────────────── */}
       <VentaDetalleModal
         venta={ventaDetalle}
         onClose={() => setVentaDetalle(null)}
-        onAnular={(v) => { setVentaAAnular(v); setVentaDetalle(null); }}
+        onAnular={v => { setVentaAAnular(v); setVentaDetalle(null); }}
         isAdmin={isAdmin()}
       />
 
-      {/* ── MODAL CONFIRMAR ANULACIÓN ─────────────────────────────────── */}
-      <Modal
-        isOpen={!!ventaAAnular}
-        onClose={() => setVentaAAnular(null)}
-        title="Anular venta"
-        size="sm"
+      <Modal isOpen={!!ventaAAnular} onClose={() => setVentaAAnular(null)} title="Anular venta" size="sm"
         footer={
           <>
-            <Button variant="outline" onClick={() => setVentaAAnular(null)} disabled={isAnulando}>
-              Cancelar
-            </Button>
-            <Button variant="danger" onClick={handleAnular} loading={isAnulando}>
-              Sí, anular
-            </Button>
+            <Button variant="outline" onClick={() => setVentaAAnular(null)} disabled={isAnulando}>Cancelar</Button>
+            <Button variant="danger" onClick={handleAnular} loading={isAnulando}>Sí, anular</Button>
           </>
-        }
-      >
+        }>
         <p className="text-neutral-700">
-          ¿Estás seguro de anular la venta{' '}
-          <strong>#{ventaAAnular?.numeroVenta}</strong> por{' '}
+          ¿Estás seguro de anular la venta <strong>#{ventaAAnular?.numeroVenta}</strong> por{' '}
           <strong>{formatCurrency(ventaAAnular?.total ?? 0)}</strong>?
         </p>
-        <p className="text-sm text-neutral-500 mt-2">
-          El stock de los productos será devuelto automáticamente.
-        </p>
+        <p className="text-sm text-neutral-500 mt-2">El stock de los productos será devuelto automáticamente.</p>
       </Modal>
     </>
   );

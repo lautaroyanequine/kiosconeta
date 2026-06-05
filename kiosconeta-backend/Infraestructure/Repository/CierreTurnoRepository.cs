@@ -31,6 +31,27 @@ namespace Infraestructure.Repository
                 .FirstOrDefaultAsync(ct => ct.CierreTurnoId == id);
         }
 
+        public async Task<(decimal TotalVentas, decimal TotalEfectivo, decimal TotalVirtual, decimal GananciaTotal, int Cantidad)> GetTotalesVentasAsync(int cierreTurnoId)
+        {
+            var ventasData = await _context.Ventas
+                .Where(v => v.CierreTurnoId == cierreTurnoId && !v.Anulada)
+                .Select(v => new
+                {
+                    v.Total,
+                    v.PrecioCosto,
+                    EsEfectivo = v.MetodoPago.Nombre.ToLower().Contains("efectivo")
+                })
+                .ToListAsync();
+
+            return (
+                ventasData.Sum(v => v.Total),
+                ventasData.Where(v => v.EsEfectivo).Sum(v => v.Total),
+                ventasData.Where(v => !v.EsEfectivo).Sum(v => v.Total),
+                ventasData.Sum(v => v.Total - v.PrecioCosto),
+                ventasData.Count
+            );
+        }
+
         public async Task<CierreTurno?> GetTurnoAbiertoAsync(int kioscoId)
         {
             return await _context.CierresTurno
@@ -47,21 +68,27 @@ namespace Infraestructure.Repository
                                         && ct.Estado == EstadoCierre.Abierto);
         }
 
-        public async Task<IEnumerable<CierreTurno>> GetByKioscoIdAsync(int kioscoId)
+        // REEMPLAZAR GetByKioscoIdAsync
+        public async Task<IEnumerable<CierreTurno>> GetByKioscoIdAsync(
+            int kioscoId, int pagina = 1, int tamanoPagina = 10)
         {
             return await _context.CierresTurno
                 .Include(ct => ct.Kiosco)
                 .Include(ct => ct.Turno)
                 .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
-                .Include(ct => ct.Ventas)
-                    .ThenInclude(v => v.MetodoPago)
-                .Include(ct => ct.Ventas)           // ← AGREGAR
-                    .ThenInclude(v => v.ProductoVentas)
-                        .ThenInclude(pv => pv.Producto) // ← AGREGAR
+                // Sin Include de Ventas — se calculan aparte
                 .Where(ct => ct.KioscoId == kioscoId)
                 .OrderByDescending(ct => ct.FechaApertura)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
                 .ToListAsync();
+        }
+
+        public async Task<int> ContarByKioscoIdAsync(int kioscoId)
+        {
+            return await _context.CierresTurno
+                .CountAsync(ct => ct.KioscoId == kioscoId);
         }
 
         public async Task<IEnumerable<CierreTurno>> GetAllAsync()

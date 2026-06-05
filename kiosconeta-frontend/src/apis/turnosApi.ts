@@ -6,7 +6,7 @@ import type {
   CerrarTurnoDTO,
   CierreTurno,
   TurnoActual,
-  CierreTurnoResponse
+  CierreTurnoResponse,ResultadoPaginado
   
 } from '../types';
 
@@ -90,10 +90,14 @@ export const turnosApi = {
       return handleError(error);
     }
   },
-  getByKiosco: async (kioscoId: number): Promise<CierreTurnoResponse[]> => {
+  getByKiosco: async (
+  kioscoId: number,
+  pagina = 1,
+  tamanoPagina = 10
+): Promise<ResultadoPaginado<CierreTurnoResponse>> => {
   try {
-    const response = await apiClient.get<CierreTurnoResponse[]>(
-      API_ENDPOINTS.TURNOS_KIOSCO(kioscoId)
+    const response = await apiClient.get<ResultadoPaginado<CierreTurnoResponse>>(
+      `${API_ENDPOINTS.TURNOS_KIOSCO(kioscoId)}?pagina=${pagina}&tamanoPagina=${tamanoPagina}`
     );
     return handleResponse(response);
   } catch (error) {

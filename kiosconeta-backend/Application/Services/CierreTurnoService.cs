@@ -1,10 +1,10 @@
 ﻿using Application.DTOs.CierreTurno;
+using Application.DTOs.Common;
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
-using System.Security.Claims;
-
 using Domain.Enums;
+using System.Security.Claims;
 
 namespace Application.Services
 {
@@ -36,13 +36,24 @@ namespace Application.Services
             return await MapToResponseDTO(cierre);
         }
 
-        public async Task<IEnumerable<CierreTurnoResponseDTO>> GetByKioscoIdAsync(int kioscoId)
+        public async Task<ResultadoPaginadoDTO<CierreTurnoResponseDTO>> GetByKioscoIdAsync(
+    int kioscoId, int pagina = 1, int tamanoPagina = 10)
         {
-            var cierres = await _cierreTurnoRepository.GetByKioscoIdAsync(kioscoId);
+            var total = await _cierreTurnoRepository.ContarByKioscoIdAsync(kioscoId);
+            var cierres = await _cierreTurnoRepository.GetByKioscoIdAsync(kioscoId, pagina, tamanoPagina);
+
             var result = new List<CierreTurnoResponseDTO>();
             foreach (var c in cierres)
                 result.Add(await MapToResponseDTO(c));
-            return result;
+
+            return new ResultadoPaginadoDTO<CierreTurnoResponseDTO>
+            {
+                Items = result,
+                TotalItems = total,
+                Pagina = pagina,
+                TamanoPagina = tamanoPagina,
+                TotalPaginas = (int)Math.Ceiling(total / (double)tamanoPagina)
+            };
         }
 
         public async Task<TurnoActualDTO?> GetTurnoAbiertoAsync(int kioscoId)
@@ -214,47 +225,31 @@ namespace Application.Services
 
         private async Task<CierreTurnoResponseDTO> MapToResponseDTO(CierreTurno cierre)
         {
-            var ventas = cierre.Ventas?.Where(v => !v.Anulada).ToList() ?? new List<Venta>();
-            var totalVentas = ventas.Sum(v => v.Total);
-            var totalEfectivo = ventas
-                .Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") == true)
-                .Sum(v => v.Total);
-            var totalVirtual = ventas
-                .Where(v => v.MetodoPago?.Nombre?.ToLower().Contains("efectivo") != true)
-                .Sum(v => v.Total);
-            var gananciaTotal = ventas.Sum(v => v.Total - v.PrecioCosto);
+            // ── TOTALES VÍA REPOSITORIO (sin cargar ventas completas) ─────────────
+            var (totalVentas, totalEfectivo, totalVirtual, gananciaTotal, cantidadVentas) =
+                await _cierreTurnoRepository.GetTotalesVentasAsync(cierre.CierreTurnoId);
 
             var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(cierre.CierreTurnoId);
             var totalGastos = gastos.Sum(g => g.Monto);
 
             // ── EFECTIVO (CÁLCULO SIN FONDO) ──────────────────────────────────────
-            // Esperamos SOLO lo que se vendió en efectivo (menos gastos)
             var efectivoEsperadoSinFondo = totalEfectivo - totalGastos;
-
-            // El cajero declara SOLO lo que tiene de ventas (EfectivoContado, que llega al EfectivoFinal)
             var efectivoContadoSinFondo = cierre.Estado == EstadoCierre.Cerrado ? cierre.EfectivoFinal : 0;
-
             var diferenciaEfectivo = cierre.Estado == EstadoCierre.Cerrado
                 ? efectivoContadoSinFondo - efectivoEsperadoSinFondo
                 : 0;
 
             // ── VIRTUAL (CÁLCULO SIN FONDO) ───────────────────────────────────────
-            // Esperamos SOLO lo que ingresó virtualmente
             var virtualEsperadoSinFondo = totalVirtual;
-
-            // El cajero declara SOLO los ingresos virtuales
             var virtualContadoSinFondo = cierre.Estado == EstadoCierre.Cerrado ? cierre.VirtualFinal : 0;
-
             var diferenciaVirtual = cierre.Estado == EstadoCierre.Cerrado
                 ? virtualContadoSinFondo - virtualEsperadoSinFondo
                 : 0;
 
             // ── DIFERENCIA TOTAL (SIN FONDO) ──────────────────────────────────────
-            // Esta es la suma real para que la cabecera muestre el número correcto
             var diferenciaTotal = diferenciaEfectivo + diferenciaVirtual;
 
             // ── TOTALES GLOBALES (CON FONDO) ──────────────────────────────────────
-            // Estos se usan para saber la plata total física real que hay en el kiosco
             var montoEsperadoGlobal = cierre.EfectivoInicial + cierre.VirtualInicial + totalVentas - totalGastos;
             var montoRealGlobal = efectivoContadoSinFondo + virtualContadoSinFondo + cierre.EfectivoFinalFondo + cierre.VirtualFinalFondo;
 
@@ -270,17 +265,17 @@ namespace Application.Services
                 VirtualFinal = virtualContadoSinFondo,
                 MontoEsperado = montoEsperadoGlobal,
                 MontoReal = montoRealGlobal,
-                Diferencia = diferenciaTotal,          // ← AHORA COINCIDE CON EL CÁLCULO SIN FONDO
+                Diferencia = diferenciaTotal,
                 TurnoId = cierre.TurnoId,
                 TurnoNombre = cierre.Turno?.Nombre ?? "",
-                CantidadVentas = ventas.Count,
+                CantidadVentas = cantidadVentas,
                 TotalVentas = totalVentas,
                 TotalEfectivo = totalEfectivo,
                 TotalVirtual = totalVirtual,
                 EfectivoFinalFondo = cierre.EfectivoFinalFondo,
                 VirtualFinalFondo = cierre.VirtualFinalFondo,
-                DiferenciaEfectivo = diferenciaEfectivo, // ← PERFECTO PARA EL TEXTO "Cuadra"
-                DiferenciaVirtual = diferenciaVirtual,   // ← PERFECTO PARA EL TEXTO "Cuadra"
+                DiferenciaEfectivo = diferenciaEfectivo,
+                DiferenciaVirtual = diferenciaVirtual,
                 TotalGastos = totalGastos,
                 FechaCierre = cierre.FechaCierre,
                 GananciaTotal = gananciaTotal,

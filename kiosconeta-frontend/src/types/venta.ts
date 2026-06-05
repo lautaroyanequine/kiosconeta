@@ -5,6 +5,15 @@
 // ────────────────────────────────────────────────────────────────────────────
 // VENTA (Entity completa)
 // ────────────────────────────────────────────────────────────────────────────
+export interface ResultadoPaginado<T> {
+  items: T[];
+  totalItems: number;
+  pagina: number;
+  tamanoPagina: number;
+  totalPaginas: number;
+  tienePaginaAnterior: boolean;
+  tienePaginaSiguiente: boolean;
+}
 
 export interface Venta {
   ventaId: number;

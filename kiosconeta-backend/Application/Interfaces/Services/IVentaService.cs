@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Venta;
+﻿using Application.DTOs.Common;
+using Application.DTOs.Venta;
 
 namespace Application.Interfaces.Services
 {
@@ -11,7 +12,7 @@ namespace Application.Interfaces.Services
         Task<IEnumerable<VentaResponseDTO>> GetByEmpleadoIdAsync(int empleadoId);
         Task<IEnumerable<VentaResponseDTO>> GetByFechaAsync(DateTime fechaDesde, DateTime fechaHasta);
         Task<IEnumerable<VentaResponseDTO>> GetVentasDelDiaAsync(int kioscoId);
-        Task<IEnumerable<VentaResponseDTO>> GetConFiltrosAsync(int kioscoId, VentaFiltrosDTO filtros);
+        Task<ResultadoPaginadoDTO<VentaResponseDTO>> GetConFiltrosPaginadosAsync(int kioscoId, VentaFiltrosDTO filtros);
 
         // Comandos
         Task<VentaResponseDTO> CreateAsync(CreateVentaDTO dto);

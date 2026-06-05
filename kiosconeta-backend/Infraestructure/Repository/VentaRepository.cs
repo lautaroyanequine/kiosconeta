@@ -42,7 +42,7 @@ namespace Infraestructure.Repository
 
         public async Task<IEnumerable<Venta>> GetByKioscoIdAsync(int kioscoId)
         {
-            return await _context.Ventas
+                    return await _context.Ventas
                 .Include(v => v.Empleado)
                 .Include(v => v.MetodoPago)
                 .Include(v => v.Turno)
@@ -50,6 +50,7 @@ namespace Infraestructure.Repository
                     .ThenInclude(pv => pv.Producto)
                 .Where(v => v.Empleado.KioscoID == kioscoId)
                 .OrderByDescending(v => v.Fecha)
+                .Take(50)           // ← LIMITAR
                 .ToListAsync();
         }
 
@@ -97,15 +98,16 @@ namespace Infraestructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Venta>> GetConFiltrosAsync(int kioscoId, VentaFiltrosDTO filtros)
+        public async Task<(IEnumerable<Venta> Items, int Total)> GetConFiltrosAsync(int kioscoId, VentaFiltrosDTO filtros)
         {
             var query = _context.Ventas
-                .Include(v => v.Empleado)
-                .Include(v => v.MetodoPago)
-                .Include(v => v.Turno)
-                .Include(v => v.ProductoVentas)
-                    .ThenInclude(pv => pv.Producto)
-                .Where(v => v.Empleado.KioscoID == kioscoId);
+        .Include(v => v.Empleado)
+        .Include(v => v.MetodoPago)
+        .Include(v => v.Turno)
+        .Include(v => v.ProductoVentas)
+            .ThenInclude(pv => pv.Producto)
+        .Where(v => v.Empleado.KioscoID == kioscoId)
+        .AsQueryable();
 
             if (filtros.FechaDesde.HasValue)
                 query = query.Where(v => v.Fecha >= filtros.FechaDesde.Value);
@@ -125,7 +127,16 @@ namespace Infraestructure.Repository
             if (filtros.SoloAnuladas.HasValue)
                 query = query.Where(v => v.Anulada == filtros.SoloAnuladas.Value);
 
-            return await query.OrderByDescending(v => v.Fecha).ToListAsync();
+            // Contar ANTES de paginar (en la misma query, eficiente)
+            var total = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(v => v.Fecha)
+                .Skip(filtros.Skip)
+                .Take(filtros.TamanoPagina)
+                .ToListAsync();
+
+            return (items, total);
         }
 
         // ========== COMANDOS ==========

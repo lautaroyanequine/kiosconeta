@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Venta;
+﻿using Application.DTOs.Common;
+using Application.DTOs.Venta;
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
@@ -98,7 +99,9 @@ public class VentaService : IVentaService
         return ventas.Select(MapToResponseDTO);
     }
 
-    public async Task<IEnumerable<VentaResponseDTO>> GetConFiltrosAsync(int kioscoId, VentaFiltrosDTO filtros)
+    // REEMPLAZAR GetConFiltrosPaginadosAsync
+    public async Task<ResultadoPaginadoDTO<VentaResponseDTO>> GetConFiltrosPaginadosAsync(
+    int kioscoId, VentaFiltrosDTO filtros)
     {
         if (filtros.FechaDesde.HasValue && filtros.FechaHasta.HasValue)
         {
@@ -107,10 +110,17 @@ public class VentaService : IVentaService
             filtros.FechaHasta = hasta;
         }
 
-        var ventas = await _ventaRepository.GetConFiltrosAsync(kioscoId, filtros);
-        return ventas.Select(MapToResponseDTO);
-    }
+        var (ventas, total) = await _ventaRepository.GetConFiltrosAsync(kioscoId, filtros);
 
+        return new ResultadoPaginadoDTO<VentaResponseDTO>
+        {
+            Items = ventas.Select(MapToResponseDTO),
+            TotalItems = total,
+            Pagina = filtros.Pagina,
+            TamanoPagina = filtros.TamanoPagina,
+            TotalPaginas = (int)Math.Ceiling(total / (double)filtros.TamanoPagina)
+        };
+    }
     // ================== CREATE ==================
 
     public async Task<VentaResponseDTO> CreateAsync(CreateVentaDTO dto)

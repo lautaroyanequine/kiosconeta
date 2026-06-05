@@ -76,6 +76,11 @@
         public int? MetodoPagoId { get; set; }
         public int? TurnoId { get; set; }
         public bool? SoloAnuladas { get; set; }
+
+        public int Pagina { get; set; } = 1;
+        public int TamanoPagina { get; set; } = 20;
+        public int Skip => (Pagina - 1) * TamanoPagina;
+
     }
 
     public class AnularVentaDTO

@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.CierreTurno;
+using Application.DTOs.Common;
 using Application.Interfaces.Services;
 using Domain.Enums;
 using KIOSCONETA.Attributes;
@@ -33,10 +34,12 @@ public class CierreTurnosController : ControllerBase
     }
 
     [HttpGet("kiosco/{kioscoId}")]
-    
-    public async Task<ActionResult<IEnumerable<CierreTurnoResponseDTO>>> GetByKiosco(int kioscoId)
+    public async Task<ActionResult<ResultadoPaginadoDTO<CierreTurnoResponseDTO>>> GetByKiosco(
+    int kioscoId,
+    [FromQuery] int pagina = 1,
+    [FromQuery] int tamanoPagina = 10)
     {
-        var cierres = await _cierreTurnoService.GetByKioscoIdAsync(kioscoId);
+        var cierres = await _cierreTurnoService.GetByKioscoIdAsync(kioscoId, pagina, tamanoPagina);
         return Ok(cierres);
     }
 
@@ -128,27 +131,21 @@ public class CierreTurnosController : ControllerBase
     [RequierePermiso("reportes.dashboard_completo")]
     public async Task<IActionResult> GetResumenCaja(int kioscoId)
     {
-        var turnos = await _cierreTurnoService.GetByKioscoIdAsync(kioscoId);
+        var resultado = await _cierreTurnoService.GetByKioscoIdAsync(kioscoId, 1, 30);
+        var turnos = resultado.Items;
 
         var resumen = new
         {
-            // Saldo acumulado
             saldoActual = turnos
                 .Where(t => t.Estado == EstadoCierre.Cerrado)
                 .Sum(t => t.EfectivoInicial + t.TotalEfectivo - t.TotalGastos + t.Diferencia),
-
-            // Totales históricos
             totalVentasEfectivo = turnos.Sum(t => t.TotalEfectivo),
             totalVentasVirtual = turnos.Sum(t => t.TotalVirtual),
             totalVentas = turnos.Sum(t => t.TotalVentas),
             totalGastos = turnos.Sum(t => t.TotalGastos),
             gananciaTotal = turnos.Sum(t => t.GananciaTotal),
             cantidadVentas = turnos.Sum(t => t.CantidadVentas),
-
-            // Turno abierto actualmente
             turnoAbierto = turnos.FirstOrDefault(t => t.Estado == EstadoCierre.Abierto),
-
-            // Movimientos (cada turno cerrado)
             movimientos = turnos
                 .Where(t => t.Estado == EstadoCierre.Cerrado)
                 .OrderByDescending(t => t.Fecha)
