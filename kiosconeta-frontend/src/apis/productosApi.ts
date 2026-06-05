@@ -12,6 +12,7 @@ import type {
   ProductoFiltros,
   Categoria,
   CreateCategoriaDTO,
+  ResultadoPaginado
 } from '../types';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -32,6 +33,37 @@ export const productosApi = {
       return handleError(error);
     }
   },
+  // AGREGAR en productosApi
+getPaginado: async (
+  kioscoId: number,
+  pagina = 1,
+  tamanoPagina = 30,
+  filtros?: {
+    busqueda?: string;
+    categoriaId?: number | '';
+    soloStockBajo?: boolean;
+    soloActivos?: boolean;
+  }
+): Promise<ResultadoPaginado<Producto>> => {
+  try {
+    const params = new URLSearchParams({
+      pagina: String(pagina),
+      tamanoPagina: String(tamanoPagina),
+    });
+    if (filtros?.busqueda) params.append('busqueda', filtros.busqueda);
+    if (filtros?.categoriaId) params.append('categoriaId', String(filtros.categoriaId));
+    if (filtros?.soloStockBajo) params.append('soloStockBajo', 'true');
+    if (filtros?.soloActivos !== undefined) 
+      params.append('soloActivos', String(filtros.soloActivos));
+
+    const response = await apiClient.get<ResultadoPaginado<Producto>>(
+      `/productos/kiosco/${kioscoId}/paginado?${params}`
+    );
+    return handleResponse(response);
+  } catch (error) {
+    return handleError(error);
+  }
+},
 
   /**
    * Obtener producto por ID
