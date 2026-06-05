@@ -64,28 +64,20 @@ const cargarProductos = useCallback(async (pagina: number, resetear = false) => 
   setError(null);
 
   try {
-    const resultado = await productosApi.getPaginado(
-      user.kioscoId,
-      pagina,
-      30,
-      {
-        busqueda: filtros.busqueda || undefined,
-        categoriaId: filtros.categoriaId || undefined,
-        soloStockBajo: filtros.soloStockBajo || undefined,
-        soloActivos: filtros.soloActivos,
-      }
-    );
-    setProductos(prev => resetear ? resultado.items : [...prev, ...resultado.items]);
-    if (resetear) setTotalProductos(resultado.totalItems);
-    setHayMas(resultado.tienePaginaSiguiente);
-    setPaginaActual(pagina);
-  } catch (err: any) {
-    setError(err.message || 'Error al cargar los productos');
-  } finally {
-    setIsLoading(false);
-    setCargandoMas(false);
-  }
-}, [user?.kioscoId, filtros.busqueda, filtros.categoriaId, filtros.soloStockBajo, filtros.soloActivos]);
+       const [prods, cats,dists] = await Promise.all([
+        productosApi.getByKiosco(user.kioscoId), 
+        categoriasApi.getByKiosco(user.kioscoId),
+        distribuidoresApi.getByKiosco(user.kioscoId),
+      ]);
+      setProductos(prods);
+      setCategorias(cats);
+      setDistribuidores(dists);
+    } catch (err: any) {
+      setError(err.message || 'Error al cargar los productos');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.kioscoId]);
 
   // Cargar categorías y distribuidores solo una vez
   const cargarAuxiliares = useCallback(async () => {
