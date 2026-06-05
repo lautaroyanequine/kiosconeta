@@ -43,6 +43,8 @@ interface Props {
   productosSinMov: any[]
   productosSinStock: any[]
   stockBajo: any[]
+  desde: Date  
+  hasta: Date
 }
 
 type SortKey = 'unidadesVendidas' | 'ganancia' | 'margenGanancia' | 'recomendacionCompra' | 'diasStockRestante'
@@ -93,9 +95,9 @@ export const AnalisisProductosCompleto: React.FC<Props> = ({
       const desde = new Date()
       desde.setDate(desde.getDate() - periodo)
       const res = await apiClient.post(
-        `/Dashboard/kiosco/${user.kioscoId}/analisis-productos`,
-        { fechaDesde: desde.toISOString(), fechaHasta: hasta.toISOString() }
-      )
+  `/Dashboard/kiosco/${user.kioscoId}/analisis-productos`,
+  { fechaDesde: desde.toISOString(), fechaHasta: hasta.toISOString() }
+)
       setData(handleResponse(res))
       setCargado(true)
     } catch (err) {
@@ -354,7 +356,7 @@ export const AnalisisProductosCompleto: React.FC<Props> = ({
                   <th className="px-4 py-3 text-left font-semibold text-neutral-500">Categoría</th>
                   <th className="px-4 py-3 text-right font-semibold text-neutral-500 cursor-pointer hover:text-primary"
                     onClick={() => toggleSort('unidadesVendidas')}>
-                    <span className="flex items-center justify-end gap-1">Unidades <SortIcon col="unidadesVendidas" /></span>
+                    <span className="flex items-center justify-end gap-1">Vendido(U) <SortIcon col="unidadesVendidas" /></span>
                   </th>
                   <th className="px-4 py-3 text-right font-semibold text-neutral-500">Ingresos</th>
                   <th className="px-4 py-3 text-right font-semibold text-neutral-500 cursor-pointer hover:text-primary"

@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Producto;
+﻿using Application.DTOs.Common;
+using Application.DTOs.Producto;
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
@@ -34,7 +35,26 @@ namespace Application.Services
             var productos = await _productoRepository.GetAllAsync();
             return productos.Select(MapToResponseDTO);
         }
+        // ProductoService
+        public async Task<ResultadoPaginadoDTO<ProductoResponseDTO>> GetByKioscoIdPaginadoAsync(
+            int kioscoId, int pagina, int tamanoPagina,
+            string? busqueda = null,
+            int? categoriaId = null,
+            bool? soloStockBajo = null,
+            bool soloActivos = true)
+        {
+            var (productos, total) = await _productoRepository.GetByKioscoIdPaginadoAsync(
+                kioscoId, pagina, tamanoPagina, busqueda, categoriaId, soloStockBajo, soloActivos);
 
+            return new ResultadoPaginadoDTO<ProductoResponseDTO>
+            {
+                Items = productos.Select(MapToResponseDTO),
+                TotalItems = total,
+                Pagina = pagina,
+                TamanoPagina = tamanoPagina,
+                TotalPaginas = (int)Math.Ceiling(total / (double)tamanoPagina)
+            };
+        }
         public async Task<IEnumerable<ProductoResponseDTO>> GetByKioscoIdAsync(int kioscoId)
         {
             var productos = await _productoRepository.GetByKioscoIdAsync(kioscoId);

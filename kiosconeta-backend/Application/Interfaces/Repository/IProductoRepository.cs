@@ -12,6 +12,15 @@ namespace Application.Interfaces.Repository
         // Queries - Consultas
         Task<Producto?> GetByIdAsync(int id,int kioscoId);
         Task<IEnumerable<Producto>> GetAllAsync();
+        Task<(IEnumerable<Producto> Items, int Total)> GetByKioscoIdPaginadoAsync(
+    int kioscoId,
+    int pagina,
+    int tamanoPagina,
+    string? busqueda = null,
+    int? categoriaId = null,
+    bool? soloStockBajo = null,
+    bool soloActivos = true);
+
         Task<IEnumerable<Producto>> GetByKioscoIdAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetActivosAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetSinStockAsync(int kioscoId);

@@ -483,6 +483,8 @@ const turnosHoy = useMemo(() => {
       productosSinMov={productosSinMov}
       productosSinStock={productosSinStock}
       stockBajo={stockBajo}
+      desde={desde} 
+      hasta={hasta}  
     />
   )}
 

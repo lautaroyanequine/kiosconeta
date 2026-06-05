@@ -68,13 +68,14 @@ export const useProductos = () => {
     setError(null);
 
     try {
-      const [prods, cats] = await Promise.all([
+      const [prods, cats,dists] = await Promise.all([
         productosApi.getByKiosco(user.kioscoId), 
         categoriasApi.getByKiosco(user.kioscoId),
         distribuidoresApi.getByKiosco(user.kioscoId),
       ]);
       setProductos(prods);
       setCategorias(cats);
+      setDistribuidores(dists);
     } catch (err: any) {
       setError(err.message || 'Error al cargar los productos');
     } finally {
@@ -183,7 +184,7 @@ export const useProductos = () => {
 
   const ajustarStock = async (productoId: number, cantidad: number) => {
     try {
-      await productosApi.ajustarStock(productoId, Math.abs(cantidad),user!.empleadoId, Number(user!.kioscoId),cantidad > 0 ? 'agregar' : 'quitar');
+      await productosApi.ajustarStock(productoId, cantidad,user!.empleadoId, Number(user!.kioscoId),cantidad > 0 ? 'agregar' : 'quitar');
       setProductos((prev) =>
         prev.map((p) =>
           p.productoId === productoId

@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Producto;
+﻿using Application.DTOs.Common;
+using Application.DTOs.Producto;
 using Application.Interfaces.Services;
 using KIOSCONETA.Attributes;
 using Microsoft.AspNetCore.Authorization;
@@ -52,8 +53,27 @@ namespace KIOSCONETA.Controllers
 
             return Ok(producto);
         }
-        
 
+        // AGREGAR este endpoint nuevo — no toca los existentes
+        [HttpGet("kiosco/{kioscoId}/paginado")]
+        [RequierePermiso("productos.ver")]
+        public async Task<ActionResult<ResultadoPaginadoDTO<ProductoResponseDTO>>> GetPaginado(
+            int kioscoId,
+            [FromQuery] int pagina = 1,
+            [FromQuery] int tamanoPagina = 30,
+            [FromQuery] string? busqueda = null)
+        {
+            try
+            {
+                var resultado = await _productoService
+                    .GetByKioscoIdPaginadoAsync(kioscoId, pagina, tamanoPagina, busqueda);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener productos", error = ex.Message });
+            }
+        }
         /// Obtener productos por kiosco
 
         [HttpGet("kiosco/{kioscoId}")]

@@ -199,6 +199,47 @@ namespace Infraestructure.Repository
             return await _context.Productos
                 .AnyAsync(p => p.CodigoBarra == codigoBarra && p.Activo && p.KioscoId == kioscoId);
         }
+        public async Task<(IEnumerable<Producto> Items, int Total)> GetByKioscoIdPaginadoAsync(
+     int kioscoId,
+     int pagina,
+     int tamanoPagina,
+     string? busqueda = null,
+     int? categoriaId = null,
+     bool? soloStockBajo = null,
+     bool soloActivos = true)
+        {
+            var query = _context.Productos
+                .Include(p => p.Categoria)
+                .Where(p => p.KioscoId == kioscoId)
+                .AsQueryable();
+
+            if (soloActivos)
+                query = query.Where(p => p.Activo);
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                var b = busqueda.ToLower();
+                query = query.Where(p =>
+                    p.Nombre.ToLower().Contains(b) ||
+                    (p.CodigoBarra != null && p.CodigoBarra.Contains(b)));
+            }
+
+            if (categoriaId.HasValue)
+                query = query.Where(p => p.CategoriaId == categoriaId.Value);
+
+            if (soloStockBajo == true)
+                query = query.Where(p => p.StockActual <= p.StockMinimo);
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(p => p.Nombre)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToListAsync();
+
+            return (items, total);
+        }
         public async Task<IEnumerable<Producto>> GetSinMovimientoAsync(int kioscoId, int dias)
         {
             var fechaLimite = DateTime.UtcNow.AddDays(-dias);

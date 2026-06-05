@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Producto;
+﻿using Application.DTOs.Common;
+using Application.DTOs.Producto;
 
 namespace Application.Interfaces.Services
 {
@@ -11,7 +12,16 @@ namespace Application.Interfaces.Services
         // Consultas
         Task<ProductoResponseDTO?> GetByIdAsync(int id,int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetAllAsync();
-        Task<IEnumerable<ProductoResponseDTO>> GetByKioscoIdAsync(int kioscoId);
+        // IProductoService
+        Task<ResultadoPaginadoDTO<ProductoResponseDTO>> GetByKioscoIdPaginadoAsync(
+            int kioscoId,
+            int pagina,
+            int tamanoPagina,
+            string? busqueda = null,
+            int? categoriaId = null,
+            bool? soloStockBajo = null,
+            bool soloActivos = true); Task<IEnumerable<ProductoResponseDTO>> GetByKioscoIdAsync(int kioscoId);
+
         Task<IEnumerable<ProductoResponseDTO>> GetActivosAsync(int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetByCategoriaAsync(int categoriaId);
         Task<IEnumerable<ProductoResponseDTO>> GetSinStockAsync(int kioscoId);
