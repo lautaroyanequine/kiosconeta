@@ -90,9 +90,9 @@ const ProductosPage: React.FC = () => {
     distribuidores,
     stats,
     isLoading,
-    cargandoMas,   
-  hayMas,        
-  observerRef,
+    //cargandoMas,   
+  //hayMas,        
+  //observerRef,
     error,
     filtros,
     setFiltros,
@@ -463,7 +463,7 @@ const ProductosPage: React.FC = () => {
                 keyExtractor={(p) => p.productoId}
                 emptyMessage="No se encontraron productos con los filtros seleccionados"
               />
-              {/* ── TRIGGER SCROLL INFINITO ── */}
+              {/* ── TRIGGER SCROLL INFINITO ── 
 <div ref={observerRef} className="h-4" />
 {cargandoMas && (
   <div className="flex items-center justify-center py-4 gap-2 text-sm text-neutral-400">
@@ -475,7 +475,7 @@ const ProductosPage: React.FC = () => {
   <div className="text-center py-3 text-xs text-neutral-400 border-t border-neutral-100">
     — Todos los productos cargados —
   </div>
-)}
+)} */ }
             </div>
           </>
         )}
