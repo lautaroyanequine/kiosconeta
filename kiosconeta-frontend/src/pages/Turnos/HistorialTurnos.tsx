@@ -394,6 +394,18 @@ export const HistorialTurnos: React.FC = () => {
           })}
         </div>
       )}
+
+ <div ref={observerRef} className="py-4 flex justify-center">
+        {cargandoMas && (
+          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        )}
+        {!hayMas && turnos.length > 0 && (
+          <p className="text-xs text-neutral-400">
+            Mostrando todos los {turnos.length} turnos
+          </p>
+        )}
+      </div>
+
     </div>
   )
 }
