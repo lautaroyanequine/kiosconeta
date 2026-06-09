@@ -138,6 +138,7 @@ public class VentaService : IVentaService
             ?? throw new KeyNotFoundException($"Método de pago con ID {dto.MetodoPagoId} no encontrado");
 
         var turnoAbierto = await _cierreTurnoRepository.GetTurnoAbiertoAsync(empleado.KioscoID);
+
         if (turnoAbierto == null)
             throw new InvalidOperationException("No hay ningún turno abierto.");
 
@@ -146,7 +147,8 @@ public class VentaService : IVentaService
         var productosDict = productos.ToDictionary(p => p.ProductoId);
 
         var productosVenta = new List<ProductoVenta>();
-        decimal totalVenta = 0;
+
+        decimal subtotalVenta = 0;
         decimal costoTotal = 0;
 
         foreach (var productoDto in dto.Productos)
@@ -160,22 +162,19 @@ public class VentaService : IVentaService
             if (producto.StockActual < productoDto.Cantidad)
                 throw new InvalidOperationException($"Stock insuficiente para {producto.Nombre}");
 
-            var subtotal = producto.PrecioVenta * productoDto.Cantidad;
-            var subtotalCosto = producto.PrecioCosto * productoDto.Cantidad;
-
-            totalVenta += subtotal;
-            costoTotal += subtotalCosto;
+            subtotalVenta += producto.PrecioVenta * productoDto.Cantidad;
+            costoTotal += producto.PrecioCosto * productoDto.Cantidad;
 
             productosVenta.Add(new ProductoVenta
             {
                 ProductoId = producto.ProductoId,
                 Cantidad = productoDto.Cantidad,
-                PrecioUnitario = producto.PrecioVenta,
+                PrecioUnitario = producto.PrecioVenta
             });
         }
 
-        // ── Procesar lista de combos (puede haber múltiples) ─────────────────
-        decimal ajusteCombos = 0;
+        decimal descuentoCombos = 0;
+        decimal recargoCombos = 0;
 
         if (dto.Combos != null && dto.Combos.Any())
         {
@@ -184,44 +183,65 @@ public class VentaService : IVentaService
                 var promo = await _promocionRepository.GetByIdAsync(comboDto.PromocionId);
 
                 if (promo == null)
-                    throw new KeyNotFoundException($"Promoción {comboDto.PromocionId} no encontrada");
+                    throw new KeyNotFoundException(
+                        $"Promoción {comboDto.PromocionId} no encontrada");
 
                 if (!promo.Activa)
-                    throw new InvalidOperationException($"La promoción '{promo.Nombre}' no está activa");
+                    throw new InvalidOperationException(
+                        $"La promoción '{promo.Nombre}' no está activa");
 
                 if (promo.Tipo != TipoPromocion.Combo || !promo.PrecioCombo.HasValue)
                     continue;
 
-                // Suma de precios unitarios de los componentes de este combo
-                var sumaUnitariosCombo = promo.PromocionProductos.Sum(pp =>
+                decimal sumaUnitariosCombo = promo.PromocionProductos.Sum(pp =>
                 {
                     if (productosDict.TryGetValue(pp.ProductoId, out var prod))
-                        return prod.PrecioVenta * pp.Cantidad * comboDto.Cantidad;
-                    return 0;
+                    {
+                        return prod.PrecioVenta
+                               * pp.Cantidad
+                               * comboDto.Cantidad;
+                    }
+
+                    return 0m;
                 });
 
-                // Precio real del combo × cantidad
-                var precioComboTotal = promo.PrecioCombo.Value * comboDto.Cantidad;
+                decimal precioComboTotal =
+                    promo.PrecioCombo.Value * comboDto.Cantidad;
 
-                // Ajuste: positivo = descuento, negativo = el combo vale más que los unitarios
-                ajusteCombos += sumaUnitariosCombo - precioComboTotal;
+                decimal diferencia =
+                    sumaUnitariosCombo - precioComboTotal;
+
+                if (diferencia > 0)
+                {
+                    // Combo más barato → descuento
+                    descuentoCombos += diferencia;
+                }
+                else if (diferencia < 0)
+                {
+                    // Combo más caro → recargo
+                    recargoCombos += Math.Abs(diferencia);
+                }
             }
         }
 
-        // Aplicar ajuste al total
-        // Si ajuste > 0: combo más barato que unitarios → descuento
-        // Si ajuste < 0: combo más caro que unitarios → sube el total
-        var totalFinal = totalVenta - ajusteCombos;
-        var descuentoFinal = ajusteCombos > 0
-            ? Math.Min(ajusteCombos, totalVenta)  // descuento real
-            : 0;                                   // sin descuento (combo más caro)
+        // Descuento total:
+        // - Descuento por combos
+        // - Descuento calculado en carrito/promociones automáticas
+        decimal descuentoFinal = descuentoCombos + dto.Descuento;
 
-        // Si el combo es más caro, el total ya queda bien en totalFinal
-        // Si tiene descuento adicional del carrito, lo sumamos
-        if (dto.Descuento > 0 && ajusteCombos <= 0)
-            descuentoFinal = Math.Min(dto.Descuento, totalVenta);
+        if (descuentoFinal > subtotalVenta)
+            descuentoFinal = subtotalVenta;
 
-        var numeroVenta = await _numeradorRepository.GenerarNumeroVentaAsync(empleado.KioscoID);
+        decimal totalFinal =
+            subtotalVenta
+            - descuentoFinal
+            + recargoCombos;
+
+        if (totalFinal < 0)
+            totalFinal = 0;
+
+        var numeroVenta =
+            await _numeradorRepository.GenerarNumeroVentaAsync(empleado.KioscoID);
 
         var venta = new Venta
         {
@@ -230,17 +250,20 @@ public class VentaService : IVentaService
             TurnoId = dto.TurnoId,
             CierreTurnoId = turnoAbierto.CierreTurnoId,
             Detalles = dto.Detalles,
-            Subtotal = totalVenta,
+
+            Subtotal = subtotalVenta,
             Descuento = descuentoFinal,
-            Total = totalFinal > 0 ? totalFinal : totalVenta - descuentoFinal,
+            Total = totalFinal,
+
             PrecioCosto = costoTotal,
             NumeroVenta = numeroVenta,
             ProductoVentas = productosVenta,
             Fecha = DateTime.UtcNow,
-            Anulada = false,
+            Anulada = false
         };
 
         var creada = await _ventaRepository.CreateAsync(venta);
+
         return MapToResponseDTO(creada);
     }    // ================== ANULAR ==================
 
@@ -284,6 +307,7 @@ public class VentaService : IVentaService
             Subtotal = venta.Subtotal > 0 ? venta.Subtotal : venta.Total,
             Descuento = venta.Descuento,
             Fecha = venta.Fecha, // ya viene en UTC
+
             Total = venta.Total,
             PrecioCosto = venta.PrecioCosto,
             Ganancia = ganancia,

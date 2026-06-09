@@ -110,6 +110,14 @@ const VentaDetalleModal: React.FC<{
         </div>
       </div>
 
+ {venta.descuento > 0 && (
+  <div className="flex justify-between text-sm text-success">
+    <span>Descuento</span>
+    <span>-{formatCurrency(venta.descuento)}</span>
+  </div>
+)}
+     
+
       {/* Totales */}
       <div className="space-y-2 pt-3 border-t border-neutral-200">
         <div className="flex justify-between text-sm text-neutral-500">
