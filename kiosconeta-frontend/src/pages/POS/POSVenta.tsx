@@ -170,7 +170,11 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       const local = productos.find(p => (p as any).codigoBarra === codigo);
       if (local) { cart.addItem(local); setCodigoFeedback('ok'); }
       else {
+        console.log("Local:", local);
+
         const remoto = await productosApi.getByCodigoBarra(codigo);
+console.log("Remoto:", remoto);
+
         if (remoto) { cart.addItem(remoto); setCodigoFeedback('ok'); }
         else setCodigoFeedback('error');
       }

@@ -103,11 +103,15 @@ namespace Infraestructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<Producto?> GetByCodigoBarraAsync(string codigoBarra)
+        public async Task<Producto?> GetByCodigoBarraAsync(string codigoBarra ,int kioscoId )
         {
+
             return await _context.Productos
                 .Include(p => p.Categoria)
-                .FirstOrDefaultAsync(p => p.CodigoBarra == codigoBarra && p.Activo == true);
+                .FirstOrDefaultAsync(p =>
+                    p.CodigoBarra == codigoBarra &&
+                    p.KioscoId == kioscoId &&
+                    p.Activo);
 
         }
 

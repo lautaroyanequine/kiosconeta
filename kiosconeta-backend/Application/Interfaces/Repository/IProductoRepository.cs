@@ -29,7 +29,7 @@ namespace Application.Interfaces.Repository
 
         Task<IEnumerable<Producto>> GetBajoStockAsync(int kioscoId);
         Task<IEnumerable<Producto>> GetProximosAVencerAsync(int kioscoId, int dias = 7);
-        Task<Producto?> GetByCodigoBarraAsync(string codigoBarra);
+        Task<Producto?> GetByCodigoBarraAsync(string codigoBarra,int kioscoId);
         Task<IEnumerable<Producto>> SearchAsync(string searchTerm, int kioscoId);
         Task<IEnumerable<Producto>> GetSinMovimientoAsync(int kioscoId, int dias);
 

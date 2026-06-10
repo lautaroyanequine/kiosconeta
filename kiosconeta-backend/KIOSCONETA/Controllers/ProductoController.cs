@@ -16,6 +16,13 @@ namespace KIOSCONETA.Controllers
     {
         private readonly IProductoService _productoService;
 
+        protected int KioscoId =>
+        int.Parse(User.FindFirst("KioscoId")!.Value);
+
+        protected int EmpleadoId =>
+            int.Parse(User.FindFirst("EmpleadoId")!.Value);
+
+
         public ProductosController(IProductoService productoService)
         {
             _productoService = productoService;
@@ -174,7 +181,7 @@ namespace KIOSCONETA.Controllers
             try
             {
                 string codigoLimpio = codigoBarra.Trim();
-                var producto = await _productoService.GetByCodigoBarraAsync(codigoBarra);
+                var producto = await _productoService.GetByCodigoBarraAsync(codigoBarra,KioscoId);
 
                 if (producto == null)
                     return NotFound(new { message = $"No se encontró producto con código: {codigoBarra}" });

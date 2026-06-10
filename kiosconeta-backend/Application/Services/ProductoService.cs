@@ -90,9 +90,9 @@ namespace Application.Services
             return productos.Select(MapToResponseDTO);
         }
 
-        public async Task<ProductoResponseDTO?> GetByCodigoBarraAsync(string codigoBarra)
+        public async Task<ProductoResponseDTO?> GetByCodigoBarraAsync(string codigoBarra,int kioscoId)
         {
-            var producto = await _productoRepository.GetByCodigoBarraAsync(codigoBarra);
+            var producto = await _productoRepository.GetByCodigoBarraAsync(codigoBarra,kioscoId);
             return producto != null ? MapToResponseDTO(producto) : null;
         }
 
