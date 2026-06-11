@@ -3,7 +3,7 @@
 // Muestra el resumen del turno en curso y el formulario para cerrarlo.
 // ════════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo , useEffect } from 'react'
 import {
   TrendingUp, DollarSign, Wallet, Clock,
   AlertCircle, Users, Smartphone,
@@ -27,6 +27,7 @@ interface TurnoAbiertoProps {
 // ────────────────────────────────────────────────────────────────────────────
 // SUB-COMPONENTE: FilaResumen
 // ────────────────────────────────────────────────────────────────────────────
+
 
 const FilaResumen: React.FC<{
   label: string
@@ -61,7 +62,9 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
   // ── Estado del formulario ─────────────────────────────────────────────────
   const [efectivoContado, setEfectivoContado] = useState('')
   const [virtualAcreditado, setVirtualAcreditado] = useState('')
-  const [observaciones, setObservaciones] = useState('')
+  const [observaciones, setObservaciones] = useState(() => {
+  const guardado = localStorage.getItem(`turno-observaciones-${turno.turnoId}`)
+  return guardado || ''})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [confirmando, setConfirmando] = useState(false)
@@ -70,6 +73,13 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
   // Estados nuevos para el fondo
   const [efectivoFinalFondo, setEfectivoFinalFondo] = useState('')
   const [virtualFinalFondo, setVirtualFinalFondo]   = useState('')
+
+  useEffect(() => {
+  localStorage.setItem(
+    `turno-observaciones-${turno.turnoId}`,
+    observaciones
+  )
+  }, [observaciones, turno.turnoId])
 
   // ── Diferencia efectivo en tiempo real ────────────────────────────────────
   const diferencia = useMemo(() => {
@@ -114,6 +124,8 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
       })
       if (!resultado) throw new Error('El backend no devolvió datos del cierre')
       
+      localStorage.removeItem(`turno-observaciones-${turno.turnoId}`)
+
       // Casteo seguro para evitar el error de incompatibilidad de TypeScript
       setTurnoFinalizado(resultado as unknown as CierreTurnoResponse);
       setConfirmando(false)
