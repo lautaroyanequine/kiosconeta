@@ -155,7 +155,7 @@ namespace Application.Services
             return MapToResponseDTO(productoCompleto!);
         }
 
-        public async Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto)
+        public async Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto,int empleadoId)
         {
             // Validar que existe
             var productoExistente = await _productoRepository.GetByIdAsync(dto.ProductoId,dto.KioscoId);
@@ -169,7 +169,8 @@ namespace Application.Services
             {
                 throw new InvalidOperationException("El precio de venta debe ser mayor al precio de costo");
             }
-
+            int stockOriginal = productoExistente.StockActual;
+            string nombreOriginal = productoExistente.Nombre;
             // Actualizar campos
             productoExistente.Nombre = dto.Nombre;
             productoExistente.PrecioCosto = dto.PrecioCosto;
@@ -184,8 +185,31 @@ namespace Application.Services
             productoExistente.FechaVencimiento = dto.FechaVencimiento;
             productoExistente.Suelto = dto.Suelto;
             productoExistente.Activo = dto.Activo;
+            var diferencia = dto.StockActual - stockOriginal;
 
+            var esSospechoso = diferencia < -10;
             var productoActualizado = await _productoRepository.UpdateAsync(productoExistente);
+
+            if (stockOriginal != dto.StockActual)
+            {
+                await _auditoriaService.RegistrarAsync(
+                    empleadoId: empleadoId,
+                    kioscoId: productoExistente.KioscoId,
+                    tipoEvento: TipoEventoAuditoria.StockAjustado,
+                    descripcion: $"Stock de '{nombreOriginal}' modificado durante edición general. Cambió de {stockOriginal} a {dto.StockActual}.",
+                    esSospechoso: esSospechoso,
+                motivoSospecha: esSospechoso ? $"Reducción grande de stock via edición: {diferencia} unidades" : null,
+                    datos: new
+
+                    {
+                        origen = "EdicionProductoGeneral",
+                        productoId = dto.ProductoId,
+                        stockAnterior = stockOriginal,
+                        stockNuevo = dto.StockActual
+                    }
+             
+                );
+            }
 
             // Recargar con relaciones
             var productoCompleto = await _productoRepository.GetByIdAsync(productoActualizado.ProductoId,productoActualizado.KioscoId);
@@ -222,18 +246,20 @@ namespace Application.Services
 
             if (producto.StockActual + cantidad < 0)
                 throw new InvalidOperationException("No hay suficiente stock disponible");
+            var stockAnterior = producto.StockActual;
+            var stockNuevo = producto.StockActual + cantidad;
 
             var resultado = await _productoRepository.ActualizarStockAsync(id, cantidad);
 
             if (resultado)
             {
-                var esSospechoso = cantidad < -10; // reducción grande = sospechoso
+                var esSospechoso = cantidad < -10;
                 await _auditoriaService.RegistrarAsync(
                     empleadoId: empleadoId,
                     kioscoId: producto.KioscoId,
                     tipoEvento: TipoEventoAuditoria.StockAjustado,
-                    descripcion: $"Stock de '{producto.Nombre}' ajustado en {(cantidad > 0 ? "+" : "")}{cantidad}. Stock resultante: {producto.StockActual + cantidad}",
-                    datos: new { productoId = id, productoNombre = producto.Nombre, cantidad, stockAnterior = producto.StockActual, stockNuevo = producto.StockActual + cantidad },
+                    descripcion: $"Stock de '{producto.Nombre}' ajustado en {(cantidad > 0 ? "+" : "")}{cantidad}. Stock resultante: {stockNuevo}",
+                    datos: new { productoId = id, productoNombre = producto.Nombre, cantidad, stockAnterior, stockNuevo },
                     esSospechoso: esSospechoso,
                     motivoSospecha: esSospechoso ? $"Reducción grande de stock: {cantidad} unidades" : null
                 );

@@ -253,8 +253,15 @@ namespace KIOSCONETA.Controllers
 
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
+                var empleadoId = int.Parse(User.FindFirst("EmpleadoId")?.Value ?? "0");
 
-                var producto = await _productoService.UpdateAsync(dto);
+                if (empleadoId == 0)
+                {
+                    return Unauthorized(new { message = "No se pudo identificar al empleado" });
+
+                }
+
+                var producto = await _productoService.UpdateAsync(dto,empleadoId);
                 return Ok(producto);
             }
             catch (KeyNotFoundException ex)

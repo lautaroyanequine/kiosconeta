@@ -33,7 +33,7 @@ namespace Application.Interfaces.Services
 
         // Comandos
         Task<ProductoResponseDTO> CreateAsync(CreateProductoDTO dto);
-        Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto);
+        Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto,int empleadoId);
         Task<bool> DeleteAsync(int id);
         Task<bool> ActivarDesactivarAsync(int id, bool activo);
         Task<bool> ActualizarStockAsync(int id, int cantidad,int idEmpleado,int kioscoId);
