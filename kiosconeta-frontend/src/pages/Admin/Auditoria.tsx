@@ -201,8 +201,11 @@ const Auditoria: React.FC = () => {
 
                 return (
                   <tr key={log.auditoriaLogId} className="border-b">
-                    <td>{log.fechaFormateada}</td>
-                    <td>{log.empleadoNombre}</td>
+<td>{new Date(log.fecha).toLocaleString('es-AR', {
+  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  day: '2-digit', month: '2-digit', year: 'numeric',
+  hour: '2-digit', minute: '2-digit'
+})}</td>                  <td>{log.empleadoNombre}</td>
                     <td><Badge variant={cfg.color as any}>{cfg.label}</Badge></td>
                     <td>{log.descripcion}</td>
                     <td>

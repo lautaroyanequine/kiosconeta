@@ -27,6 +27,7 @@ namespace Application.Services
             var log = new AuditoriaLog
             {
                 EmpleadoId = empleadoId,
+                Fecha = DateTime.UtcNow,
                 KioscoId = kioscoId,
                 TipoEvento = tipoEvento,
                 Descripcion = descripcion,
