@@ -194,3 +194,11 @@ efectivoFinalFondo: number   // ← NUEVO
     empleadoNombre: string;
   }[];
 }
+export interface GastoFiltros {
+  fechaDesde?: string; // ISO string
+  fechaHasta?: string;
+  empleadoId?: number;
+  tipoDeGastoId?: number;
+  montoMinimo?: number;
+  montoMaximo?: number;
+}

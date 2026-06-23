@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { gastosApi, tiposGastoApi } from '@/apis/gastosApi'
 import { formatCurrency } from '@/utils/formatters'
 import type { GastoResponse, TipoDeGasto } from '@/types/gastoTurno'
+import { empleadosApi} from '@/apis/otrosApi'
 
 // Palabras clave para detectar el tipo "Sueldo"
 const KEYWORDS_SUELDO = ['sueldo', 'sueldos', 'salario', 'salarios']
@@ -12,6 +13,7 @@ export const Sueldos: React.FC = () => {
   const { user } = useAuth()
 
   const [sueldos, setSueldos]           = useState<GastoResponse[]>([])
+  const [empleados, setEmpleados] = useState<any[]>([])
   const [tipoSueldo, setTipoSueldo]     = useState<TipoDeGasto | null>(null)
   const [loading, setLoading]           = useState(true)
   const [modalAbierto, setModalAbierto] = useState(false)
@@ -22,6 +24,7 @@ export const Sueldos: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError]               = useState('')
   const [eliminando, setEliminando]     = useState<number | null>(null)
+  const [empleadoIdSeleccionado, setEmpleadoIdSeleccionado] = useState('') // <--- Nuevo estado para el ID
 
   useEffect(() => { cargarDatos() }, [])
 
@@ -29,11 +32,13 @@ export const Sueldos: React.FC = () => {
     if (!user?.kioscoId) return
     setLoading(true)
     try {
-      // ← Buscar el tipo "Sueldo" directo en los tipos del kiosco
-      const tipos = await tiposGastoApi.getByKiosco(user.kioscoId)
-      const tipo = tipos.find(t =>
-        KEYWORDS_SUELDO.some(k => t.nombre.toLowerCase().includes(k))
-      )
+const [tipos, listaEmpleados] = await Promise.all([
+        tiposGastoApi.getByKiosco(user.kioscoId),
+        empleadosApi.getByKiosco(user.kioscoId) // <--- Carga de empleados
+      ])
+      
+      setEmpleados(listaEmpleados)
+      const tipo = tipos.find(t => KEYWORDS_SUELDO.some(k => t.nombre.toLowerCase().includes(k)))
       setTipoSueldo(tipo ?? null)
 
       if (tipo) {
@@ -58,7 +63,7 @@ export const Sueldos: React.FC = () => {
 
   const handleRegistrar = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !tipoSueldo) return
+    if (!user || !tipoSueldo || !empleadoIdSeleccionado) return
 
     setIsSubmitting(true)
     setError('')
@@ -67,7 +72,7 @@ export const Sueldos: React.FC = () => {
         nombre: `Sueldo — ${empleadoNombre.trim()}`,
         descripcion: [periodo, descripcion].filter(Boolean).join(' · '),
         monto: parseFloat(monto),
-        empleadoId: user.empleadoId,
+        empleadoId: parseInt(empleadoIdSeleccionado),
         tipoDeGastoId: tipoSueldo.tipoDeGastoId,
       })
       setSueldos(prev => [nuevo, ...prev])
@@ -80,7 +85,10 @@ export const Sueldos: React.FC = () => {
   }
 
   const cerrarModal = () => {
+    console.log('Lista de empleados:', empleados);
+console.log('ID seleccionado:', empleadoIdSeleccionado);
     setEmpleadoNombre('')
+    setEmpleadoIdSeleccionado('')
     setMonto('')
     setPeriodo('')
     setDescripcion('')
@@ -199,10 +207,17 @@ export const Sueldos: React.FC = () => {
               )}
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1.5">Empleado *</label>
-                <input type="text" value={empleadoNombre} onChange={e => setEmpleadoNombre(e.target.value)}
-                  placeholder="Ej: Juan García" autoFocus
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm
-                             outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+                <select 
+  value={empleadoIdSeleccionado} 
+  onChange={e => setEmpleadoIdSeleccionado(e.target.value)}
+  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+>
+  <option value="">Seleccioná un empleado</option>
+  {empleados.map(emp => (
+    // Aquí el value debe ser emp.empleadoId (el número)
+    <option key={emp.empleadoId} value={emp.empleadoId}>{emp.nombre}</option>
+  ))}
+</select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -240,12 +255,13 @@ export const Sueldos: React.FC = () => {
                   Cancelar
                 </button>
                 <button type="submit"
-                  disabled={!empleadoNombre.trim() || !monto || isSubmitting}
-                  className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all
-                    ${empleadoNombre.trim() && monto && !isSubmitting
-                      ? 'bg-primary text-white hover:bg-primary-600'
-                      : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'}`}>
-                  {isSubmitting ? 'Guardando...' : 'Registrar sueldo'}
+                  disabled={!empleadoIdSeleccionado || !monto || isSubmitting}
+  className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all
+    ${empleadoIdSeleccionado && monto && !isSubmitting
+      ? 'bg-primary text-white hover:bg-primary-600'
+      : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'}`}
+>
+  {isSubmitting ? 'Guardando...' : 'Registrar sueldo'}
                 </button>
               </div>
             </form>

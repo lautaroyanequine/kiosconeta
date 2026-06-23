@@ -1,5 +1,5 @@
 import apiClient, { handleResponse, handleError } from './client';
-import type { GastoResponse, CreateGastoDTO, TipoDeGasto } from '../types/gastoTurno';
+import type { GastoResponse, CreateGastoDTO, TipoDeGasto,GastoFiltros } from '../types/gastoTurno';
 
 // ────────────────────────────────────────────────────────────────────────────
 // GASTOS API
@@ -52,17 +52,17 @@ export const gastosApi = {
   },
 
   // Buscar con filtros (para la página de admin)
-  buscar: async (kioscoId: number, filtros: any): Promise<GastoResponse[]> => {
-    try {
-      const response = await apiClient.post<GastoResponse[]>(
-        `/Gastos/kiosco/${kioscoId}/buscar`,
-        filtros
-      );
-      return handleResponse(response);
-    } catch (error) {
-      return handleError(error);
-    }
-  },
+  buscar: async (kioscoId: number, filtros: GastoFiltros): Promise<GastoResponse[]> => {
+  try {
+    const response = await apiClient.post<GastoResponse[]>(
+      `/Gastos/kiosco/${kioscoId}/buscar`,
+      filtros
+    );
+    return handleResponse(response);
+  } catch (error) {
+    return handleError(error);
+  }
+},
 };
 
 // ────────────────────────────────────────────────────────────────────────────
