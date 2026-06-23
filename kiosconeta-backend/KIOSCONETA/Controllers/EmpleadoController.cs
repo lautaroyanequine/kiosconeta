@@ -55,7 +55,7 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        /// Obtener empleados de un kiosco
+        /// Obtener empleados de un kioscosss
         [HttpGet("kiosco/{kioscoId}")]
         public async Task<ActionResult<IEnumerable<EmpleadoResponseDTO>>> GetByKiosco(int kioscoId)
         {

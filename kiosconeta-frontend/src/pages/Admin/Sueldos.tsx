@@ -214,7 +214,7 @@ console.log('ID seleccionado:', empleadoIdSeleccionado);
 >
   <option value="">Seleccioná un empleado</option>
   {empleados.map(emp => (
-    // Aquí el value debe ser emp.empleadoId (el número)
+    // Aquí el value debe ser eeep.empleadoId (el número)
     <option key={emp.empleadoId} value={emp.empleadoId}>{emp.nombre}</option>
   ))}
 </select>
