@@ -177,8 +177,12 @@ const [tabActiva, setTabActiva] = useState<'metricas' | 'productos'>('metricas')
 
     // 3. Guardar el resto de los estados
     setProductosSinMov(sinMovRes.status === 'fulfilled' ? (sinMovRes.value?.productos ?? []) : [])
+    
     setCaja(cajaRes.status === 'fulfilled' ? cajaRes.value : null)
+    
     setTurnos(turnosRes.status === 'fulfilled' && Array.isArray(turnosRes.value) ? turnosRes.value : [])
+    console.log('turnosRes:', turnosRes)
+
     setProductosSinStock(sinStockRes.status === 'fulfilled' && Array.isArray(sinStockRes.value) ? sinStockRes.value : [])
 
   } catch (err) {

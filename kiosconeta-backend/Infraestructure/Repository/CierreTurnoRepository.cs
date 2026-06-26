@@ -111,6 +111,7 @@ namespace Infraestructure.Repository
                 .Include(ct => ct.Turno)
                 .Include(ct => ct.CierreTurnoEmpleados)
                     .ThenInclude(cte => cte.Empleado)
+                .Include(ct => ct.Ventas) // ✅ faltaba esto — sin esto TotalVentas siempre da 0
                 .Where(ct => ct.KioscoId == kioscoId
                           && ct.FechaApertura >= fechaDesde
                           && ct.FechaApertura <= fechaHasta)

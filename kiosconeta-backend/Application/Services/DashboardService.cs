@@ -221,25 +221,119 @@ namespace Application.Services
                 Productos = detalleProductos
             };
         }
+
+        // ═══════════════════════════════════════════════════
+        // DETALLE DE PRODUCTO — FRANJAS HORARIAS
+        // Agregar este método dentro de DashboardService
+        // ═══════════════════════════════════════════════════
+
+        public async Task<ProductoDetalleResponseDTO?> GetDetalleProductoAsync(
+            int kioscoId,
+            int productoId,
+            DateTime fechaDesde,
+            DateTime fechaHasta)
+        {
+            // 1. Validar que el producto pertenece al kiosco
+            var producto = await _productoRepository.GetByIdAsync(productoId, kioscoId);
+            if (producto == null) return null;
+
+            // 2. Traer todas las líneas de venta del producto en el período
+            //    Reutilizamos el mismo repo que ya usás en GetAnalisisProductosAsync
+            var todasLasVentas = await _productoVentaRepository
+                .GetByKioscoYPeriodoAsync(kioscoId, fechaDesde, fechaHasta);
+
+            var ventasProducto = todasLasVentas
+                .Where(pv => pv.ProductoId == productoId && !pv.Venta.Anulada)
+                .ToList();
+
+            var diasAnalizados = Math.Max(1, (int)(fechaHasta - fechaDesde).TotalDays);
+
+            // 3. Distribución por hora (array[24])
+            //    Contamos UNIDADES vendidas por hora, no cantidad de transacciones
+            var distribucionHoraria = new int[24];
+            foreach (var pv in ventasProducto)
+            {
+                var hora = pv.Venta.Fecha.Hour;   // 0–23
+                distribucionHoraria[hora] += pv.Cantidad;
+            }
+
+            // 4. Top 3 franjas horarias
+            var totalUnidades = distribucionHoraria.Sum();
+            var franjasHorarias = distribucionHoraria
+                .Select((cantidad, hora) => new FranjaHorariaDTO
+                {
+                    HoraInicio = hora,
+                    CantidadVentas = cantidad,
+                    Porcentaje = totalUnidades > 0
+                        ? Math.Round((decimal)cantidad / totalUnidades * 100, 1)
+                        : 0
+                })
+                .Where(f => f.CantidadVentas > 0)
+                .OrderByDescending(f => f.CantidadVentas)
+                .Take(3)
+                .ToList();
+
+            // 5. Distribución por día de semana (Lunes → Domingo)
+            var nombresDias = new[]
+            {
+        "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"
+    };
+
+            var porDia = new int[7];
+            foreach (var pv in ventasProducto)
+                porDia[(int)pv.Venta.Fecha.DayOfWeek] += pv.Cantidad;
+
+            var totalDias = porDia.Sum();
+
+            // Ordenamos Lunes–Domingo (DayOfWeek: 0=Dom, 1=Lun, … 6=Sáb)
+            var ordenLunDom = new[] { 1, 2, 3, 4, 5, 6, 0 };
+            var diasSemana = ordenLunDom
+                .Select(i => new DiaSemanaDTO
+                {
+                    Dia = nombresDias[i],
+                    CantidadVentas = porDia[i],
+                    Porcentaje = totalDias > 0
+                        ? Math.Round((decimal)porDia[i] / totalDias * 100, 1)
+                        : 0
+                })
+                .ToList();
+
+            return new ProductoDetalleResponseDTO
+            {
+                ProductoId = producto.ProductoId,
+                Nombre = producto.Nombre,
+                Categoria = producto.Categoria?.Nombre ?? "Sin categoría",
+                DiasAnalizados = diasAnalizados,
+                FranjasHorarias = franjasHorarias,
+                DistribucionHoraria = distribucionHoraria,
+                DiasSemana = diasSemana
+            };
+        }
         // ═══════════════════════════════════════════════════
         // DASHBOARD DIARIO POR TURNOS
         // ═══════════════════════════════════════════════════
 
-        public async Task<DashboardDiarioDTO> GetDashboardDiarioAsync(int kioscoId, DateTime fecha)
+        // Cambiar la firma: DateTime fecha → DateTime fechaDesde, DateTime fechaHasta
+        public async Task<DashboardDiarioDTO> GetDashboardDiarioAsync(int kioscoId, DateTime fechaDesde, DateTime fechaHasta)
         {
-            var inicioDia = fecha.Date;
-            var finDia = inicioDia.AddDays(1);
-
-            // Obtener todos los turnos del día
-            var turnos = await _cierreTurnoRepository.GetPorFechaAsync(kioscoId, inicioDia, finDia);
+            var turnos = await _cierreTurnoRepository.GetPorFechaAsync(kioscoId, fechaDesde, fechaHasta);
             var turnosList = turnos.ToList();
+
+            // ✅ Una sola query para TODOS los gastos del rango, en vez de una por turno
+            var todosLosGastos = await _gastoRepository.GetByFechaAsync(fechaDesde, fechaHasta);
+            var gastosPorTurno = todosLosGastos
+                .Where(g => g.KioscoId == kioscoId && g.CierreTurnoId.HasValue)
+                .GroupBy(g => g.CierreTurnoId!.Value)
+                .ToDictionary(g => g.Key, g => g.ToList());
 
             var resumenTurnos = new List<ResumenTurnoDTO>();
 
             foreach (var turno in turnosList)
             {
                 var ventas = turno.Ventas?.Where(v => !v.Anulada).ToList() ?? new();
-                var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(turno.CierreTurnoId);
+
+                // ✅ Lookup en memoria en vez de query a la DB
+                var gastos = gastosPorTurno.TryGetValue(turno.CierreTurnoId, out var g) ? g : new List<Gasto>();
 
                 var totalVentas = ventas.Sum(v => v.Total);
                 var totalGastos = gastos.Sum(g => g.Monto);
@@ -265,7 +359,7 @@ namespace Application.Services
 
             return new DashboardDiarioDTO
             {
-                Fecha = inicioDia,
+                Fecha = fechaDesde,
                 TotalVentas = resumenTurnos.Sum(t => t.TotalVentas),
                 TotalGastos = resumenTurnos.Sum(t => t.TotalGastos),
                 Ganancia = resumenTurnos.Sum(t => t.Ganancia),

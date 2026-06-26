@@ -36,6 +36,29 @@ namespace KIOSCONETA.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Detalle de un producto: franjas horarias, distribución por hora y día de semana.
+        /// </summary>
+        [HttpPost("kiosco/{kioscoId}/analisis-productos/{productoId}/detalle")]
+        public async Task<IActionResult> GetDetalleProducto(
+            int kioscoId,
+            int productoId,
+            [FromBody] ReporteFiltrosDTO filtros)  // mismo DTO que ya usás para analisis-productos
+        {
+            var resultado = await _dashboardService.GetDetalleProductoAsync(
+                kioscoId,
+                productoId,
+                filtros.FechaDesde,
+                filtros.FechaHasta);
+
+            if (resultado == null)
+                return NotFound($"No se encontró el producto {productoId} en el kiosco {kioscoId}.");
+
+            return Ok(resultado);
+        }
+
+
         /// <summary>
         /// Obtener reporte de ventas
         /// </summary>

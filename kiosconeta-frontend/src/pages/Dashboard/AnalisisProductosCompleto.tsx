@@ -7,6 +7,8 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import apiClient, { handleResponse } from '@/apis/client'
 import { formatCurrency } from '@/utils/formatters'
+import { ProductoDetalleModal } from './ProductoDetalleModal'
+import type { ProductoDetalleData } from './ProductoDetalleModal'
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 
@@ -65,6 +67,7 @@ export const AnalisisProductosCompleto: React.FC<Props> = ({
   ventasFiltradas, productos, productosSinMov, productosSinStock, stockBajo
 }) => {
   const { user } = useAuth()
+const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalleData | null>(null)
 
   const [periodo, setPeriodo]   = useState<Periodo>(30)
   const [data, setData]         = useState<AnalisisResponse | null>(null)
@@ -383,8 +386,11 @@ export const AnalisisProductosCompleto: React.FC<Props> = ({
               </thead>
               <tbody className="divide-y divide-neutral-100">
                 {productosFiltrados.map(p => (
-                  <tr key={p.productoId} className="hover:bg-neutral-50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-neutral-800 sticky left-0 bg-white">{p.nombre}</td>
+                  <tr
+                    key={p.productoId}
+                    className="hover:bg-neutral-50 transition-colors cursor-pointer"
+                    onClick={() => setProductoSeleccionado(p)}
+                  >                    <td className="px-4 py-3 font-medium text-neutral-800 sticky left-0 bg-white">{p.nombre}</td>
                     <td className="px-4 py-3 text-neutral-400">{p.categoria}</td>
                     <td className="px-4 py-3 text-right font-bold text-neutral-800">{p.unidadesVendidas}</td>
                     <td className="px-4 py-3 text-right text-neutral-600">{formatCurrency(p.totalIngresos)}</td>
@@ -434,6 +440,11 @@ export const AnalisisProductosCompleto: React.FC<Props> = ({
           </p>
         </div>
       </div>
+      <ProductoDetalleModal
+  producto={productoSeleccionado}
+  diasAnalizados={periodo}
+  onClose={() => setProductoSeleccionado(null)}
+/>
     </div>
   )
 }
