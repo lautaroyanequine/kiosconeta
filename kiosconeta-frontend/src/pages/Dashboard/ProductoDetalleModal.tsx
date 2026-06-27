@@ -8,6 +8,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import apiClient, { handleResponse } from '@/apis/client'
 import { formatCurrency } from '@/utils/formatters'
 
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip)
+
 // ── Tipos ──────────────────────────────────────────────────────────────────
 
 interface FranjaHoraria {
@@ -97,37 +100,88 @@ const MetricCard: React.FC<{
 )
 
 const DistribucionHorariaBar: React.FC<{ data: number[] }> = ({ data }) => {
-  const max = Math.max(...data, 1)
+  const canvasRef = React.useRef<HTMLCanvasElement>(null)
+  const chartRef  = React.useRef<Chart | null>(null)
+
+  React.useEffect(() => {
+    if (!canvasRef.current) return
+
+    // destruir cualquier instancia previa en el canvas (necesario en StrictMode)
+    const existing = Chart.getChart(canvasRef.current)
+    if (existing) existing.destroy()
+    chartRef.current = null
+
+    const labels = Array.from({ length: 24 }, (_, i) =>
+      i.toString().padStart(2, '0') + ':00'
+    )
+    const max = Math.max(...data, 1)
+    const colors = data.map(v =>
+      v === max        ? '#2a78d6'
+      : v >= max * 0.6 ? '#85B7EB'
+      : '#e1e0d9'
+    )
+
+    chartRef.current = new Chart(canvasRef.current, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ data, backgroundColor: colors, borderRadius: 4, borderSkipped: 'bottom' }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items: { label: string }[]) => {
+                const h = parseInt(items[0].label)
+                return `${items[0].label} – ${String(h + 1).padStart(2, '0')}:00`
+              },
+              label: (item: { raw: unknown }) => `${item.raw} unidades`
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: '#898781',
+              font: { size: 11 },
+              maxRotation: 0,
+              callback: function(_val: unknown, i: number) {
+                return i % 6 === 0 ? labels[i] : ''
+              }
+            },
+            grid: { display: false },
+            border: { color: '#c3c2b7' }
+          },
+          y: {
+            ticks: { color: '#898781', font: { size: 11 } },
+            grid: { color: '#e1e0d9' },
+            border: { display: false },
+            beginAtZero: true
+          }
+        }
+      }
+    })
+
+    return () => {
+      chartRef.current?.destroy()
+      chartRef.current = null
+    }
+  }, [data])
+
   return (
     <div>
       <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">
         Distribución por hora del día
       </p>
-      <div className="flex items-end gap-px h-16">
-        {data.map((v, h) => (
-          <div key={h} className="flex-1 flex flex-col items-center gap-0.5 group relative">
-            <div
-              className="w-full rounded-sm bg-primary/30 group-hover:bg-primary transition-colors"
-              style={{ height: `${(v / max) * 100}%`, minHeight: v > 0 ? 2 : 0 }}
-            />
-            {/* tooltip */}
-            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-neutral-900 text-white text-[10px]
-                            px-1.5 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10">
-              {fmt24(h)}: {v}u
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* eje X cada 6h */}
-      <div className="flex justify-between mt-1">
-        {[0, 6, 12, 18, 23].map(h => (
-          <span key={h} className="text-[10px] text-neutral-300">{fmt24(h)}</span>
-        ))}
+      <div style={{ position: 'relative', height: 160 }}>
+        <canvas ref={canvasRef} role="img" aria-label="Distribución de ventas por hora del día" />
       </div>
     </div>
   )
 }
-
 // ── Skeleton loading ───────────────────────────────────────────────────────
 
 const Skeleton: React.FC<{ className?: string }> = ({ className = '' }) => (
