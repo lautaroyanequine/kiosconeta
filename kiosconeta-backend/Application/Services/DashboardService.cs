@@ -2,6 +2,7 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
+using Domain.Enums;
 using System.Linq;
 
 
@@ -14,19 +15,22 @@ namespace Application.Services
         private readonly IProductoRepository _productoRepository;
         private readonly IProductoVentaRepository _productoVentaRepository;
         private readonly ICierreTurnoRepository _cierreTurnoRepository;
+        private readonly IAuditoriaRepository _auditoriaRepository;
 
         public DashboardService(
             IVentaRepository ventaRepository,
             IGastoRepository gastoRepository,
             IProductoRepository productoRepository,
             IProductoVentaRepository productoVentaRepository,
-            ICierreTurnoRepository cierreTurnoRepository)
+            ICierreTurnoRepository cierreTurnoRepository,
+            IAuditoriaRepository auditoriaRepository)
         {
             _ventaRepository = ventaRepository;
             _gastoRepository = gastoRepository;
             _productoRepository = productoRepository;
             _productoVentaRepository = productoVentaRepository;
             _cierreTurnoRepository = cierreTurnoRepository;
+            _auditoriaRepository = auditoriaRepository;
         }
 
         // ═══════════════════════════════════════════════════
@@ -298,6 +302,20 @@ namespace Application.Services
                 })
                 .ToList();
 
+            var todosLosQuiebres = await _auditoriaRepository.GetByTipoYPeriodoAsync(
+    kioscoId,
+    TipoEventoAuditoria.QuiebreDeStock,
+    fechaDesde,
+    fechaHasta);
+
+            // Filtramos por productoId dentro del DatosJson
+            // El JSON guardado es: {"productoId":5,"productoNombre":"...","ventaId":...}
+            var quiebresProducto = todosLosQuiebres
+                .Where(a =>
+                    a.DatosJson != null &&                                    // ← DatosJson, no Datos
+                    a.DatosJson.Contains($"\"productoId\":{productoId}"))     // match exacto de número
+                .ToList();
+
             return new ProductoDetalleResponseDTO
             {
                 ProductoId = producto.ProductoId,
@@ -306,7 +324,12 @@ namespace Application.Services
                 DiasAnalizados = diasAnalizados,
                 FranjasHorarias = franjasHorarias,
                 DistribucionHoraria = distribucionHoraria,
-                DiasSemana = diasSemana
+                DiasSemana = diasSemana,
+                 CantidadQuiebresStock = quiebresProducto.Count,
+                FechasQuiebresStock = quiebresProducto
+                .Select(a => a.Fecha)
+                .OrderByDescending(f => f)
+                .ToList()
             };
         }
         // ═══════════════════════════════════════════════════

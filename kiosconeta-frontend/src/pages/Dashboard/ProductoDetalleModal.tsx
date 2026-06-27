@@ -42,6 +42,8 @@ export interface ProductoDetalleData {
   costoTotalRecomendado: number
   diasStockRestante: number
   ultimaVenta?: string
+   cantidadQuiebresStock?: number
+  fechasQuiebresStock?: string[] 
   // extras del endpoint de detalle
   franjasHorarias?: FranjaHoraria[]   // top N franjas ordenadas por volumen
   distribucionHoraria?: number[]      // array[24] con cantidad por hora
@@ -431,6 +433,66 @@ const maxFranja = top3[0]?.cantidadVentas ?? 1
           )}
 
         </div>
+
+        {/* ── Quiebres de stock ────────────────────────────────────── */}
+{!loadingDetalle && (
+  <div className="space-y-3">
+    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide flex items-center gap-1.5">
+      <AlertTriangle size={13} className="text-amber-500" />
+      Quiebres de stock en el período
+    </p>
+ 
+    {(d.cantidadQuiebresStock ?? 0) === 0 ? (
+      <div className="flex items-center gap-3 bg-emerald-50 rounded-xl px-4 py-3">
+        <span className="text-emerald-600 text-lg">✓</span>
+        <p className="text-sm text-emerald-700 font-medium">
+          Sin quiebres de stock en este período
+        </p>
+      </div>
+    ) : (
+      <div className="space-y-2">
+        {/* Contador destacado */}
+        <div className="flex items-center gap-3 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
+          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+            <span className="text-lg font-bold text-amber-700">{d.cantidadQuiebresStock}</span>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-amber-800">
+              {d.cantidadQuiebresStock === 1
+                ? '1 vez sin stock'
+                : `${d.cantidadQuiebresStock} veces sin stock`}
+            </p>
+            <p className="text-xs text-amber-600">
+              en los últimos {diasAnalizados} días
+            </p>
+          </div>
+        </div>
+ 
+        {/* Listado de fechas */}
+        {d.fechasQuiebresStock && d.fechasQuiebresStock.length > 0 && (
+          <div className="bg-neutral-50 rounded-xl px-4 py-3 space-y-1.5 max-h-36 overflow-y-auto">
+            {d.fechasQuiebresStock.map((fecha, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                <span className="text-neutral-600">
+                  {new Date(fecha).toLocaleDateString('es-AR', {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+)}
+ 
 
         {/* ── Footer ─────────────────────────────────────────────────── */}
         <div className="px-6 py-3 border-t border-neutral-100 bg-neutral-50 rounded-b-2xl">

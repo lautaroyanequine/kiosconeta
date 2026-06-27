@@ -264,6 +264,33 @@ public class VentaService : IVentaService
 
         var creada = await _ventaRepository.CreateAsync(venta);
 
+        foreach (var productoDto in dto.Productos)
+        {
+            if (!productosDict.TryGetValue(productoDto.ProductoId, out var producto)) continue;
+
+            // Stock ANTES de la venta ya lo tenemos en producto.StockActual
+            // (se leyó al principio antes de llamar a CreateAsync)
+            var stockResultante = producto.StockActual - productoDto.Cantidad;
+
+            if (stockResultante <= 0)
+            {
+                await _auditoriaService.RegistrarAsync(
+                    empleadoId: dto.EmpleadoId,
+                    kioscoId: empleado.KioscoID,
+                    tipoEvento: TipoEventoAuditoria.QuiebreDeStock,
+                    descripcion: $"'{producto.Nombre}' llegó a stock 0 durante la venta #{creada.NumeroVenta}.",
+                    datos: new
+                    {
+                        productoId = producto.ProductoId,   // ← sin espacios, camelCase exacto
+                        productoNombre = producto.Nombre,
+                        ventaId = creada.VentaId
+                    },
+                    esSospechoso: false,
+                    motivoSospecha: null
+                );
+            }
+        }
+
         return MapToResponseDTO(creada);
     }    // ================== ANULAR ==================
 

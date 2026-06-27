@@ -20,6 +20,7 @@
 
         // Productos
         public const string StockAjustado = "STOCK_AJUSTADO";
+        public const string QuiebreDeStock = "QUIEBRE_STOCK";
 
         // Seguridad
         public const string LoginFallido = "LOGIN_FALLIDO";

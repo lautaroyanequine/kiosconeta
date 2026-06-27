@@ -55,5 +55,20 @@ namespace Infrastructure.Repository
 
             return await query.OrderByDescending(a => a.Fecha).ToListAsync();
         }
+
+        public async Task<IEnumerable<AuditoriaLog>> GetByTipoYPeriodoAsync(
+    int kioscoId, string tipoEvento, DateTime fechaDesde, DateTime fechaHasta)
+        {
+            return await _context.AuditoriaLogs
+                .Where(a =>
+                    a.KioscoId == kioscoId &&
+                    a.TipoEvento == tipoEvento &&
+                    a.Fecha >= fechaDesde &&
+                    a.Fecha <= fechaHasta)
+                .OrderByDescending(a => a.Fecha)
+                .ToListAsync();
+        }
+
+
     }
 }
