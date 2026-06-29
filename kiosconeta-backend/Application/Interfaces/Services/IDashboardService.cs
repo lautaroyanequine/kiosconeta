@@ -14,6 +14,8 @@ namespace Application.Interfaces.Services
     int productoId,
     DateTime fechaDesde,
     DateTime fechaHasta);
+        Task<MetricasPeriodoDTO> GetMetricasPeriodoAsync(
+    int kioscoId, DateTime fechaDesde, DateTime fechaHasta);
 
         Task<AnalisisProductosResponseDTO> GetAnalisisProductosAsync(int kioscoId, DateTime fechaDesde, DateTime fechaHasta);
         // Reportes específicos

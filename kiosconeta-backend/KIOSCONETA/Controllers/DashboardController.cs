@@ -78,6 +78,23 @@ namespace KIOSCONETA.Controllers
                 return StatusCode(500, new { message = "Error al generar reporte de ventas", error = ex.Message });
             }
         }
+        [HttpPost("kiosco/{kioscoId}/metricas-periodo")]
+        [RequierePermiso("reportes.dashboard_completo")]
+        public async Task<ActionResult<MetricasPeriodoDTO>> GetMetricasPeriodo(
+    int kioscoId,
+    [FromBody] ReporteFiltrosDTO filtros)
+        {
+            try
+            {
+                var resultado = await _dashboardService.GetMetricasPeriodoAsync(
+                    kioscoId, filtros.FechaDesde, filtros.FechaHasta);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener métricas", error = ex.Message });
+            }
+        }
 
         /// <summary>
         /// Obtener reporte de productos

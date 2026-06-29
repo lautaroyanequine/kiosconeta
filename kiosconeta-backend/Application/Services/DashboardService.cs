@@ -332,6 +332,39 @@ namespace Application.Services
                 .ToList()
             };
         }
+
+        public async Task<MetricasPeriodoDTO> GetMetricasPeriodoAsync(
+    int kioscoId, DateTime fechaDesde, DateTime fechaHasta)
+        {
+            // Ventas del período — misma query que ya usás en GetReporteVentasAsync
+            var ventas = await _ventaRepository.GetByFechaAsync(fechaDesde, fechaHasta);
+            var ventasList = ventas
+                .Where(v => v.Empleado.KioscoID == kioscoId && !v.Anulada)
+                .ToList();
+
+            var totalVendido = ventasList.Sum(v => v.Total);
+            var cantidadVentas = ventasList.Count;
+            var ticketPromedio = cantidadVentas > 0 ? totalVendido / cantidadVentas : 0;
+
+            // Diferencia de caja — solo turnos cerrados del período
+            var turnos = await _cierreTurnoRepository.GetPorFechaAsync(kioscoId, fechaDesde, fechaHasta);
+            var turnosCerrados = turnos
+                .Where(t => t.Estado == EstadoCierre.Cerrado)
+                .ToList();
+
+            var diferenciaCaja = turnosCerrados.Sum(t => t.Diferencia);
+
+            return new MetricasPeriodoDTO
+            {
+                TotalVendido = totalVendido,
+                CantidadVentas = cantidadVentas,
+                TicketPromedio = ticketPromedio,
+                DiferenciaCaja = diferenciaCaja,
+                TurnosCerrados = turnosCerrados.Count
+            };
+        }
+
+
         // ═══════════════════════════════════════════════════
         // DASHBOARD DIARIO POR TURNOS
         // ═══════════════════════════════════════════════════

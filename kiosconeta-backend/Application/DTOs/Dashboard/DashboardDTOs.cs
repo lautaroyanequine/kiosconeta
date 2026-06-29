@@ -46,7 +46,14 @@
         public int DiasOperativos { get; set; }
         public decimal PromedioVentasDiarias { get; set; }
     }
-
+    public class MetricasPeriodoDTO
+    {
+        public decimal TotalVendido { get; set; }
+        public int CantidadVentas { get; set; }
+        public decimal TicketPromedio { get; set; }
+        public decimal DiferenciaCaja { get; set; }
+        public int TurnosCerrados { get; set; }
+    }
     // ─── PRODUCTO MÁS VENDIDO ────────────────────────
     public class ProductoMasVendidoDTO
     {
