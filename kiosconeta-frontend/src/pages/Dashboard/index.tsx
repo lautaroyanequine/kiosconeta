@@ -78,6 +78,8 @@ interface MetricasPeriodo {
   ticketPromedio: number
   diferenciaCaja: number
   turnosCerrados: number
+  totalEfectivo: number  
+  totalVirtual: number    
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -234,19 +236,7 @@ const DashboardPage: React.FC = () => {
     [turnos, desde, hasta]
   )
 
-  const totalEfectivo = useMemo(() =>
-    turnos
-      .filter(t => { const f = new Date(t.fecha); return f >= desde && f <= hasta })
-      .reduce((s, t) => s + Math.max(0, (t.montoReal || 0) - (t.efectivoInicial || 0)), 0),
-    [turnos, desde, hasta]
-  )
-
-  const totalVirtual = useMemo(() =>
-    turnos
-      .filter(t => { const f = new Date(t.fecha); return f >= desde && f <= hasta })
-      .reduce((s, t) => s + (t.virtualFinal || 0), 0),
-    [turnos, desde, hasta]
-  )
+  
 
   // ── Stock bajo ────────────────────────────────────────────────────────────
   const stockBajo = useMemo(
@@ -444,28 +434,43 @@ const DashboardPage: React.FC = () => {
             {/* EFECTIVO VS VIRTUAL + TURNOS HOY */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-white rounded-xl border border-neutral-200 p-5">
-                <SeccionTitulo titulo="Efectivo vs Virtual" icono={<BarChart2 size={16} />} />
-                <div className="space-y-4">
-                  {[
-                    { label: 'Efectivo', valor: totalEfectivo, color: 'bg-primary' },
-                    { label: 'Virtual',  valor: totalVirtual,  color: 'bg-success' },
-                  ].map(item => (
-                    <div key={item.label}>
-                      <div className="flex justify-between text-sm mb-1.5">
-                        <span className="text-neutral-600">{item.label}</span>
-                        <span className="font-semibold">{formatCurrency(item.valor)}</span>
-                      </div>
-                      <div className="h-2.5 bg-neutral-100 rounded-full overflow-hidden">
-                        <div className={`h-full ${item.color} rounded-full transition-all duration-500`}
-                          style={{ width: totalVentasTurnos > 0 ? `${(item.valor / totalVentasTurnos) * 100}%` : '0%' }} />
-                      </div>
-                      <p className="text-xs text-neutral-400 mt-1">
-                        {totalVentasTurnos > 0 ? ((item.valor / totalVentasTurnos) * 100).toFixed(1) : 0}% del total
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+  <SeccionTitulo titulo="Efectivo vs Virtual" icono={<BarChart2 size={16} />} />
+  {loadingMetricas ? (
+    <div className="space-y-4">
+      {[0, 1].map(i => (
+        <div key={i}>
+          <div className="h-4 bg-neutral-100 rounded animate-pulse w-24 mb-2" />
+          <div className="h-2.5 bg-neutral-100 rounded-full animate-pulse" />
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {[
+        { label: 'Efectivo', valor: metricas?.totalEfectivo ?? 0, color: 'bg-primary' },
+        { label: 'Virtual',  valor: metricas?.totalVirtual ?? 0,  color: 'bg-success' },
+      ].map(item => {
+        const total = (metricas?.totalEfectivo ?? 0) + (metricas?.totalVirtual ?? 0)
+        const pct = total > 0 ? (item.valor / total) * 100 : 0
+        return (
+          <div key={item.label}>
+            <div className="flex justify-between text-sm mb-1.5">
+              <span className="text-neutral-600">{item.label}</span>
+              <span className="font-semibold">{formatCurrency(item.valor)}</span>
+            </div>
+            <div className="h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+              <div className={`h-full ${item.color} rounded-full transition-all duration-500`}
+                style={{ width: `${pct}%` }} />
+            </div>
+            <p className="text-xs text-neutral-400 mt-1">
+              {pct.toFixed(1)}% del total
+            </p>
+          </div>
+        )
+      })}
+    </div>
+  )}
+</div>
 
               {/* Turnos de hoy */}
               <div className="bg-white rounded-xl border border-neutral-200 p-5">

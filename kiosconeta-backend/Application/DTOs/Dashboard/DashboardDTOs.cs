@@ -53,6 +53,8 @@
         public decimal TicketPromedio { get; set; }
         public decimal DiferenciaCaja { get; set; }
         public int TurnosCerrados { get; set; }
+        public decimal TotalEfectivo { get; set; }
+        public decimal TotalVirtual { get; set; }
     }
     // ─── PRODUCTO MÁS VENDIDO ────────────────────────
     public class ProductoMasVendidoDTO

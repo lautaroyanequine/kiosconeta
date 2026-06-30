@@ -346,6 +346,17 @@ namespace Application.Services
             var cantidadVentas = ventasList.Count;
             var ticketPromedio = cantidadVentas > 0 ? totalVendido / cantidadVentas : 0;
 
+            // Efectivo vs Virtual — mismo criterio que CierreTurnoService.CerrarTurnoAsync
+            var totalEfectivo = ventasList
+                .Where(v => v.MetodoPago != null &&
+                            v.MetodoPago.Nombre.Trim().ToLower().Contains("efectivo"))
+                .Sum(v => v.Total);
+
+            var totalVirtual = ventasList
+                .Where(v => v.MetodoPago != null &&
+                            !v.MetodoPago.Nombre.Trim().ToLower().Contains("efectivo"))
+                .Sum(v => v.Total);
+
             // Diferencia de caja — solo turnos cerrados del período
             var turnos = await _cierreTurnoRepository.GetPorFechaAsync(kioscoId, fechaDesde, fechaHasta);
             var turnosCerrados = turnos
@@ -360,7 +371,9 @@ namespace Application.Services
                 CantidadVentas = cantidadVentas,
                 TicketPromedio = ticketPromedio,
                 DiferenciaCaja = diferenciaCaja,
-                TurnosCerrados = turnosCerrados.Count
+                TurnosCerrados = turnosCerrados.Count,
+                TotalEfectivo = totalEfectivo,
+                TotalVirtual = totalVirtual
             };
         }
 
