@@ -31,7 +31,11 @@ const toInputDate = (d: Date): string => {
   return `${y}-${m}-${day}`
 }
 
-const primerDiaDelMes = (year: number, month: number) => new Date(year, month, 1)
+const primerDiaDelMes = (year: number, month: number) => {
+  const d = new Date(year, month, 1)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
 const ultimoDiaDelMes = (year: number, month: number) => new Date(year, month + 1, 0)
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -55,17 +59,19 @@ export const GastosAdmin: React.FC = () => {
   const [rangoHasta, setRangoHasta] = useState(toInputDate(hoy))
 
   const { fechaDesde, fechaHasta } = useMemo(() => {
-    if (modoFiltro === 'mes') {
-      return {
-        fechaDesde: primerDiaDelMes(anioSeleccionado, mesSeleccionado),
-        fechaHasta: ultimoDiaDelMes(anioSeleccionado, mesSeleccionado),
-      }
-    }
+  if (modoFiltro === 'mes') {
+    const ultimo = ultimoDiaDelMes(anioSeleccionado, mesSeleccionado)
+    ultimo.setHours(23, 59, 59, 999)   
     return {
-      fechaDesde: new Date(`${rangoDesde}T00:00:00`),
-      fechaHasta: new Date(`${rangoHasta}T23:59:59`),
+      fechaDesde: primerDiaDelMes(anioSeleccionado, mesSeleccionado),
+      fechaHasta: ultimo,
     }
-  }, [modoFiltro, mesSeleccionado, anioSeleccionado, rangoDesde, rangoHasta])
+  }
+  return {
+    fechaDesde: new Date(`${rangoDesde}T00:00:00`),
+    fechaHasta: new Date(`${rangoHasta}T23:59:59`),
+  }
+}, [modoFiltro, mesSeleccionado, anioSeleccionado, rangoDesde, rangoHasta])
 
   // ── Modal nuevo gasto ──────────────────────────────────────────────────────
   const [modalGasto, setModalGasto]                 = useState(false)
