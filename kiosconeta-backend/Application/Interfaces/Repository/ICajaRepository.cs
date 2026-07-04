@@ -23,5 +23,10 @@ namespace Application.Interfaces.Repository
         Task<decimal> GetTotalEgresosManualAsync(int kioscoId);
         Task<int> GetCantidadVentasAsync(int kioscoId);
         Task<decimal> GetGananciaTotalAsync(int kioscoId);
+
+        Task<List<MovimientoExtractoDTO>> GetExtractoAsync(int kioscoId);
+
+
+
     }
 }

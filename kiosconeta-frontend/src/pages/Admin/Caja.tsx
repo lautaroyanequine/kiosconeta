@@ -1,14 +1,15 @@
 // ════════════════════════════════════════════════════════════════════════════
 // COMPONENT: Caja
 // Resumen del estado financiero del negocio.
-// Muestra saldo actual, ventas, gastos y movimientos manuales.
+// Muestra saldo actual, ventas, gastos y el extracto completo de movimientos
+// (cierres de turno, gastos y movimientos manuales).
 // ════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect } from 'react'
 import {
   DollarSign, TrendingUp, TrendingDown, Wallet,
   Plus, Trash2, AlertCircle, X, ChevronDown,
-  RefreshCw, Edit2
+  RefreshCw, Edit2, ReceiptText, ShoppingCart
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import apiClient, { handleResponse, handleError } from '@/apis/client'
@@ -18,7 +19,25 @@ import { formatCurrency } from '@/utils/formatters'
 // TIPOS
 // ────────────────────────────────────────────────────────────────────────────
 
-interface MovimientoCaja {
+type OrigenMovimiento = 'CierreTurno' | 'Gasto' | 'IngresoManual' | 'EgresoManual'
+
+// Item del extracto unificado (lo que devuelve /Caja/kiosco/{id} en "movimientos")
+interface MovimientoExtracto {
+  id: string                        // "cierre-12", "gasto-5", "mov-7"
+  fecha: string
+  fechaFormateada: string
+  descripcion: string
+  monto: number
+  esIngreso: boolean                 // true = suma a la caja, false = resta
+  origen: OrigenMovimiento
+  origenNombre: string
+  empleadoNombre?: string | null
+  puedeEliminar: boolean              // solo movimientos manuales
+  movimientoCajaId?: number | null    // solo presente en manuales
+}
+
+// Respuesta del endpoint de creación de movimiento manual (no viene en formato extracto)
+interface MovimientoCajaCreado {
   movimientoCajaId: number
   fecha: string
   fechaFormateada: string
@@ -40,7 +59,36 @@ interface CajaResumen {
   cantidadVentas: number
   totalIngresosManual: number
   totalEgresosManual: number
-  movimientos: MovimientoCaja[]
+  movimientos: MovimientoExtracto[]
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ────────────────────────────────────────────────────────────────────────────
+
+// Convierte la respuesta de "crear movimiento manual" al shape del extracto,
+// para poder insertarlo de forma optimista en la lista sin recargar todo.
+const mapCreadoAExtracto = (m: MovimientoCajaCreado): MovimientoExtracto => ({
+  id: `mov-${m.movimientoCajaId}`,
+  fecha: m.fecha,
+  fechaFormateada: m.fechaFormateada,
+  descripcion: m.descripcion,
+  monto: m.monto,
+  esIngreso: m.tipo === 1,
+  origen: m.tipo === 1 ? 'IngresoManual' : 'EgresoManual',
+  origenNombre: m.tipoNombre,
+  empleadoNombre: m.empleadoNombre,
+  puedeEliminar: true,
+  movimientoCajaId: m.movimientoCajaId,
+})
+
+const iconoPorOrigen = (origen: OrigenMovimiento) => {
+  switch (origen) {
+    case 'CierreTurno': return <ShoppingCart size={15} />
+    case 'Gasto':        return <ReceiptText size={15} />
+    case 'IngresoManual': return <TrendingUp size={15} />
+    case 'EgresoManual':  return <TrendingDown size={15} />
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -56,9 +104,9 @@ const cajaApi = {
   },
   createMovimiento: async (kioscoId: number, data: {
     descripcion: string; monto: number; tipo: number; empleadoId: number
-  }): Promise<MovimientoCaja> => {
+  }): Promise<MovimientoCajaCreado> => {
     try {
-      const r = await apiClient.post<MovimientoCaja>(
+      const r = await apiClient.post<MovimientoCajaCreado>(
         `/Caja/kiosco/${kioscoId}/movimientos`, data)
       return handleResponse(r)
     } catch (e) { return handleError(e) }
@@ -139,8 +187,11 @@ export const Caja: React.FC = () => {
   const [isSubmittingSaldo, setIsSubmittingSaldo] = useState(false)
   const [errorSaldo, setErrorSaldo]       = useState('')
 
+  // ── Filtro de origen ──────────────────────────────────────────────────────
+  const [filtroOrigen, setFiltroOrigen] = useState<'todos' | OrigenMovimiento>('todos')
+
   // ── Eliminar ──────────────────────────────────────────────────────────────
-  const [eliminando, setEliminando]       = useState<number | null>(null)
+  const [eliminando, setEliminando]       = useState<string | null>(null)
 
   useEffect(() => { cargar() }, [])
 
@@ -165,12 +216,13 @@ export const Caja: React.FC = () => {
     setIsSubmittingMov(true)
     setErrorMov('')
     try {
-      const nuevo = await cajaApi.createMovimiento(user.kioscoId, {
+      const creado = await cajaApi.createMovimiento(user.kioscoId, {
         descripcion: movDescripcion.trim(),
         monto: parseFloat(movMonto),
         tipo: movTipo,
         empleadoId: user.empleadoId,
       })
+      const nuevo = mapCreadoAExtracto(creado)
       setResumen(prev => prev ? {
         ...prev,
         movimientos: [nuevo, ...prev.movimientos],
@@ -197,21 +249,22 @@ export const Caja: React.FC = () => {
     setModalMovimiento(false)
   }
 
-  // ── Eliminar movimiento ───────────────────────────────────────────────────
-  const handleEliminar = async (mov: MovimientoCaja) => {
-    setEliminando(mov.movimientoCajaId)
+  // ── Eliminar movimiento (solo manuales) ───────────────────────────────────
+  const handleEliminar = async (mov: MovimientoExtracto) => {
+    if (!mov.puedeEliminar || !mov.movimientoCajaId) return
+    setEliminando(mov.id)
     try {
       await cajaApi.deleteMovimiento(mov.movimientoCajaId)
       setResumen(prev => prev ? {
         ...prev,
-        movimientos: prev.movimientos.filter(m => m.movimientoCajaId !== mov.movimientoCajaId),
-        saldoActual: mov.tipo === 1
+        movimientos: prev.movimientos.filter(m => m.id !== mov.id),
+        saldoActual: mov.esIngreso
           ? prev.saldoActual - mov.monto
           : prev.saldoActual + mov.monto,
-        totalIngresosManual: mov.tipo === 1
+        totalIngresosManual: mov.esIngreso
           ? prev.totalIngresosManual - mov.monto
           : prev.totalIngresosManual,
-        totalEgresosManual: mov.tipo === 2
+        totalEgresosManual: !mov.esIngreso
           ? prev.totalEgresosManual - mov.monto
           : prev.totalEgresosManual,
       } : prev)
@@ -264,6 +317,18 @@ export const Caja: React.FC = () => {
   }
 
   if (!resumen) return null
+
+  const movimientosFiltrados = filtroOrigen === 'todos'
+    ? resumen.movimientos
+    : resumen.movimientos.filter(m => m.origen === filtroOrigen)
+
+  const filtros: { key: 'todos' | OrigenMovimiento; label: string }[] = [
+    { key: 'todos', label: 'Todos' },
+    { key: 'CierreTurno', label: 'Cierres de turno' },
+    { key: 'Gasto', label: 'Gastos' },
+    { key: 'IngresoManual', label: 'Ingresos manuales' },
+    { key: 'EgresoManual', label: 'Egresos manuales' },
+  ]
 
   return (
     <>
@@ -352,42 +417,56 @@ export const Caja: React.FC = () => {
           </div>
         </div>
 
-        {/* ── MOVIMIENTOS MANUALES ──────────────────────────────────────── */}
+        {/* ── EXTRACTO DE MOVIMIENTOS ──────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100 gap-3">
             <div>
-              <h3 className="text-sm font-bold text-neutral-800">Movimientos manuales</h3>
+              <h3 className="text-sm font-bold text-neutral-800">Movimientos de caja</h3>
               <p className="text-xs text-neutral-400 mt-0.5">
-                Ingresos y egresos registrados fuera del sistema
+                Todo lo que suma y resta: cierres de turno, gastos y movimientos manuales
               </p>
             </div>
             <button
               onClick={() => setModalMovimiento(true)}
               className="flex items-center gap-1.5 text-sm text-primary font-medium
-                         hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors"
+                         hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-colors shrink-0"
             >
               <Plus size={15} />
               Nuevo movimiento
             </button>
           </div>
 
-          {resumen.movimientos.length === 0 ? (
+          {/* Filtros por origen */}
+          <div className="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 overflow-x-auto">
+            {filtros.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFiltroOrigen(f.key)}
+                className={`text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-colors
+                  ${filtroOrigen === f.key
+                    ? 'bg-primary text-white'
+                    : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'}`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {movimientosFiltrados.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-neutral-300">
               <Wallet size={40} className="mb-3 opacity-30" />
               <p className="text-sm text-neutral-400">No hay movimientos registrados</p>
             </div>
           ) : (
             <div className="divide-y divide-neutral-100">
-              {resumen.movimientos.map(mov => (
-                <div key={mov.movimientoCajaId}
+              {movimientosFiltrados.map(mov => (
+                <div key={mov.id}
                   className="flex items-center gap-3 px-5 py-3.5 hover:bg-neutral-50 transition-colors">
 
-                  {/* Icono tipo */}
+                  {/* Icono origen */}
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0
-                    ${mov.tipo === 1 ? 'bg-success-50 text-success-700' : 'bg-danger-50 text-danger'}`}>
-                    {mov.tipo === 1
-                      ? <TrendingUp size={15} />
-                      : <TrendingDown size={15} />}
+                    ${mov.esIngreso ? 'bg-success-50 text-success-700' : 'bg-danger-50 text-danger'}`}>
+                    {iconoPorOrigen(mov.origen)}
                   </div>
 
                   {/* Info */}
@@ -395,31 +474,38 @@ export const Caja: React.FC = () => {
                     <p className="text-sm font-medium text-neutral-800 truncate">{mov.descripcion}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium
-                        ${mov.tipo === 1
+                        ${mov.esIngreso
                           ? 'bg-success-50 text-success-700'
                           : 'bg-danger-50 text-danger'}`}>
-                        {mov.tipoNombre}
+                        {mov.origenNombre}
                       </span>
                       <span className="text-xs text-neutral-400">{mov.fechaFormateada}</span>
+                      {mov.empleadoNombre && (
+                        <span className="text-xs text-neutral-400">· {mov.empleadoNombre}</span>
+                      )}
                     </div>
                   </div>
 
                   {/* Monto */}
                   <span className={`text-sm font-bold shrink-0
-                    ${mov.tipo === 1 ? 'text-success-700' : 'text-danger'}`}>
-                    {mov.tipo === 1 ? '+' : '-'}{formatCurrency(mov.monto)}
+                    ${mov.esIngreso ? 'text-success-700' : 'text-danger'}`}>
+                    {mov.esIngreso ? '+' : '-'}{formatCurrency(mov.monto)}
                   </span>
 
-                  {/* Eliminar */}
-                  <button
-                    onClick={() => handleEliminar(mov)}
-                    disabled={eliminando === mov.movimientoCajaId}
-                    className="text-neutral-300 hover:text-danger transition-colors ml-1 shrink-0"
-                  >
-                    {eliminando === mov.movimientoCajaId
-                      ? <div className="w-4 h-4 border-2 border-danger/40 border-t-danger rounded-full animate-spin" />
-                      : <Trash2 size={15} />}
-                  </button>
+                  {/* Eliminar (solo movimientos manuales) */}
+                  {mov.puedeEliminar ? (
+                    <button
+                      onClick={() => handleEliminar(mov)}
+                      disabled={eliminando === mov.id}
+                      className="text-neutral-300 hover:text-danger transition-colors ml-1 shrink-0"
+                    >
+                      {eliminando === mov.id
+                        ? <div className="w-4 h-4 border-2 border-danger/40 border-t-danger rounded-full animate-spin" />
+                        : <Trash2 size={15} />}
+                    </button>
+                  ) : (
+                    <div className="w-[15px] shrink-0" /> // mantiene la alineación de la columna
+                  )}
                 </div>
               ))}
             </div>

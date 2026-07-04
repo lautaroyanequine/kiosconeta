@@ -29,24 +29,15 @@ namespace Application.Services
             var ventasEfectivo = await _cajaRepository.GetTotalVentasEfectivoAsync(kioscoId);
             var ventasVirtual = await _cajaRepository.GetTotalVentasVirtualAsync(kioscoId);
             var gastos = await _cajaRepository.GetTotalGastosAsync(kioscoId);
-
-            // Obtenemos los totales manuales
             var ingresosManuales = await _cajaRepository.GetTotalIngresosManualAsync(kioscoId);
             var egresosManuales = await _cajaRepository.GetTotalEgresosManualAsync(kioscoId);
-
             var cantidadVentas = await _cajaRepository.GetCantidadVentasAsync(kioscoId);
             var gananciaTotal = await _cajaRepository.GetGananciaTotalAsync(kioscoId);
-            var movimientos = await _cajaRepository.GetMovimientosByKioscoAsync(kioscoId);
+
+            var extracto = await _cajaRepository.GetExtractoAsync(kioscoId); // ← nuevo
 
             var saldoInicial = saldo?.SaldoInicial ?? 0;
-
-            // FÓRMULA INTEGRAL:
-            var saldoActual = saldoInicial
-                + ventasEfectivo   // Estos son los totales de los cierres
-                + ventasVirtual
-                - gastos           // Gastos admin
-                + ingresosManuales
-                - egresosManuales;
+            var saldoActual = saldoInicial + ventasEfectivo + ventasVirtual - gastos + ingresosManuales - egresosManuales;
 
             return new CajaResumenDTO
             {
@@ -60,10 +51,9 @@ namespace Application.Services
                 CantidadVentas = cantidadVentas,
                 TotalIngresosManual = ingresosManuales,
                 TotalEgresosManual = egresosManuales,
-                Movimientos = movimientos.Select(MapMovimientoToDTO).ToList()
+                Movimientos = extracto // ← ahora es el extracto completo
             };
-        }
-
+        } 
         // ═══════════════════════════════════════════════════
         // MOVIMIENTOS
         // ═══════════════════════════════════════════════════

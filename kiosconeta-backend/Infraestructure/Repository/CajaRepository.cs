@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Repository;
+﻿using Application.DTOs.Caja;
+using Application.Interfaces.Repository;
 using Domain.Entities;
 using Domain.Enums;
 using Infraestructure.Persistence;
@@ -155,5 +156,68 @@ namespace Infraestructure.Repository
                 )
                 .SumAsync(pv => (decimal?)((pv.PrecioUnitario - pv.Producto.PrecioCosto) * pv.Cantidad)) ?? 0;
         }
+
+        public async Task<List<MovimientoExtractoDTO>> GetExtractoAsync(int kioscoId)
+        {
+            var extracto = new List<MovimientoExtractoDTO>();
+
+            // ── Cierres de turno cerrados → suman a la caja ──────────────────────
+            var cierres = await _context.CierresTurno
+                .Where(c => c.KioscoId == kioscoId && c.Estado == EstadoCierre.Cerrado)
+                .ToListAsync();
+
+            extracto.AddRange(cierres.Select(c => new MovimientoExtractoDTO
+            {
+                Id = $"cierre-{c.CierreTurnoId}",
+                Fecha = c.FechaCierre ?? c.FechaApertura,
+                Descripcion = $"Cierre de turno #{c.CierreTurnoId} ({c.CantidadVentas} ventas)",
+                Monto = c.MontoReal,
+                EsIngreso = true,
+                Origen = OrigenMovimiento.CierreTurno,
+                PuedeEliminar = false
+            }));
+
+            // ── Gastos administrativos → restan de la caja ───────────────────────
+            var gastos = await _context.Gastos
+                .Include(g => g.Empleado)
+                .Where(g => g.KioscoId == kioscoId && g.CierreTurnoId == null)
+                .ToListAsync();
+
+            extracto.AddRange(gastos.Select(g => new MovimientoExtractoDTO
+            {
+                Id = $"gasto-{g.GastoId}",
+                Fecha = g.Fecha,
+                Descripcion = !string.IsNullOrWhiteSpace(g.Nombre) ? g.Nombre : g.Descripcion,
+                Monto = g.Monto,
+                EsIngreso = false,
+                Origen = OrigenMovimiento.Gasto,
+                EmpleadoNombre = g.Empleado?.Nombre,
+                PuedeEliminar = false
+            }));
+
+            // ── Movimientos manuales (ya existentes) ─────────────────────────────
+            var movimientos = await _context.MovimientosCaja
+                .Include(m => m.Empleado)
+                .Where(m => m.KioscoId == kioscoId)
+                .ToListAsync();
+
+            extracto.AddRange(movimientos.Select(m => new MovimientoExtractoDTO
+            {
+                Id = $"mov-{m.MovimientoCajaId}",
+                Fecha = m.Fecha,
+                Descripcion = m.Descripcion,
+                Monto = m.Monto,
+                EsIngreso = m.Tipo == TipoMovimiento.Ingreso,
+                Origen = m.Tipo == TipoMovimiento.Ingreso
+                    ? OrigenMovimiento.IngresoManual
+                    : OrigenMovimiento.EgresoManual,
+                EmpleadoNombre = m.Empleado?.Nombre,
+                PuedeEliminar = true,
+                MovimientoCajaId = m.MovimientoCajaId
+            }));
+
+            return extracto.OrderByDescending(m => m.Fecha).ToList();
+        }
+
     }
 }
