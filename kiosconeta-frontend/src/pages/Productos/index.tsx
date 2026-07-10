@@ -119,6 +119,37 @@ const ProductosPage: React.FC = () => {
     recargar,
   } = useProductos();
 
+  // ── Acciones (compartidas entre tabla desktop y tarjetas mobile) ────────
+  const AccionesProducto: React.FC<{ p: Producto }> = ({ p }) => (
+    <div className="flex items-center justify-end gap-1">
+      <button
+        onClick={() => abrirModalEditar(p)}
+        title="Editar"
+        className="p-1.5 rounded-lg text-neutral-400 hover:text-primary hover:bg-primary/10 transition-colors"
+      >
+        <Pencil size={15} />
+      </button>
+      <button
+        onClick={() => toggleActivo(p)}
+        title={p.activo ? 'Desactivar' : 'Activar'}
+        className={`p-1.5 rounded-lg transition-colors ${
+          p.activo
+            ? 'text-green-500 hover:text-green-700 hover:bg-green-50'
+            : 'text-neutral-300 hover:text-green-500 hover:bg-green-50'
+        }`}
+      >
+        {p.activo ? <ToggleRight size={17} /> : <ToggleLeft size={17} />}
+      </button>
+      <button
+        onClick={() => confirmarEliminar(p)}
+        title="Eliminar"
+        className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+      >
+        <Trash2 size={15} />
+      </button>
+    </div>
+  );
+
   // ── Columnas de la tabla ─────────────────────────────────────────────
 
   const columnas = [
@@ -212,35 +243,7 @@ const ProductosPage: React.FC = () => {
       key: 'acciones',
       header: '',
       align: 'right' as const,
-      render: (p: Producto) => (
-        <div className="flex items-center justify-end gap-1">
-          <button
-            onClick={() => abrirModalEditar(p)}
-            title="Editar"
-            className="p-1.5 rounded-lg text-neutral-400 hover:text-primary hover:bg-primary/10 transition-colors"
-          >
-            <Pencil size={15} />
-          </button>
-          <button
-            onClick={() => toggleActivo(p)}
-            title={p.activo ? 'Desactivar' : 'Activar'}
-            className={`p-1.5 rounded-lg transition-colors ${
-              p.activo
-                ? 'text-green-500 hover:text-green-700 hover:bg-green-50'
-                : 'text-neutral-300 hover:text-green-500 hover:bg-green-50'
-            }`}
-          >
-            {p.activo ? <ToggleRight size={17} /> : <ToggleLeft size={17} />}
-          </button>
-          <button
-            onClick={() => confirmarEliminar(p)}
-            title="Eliminar"
-            className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-          >
-            <Trash2 size={15} />
-          </button>
-        </div>
-      ),
+      render: (p: Producto) => <AccionesProducto p={p} />,
     },
   ];
 
@@ -252,12 +255,12 @@ const ProductosPage: React.FC = () => {
 
   return (
     <>
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
 
         {/* ── HEADER ──────────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-neutral-900">Productos</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Productos</h1>
             <p className="text-sm text-neutral-500 mt-0.5">
               Gestioná tu catálogo, precios, stock y promociones
             </p>
@@ -265,12 +268,13 @@ const ProductosPage: React.FC = () => {
 
           {/* Botones contextuales según tab */}
           {tabActiva === 'productos' && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="ghost"
                 size="sm"
                 leftIcon={<RefreshCw size={15} />}
                 onClick={recargar}
+                className="flex-1 sm:flex-none justify-center"
               >
                 Actualizar
               </Button>
@@ -278,6 +282,7 @@ const ProductosPage: React.FC = () => {
                 variant="outline"
                 leftIcon={<PackagePlus size={16} />}
                 onClick={() => setModalIngreso(true)}
+                className="flex-1 sm:flex-none justify-center"
               >
                 Agregar stock
               </Button>
@@ -285,19 +290,17 @@ const ProductosPage: React.FC = () => {
                 variant="primary"
                 leftIcon={<Plus size={16} />}
                 onClick={abrirModalCrear}
+                className="flex-1 sm:flex-none justify-center"
               >
                 Nuevo producto
               </Button>
             </div>
           )}
-          
-          {/* 3. OPCIONAL: Botones específicos si estás en la pestaña de Distribuidores */}
-         
         </div>
 
         {/* ── TABS ────────────────────────────────────────────────────── */}
-        <div className="border-b border-neutral-200 -mb-2">
-          <div className="flex gap-0">
+        <div className="border-b border-neutral-200 -mb-2 overflow-x-auto">
+          <div className="flex gap-0 min-w-max">
             <button
               onClick={() => setTabActiva('productos')}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
@@ -388,8 +391,8 @@ const ProductosPage: React.FC = () => {
 
             {/* Filtros */}
             <div className="bg-white rounded-xl border border-neutral-200 p-4">
-              <div className="flex flex-wrap gap-3 items-end">
-                <div className="flex-1 min-w-[200px]">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+                <div className="w-full sm:flex-1 sm:min-w-[200px]">
                   <Input
                     placeholder="Buscar por nombre o código de barras..."
                     value={filtros.busqueda}
@@ -400,7 +403,7 @@ const ProductosPage: React.FC = () => {
                   />
                 </div>
 
-                <div className="w-48">
+                <div className="w-full sm:w-48">
                   <select
                     className="px-3 py-2 border border-neutral-300 rounded-md w-full text-sm
                       focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20
@@ -422,12 +425,12 @@ const ProductosPage: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto">
                   <button
                     onClick={() =>
                       setFiltros((prev) => ({ ...prev, soloStockBajo: !prev.soloStockBajo }))
                     }
-                    className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                    className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-sm font-medium border transition-all whitespace-nowrap ${
                       filtros.soloStockBajo
                         ? 'bg-amber-50 border-amber-400 text-amber-700'
                         : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-400'
@@ -439,7 +442,7 @@ const ProductosPage: React.FC = () => {
                     onClick={() =>
                       setFiltros((prev) => ({ ...prev, soloActivos: !prev.soloActivos }))
                     }
-                    className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                    className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-sm font-medium border transition-all whitespace-nowrap ${
                       filtros.soloActivos
                         ? 'bg-primary/10 border-primary text-primary'
                         : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-400'
@@ -455,8 +458,8 @@ const ProductosPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Tabla */}
-            <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+            {/* Tabla — solo desktop (md+) */}
+            <div className="hidden md:block bg-white rounded-xl border border-neutral-200 overflow-hidden">
               <Table
                 columns={columnas}
                 data={productos}
@@ -476,6 +479,81 @@ const ProductosPage: React.FC = () => {
     — Todos los productos cargados —
   </div>
 )} */ }
+            </div>
+
+            {/* Tarjetas — solo mobile/tablet (< md) */}
+            <div className="md:hidden bg-white rounded-xl border border-neutral-200 overflow-hidden">
+              {productos.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center text-neutral-300">
+                  <PackageSearch size={40} className="mb-3 opacity-30" />
+                  <p className="text-sm text-neutral-400">
+                    No se encontraron productos con los filtros seleccionados
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-neutral-100">
+                  {productos.map((p) => (
+                    <div key={p.productoId} className="p-4 space-y-3">
+                      {/* Nombre + estado */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-medium text-neutral-900 truncate">{p.nombre}</p>
+                          {p.codigoBarra && (
+                            <p className="text-xs text-neutral-400 font-mono truncate">
+                              {p.codigoBarra}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant={p.activo ? 'success' : 'danger'} className="shrink-0">
+                          {p.activo ? 'Activo' : 'Inactivo'}
+                        </Badge>
+                      </div>
+
+                      {/* Categoría / distribuidor / vencimiento */}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500">
+                        <span>
+                          {p.categoriaNombre ||
+                            categorias.find((c) => c.categoriaID === p.categoriaId)?.nombre ||
+                            '—'}
+                        </span>
+                        {p.distribuidorNombre && (
+                          <span className="flex items-center gap-1">
+                            <Truck size={11} className="text-neutral-400" />
+                            {p.distribuidorNombre}
+                          </span>
+                        )}
+                        {p.fechaVencimiento && (
+                          <span>Vence: {formatDate(p.fechaVencimiento)}</span>
+                        )}
+                      </div>
+
+                      {/* Precios + stock */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-lg font-bold text-neutral-900">
+                            {formatCurrency(p.precioVenta)}
+                          </span>
+                          <span className="text-xs text-neutral-400">
+                            costo {formatCurrency(p.precioCosto)}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setModalStock(p)}
+                          title="Ajustar stock"
+                          className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
+                        >
+                          <StockBadge stock={p.stockActual} stockMinimo={p.stockMinimo} />
+                        </button>
+                      </div>
+
+                      {/* Acciones */}
+                      <div className="flex items-center justify-end pt-1 border-t border-neutral-50 -mb-1">
+                        <AccionesProducto p={p} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </>
         )}

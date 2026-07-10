@@ -152,15 +152,15 @@ export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
 
         {productoSeleccionado ? (
           <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/30 rounded-lg">
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-neutral-900">{productoSeleccionado.nombre}</p>
-              <p className="text-xs text-neutral-500">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-neutral-900 truncate">{productoSeleccionado.nombre}</p>
+              <p className="text-xs text-neutral-500 truncate">
                 Stock: <strong>{productoSeleccionado.stockActual}</strong>
                 {' · '}Costo anterior: <strong>{formatCurrency(productoSeleccionado.precioCosto)}</strong>
                 {productoSeleccionado.codigoBarra && ` · ${productoSeleccionado.codigoBarra}`}
               </p>
             </div>
-            <button onClick={limpiarSeleccion} className="p-1 rounded-full text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors">
+            <button onClick={limpiarSeleccion} className="shrink-0 p-1 rounded-full text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors">
               <X size={16} />
             </button>
           </div>
@@ -179,16 +179,16 @@ export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
                   <button
                     key={p.productoId}
                     onClick={() => seleccionar(p)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-neutral-50 transition-colors text-left border-b border-neutral-100 last:border-0"
+                    className="w-full flex items-center justify-between gap-2 px-4 py-2.5 hover:bg-neutral-50 transition-colors text-left border-b border-neutral-100 last:border-0"
                   >
-                    <div>
-                      <p className="text-sm font-medium text-neutral-800">{p.nombre}</p>
-                      <p className="text-xs text-neutral-400">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-neutral-800 truncate">{p.nombre}</p>
+                      <p className="text-xs text-neutral-400 truncate">
                         Stock: {p.stockActual} · Costo: {formatCurrency(p.precioCosto)}
                         {p.codigoBarra && ` · ${p.codigoBarra}`}
                       </p>
                     </div>
-                    <span className="text-sm font-semibold text-neutral-700 ml-3">{formatCurrency(p.precioVenta)}</span>
+                    <span className="text-sm font-semibold text-neutral-700 shrink-0">{formatCurrency(p.precioVenta)}</span>
                   </button>
                 ))}
               </div>
@@ -206,7 +206,7 @@ export const IngresoMercaderiaModal: React.FC<IngresoMercaderiaModalProps> = ({
       {productoSeleccionado && (
         <>
           {/* Cantidad + Stock resultante */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div className="input-group w-full">
               <label className="input-label mb-1 block">
                 Cantidad ingresada <span className="text-danger">*</span>

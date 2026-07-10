@@ -65,13 +65,14 @@ export const Modal = ({
   // Si no está abierto, no renderizar nada
   if (!isOpen) return null;
 
-  // Clases por tamaño
+  // Clases por tamaño (el ancho real siempre se limita al viewport gracias
+  // al padding del overlay + w-full de abajo; max-w solo pone el techo)
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-lg',
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
-    full: 'max-w-full mx-4',
+    full: 'max-w-full',
   };
 
   // Manejar click en overlay
@@ -83,29 +84,30 @@ export const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center modal-overlay"
+      className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-3 sm:p-4"
       onClick={handleOverlayClick}
     >
       {/* Modal content */}
       <div
         className={classNames(
           'modal-content',
+          'w-full',
           sizeClasses[size],
           'max-h-[90vh] overflow-y-auto'
         )}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between gap-3 mb-4">
             {title && (
-              <h2 className="text-xl font-semibold text-neutral-900">
+              <h2 className="text-lg sm:text-xl font-semibold text-neutral-900 truncate">
                 {title}
               </h2>
             )}
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="text-neutral-400 hover:text-neutral-600 transition-colors"
+                className="shrink-0 text-neutral-400 hover:text-neutral-600 transition-colors"
                 aria-label="Cerrar"
               >
                 <X size={24} />
@@ -119,7 +121,7 @@ export const Modal = ({
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-2 pt-4 border-t border-neutral-200">
+          <div className="flex flex-wrap items-center justify-end gap-2 pt-4 border-t border-neutral-200">
             {footer}
           </div>
         )}
