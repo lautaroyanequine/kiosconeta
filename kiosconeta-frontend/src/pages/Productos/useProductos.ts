@@ -5,7 +5,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { productosApi, categoriasApi } from '@/apis';
 import { useAuth } from '@/contexts/AuthContext';
-import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO ,Distribuidor} from '@/types';
+import { tagsApi } from '@/apis/promocionesApi'; 
+import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO ,Distribuidor , Tag} from '@/types';
 import { distribuidoresApi } from '@/apis/distribuidoresApi';
 // ────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -31,8 +32,17 @@ export const useProductos = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [distribuidores, setDistribuidores] = useState<Distribuidor[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);  
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const agregarTagLocal = (tag: Tag) => {
+    setTags(prev => [...prev, tag]);
+  };
+
+  const eliminarTagLocal = (tagId: number) => {
+    setTags(prev => prev.filter(t => t.tagId !== tagId));
+  };
 
   // ── Estado: filtros ────────────────────────────────────────────────────
   const [filtros, setFiltros] = useState<FiltrosState>({
@@ -63,26 +73,27 @@ export const useProductos = () => {
   // ────────────────────────────────────────────────────────────────────────
 
   const cargarDatos = useCallback(async () => {
-    if (!user?.kioscoId) return;
-    setIsLoading(true);
-    setError(null);
+  if (!user?.kioscoId) return;
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      const [prods, cats,dists] = await Promise.all([
-        productosApi.getByKiosco(user.kioscoId), 
-        categoriasApi.getByKiosco(user.kioscoId),
-        distribuidoresApi.getByKiosco(user.kioscoId),
-      ]);
-      setProductos(prods);
-      setCategorias(cats);
-      setDistribuidores(dists);
-    } catch (err: any) {
-      setError(err.message || 'Error al cargar los productos');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user?.kioscoId]);
-
+  try {
+    const [prods, cats, dists, tgs] = await Promise.all([   // ← agregar tgs
+      productosApi.getByKiosco(user.kioscoId),
+      categoriasApi.getByKiosco(user.kioscoId),
+      distribuidoresApi.getByKiosco(user.kioscoId),
+      tagsApi.getByKiosco(user.kioscoId),   // ← agregar
+    ]);
+    setProductos(prods);
+    setCategorias(cats);
+    setDistribuidores(dists);
+    setTags(tgs);   // ← agregar
+  } catch (err: any) {
+    setError(err.message || 'Error al cargar los productos');
+  } finally {
+    setIsLoading(false);
+  }
+}, [user?.kioscoId]);
   useEffect(() => {
     cargarDatos();
   }, [cargarDatos]);
@@ -298,6 +309,9 @@ export const useProductos = () => {
     productos: productosFiltrados,
     categorias,
     distribuidores,
+    tags,
+    agregarTagLocal,
+eliminarTagLocal,
     stats,
     isLoading,
     error,

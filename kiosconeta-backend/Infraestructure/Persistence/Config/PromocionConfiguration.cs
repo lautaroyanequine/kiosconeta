@@ -33,6 +33,12 @@ namespace Infraestructure.Persistence.Config
                 .WithMany()
                 .HasForeignKey(p => p.CategoriaIdPorcentaje)
                 .OnDelete(DeleteBehavior.NoAction);
+            builder
+               .HasOne(p => p.TagPorcentaje)
+               .WithMany()
+               .HasForeignKey(p => p.TagIdPorcentaje)
+               .OnDelete(DeleteBehavior.SetNull);
+
         }
     }
 

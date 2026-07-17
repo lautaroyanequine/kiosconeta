@@ -32,6 +32,7 @@ public class PromocionService : IPromocionService
             FechaDesde = dto.FechaDesde,
             FechaHasta = dto.FechaHasta,
             KioscoId = kioscoId,
+            TagIdPorcentaje = dto.TagIdPorcentaje,
             PrecioCombo = dto.PrecioCombo,
             CantidadRequerida = dto.CantidadRequerida,
             CantidadPaga = dto.CantidadPaga,
@@ -59,6 +60,7 @@ public class PromocionService : IPromocionService
         promoExistente.Nombre = dto.Nombre.Trim();
         promoExistente.Descripcion = dto.Descripcion;
         promoExistente.Tipo = dto.Tipo;
+        promoExistente.TagIdPorcentaje = dto.TagIdPorcentaje;
         promoExistente.FechaDesde = dto.FechaDesde;
         promoExistente.FechaHasta = dto.FechaHasta;
         promoExistente.PrecioCombo = dto.PrecioCombo;
@@ -231,6 +233,15 @@ public class PromocionService : IPromocionService
                 .Sum(c => c.PrecioUnitario * c.Cantidad);
             if (baseDescuento == 0) return null;
         }
+        else if (promo.TagIdPorcentaje != null)
+        {
+            var productosTag = await _productoRepo.GetByTagAsync(promo.TagIdPorcentaje.Value);
+            var idsTag = productosTag.Select(p => p.ProductoId).ToHashSet();
+            baseDescuento = carrito
+                .Where(c => idsTag.Contains(c.ProductoId))
+                .Sum(c => c.PrecioUnitario * c.Cantidad);
+            if (baseDescuento == 0) return null;
+        }
 
         if (baseDescuento == 0) return null;
 
@@ -292,6 +303,8 @@ public class PromocionService : IPromocionService
         CategoriaIdPorcentaje = p.CategoriaIdPorcentaje,
         CategoriaNombrePorcentaje = p.CategoriaPorcentaje?.Nombre,
         CantidadMinimaDescuento = p.CantidadMinimaDescuento,   // ← NUEVO
+        TagIdPorcentaje = p.TagIdPorcentaje,
+        TagNombrePorcentaje = p.TagPorcentaje?.Nombre,
         Productos = p.PromocionProductos.Select(pp => new PromocionProductoDTO
         {
             ProductoId = pp.ProductoId,

@@ -12,6 +12,9 @@ namespace Application.Interfaces.Repository
         // Queries - Consultas
         Task<Producto?> GetByIdAsync(int id,int kioscoId);
         Task<IEnumerable<Producto>> GetAllAsync();
+        Task<IEnumerable<Producto>> GetByTagAsync(int tagId);
+        Task AsignarTagsAsync(int productoId, List<int> tagIds);
+
         Task<(IEnumerable<Producto> Items, int Total)> GetByKioscoIdPaginadoAsync(
     int kioscoId,
     int pagina,

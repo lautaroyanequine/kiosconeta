@@ -33,11 +33,16 @@ namespace Domain.Entities
         public int? CategoriaIdPorcentaje { get; set; }
         public Categoria? CategoriaPorcentaje { get; set; }
 
+        public int? TagIdPorcentaje { get; set; }
+        public Tag? TagPorcentaje { get; set; }
+
+
         // Para Porcentaje con cantidad mínima (precio por volumen)
         // Si CantidadMinimaDescuento != null: el descuento solo aplica
         // cuando el cliente lleva >= CantidadMinimaDescuento unidades.
         public int? CantidadMinimaDescuento { get; set; }
 
+    
         // Productos del combo
         public IList<PromocionProducto> PromocionProductos { get; set; } = new List<PromocionProducto>();
     }

@@ -19,6 +19,7 @@ import {
   Truck,
   Tag,
 } from 'lucide-react';
+import { TagsTab } from './TagsTab';
 import { Button, Input, Badge, Table, Modal, LoadingOverlay } from '@/components/commons';
 import { formatCurrency, formatDate, getStockStatus } from '@/utils/formatters';
 import { ProductoModal } from './ProductoModal';
@@ -35,7 +36,7 @@ import type { Distribuidor } from '@/types';
 // TIPOS
 // ────────────────────────────────────────────────────────────────────────────
 
-type Tab = 'productos' | 'promociones' | 'distribuidores'; // 2. AGREGAR EL TIPO DE TAB
+type Tab = 'productos' | 'promociones' | 'distribuidores' | 'tags';
 
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS UI
@@ -88,6 +89,9 @@ const ProductosPage: React.FC = () => {
     productos,
     categorias,
     distribuidores,
+    tags,
+  agregarTagLocal,
+  eliminarTagLocal,
     stats,
     isLoading,
     //cargandoMas,   
@@ -347,6 +351,26 @@ const ProductosPage: React.FC = () => {
                 {distribuidores.length}
               </span>
             </button>
+
+
+            <button
+      onClick={() => setTabActiva('tags')}
+      className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
+        tabActiva === 'tags'
+          ? 'border-primary text-primary'
+          : 'border-transparent text-neutral-500 hover:text-neutral-700'
+      }`}
+    >
+      <Tag size={15} />
+      Tags
+      <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+        tabActiva === 'tags' ? 'bg-primary/10 text-primary' : 'bg-neutral-100 text-neutral-500'
+      }`}>
+        {tags.length}
+      </span>
+    </button>
+
+    
           </div>
         </div>
 
@@ -560,12 +584,17 @@ const ProductosPage: React.FC = () => {
 
         {/* ── TAB: PROMOCIONES ────────────────────────────────────────── */}
         {tabActiva === 'promociones' && (
-          <PromocionesTab productos={productos} />
+          <PromocionesTab productos={productos} tags={tags}/>
         )}
 
         {/* ── 5. TAB: DISTRIBUIDORES ───────────────────────────────────── */}
         {tabActiva === 'distribuidores' && (
           <DistribuidoresTab />)}
+
+          {tabActiva === 'tags' && (
+  <TagsTab tags={tags} onCreated={agregarTagLocal} onDeleted={eliminarTagLocal} />
+)}
+          
 
       </div>
 
@@ -576,6 +605,7 @@ const ProductosPage: React.FC = () => {
         producto={productoSeleccionado}
         categorias={categorias}
         distribuidores={distribuidores} 
+        tags={tags}
         isSaving={isSaving}
         saveError={saveError}
         onClose={cerrarModal}

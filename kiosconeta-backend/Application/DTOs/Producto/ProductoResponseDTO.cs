@@ -1,4 +1,6 @@
-﻿namespace Application.DTOs.Producto
+﻿using Application.DTOs.Tag;
+
+namespace Application.DTOs.Producto
 {
     /// <summary>
     /// DTO de respuesta con información completa del producto
@@ -9,6 +11,7 @@
         public string Nombre { get; set; }
         public decimal PrecioCosto { get; set; }
         public decimal PrecioVenta { get; set; }
+        public List<TagResponseDTO> Tags { get; set; } = new();
         public decimal MargenGanancia { get; set; } // Calculado: PrecioVenta - PrecioCosto
         public int CategoriaId { get; set; }
         public string CategoriaNombre { get; set; }

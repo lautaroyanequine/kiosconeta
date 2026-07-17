@@ -18,7 +18,7 @@ import type {
   CreatePromocionDTO,
   TipoPromocion,
 } from '@/apis/promocionesApi';
-import type { Producto } from '@/types';
+import type { Producto, Tag as TagType} from '@/types';
 
 // ────────────────────────────────────────────────────────────────────────────
 // TIPOS LOCALES
@@ -27,6 +27,7 @@ import type { Producto } from '@/types';
 interface PromocionesTabProps {
   /** Lista de productos del kiosco, para los selects del formulario */
   productos: Producto[];
+  tags: TagType[]; 
 }
 
 type FormState = {
@@ -35,6 +36,7 @@ type FormState = {
   tipo: TipoPromocion;
   fechaDesde: string;
   fechaHasta: string;
+  tagIdPorcentaje: number | '';
   // Combo
   precioCombo: string;
   productosCombo: { productoId: number; cantidad: number }[];
@@ -55,7 +57,9 @@ const FORM_INICIAL: FormState = {
   descripcion: '',
   tipo: 1,
   fechaDesde: '',
+  
   fechaHasta: '',
+  tagIdPorcentaje: '',
   precioCombo: '',
   productosCombo: [],
   cantidadRequerida: '',
@@ -74,6 +78,7 @@ const promoToForm = (p: PromocionResponseDTO): FormState => ({
   nombre: p.nombre ?? '',
   descripcion: p.descripcion ?? '',
   tipo: p.tipo,
+  tagIdPorcentaje: p.tagIdPorcentaje ?? '',
   fechaDesde: p.fechaDesde ? p.fechaDesde.slice(0, 10) : '',
   fechaHasta: p.fechaHasta ? p.fechaHasta.slice(0, 10) : '',
   precioCombo: p.precioCombo != null ? String(p.precioCombo) : '',
@@ -118,9 +123,10 @@ const PromocionForm: React.FC<{
   isSaving: boolean;
   saveError: string;
   productos: Producto[];
+  tags: TagType[];
   /** Si viene seteada, el modal abre en modo edición precargado con estos datos */
   promoAEditar?: PromocionResponseDTO | null;
-}> = ({ isOpen, onClose, onSave, isSaving, saveError, productos, promoAEditar }) => {
+}> = ({ isOpen, onClose, onSave, isSaving, saveError, productos,tags, promoAEditar }) => {
 
   const [form, setForm] = useState<FormState>(FORM_INICIAL);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'combo', string>>>({});
@@ -189,8 +195,8 @@ const PromocionForm: React.FC<{
     }
 
     if (form.tipo === 3) {
-  if (!form.productoIdPorcentaje && !form.categoriaIdPorcentaje)
-    e.productoIdPorcentaje = 'Seleccioná un producto o categoría';
+  if (!form.productoIdPorcentaje && !form.categoriaIdPorcentaje && !form.tagIdPorcentaje)
+  e.productoIdPorcentaje = 'Seleccioná un producto, categoría o tag';
   if (!form.porcentajeDescuento && !form.precioFijoDescuento)
     e.porcentajeDescuento = 'Ingresá un porcentaje o un precio fijo';
   if (form.porcentajeDescuento && (Number(form.porcentajeDescuento) <= 0 || Number(form.porcentajeDescuento) > 100))
@@ -235,6 +241,8 @@ const PromocionForm: React.FC<{
     productoIdPorcentaje:    form.productoIdPorcentaje  ? Number(form.productoIdPorcentaje)  : undefined,
     categoriaIdPorcentaje:   form.categoriaIdPorcentaje ? Number(form.categoriaIdPorcentaje) : undefined,
     cantidadMinimaDescuento: form.cantidadMinimaDescuento ? Number(form.cantidadMinimaDescuento) : undefined,
+    tagIdPorcentaje: form.tagIdPorcentaje ? Number(form.tagIdPorcentaje) : undefined,
+
   });
 }
 
@@ -583,6 +591,33 @@ const PromocionForm: React.FC<{
       <p className="text-xs text-red-500">{errors.productoIdPorcentaje}</p>
     )}
 
+
+
+{tags.length > 0 && (
+  <div>
+    <label className="block text-xs text-neutral-500 mb-1">O tag (ej: marca)</label>
+    <div className="relative">
+      <select
+        value={form.tagIdPorcentaje}
+        onChange={e => {
+          set('tagIdPorcentaje', e.target.value ? Number(e.target.value) : '');
+          if (e.target.value) { set('productoIdPorcentaje', ''); set('categoriaIdPorcentaje', ''); }
+          setErrors(prev => ({ ...prev, productoIdPorcentaje: undefined }));
+        }}
+        className="w-full appearance-none px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary bg-white pr-8"
+      >
+        <option value="">Ninguno</option>
+        {tags.filter(t => t.activo).map(t => (
+          <option key={t.tagId} value={t.tagId}>{t.nombre}</option>
+        ))}
+      </select>
+      <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+    </div>
+  </div>
+)}
+
+
+
     {/* Cantidad mínima */}
     {form.productoIdPorcentaje !== '' && (
       <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 space-y-2">
@@ -784,7 +819,7 @@ const PromoCard: React.FC<{
 // COMPONENTE PRINCIPAL: PromocionesTab
 // ────────────────────────────────────────────────────────────────────────────
 
-export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos }) => {
+export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos , tags }) => {
   const { user } = useAuth();
 
   const [promos, setPromos]       = useState<PromocionResponseDTO[]>([]);
@@ -981,6 +1016,7 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos }) => 
         isSaving={isSaving}
         saveError={saveError}
         productos={productos}
+        tags={tags}  
         promoAEditar={promoAEditar}
       />
 

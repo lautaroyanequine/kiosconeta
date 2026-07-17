@@ -38,6 +38,10 @@ export interface PromocionResponseDTO {
   categoriaIdPorcentaje?: number;
   categoriaNombrePorcentaje?: string;
   cantidadMinimaDescuento?: number;   
+
+  tagIdPorcentaje?: number | null;       
+  tagNombrePorcentaje?: string | null; 
+
 }
 
 export interface CreatePromocionDTO {
@@ -59,6 +63,8 @@ export interface CreatePromocionDTO {
   productoIdPorcentaje?: number;
   categoriaIdPorcentaje?: number;
   cantidadMinimaDescuento?: number;
+
+  tagIdPorcentaje?: number; 
 }
 
 export interface ItemCarritoDTO {
@@ -143,6 +149,47 @@ export const promocionesApi = {
         totalDescuento: 0,
         totalConDescuento: items.reduce((s, i) => s + i.precioUnitario * i.cantidad, 0),
       };
+    }
+  },
+};
+// ════════════════════════════════════════════════════════════════════════════
+// API: Tags
+// ════════════════════════════════════════════════════════════════════════════
+
+export interface TagResponseDTO {
+  tagId: number;
+  nombre: string;
+  activo: boolean;
+}
+
+export interface CreateTagDTO {
+  nombre: string;
+}
+
+export const tagsApi = {
+  getByKiosco: async (kioscoId: number): Promise<TagResponseDTO[]> => {
+    try {
+      const response = await apiClient.get(`/Tag/kiosco/${kioscoId}`);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  create: async (kioscoId: number, dto: CreateTagDTO): Promise<TagResponseDTO> => {
+    try {
+      const response = await apiClient.post(`/Tag/kiosco/${kioscoId}`, dto);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  delete: async (id: number): Promise<void> => {
+    try {
+      await apiClient.delete(`/Tag/${id}`);
+    } catch (error) {
+      return handleError(error);
     }
   },
 };

@@ -5,10 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infraestructure.Repository
 {
-    /// <summary>
-    /// Implementación del repositorio de Productos
-    /// Maneja todas las operaciones de base de datos
-    /// </summary>
+    
     public class ProductoRepository : IProductoRepository
     {
         private readonly AppDbContext _context;
@@ -22,10 +19,11 @@ namespace Infraestructure.Repository
 
         public async Task<Producto?> GetByIdAsync(int id, int kioscoId)
         {
-            return await _context.Productos
-                .Include(p => p.Categoria)
-                .Include(p => p.Kiosco)
-                .FirstOrDefaultAsync(p => p.ProductoId == id && p.KioscoId == kioscoId);
+          return await _context.Productos
+        .Include(p => p.Categoria)
+        .Include(p => p.Kiosco)
+        .Include(p => p.ProductoTags).ThenInclude(pt => pt.Tag) 
+        .FirstOrDefaultAsync(p => p.ProductoId == id && p.KioscoId == kioscoId);
         }
 
         public async Task<IEnumerable<Producto>> GetAllAsync()
@@ -37,6 +35,24 @@ namespace Infraestructure.Repository
                 .ToListAsync();
         }
 
+        public async Task AsignarTagsAsync(int productoId, List<int> tagIds)
+        {
+            var actuales = await _context.ProductosTag.Where(pt => pt.ProductoId == productoId).ToListAsync();
+            _context.ProductosTag.RemoveRange(actuales);
+
+            foreach (var tagId in tagIds.Distinct())
+                _context.ProductosTag.Add(new ProductoTag { ProductoId = productoId, TagId = tagId });
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task<IEnumerable<Producto>> GetByTagAsync(int tagId)
+        {
+            return await _context.Productos
+                .Include(p => p.Categoria)
+                .Where(p => p.Activo && p.ProductoTags.Any(pt => pt.TagId == tagId))
+                .OrderBy(p => p.Nombre)
+                .ToListAsync();
+        }
         public async Task<IEnumerable<Producto>> GetByKioscoIdAsync(int kioscoId)
         {
             return await _context.Productos

@@ -23,6 +23,7 @@ export interface Producto {
   margenGanancia?: number;
   suelto?: boolean;
   distribuidorId?: number;        
+  tags?: Tag[];
 distribuidorNombre?: string;       
 }
 
@@ -40,6 +41,7 @@ export interface CreateProductoDTO {
   categoriaId: number;
   fechaVencimiento?: string;
   kioscoId: number;
+  tagIds?: number[];
   suelto?: boolean;
 }
 
@@ -51,6 +53,7 @@ export interface UpdateProductoDTO {
   precioVenta: number;
   stockActual: number;
   stockMinimo: number;
+  tagIds?: number[];
   categoriaId: number;
   fechaVencimiento?: string;
   activo: boolean;
@@ -114,4 +117,12 @@ export interface CreateDistribuidorDTO {
   telefono?: string;
   email?: string;
   notas?: string;
+}
+
+
+
+export interface Tag {
+  tagId: number;
+  nombre: string;
+  activo: boolean;
 }

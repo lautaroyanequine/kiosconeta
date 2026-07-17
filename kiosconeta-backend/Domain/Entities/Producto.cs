@@ -35,6 +35,7 @@
         public DateTime? FechaVencimiento { get; set; }
 
         public bool Suelto { get; set; }
+        public IList<ProductoTag> ProductoTags { get; set; } = new List<ProductoTag>();
 
         public IList<ProductoVenta> ProductoVentas { get; set; }
     }

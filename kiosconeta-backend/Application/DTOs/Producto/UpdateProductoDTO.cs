@@ -9,6 +9,8 @@
         public int KioscoId { get; set; }
         public string Nombre { get; set; }
         public decimal PrecioCosto { get; set; }
+        public List<int>? TagIds { get; set; }
+
         public decimal PrecioVenta { get; set; }
         public int CategoriaId { get; set; }
         public int? DistribuidorId { get; set; }

@@ -7,7 +7,7 @@ import { Modal, Input, Button } from '@/components/commons';
 import { calcularMargenGanancia } from '@/utils/helpers';
 import { formatCurrency } from '@/utils/formatters';
 import { useAuth } from '@/contexts/AuthContext'
-import type { Producto, Distribuidor,Categoria, CreateProductoDTO, UpdateProductoDTO } from '@/types';
+import type { Producto, Distribuidor,Categoria, CreateProductoDTO, UpdateProductoDTO ,Tag} from '@/types';
 import type { ModalMode } from './useProductos';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -20,6 +20,7 @@ interface ProductoModalProps {
   categorias: Categoria[];
   isSaving: boolean;
   saveError: string | null;
+  tags: Tag[];
   distribuidores: Distribuidor[];
 
   onClose: () => void;
@@ -39,6 +40,7 @@ interface FormState {
   fechaVencimiento: string;
   distribuidorId: string;  
   suelto: boolean;     
+  tagIds: number[];
 }
 
 const FORM_INICIAL: FormState = {
@@ -52,6 +54,8 @@ const FORM_INICIAL: FormState = {
   fechaVencimiento: '',
   distribuidorId: '',
   suelto: false,
+  tagIds: [],
+
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -64,6 +68,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
   categorias,
   distribuidores,
   isSaving,
+  tags,
   saveError,
   onClose,
   onSave,
@@ -83,6 +88,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
       categoriaId: String(producto.categoriaId),
       distribuidorId: producto.distribuidorId ? String(producto.distribuidorId) : '', // ← cambio
       suelto: producto.suelto ?? false, 
+      tagIds: producto.tags?.map(t => t.tagId) ?? [],
       fechaVencimiento: producto.fechaVencimiento
         ? producto.fechaVencimiento.split('T')[0]
         : '',
@@ -102,6 +108,17 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
       setErrores((prev) => ({ ...prev, [field]: undefined }));
     }
   };
+
+  // Toggle de un tag
+  const toggleTag = (tagId: number) => {
+    setForm(prev => ({
+      ...prev,
+      tagIds: prev.tagIds.includes(tagId)
+        ? prev.tagIds.filter(id => id !== tagId)
+        : [...prev.tagIds, tagId],
+    }));
+  };
+
 
   // ── Validación ────────────────────────────────────────────────────────
 
@@ -134,6 +151,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
   codigoBarra: form.codigoBarras.trim() || undefined,
   precioCosto: Number(form.precioCosto),
   precioVenta: Number(form.precioVenta),
+  tagIds: form.tagIds,
   stockActual: Number(form.stock),
   stockMinimo: Number(form.stockMinimo),
   categoriaId: Number(form.categoriaId),
@@ -335,6 +353,35 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
     }`} />
   </button>
 </div>
+
+
+{/* Tags */}
+<div>
+  <label className="input-label mb-1 block">Tags</label>
+  <div className="flex flex-wrap gap-2">
+    {tags.filter(t => t.activo).map(t => {
+      const sel = form.tagIds.includes(t.tagId);
+      return (
+        <button
+          key={t.tagId}
+          type="button"
+          onClick={() => toggleTag(t.tagId)}
+          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+            sel
+              ? 'bg-primary text-white border-primary'
+              : 'bg-white text-neutral-600 border-neutral-300 hover:border-primary/50'
+          }`}
+        >
+          {t.nombre}
+        </button>
+      );
+    })}
+    {tags.length === 0 && (
+      <p className="text-xs text-neutral-400">No hay tags creados todavía</p>
+    )}
+  </div>
+</div>
+
 
 
          <select

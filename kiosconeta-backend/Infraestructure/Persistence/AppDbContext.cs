@@ -36,6 +36,9 @@ namespace Infraestructure.Persistence
         public DbSet<ProductoVenta> ProductosVenta { get; set; } // intermedia
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Distribuidor> Distribuidores { get; set; }
+
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<ProductoTag> ProductosTag { get; set; }
         // ===== Gastos =====
         public DbSet<Gasto> Gastos { get; set; }
         public DbSet<TipoDeGasto> TiposDeGasto { get; set; }
@@ -47,7 +50,7 @@ namespace Infraestructure.Persistence
 
         public DbSet<Promocion> Promociones { get; set; }
         public DbSet<PromocionProducto> PromocionProductos { get; set; }
-
+        
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 

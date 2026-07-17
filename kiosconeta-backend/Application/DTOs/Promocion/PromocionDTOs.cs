@@ -16,6 +16,9 @@ namespace Application.DTOs.Promocion
         public bool Activa { get; set; }
         public DateTime? FechaDesde { get; set; }
         public DateTime? FechaHasta { get; set; }
+        public int? TagIdPorcentaje { get; set; }
+        public string? TagNombrePorcentaje { get; set; }
+
 
         // Combo
         public decimal? PrecioCombo { get; set; }
@@ -55,6 +58,8 @@ namespace Application.DTOs.Promocion
         public TipoPromocion Tipo { get; set; }
         public DateTime? FechaDesde { get; set; }
         public DateTime? FechaHasta { get; set; }
+        public int? TagIdPorcentaje { get; set; }
+
 
         // Combo
         public decimal? PrecioCombo { get; set; }

@@ -104,6 +104,7 @@ builder.Services.AddScoped<IVentaRepository, VentaRepository>();
 builder.Services.AddScoped<IProductoVentaRepository, ProductoVentaRepository>();
 builder.Services.AddScoped<ICajaRepository, CajaRepository>();
 builder.Services.AddScoped<IDistribuidorRepository,DistribuidorRepository>();
+builder.Services.AddScoped<ITagRepository,TagRepository>();
 
 builder.Services.AddScoped<ICierreTurnoRepository, CierreTurnoRepository>();
 builder.Services.AddScoped<IGastoRepository, GastoRepository>();
@@ -130,7 +131,7 @@ builder.Services.AddScoped<IPermisoService, PermisoService>();
 builder.Services.AddScoped<INumeradorRepository, NumeradorRepository>();
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 builder.Services.AddScoped<ICajaService, CajaService>();
-
+builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IPromocionService, PromocionService>();
 
 // ========== CORS ==========

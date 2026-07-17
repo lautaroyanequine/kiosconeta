@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Common;
 using Application.DTOs.Producto;
+using Application.DTOs.Tag;
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
@@ -149,7 +150,8 @@ namespace Application.Services
             };
 
             var productoCreado = await _productoRepository.CreateAsync(producto);
-
+            if (dto.TagIds != null)
+                await _productoRepository.AsignarTagsAsync(productoCreado.ProductoId, dto.TagIds);
             // Recargar con relaciones
             var productoCompleto = await _productoRepository.GetByIdAsync(productoCreado.ProductoId,dto.KioscoId);
             return MapToResponseDTO(productoCompleto!);
@@ -189,7 +191,8 @@ namespace Application.Services
 
             var esSospechoso = diferencia < -10;
             var productoActualizado = await _productoRepository.UpdateAsync(productoExistente);
-
+            if (dto.TagIds != null)
+                await _productoRepository.AsignarTagsAsync(productoActualizado.ProductoId, dto.TagIds);
             if (stockOriginal != dto.StockActual)
             {
                 await _auditoriaService.RegistrarAsync(
@@ -302,7 +305,13 @@ namespace Application.Services
                 FechaVencimiento = producto.FechaVencimiento,
                 Vencido = vencido,
                 ProximoAVencer = proximoAVencer,
-                Suelto = producto.Suelto
+                Suelto = producto.Suelto,
+                Tags = producto.ProductoTags?.Select(pt => new TagResponseDTO
+                {
+                    TagId = pt.Tag.TagId,
+                    Nombre = pt.Tag.Nombre,
+                    Activo = pt.Tag.Activo
+                }).ToList() ?? new List<TagResponseDTO>()
             };
         }
     }
