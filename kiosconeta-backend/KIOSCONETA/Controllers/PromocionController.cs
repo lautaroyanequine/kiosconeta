@@ -22,6 +22,28 @@ namespace KIOSCONETA.Controllers
             return Ok(promos);
         }
 
+        [HttpPut("{id}")]
+        [RequierePermiso("promociones.editar")]  
+        public async Task<ActionResult<PromocionResponseDTO>> Update(int id, [FromBody] CreatePromocionDTO dto)
+        {
+            try
+            {
+                var actualizada = await _service.UpdateAsync(id, dto);
+                return Ok(actualizada);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Incluimos InnerException para poder ver el error real de EF Core
+                // (constraint de FK, columna inexistente, etc.) mientras debuggeamos.
+                var detalle = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(500, new { message = "Error al actualizar la promoción", error = detalle });
+            }
+        }
+
         [HttpPost("kiosco/{kioscoId}")]
         [RequierePermiso("promociones.crear")]
         public async Task<IActionResult> Create(int kioscoId, [FromBody] CreatePromocionDTO dto)
@@ -33,7 +55,8 @@ namespace KIOSCONETA.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error al crear la promoción", error = ex.Message });
+                var detalle = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(500, new { message = "Error al crear la promoción", error = detalle });
             }
         }
 

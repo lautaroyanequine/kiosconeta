@@ -8,7 +8,8 @@ namespace Application.Interfaces.Repository
         Task<IEnumerable<Promocion>> GetActivasByKioscoAsync(int kioscoId);
         Task<Promocion?> GetByIdAsync(int id);
         Task<Promocion> CreateAsync(Promocion promocion);
-        Task<Promocion> UpdateAsync(Promocion promocion);
+        Task<Promocion> UpdateAsync(Promocion promocion, bool reemplazarProductos = false);
+
         Task<bool> DeleteAsync(int id);
     }
 }

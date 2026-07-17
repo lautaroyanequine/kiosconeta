@@ -48,13 +48,17 @@ public class PromocionRepository : IPromocionRepository
         return await GetByIdAsync(promocion.PromocionId)!;
     }
 
-    public async Task<Promocion> UpdateAsync(Promocion promocion)
+    public async Task<Promocion> UpdateAsync(Promocion promocion, bool reemplazarProductos = false)
     {
-        // Eliminar productos anteriores y reemplazar
-        var productosAnteriores = await _context.PromocionProductos
-            .Where(pp => pp.PromocionId == promocion.PromocionId)
-            .ToListAsync();
-        _context.PromocionProductos.RemoveRange(productosAnteriores);
+        if (reemplazarProductos)
+        {
+            // Eliminar productos anteriores y reemplazar por los que vienen en promocion.PromocionProductos
+            var productosAnteriores = await _context.PromocionProductos
+                .Where(pp => pp.PromocionId == promocion.PromocionId)
+                .ToListAsync();
+            _context.PromocionProductos.RemoveRange(productosAnteriores);
+        }
+
         _context.Promociones.Update(promocion);
         await _context.SaveChangesAsync();
         return await GetByIdAsync(promocion.PromocionId)!;

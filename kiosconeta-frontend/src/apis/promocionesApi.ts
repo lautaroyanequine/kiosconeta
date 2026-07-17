@@ -37,6 +37,7 @@ export interface PromocionResponseDTO {
   productoNombrePorcentaje?: string;
   categoriaIdPorcentaje?: number;
   categoriaNombrePorcentaje?: string;
+  cantidadMinimaDescuento?: number;   
 }
 
 export interface CreatePromocionDTO {
@@ -57,6 +58,7 @@ export interface CreatePromocionDTO {
   precioFijoDescuento?: number;
   productoIdPorcentaje?: number;
   categoriaIdPorcentaje?: number;
+  cantidadMinimaDescuento?: number;
 }
 
 export interface ItemCarritoDTO {
@@ -98,7 +100,14 @@ export const promocionesApi = {
       return handleError(error);
     }
   },
-
+  update: async (id: number, dto: CreatePromocionDTO): Promise<PromocionResponseDTO> => {
+    try {
+      const response = await apiClient.put(`/Promocion/${id}`, dto);
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
   toggle: async (id: number): Promise<{ activa: boolean }> => {
     try {
       const response = await apiClient.patch(`/Promocion/${id}/toggle`);

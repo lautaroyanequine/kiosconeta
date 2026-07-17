@@ -51,6 +51,39 @@ public class PromocionService : IPromocionService
         return MapToDTO(creada);
     }
 
+    public async Task<PromocionResponseDTO> UpdateAsync(int id, CreatePromocionDTO dto)
+    {
+        var promoExistente = await _repo.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException("Promoción no encontrada");
+
+        promoExistente.Nombre = dto.Nombre.Trim();
+        promoExistente.Descripcion = dto.Descripcion;
+        promoExistente.Tipo = dto.Tipo;
+        promoExistente.FechaDesde = dto.FechaDesde;
+        promoExistente.FechaHasta = dto.FechaHasta;
+        promoExistente.PrecioCombo = dto.PrecioCombo;
+        promoExistente.CantidadRequerida = dto.CantidadRequerida;
+        promoExistente.CantidadPaga = dto.CantidadPaga;
+        promoExistente.ProductoIdCantidad = dto.ProductoIdCantidad;
+        promoExistente.PorcentajeDescuento = dto.PorcentajeDescuento;
+        promoExistente.PrecioFijoDescuento = dto.PrecioFijoDescuento;
+        promoExistente.ProductoIdPorcentaje = dto.ProductoIdPorcentaje;
+        promoExistente.CategoriaIdPorcentaje = dto.CategoriaIdPorcentaje;
+        promoExistente.CantidadMinimaDescuento = dto.CantidadMinimaDescuento;
+
+        // Reemplazamos la lista de productos del combo (el repo se encarga de
+        // borrar los PromocionProductos anteriores e insertar estos nuevos)
+        promoExistente.PromocionProductos = dto.Productos.Select(p => new PromocionProducto
+        {
+            PromocionId = id,
+            ProductoId = p.ProductoId,
+            Cantidad = p.Cantidad
+        }).ToList();
+
+        var actualizada = await _repo.UpdateAsync(promoExistente, reemplazarProductos: true);
+        return MapToDTO(actualizada);
+    }
+
     public async Task<bool> ToggleActivaAsync(int id)
     {
         var promo = await _repo.GetByIdAsync(id)
@@ -253,7 +286,7 @@ public class PromocionService : IPromocionService
         ProductoIdCantidad = p.ProductoIdCantidad,
         ProductoNombreCantidad = p.ProductoCantidad?.Nombre,
         PorcentajeDescuento = p.PorcentajeDescuento,
-        PrecioFijoDescuento = p.PrecioFijoDescuento, 
+        PrecioFijoDescuento = p.PrecioFijoDescuento,
         ProductoIdPorcentaje = p.ProductoIdPorcentaje,
         ProductoNombrePorcentaje = p.ProductoPorcentaje?.Nombre,
         CategoriaIdPorcentaje = p.CategoriaIdPorcentaje,

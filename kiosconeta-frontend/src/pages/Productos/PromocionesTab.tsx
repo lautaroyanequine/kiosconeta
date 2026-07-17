@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Tag, Plus, Trash2, ToggleLeft, ToggleRight,
   AlertTriangle, RefreshCw, X, Package, Percent,
-  ShoppingBag, Hash, Calendar, ChevronDown, Loader2,
+  ShoppingBag, Hash, Calendar, ChevronDown, Loader2, Pencil,
 } from 'lucide-react';
 import { Button, Badge, Modal } from '@/components/commons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -68,6 +68,26 @@ const FORM_INICIAL: FormState = {
   cantidadMinimaDescuento: '',
 };
 
+// Convierte una promo ya guardada (PromocionResponseDTO) al FormState del modal,
+// para precargar los datos cuando se abre en modo edición.
+const promoToForm = (p: PromocionResponseDTO): FormState => ({
+  nombre: p.nombre ?? '',
+  descripcion: p.descripcion ?? '',
+  tipo: p.tipo,
+  fechaDesde: p.fechaDesde ? p.fechaDesde.slice(0, 10) : '',
+  fechaHasta: p.fechaHasta ? p.fechaHasta.slice(0, 10) : '',
+  precioCombo: p.precioCombo != null ? String(p.precioCombo) : '',
+  productosCombo: (p.productos ?? []).map(pp => ({ productoId: pp.productoId, cantidad: pp.cantidad })),
+  cantidadRequerida: p.cantidadRequerida != null ? String(p.cantidadRequerida) : '',
+  cantidadPaga: p.cantidadPaga != null ? String(p.cantidadPaga) : '',
+  productoIdCantidad: p.productoIdCantidad ?? '',
+  porcentajeDescuento: p.porcentajeDescuento != null ? String(p.porcentajeDescuento) : '',
+  precioFijoDescuento: p.precioFijoDescuento != null ? String(p.precioFijoDescuento) : '',
+  productoIdPorcentaje: p.productoIdPorcentaje ?? '',
+  categoriaIdPorcentaje: p.categoriaIdPorcentaje ?? '',
+  cantidadMinimaDescuento: p.cantidadMinimaDescuento != null ? String(p.cantidadMinimaDescuento) : '',
+});
+
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS
 // ────────────────────────────────────────────────────────────────────────────
@@ -98,20 +118,26 @@ const PromocionForm: React.FC<{
   isSaving: boolean;
   saveError: string;
   productos: Producto[];
-}> = ({ isOpen, onClose, onSave, isSaving, saveError, productos }) => {
+  /** Si viene seteada, el modal abre en modo edición precargado con estos datos */
+  promoAEditar?: PromocionResponseDTO | null;
+}> = ({ isOpen, onClose, onSave, isSaving, saveError, productos, promoAEditar }) => {
 
   const [form, setForm] = useState<FormState>(FORM_INICIAL);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'combo', string>>>({});
+  const modoEdicion = !!promoAEditar;
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
     setErrors(prev => ({ ...prev, [key]: undefined }));
   };
 
-  // Reset al abrir
+  // Reset (o precarga, si es edición) al abrir
   useEffect(() => {
-    if (isOpen) { setForm(FORM_INICIAL); setErrors({}); }
-  }, [isOpen]);
+    if (isOpen) {
+      setForm(promoAEditar ? promoToForm(promoAEditar) : FORM_INICIAL);
+      setErrors({});
+    }
+  }, [isOpen, promoAEditar]);
 
   // ── Agregar producto al combo ─────────────────────────────────────────────
   const agregarProductoCombo = () => {
@@ -225,13 +251,13 @@ const PromocionForm: React.FC<{
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Nueva promoción"
+      title={modoEdicion ? 'Editar promoción' : 'Nueva promoción'}
       size="md"
       footer={
         <>
           <Button variant="outline" onClick={onClose} disabled={isSaving}>Cancelar</Button>
           <Button variant="primary" onClick={handleSubmit} loading={isSaving}>
-            Guardar promoción
+            {modoEdicion ? 'Guardar cambios' : 'Guardar promoción'}
           </Button>
         </>
       }
@@ -633,9 +659,10 @@ const PromocionForm: React.FC<{
 const PromoCard: React.FC<{
   promo: PromocionResponseDTO;
   onToggle: () => void;
+  onEdit: () => void;
   onDelete: () => void;
   isToggling: boolean;
-}> = ({ promo, onToggle, onDelete, isToggling }) => {
+}> = ({ promo, onToggle, onEdit, onDelete, isToggling }) => {
 
   const renderDetalle = () => {
     if (promo.tipo === 1 && promo.productos?.length) {
@@ -737,6 +764,12 @@ const PromoCard: React.FC<{
           {promo.activa ? 'Desactivar' : 'Activar'}
         </button>
         <button
+          onClick={onEdit}
+          className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:bg-neutral-100 px-3 py-1.5 rounded-lg transition-all"
+        >
+          <Pencil size={13} /> Editar
+        </button>
+        <button
           onClick={onDelete}
           className="ml-auto flex items-center gap-1 text-xs text-neutral-300 hover:text-red-500 transition-colors px-2 py-1.5 rounded-lg hover:bg-red-50"
         >
@@ -761,6 +794,7 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos }) => 
   const [modalAbierto, setModalAbierto] = useState(false);
   const [isSaving, setIsSaving]         = useState(false);
   const [saveError, setSaveError]       = useState('');
+  const [promoAEditar, setPromoAEditar] = useState<PromocionResponseDTO | null>(null);
 
   const [togglingId, setTogglingId]     = useState<number | null>(null);
   const [deletingId, setDeletingId]     = useState<number | null>(null);
@@ -783,20 +817,34 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos }) => 
 
   useEffect(() => { cargar(); }, [cargar]);
 
-  // ── Crear ────────────────────────────────────────────────────────────────
+  // ── Crear o actualizar ──────────────────────────────────────────────────
   const handleSave = async (dto: CreatePromocionDTO) => {
     if (!user?.kioscoId) return;
     setIsSaving(true);
     setSaveError('');
     try {
-      const nueva = await promocionesApi.create(user.kioscoId, dto);
-      setPromos(prev => [nueva, ...prev]);
+      if (promoAEditar) {
+        const actualizada = await promocionesApi.update(promoAEditar.promocionId, dto);
+        setPromos(prev =>
+          prev.map(p => p.promocionId === actualizada.promocionId ? actualizada : p)
+        );
+      } else {
+        const nueva = await promocionesApi.create(user.kioscoId, dto);
+        setPromos(prev => [nueva, ...prev]);
+      }
       setModalAbierto(false);
+      setPromoAEditar(null);
     } catch (err: any) {
-      setSaveError(err.message || 'Error al crear la promoción');
+      setSaveError(err.message || (promoAEditar ? 'Error al actualizar la promoción' : 'Error al crear la promoción'));
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // ── Abrir modal en modo edición ─────────────────────────────────────────
+  const handleEdit = (promo: PromocionResponseDTO) => {
+    setPromoAEditar(promo);
+    setModalAbierto(true);
   };
 
   // ── Toggle activa ─────────────────────────────────────────────────────────
@@ -856,7 +904,7 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos }) => 
           <Button variant="ghost" size="sm" leftIcon={<RefreshCw size={14} />} onClick={cargar}>
             Actualizar
           </Button>
-          <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => setModalAbierto(true)}>
+          <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => { setPromoAEditar(null); setModalAbierto(true); }}>
             Nueva promoción
           </Button>
         </div>
@@ -903,7 +951,7 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos }) => 
           <p className="text-sm text-neutral-500 mb-6 max-w-xs">
             Creá combos, descuentos por cantidad o porcentajes que se aplican automáticamente en el POS.
           </p>
-          <Button variant="primary" leftIcon={<Plus size={15} />} onClick={() => setModalAbierto(true)}>
+          <Button variant="primary" leftIcon={<Plus size={15} />} onClick={() => { setPromoAEditar(null); setModalAbierto(true); }}>
             Crear primera promoción
           </Button>
         </div>
@@ -917,6 +965,7 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos }) => 
               key={promo.promocionId}
               promo={promo}
               onToggle={() => handleToggle(promo)}
+              onEdit={() => handleEdit(promo)}
               onDelete={() => setPromoAEliminar(promo)}
               isToggling={togglingId === promo.promocionId}
             />
@@ -924,14 +973,15 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos }) => 
         </div>
       )}
 
-      {/* Modal crear */}
+      {/* Modal crear / editar */}
       <PromocionForm
         isOpen={modalAbierto}
-        onClose={() => { setModalAbierto(false); setSaveError(''); }}
+        onClose={() => { setModalAbierto(false); setSaveError(''); setPromoAEditar(null); }}
         onSave={handleSave}
         isSaving={isSaving}
         saveError={saveError}
         productos={productos}
+        promoAEditar={promoAEditar}
       />
 
       {/* Modal confirmar eliminar */}
