@@ -619,7 +619,7 @@ const PromocionForm: React.FC<{
 
 
     {/* Cantidad mínima */}
-    {form.productoIdPorcentaje !== '' && (
+    {(form.productoIdPorcentaje !== '' || form.categoriaIdPorcentaje !== '' || form.tagIdPorcentaje !== '') && (
       <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 space-y-2">
         <p className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
           <Hash size={12} /> Cantidad mínima <span className="font-normal text-orange-400">

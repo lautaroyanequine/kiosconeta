@@ -207,41 +207,40 @@ public class PromocionService : IPromocionService
 
     private async Task<PromocionAplicadaDTO?> DetectarPorcentajeAsync(Promocion promo, List<ItemCarritoDTO> carrito)
     {
-        // Necesita al menos uno de los dos
         if (promo.PorcentajeDescuento == null && promo.PrecioFijoDescuento == null) return null;
 
-        decimal baseDescuento = 0;
-        int cantidadAplicable = 0;
+        List<ItemCarritoDTO> itemsAplicables;
 
         if (promo.ProductoIdPorcentaje != null)
         {
             var item = carrito.FirstOrDefault(c => c.ProductoId == promo.ProductoIdPorcentaje);
-            if (item == null) return null;
-
-            if (promo.CantidadMinimaDescuento.HasValue && item.Cantidad < promo.CantidadMinimaDescuento.Value)
-                return null;
-
-            baseDescuento = item.PrecioUnitario * item.Cantidad;
-            cantidadAplicable = item.Cantidad;
+            itemsAplicables = item != null ? new List<ItemCarritoDTO> { item } : new List<ItemCarritoDTO>();
         }
         else if (promo.CategoriaIdPorcentaje != null)
         {
             var productosCategoria = await _productoRepo.GetByCategoriaAsync(promo.CategoriaIdPorcentaje.Value);
             var idsCategoria = productosCategoria.Select(p => p.ProductoId).ToHashSet();
-            baseDescuento = carrito
-                .Where(c => idsCategoria.Contains(c.ProductoId))
-                .Sum(c => c.PrecioUnitario * c.Cantidad);
-            if (baseDescuento == 0) return null;
+            itemsAplicables = carrito.Where(c => idsCategoria.Contains(c.ProductoId)).ToList();
         }
         else if (promo.TagIdPorcentaje != null)
         {
             var productosTag = await _productoRepo.GetByTagAsync(promo.TagIdPorcentaje.Value);
             var idsTag = productosTag.Select(p => p.ProductoId).ToHashSet();
-            baseDescuento = carrito
-                .Where(c => idsTag.Contains(c.ProductoId))
-                .Sum(c => c.PrecioUnitario * c.Cantidad);
-            if (baseDescuento == 0) return null;
+            itemsAplicables = carrito.Where(c => idsTag.Contains(c.ProductoId)).ToList();
         }
+        else
+        {
+            return null;
+        }
+
+        if (!itemsAplicables.Any()) return null;
+
+        // Suma total de unidades y $ de TODOS los productos que matchean (ej: todos los alfajores Mondelez juntos)
+        int cantidadAplicable = itemsAplicables.Sum(i => i.Cantidad);
+        decimal baseDescuento = itemsAplicables.Sum(i => i.PrecioUnitario * i.Cantidad);
+
+        if (promo.CantidadMinimaDescuento.HasValue && cantidadAplicable < promo.CantidadMinimaDescuento.Value)
+            return null;
 
         if (baseDescuento == 0) return null;
 
@@ -250,13 +249,14 @@ public class PromocionService : IPromocionService
 
         if (promo.PrecioFijoDescuento.HasValue && promo.CantidadMinimaDescuento.HasValue)
         {
-            // Precio fijo por N unidades — calcular cuántos grupos de N tiene el cliente
+            // Agrupar de a N: cada grupo completo sale el precio fijo,
+            // las unidades sueltas que sobran se cobran a precio normal (promedio del carrito aplicable)
             var grupos = cantidadAplicable / promo.CantidadMinimaDescuento.Value;
-            var precioSinPromo = baseDescuento;
-            var precioConPromo = (grupos * promo.PrecioFijoDescuento.Value)
-                + ((cantidadAplicable % promo.CantidadMinimaDescuento.Value)
-                   * (baseDescuento / cantidadAplicable)); // unidades sueltas a precio normal
-            descuento = precioSinPromo - precioConPromo;
+            var resto = cantidadAplicable % promo.CantidadMinimaDescuento.Value;
+            var precioPromedioUnitario = baseDescuento / cantidadAplicable;
+
+            var precioConPromo = (grupos * promo.PrecioFijoDescuento.Value) + (resto * precioPromedioUnitario);
+            descuento = baseDescuento - precioConPromo;
             descripcion = $"{promo.CantidadMinimaDescuento} x ${promo.PrecioFijoDescuento}: {promo.Nombre}";
         }
         else if (promo.PorcentajeDescuento.HasValue)
@@ -279,7 +279,6 @@ public class PromocionService : IPromocionService
             Descripcion = descripcion
         };
     }
-
     // ── MAPEO ─────────────────────────────────────────────────────────────
 
     private PromocionResponseDTO MapToDTO(Promocion p) => new()
