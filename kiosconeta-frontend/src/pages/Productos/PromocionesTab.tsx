@@ -39,11 +39,11 @@ type FormState = {
   tagIdPorcentaje: number | '';
   // Combo
   precioCombo: string;
-  productosCombo: { productoId: number; cantidad: number }[];
-  // Cantidad
+productosCombo: { productoId?: number; tagId?: number; usaTag: boolean; cantidad: number }[];  // Cantidad
   cantidadRequerida: string;
   cantidadPaga: string;
   productoIdCantidad: number | '';
+  tagIdCantidad: number | '';
   // Porcentaje
   porcentajeDescuento: string;
   precioFijoDescuento: string;  
@@ -65,6 +65,8 @@ const FORM_INICIAL: FormState = {
   cantidadRequerida: '',
   cantidadPaga: '',
   productoIdCantidad: '',
+    tagIdCantidad: '',
+
   porcentajeDescuento: '',
   precioFijoDescuento: '',
   productoIdPorcentaje: '',
@@ -82,10 +84,15 @@ const promoToForm = (p: PromocionResponseDTO): FormState => ({
   fechaDesde: p.fechaDesde ? p.fechaDesde.slice(0, 10) : '',
   fechaHasta: p.fechaHasta ? p.fechaHasta.slice(0, 10) : '',
   precioCombo: p.precioCombo != null ? String(p.precioCombo) : '',
-  productosCombo: (p.productos ?? []).map(pp => ({ productoId: pp.productoId, cantidad: pp.cantidad })),
-  cantidadRequerida: p.cantidadRequerida != null ? String(p.cantidadRequerida) : '',
+productosCombo: (p.productos ?? []).map(pp => ({
+  productoId: pp.productoId,
+  tagId: pp.tagId,
+  usaTag: pp.tagId != null,
+  cantidad: pp.cantidad,
+})),  cantidadRequerida: p.cantidadRequerida != null ? String(p.cantidadRequerida) : '',
   cantidadPaga: p.cantidadPaga != null ? String(p.cantidadPaga) : '',
   productoIdCantidad: p.productoIdCantidad ?? '',
+    tagIdCantidad: p.tagIdCantidad ?? '', 
   porcentajeDescuento: p.porcentajeDescuento != null ? String(p.porcentajeDescuento) : '',
   precioFijoDescuento: p.precioFijoDescuento != null ? String(p.precioFijoDescuento) : '',
   productoIdPorcentaje: p.productoIdPorcentaje ?? '',
@@ -147,21 +154,39 @@ const PromocionForm: React.FC<{
 
   // ── Agregar producto al combo ─────────────────────────────────────────────
   const agregarProductoCombo = () => {
-    setForm(prev => ({
-      ...prev,
-      productosCombo: [...prev.productosCombo, { productoId: 0, cantidad: 1 }],
-    }));
-  };
+  setForm(prev => ({
+    ...prev,
+    productosCombo: [...prev.productosCombo, { productoId: undefined, tagId: undefined, usaTag: false, cantidad: 1 }],
+  }));
+};
 
-  const actualizarProductoCombo = (idx: number, campo: 'productoId' | 'cantidad', valor: number) => {
-    setForm(prev => ({
-      ...prev,
-      productosCombo: prev.productosCombo.map((p, i) =>
-        i === idx ? { ...p, [campo]: valor } : p
-      ),
-    }));
-    setErrors(prev => ({ ...prev, combo: undefined }));
-  };
+const actualizarProductoCombo = (
+  idx: number,
+  campo: 'productoId' | 'tagId' | 'cantidad',
+  valor: number | undefined
+) => {
+  setForm(prev => ({
+    ...prev,
+    productosCombo: prev.productosCombo.map((p, i) => {
+      if (i !== idx) return p;
+      if (campo === 'productoId') return { ...p, productoId: valor };
+      if (campo === 'tagId') return { ...p, tagId: valor };
+      return { ...p, cantidad: valor ?? 1 };
+    }),
+  }));
+  setErrors(prev => ({ ...prev, combo: undefined }));
+};
+
+const toggleModoCombo = (idx: number) => {
+  setForm(prev => ({
+    ...prev,
+    productosCombo: prev.productosCombo.map((p, i) =>
+      i === idx
+        ? { ...p, usaTag: !p.usaTag, productoId: undefined, tagId: undefined }
+        : p
+    ),
+  }));
+};
 
   const quitarProductoCombo = (idx: number) => {
     setForm(prev => ({
@@ -176,16 +201,14 @@ const PromocionForm: React.FC<{
     if (!form.nombre.trim()) e.nombre = 'El nombre es obligatorio';
 
     if (form.tipo === 1) {
-      if (!form.precioCombo || isNaN(Number(form.precioCombo)) || Number(form.precioCombo) <= 0)
-        e.precioCombo = 'Ingresá un precio válido';
-      if (form.productosCombo.length < 2)
-        e.combo = 'Un combo necesita al menos 2 productos';
-      else if (form.productosCombo.some(p => !p.productoId || p.cantidad < 1))
-        e.combo = 'Completá todos los productos del combo';
-    }
+  if (!form.precioCombo || Number(form.precioCombo) <= 0) e.precioCombo = 'Ingresá un precio válido';
+  if (form.productosCombo.length < 2) e.combo = 'Un combo necesita al menos 2 ítems';
+  else if (form.productosCombo.some(p => (!p.productoId && !p.tagId) || p.cantidad < 1))
+    e.combo = 'Completá todos los ítems del combo';
+}
 
     if (form.tipo === 2) {
-      if (!form.productoIdCantidad) e.productoIdCantidad = 'Seleccioná un producto';
+  if (!form.productoIdCantidad && !form.tagIdCantidad) e.productoIdCantidad = 'Seleccioná un producto o tag';
       if (!form.cantidadRequerida || Number(form.cantidadRequerida) < 2)
         e.cantidadRequerida = 'Debe ser al menos 2';
       if (!form.cantidadPaga || Number(form.cantidadPaga) < 1)
@@ -222,18 +245,23 @@ const PromocionForm: React.FC<{
     };
 
     if (form.tipo === 1) {
-      Object.assign(base, {
-        precioCombo: Number(form.precioCombo),
-        productos:   form.productosCombo,
-      });
-    }
-    if (form.tipo === 2) {
-      Object.assign(base, {
-        productoIdCantidad:  Number(form.productoIdCantidad),
-        cantidadRequerida:   Number(form.cantidadRequerida),
-        cantidadPaga:        Number(form.cantidadPaga),
-      });
-    }
+  Object.assign(base, {
+    precioCombo: Number(form.precioCombo),
+    productos: form.productosCombo.map(p => ({
+      productoId: p.productoId,
+      tagId: p.tagId,
+      cantidad: p.cantidad,
+    })),
+  });
+}
+if (form.tipo === 2) {
+  Object.assign(base, {
+    productoIdCantidad: form.productoIdCantidad ? Number(form.productoIdCantidad) : undefined,
+    tagIdCantidad:      form.tagIdCantidad ? Number(form.tagIdCantidad) : undefined,
+    cantidadRequerida:  Number(form.cantidadRequerida),
+    cantidadPaga:       Number(form.cantidadPaga),
+  });
+}
     if (form.tipo === 3) {
   Object.assign(base, {
     porcentajeDescuento:     form.porcentajeDescuento ? Number(form.porcentajeDescuento) : undefined,
@@ -378,41 +406,60 @@ const PromocionForm: React.FC<{
 
               <div className="space-y-2">
                 {form.productosCombo.map((pc, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-white rounded-lg border border-blue-100 px-3 py-2">
-                    {/* Nombre del producto — ocupa todo el espacio */}
-                    <div className="relative flex-1 min-w-0">
-                      <select
-                        value={pc.productoId || ''}
-                        onChange={e => actualizarProductoCombo(idx, 'productoId', Number(e.target.value))}
-                        className="w-full appearance-none bg-transparent border-none text-sm font-semibold text-neutral-800 focus:outline-none pr-5 truncate"
-                      >
-                        <option value="">Seleccionar producto...</option>
-                        {productos.map(p => (
-                          <option key={p.productoId} value={p.productoId}>{p.nombre}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-neutral-300 pointer-events-none" />
-                    </div>
-                    {/* Cantidad — chica, al costado */}
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-[10px] text-neutral-400">×</span>
-                      <input
-                        type="number" min="1"
-                        value={pc.cantidad}
-                        onChange={e => actualizarProductoCombo(idx, 'cantidad', Number(e.target.value))}
-                        className="w-10 text-center text-sm font-bold text-blue-600 border border-blue-200 rounded-md py-0.5 focus:outline-none focus:border-blue-400 bg-blue-50"
-                        title="Cantidad"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => quitarProductoCombo(idx)}
-                      className="text-neutral-200 hover:text-red-400 transition-colors shrink-0 ml-1"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
+  <div key={idx} className="space-y-1.5 bg-white rounded-lg border border-blue-100 px-3 py-2">
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => toggleModoCombo(idx)}
+        className="text-[10px] font-semibold text-blue-500 shrink-0 underline"
+      >
+        {pc.usaTag ? 'Usar producto' : 'Usar tag'}
+      </button>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <div className="relative flex-1 min-w-0">
+        {!pc.usaTag ? (
+          <select
+            value={pc.productoId ?? ''}
+            onChange={e => actualizarProductoCombo(idx, 'productoId', Number(e.target.value))}
+            className="w-full appearance-none bg-transparent border-none text-sm font-semibold text-neutral-800 focus:outline-none pr-5 truncate"
+          >
+            <option value="">Seleccionar producto...</option>
+            {productos.map(p => (
+              <option key={p.productoId} value={p.productoId}>{p.nombre}</option>
+            ))}
+          </select>
+        ) : (
+          <select
+            value={pc.tagId ?? ''}
+            onChange={e => actualizarProductoCombo(idx, 'tagId', Number(e.target.value))}
+            className="w-full appearance-none bg-transparent border-none text-sm font-semibold text-neutral-800 focus:outline-none pr-5 truncate"
+          >
+            <option value="">Seleccionar tag...</option>
+            {tags.filter(t => t.activo).map(t => (
+              <option key={t.tagId} value={t.tagId}>Cualquiera con: {t.nombre}</option>
+            ))}
+          </select>
+        )}
+        <ChevronDown size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-neutral-300 pointer-events-none" />
+      </div>
+
+      <div className="flex items-center gap-1 shrink-0">
+        <span className="text-[10px] text-neutral-400">×</span>
+        <input
+          type="number" min="1"
+          value={pc.cantidad}
+          onChange={e => actualizarProductoCombo(idx, 'cantidad', Number(e.target.value))}
+          className="w-10 text-center text-sm font-bold text-blue-600 border border-blue-200 rounded-md py-0.5 focus:outline-none focus:border-blue-400 bg-blue-50"
+        />
+      </div>
+      <button type="button" onClick={() => quitarProductoCombo(idx)} className="text-neutral-200 hover:text-red-400 shrink-0 ml-1">
+        <X size={14} />
+      </button>
+    </div>
+  </div>
+))}
               </div>
               {errors.combo && <p className="text-xs text-red-500 mt-1">{errors.combo}</p>}
             </div>
@@ -433,14 +480,33 @@ const PromocionForm: React.FC<{
               <div className="relative">
                 <select
                   value={form.productoIdCantidad}
-                  onChange={e => set('productoIdCantidad', e.target.value ? Number(e.target.value) : '')}
-                  className={`w-full appearance-none px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary bg-white pr-8 ${errors.productoIdCantidad ? 'border-red-400' : 'border-neutral-300'}`}
-                >
+                  onChange={e => {
+    set('productoIdCantidad', e.target.value ? Number(e.target.value) : '');
+    if (e.target.value) set('tagIdCantidad', '');
+  }}
+  className={`w-full appearance-none px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-primary bg-white pr-8 ${errors.productoIdCantidad ? 'border-red-400' : 'border-neutral-300'}`}
+>
                   <option value="">Seleccionar producto...</option>
                   {productos.map(p => (
                     <option key={p.productoId} value={p.productoId}>{p.nombre}</option>
                   ))}
                 </select>
+                <div>
+  <label className="block text-xs text-neutral-500 mb-1">O tag (cualquiera de la marca)</label>
+  <select
+    value={form.tagIdCantidad}
+    onChange={e => {
+      set('tagIdCantidad', e.target.value ? Number(e.target.value) : '');
+      if (e.target.value) set('productoIdCantidad', '');
+    }}
+    className="w-full appearance-none px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary bg-white pr-8"
+  >
+    <option value="">Ninguno</option>
+    {tags.filter(t => t.activo).map(t => (
+      <option key={t.tagId} value={t.tagId}>{t.nombre}</option>
+    ))}
+  </select>
+</div>
                 <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
               </div>
               {errors.productoIdCantidad && <p className="text-xs text-red-500 mt-1">{errors.productoIdCantidad}</p>}

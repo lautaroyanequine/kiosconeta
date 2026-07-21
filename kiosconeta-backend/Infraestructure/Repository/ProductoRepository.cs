@@ -57,6 +57,7 @@ namespace Infraestructure.Repository
         {
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.ProductoTags).ThenInclude(pt => pt.Tag)   // ← agregar
                 .Where(p => p.KioscoId == kioscoId)
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();

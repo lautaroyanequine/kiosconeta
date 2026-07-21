@@ -178,6 +178,30 @@ public class VentaService : IVentaService
 
         if (dto.Combos != null && dto.Combos.Any())
         {
+            // Precarga de productos por tag, para no repetir consultas si un combo
+            // tiene varios ítems con el mismo tag o si hay varios combos con tags.
+            var tagIdsUsados = new List<int>();
+
+            foreach (var comboDto in dto.Combos)
+            {
+                var promoPreview = await _promocionRepository.GetByIdAsync(comboDto.PromocionId);
+                if (promoPreview?.PromocionProductos != null)
+                {
+                    tagIdsUsados.AddRange(
+                        promoPreview.PromocionProductos
+                            .Where(pp => pp.TagId != null)
+                            .Select(pp => pp.TagId!.Value)
+                    );
+                }
+            }
+
+            var tagProductosCache = new Dictionary<int, HashSet<int>>();
+            foreach (var tagId in tagIdsUsados.Distinct())
+            {
+                var productosDelTag = await _productoRepository.GetByTagAsync(tagId);
+                tagProductosCache[tagId] = productosDelTag.Select(p => p.ProductoId).ToHashSet();
+            }
+
             foreach (var comboDto in dto.Combos)
             {
                 var promo = await _promocionRepository.GetByIdAsync(comboDto.PromocionId);
@@ -193,17 +217,52 @@ public class VentaService : IVentaService
                 if (promo.Tipo != TipoPromocion.Combo || !promo.PrecioCombo.HasValue)
                     continue;
 
-                decimal sumaUnitariosCombo = promo.PromocionProductos.Sum(pp =>
-                {
-                    if (productosDict.TryGetValue(pp.ProductoId, out var prod))
-                    {
-                        return prod.PrecioVenta
-                               * pp.Cantidad
-                               * comboDto.Cantidad;
-                    }
+                decimal sumaUnitariosCombo = 0;
+                bool comboIncompleto = false;
 
-                    return 0m;
-                });
+                foreach (var pp in promo.PromocionProductos)
+                {
+                    if (pp.ProductoId != null)
+                    {
+                        if (!productosDict.TryGetValue(pp.ProductoId.Value, out var prod))
+                        {
+                            comboIncompleto = true;
+                            break;
+                        }
+                        sumaUnitariosCombo += prod.PrecioVenta * pp.Cantidad * comboDto.Cantidad;
+                    }
+                    else if (pp.TagId != null)
+                    {
+                        var idsTag = tagProductosCache.TryGetValue(pp.TagId.Value, out var ids)
+                            ? ids
+                            : new HashSet<int>();
+
+                        // Precios unitarios de lo que el cliente realmente lleva de ese tag,
+                        // de más barato a más caro (mismo criterio que en la detección de promos)
+                        var preciosDisponibles = dto.Productos
+                            .Where(p => idsTag.Contains(p.ProductoId) && productosDict.ContainsKey(p.ProductoId))
+                            .SelectMany(p => Enumerable.Repeat(productosDict[p.ProductoId].PrecioVenta, p.Cantidad))
+                            .OrderBy(precio => precio)
+                            .ToList();
+
+                        var necesarias = pp.Cantidad * comboDto.Cantidad;
+                        if (preciosDisponibles.Count < necesarias)
+                        {
+                            comboIncompleto = true;
+                            break;
+                        }
+                        sumaUnitariosCombo += preciosDisponibles.Take(necesarias).Sum();
+                    }
+                    else
+                    {
+                        comboIncompleto = true;
+                        break;
+                    }
+                }
+
+                if (comboIncompleto)
+                    throw new InvalidOperationException(
+                        $"El carrito no cumple los requisitos del combo '{promo.Nombre}'");
 
                 decimal precioComboTotal =
                     promo.PrecioCombo.Value * comboDto.Cantidad;
@@ -293,7 +352,6 @@ public class VentaService : IVentaService
 
         return MapToResponseDTO(creada);
     }    // ================== ANULAR ==================
-
     public async Task<bool> AnularVentaAsync(int ventaId, int empleadoId, string motivo)
     {
         var venta = await _ventaRepository.GetByIdAsync(ventaId);

@@ -23,6 +23,8 @@ namespace Domain.Entities
         public int? CantidadPaga { get; set; }
         public int? ProductoIdCantidad { get; set; }
         public Producto? ProductoCantidad { get; set; }
+        public int? TagIdCantidad { get; set; }
+        public Tag? TagCantidad { get; set; }
 
         // Para Porcentaje
         public decimal? PorcentajeDescuento { get; set; }
@@ -52,8 +54,13 @@ namespace Domain.Entities
         public int PromocionProductoId { get; set; }
         public int PromocionId { get; set; }
         public Promocion Promocion { get; set; } = null!;
-        public int ProductoId { get; set; }
-        public Producto Producto { get; set; } = null!;
+       
         public int Cantidad { get; set; } = 1;
+        public int? ProductoId { get; set; }        // ← ahora nullable
+        public Producto? Producto { get; set; }      // ← ahora nullable
+
+        public int? TagId { get; set; }              // ← nuevo
+        public Tag? Tag { get; set; }                 // ← nuevo
+
     }
 }

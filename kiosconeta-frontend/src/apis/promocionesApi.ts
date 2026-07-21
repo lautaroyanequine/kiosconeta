@@ -7,8 +7,10 @@ import apiClient, { handleResponse, handleError } from './client';
 export type TipoPromocion = 1 | 2 | 3; // Combo | Cantidad | Porcentaje
 
 export interface PromocionProductoDTO {
-  productoId: number;
-  productoNombre: string;
+  productoId?: number;
+  productoNombre?: string;
+  tagId?: number;
+  tagNombre?: string;
   cantidad: number;
   precioUnitario: number;
 }
@@ -30,6 +32,8 @@ export interface PromocionResponseDTO {
   cantidadPaga?: number;
   productoIdCantidad?: number;
   productoNombreCantidad?: string;
+  tagIdCantidad?: number | null;        
+  tagNombreCantidad?: string | null; 
   // Porcentaje
   porcentajeDescuento?: number;
   precioFijoDescuento?: number;
@@ -57,6 +61,7 @@ export interface CreatePromocionDTO {
   cantidadRequerida?: number;
   cantidadPaga?: number;
   productoIdCantidad?: number;
+  tagIdCantidad?: number;
   // Porcentaje
   porcentajeDescuento?: number;
   precioFijoDescuento?: number;

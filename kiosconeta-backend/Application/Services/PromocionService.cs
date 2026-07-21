@@ -8,6 +8,7 @@ public class PromocionService : IPromocionService
 {
     private readonly IPromocionRepository _repo;
     private readonly IProductoRepository _productoRepo;
+    private Dictionary<int, HashSet<int>> _tagProductosCache = new();
 
     public PromocionService(IPromocionRepository repo, IProductoRepository productoRepo)
     {
@@ -42,10 +43,17 @@ public class PromocionService : IPromocionService
             ProductoIdPorcentaje = dto.ProductoIdPorcentaje,
             CategoriaIdPorcentaje = dto.CategoriaIdPorcentaje,
             CantidadMinimaDescuento = dto.CantidadMinimaDescuento,   // ← NUEVO
-            PromocionProductos = dto.Productos.Select(p => new PromocionProducto
+            PromocionProductos = dto.Productos.Select(p =>
             {
-                ProductoId = p.ProductoId,
-                Cantidad = p.Cantidad
+                if (p.ProductoId == null && p.TagId == null)
+                    throw new InvalidOperationException("Cada ítem del combo necesita producto o tag");
+
+                return new PromocionProducto
+                {
+                    ProductoId = p.ProductoId,
+                    TagId = p.TagId,
+                    Cantidad = p.Cantidad
+                };
             }).ToList()
         };
         var creada = await _repo.CreateAsync(promo);
@@ -75,11 +83,17 @@ public class PromocionService : IPromocionService
 
         // Reemplazamos la lista de productos del combo (el repo se encarga de
         // borrar los PromocionProductos anteriores e insertar estos nuevos)
-        promoExistente.PromocionProductos = dto.Productos.Select(p => new PromocionProducto
+        promoExistente.PromocionProductos = dto.Productos.Select(p =>
         {
-            PromocionId = id,
-            ProductoId = p.ProductoId,
-            Cantidad = p.Cantidad
+            if (p.ProductoId == null && p.TagId == null)
+                throw new InvalidOperationException("Cada ítem del combo necesita producto o tag");
+
+            return new PromocionProducto
+            {
+                ProductoId = p.ProductoId,
+                TagId = p.TagId,
+                Cantidad = p.Cantidad
+            };
         }).ToList();
 
         var actualizada = await _repo.UpdateAsync(promoExistente, reemplazarProductos: true);
@@ -108,6 +122,24 @@ public class PromocionService : IPromocionService
     {
         var promos = await _repo.GetActivasByKioscoAsync(dto.KioscoId);
         var carrito = dto.Productos;
+
+
+
+        var tagIds = promos
+        .SelectMany(p => p.PromocionProductos.Where(pp => pp.TagId != null).Select(pp => pp.TagId!.Value)
+            .Concat(p.TagIdCantidad != null ? new[] { p.TagIdCantidad.Value } : Array.Empty<int>()))
+        .Distinct()
+        .ToList();
+
+        var tagProductosCache = new Dictionary<int, HashSet<int>>();
+        foreach (var tagId in tagIds)
+        {
+            var productosDelTag = await _productoRepo.GetByTagAsync(tagId);
+            tagProductosCache[tagId] = productosDelTag.Select(p => p.ProductoId).ToHashSet();
+        }
+        _tagProductosCache = tagProductosCache;
+
+
 
         var totalOriginal = carrito.Sum(i => i.PrecioUnitario * i.Cantidad);
         var aplicadas = new List<PromocionAplicadaDTO>();
@@ -144,18 +176,32 @@ public class PromocionService : IPromocionService
         if (!promo.PromocionProductos.Any() || promo.PrecioCombo == null)
             return null;
 
+        decimal precioOriginal = 0;
+
         foreach (var pp in promo.PromocionProductos)
         {
-            var item = carrito.FirstOrDefault(c => c.ProductoId == pp.ProductoId);
-            if (item == null || item.Cantidad < pp.Cantidad)
-                return null;
-        }
+            if (pp.ProductoId != null)
+            {
+                var item = carrito.FirstOrDefault(c => c.ProductoId == pp.ProductoId);
+                if (item == null || item.Cantidad < pp.Cantidad) return null;
+                precioOriginal += item.PrecioUnitario * pp.Cantidad;
+            }
+            else if (pp.TagId != null)
+            {
+                // Nota: esto requiere resolver productos por tag de forma síncrona;
+                // ver comentario abajo sobre precargar el mapa de tags antes del foreach.
+                var idsTag = _tagProductosCache.TryGetValue(pp.TagId.Value, out var ids) ? ids : new HashSet<int>();
+                var unidades = carrito
+                    .Where(c => idsTag.Contains(c.ProductoId))
+                    .SelectMany(c => Enumerable.Repeat(c.PrecioUnitario, c.Cantidad))
+                    .OrderBy(precio => precio)
+                    .ToList();
 
-        decimal precioOriginal = promo.PromocionProductos
-            .Sum(pp => {
-                var item = carrito.First(c => c.ProductoId == pp.ProductoId);
-                return item.PrecioUnitario * pp.Cantidad;
-            });
+                if (unidades.Count < pp.Cantidad) return null;
+                precioOriginal += unidades.Take(pp.Cantidad).Sum();
+            }
+            else return null;
+        }
 
         var descuento = precioOriginal - promo.PrecioCombo.Value;
         if (descuento <= 0) return null;
@@ -169,21 +215,41 @@ public class PromocionService : IPromocionService
             Descripcion = $"Combo: {promo.Nombre} → ${promo.PrecioCombo:F2}"
         };
     }
-
     // ── Detectar CANTIDAD (2x1, 3x2) ─────────────────────────────────────
 
     private PromocionAplicadaDTO? DetectarCantidad(Promocion promo, List<ItemCarritoDTO> carrito)
     {
-        if (promo.ProductoIdCantidad == null || promo.CantidadRequerida == null || promo.CantidadPaga == null)
+        if (promo.CantidadRequerida == null || promo.CantidadPaga == null)
+            return null;
+        if (promo.ProductoIdCantidad == null && promo.TagIdCantidad == null)
             return null;
 
-        var item = carrito.FirstOrDefault(c => c.ProductoId == promo.ProductoIdCantidad);
-        if (item == null || item.Cantidad < promo.CantidadRequerida)
-            return null;
+        List<decimal> unidades;
 
-        var veces = item.Cantidad / promo.CantidadRequerida.Value;
+        if (promo.ProductoIdCantidad != null)
+        {
+            var item = carrito.FirstOrDefault(c => c.ProductoId == promo.ProductoIdCantidad);
+            if (item == null) return null;
+            unidades = Enumerable.Repeat(item.PrecioUnitario, item.Cantidad).ToList();
+        }
+        else
+        {
+            var idsTag = _tagProductosCache.TryGetValue(promo.TagIdCantidad!.Value, out var ids) ? ids : new HashSet<int>();
+            unidades = carrito
+                .Where(c => idsTag.Contains(c.ProductoId))
+                .SelectMany(c => Enumerable.Repeat(c.PrecioUnitario, c.Cantidad))
+                .ToList();
+        }
+
+        if (unidades.Count < promo.CantidadRequerida) return null;
+
+        unidades = unidades.OrderBy(p => p).ToList(); // más baratas primero
+        var veces = unidades.Count / promo.CantidadRequerida.Value;
         var gratis = promo.CantidadRequerida.Value - promo.CantidadPaga.Value;
-        var descuento = veces * gratis * item.PrecioUnitario;
+        var unidadesGratis = veces * gratis;
+        var descuento = unidades.Take(unidadesGratis).Sum();
+
+        if (descuento <= 0) return null;
 
         return new PromocionAplicadaDTO
         {
@@ -194,7 +260,6 @@ public class PromocionService : IPromocionService
             Descripcion = $"{promo.CantidadRequerida}x{promo.CantidadPaga}: {promo.Nombre}"
         };
     }
-
     // ── Detectar PORCENTAJE (con soporte de cantidad mínima) ──────────────
     //
     // Si CantidadMinimaDescuento != null → precio por volumen:
@@ -304,10 +369,14 @@ public class PromocionService : IPromocionService
         CantidadMinimaDescuento = p.CantidadMinimaDescuento,   // ← NUEVO
         TagIdPorcentaje = p.TagIdPorcentaje,
         TagNombrePorcentaje = p.TagPorcentaje?.Nombre,
+        TagIdCantidad = p.TagIdCantidad,
+        TagNombreCantidad = p.TagCantidad?.Nombre,
         Productos = p.PromocionProductos.Select(pp => new PromocionProductoDTO
         {
             ProductoId = pp.ProductoId,
             ProductoNombre = pp.Producto?.Nombre ?? "",
+            TagId = pp.TagId,
+            TagNombre = pp.Tag?.Nombre,
             Cantidad = pp.Cantidad,
             PrecioUnitario = pp.Producto?.PrecioVenta ?? 0
         }).ToList()

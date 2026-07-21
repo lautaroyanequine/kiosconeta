@@ -19,6 +19,9 @@ namespace Application.DTOs.Promocion
         public int? TagIdPorcentaje { get; set; }
         public string? TagNombrePorcentaje { get; set; }
 
+        public int? TagIdCantidad { get; set; }
+        public string? TagNombreCantidad { get; set; }
+
 
         // Combo
         public decimal? PrecioCombo { get; set; }
@@ -44,9 +47,11 @@ namespace Application.DTOs.Promocion
 
     public class PromocionProductoDTO
     {
-        public int ProductoId { get; set; }
-        public string ProductoNombre { get; set; } = string.Empty;
+        public int? ProductoId { get; set; }      // antes era int obligatorio
+        public int? TagId { get; set; }           // ← nuevo
+        public string? TagNombre { get; set; }    // ← solo en el response
         public int Cantidad { get; set; }
+        public string ProductoNombre { get; set; } = string.Empty;
         public decimal PrecioUnitario { get; set; }
     }
 
@@ -59,6 +64,8 @@ namespace Application.DTOs.Promocion
         public DateTime? FechaDesde { get; set; }
         public DateTime? FechaHasta { get; set; }
         public int? TagIdPorcentaje { get; set; }
+        public int? TagIdCantidad { get; set; }
+
 
 
         // Combo
@@ -82,10 +89,10 @@ namespace Application.DTOs.Promocion
 
     public class CreatePromocionProductoDTO
     {
-        public int ProductoId { get; set; }
+        public int? ProductoId { get; set; }
+        public int? TagId { get; set; }
         public int Cantidad { get; set; } = 1;
     }
-
     // ── Detectar promos en carrito ────────────────────────
     public class DetectarPromocionesDTO
     {

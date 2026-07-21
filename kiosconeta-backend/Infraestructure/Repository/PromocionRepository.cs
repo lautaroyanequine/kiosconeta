@@ -16,6 +16,8 @@ public class PromocionRepository : IPromocionRepository
             .Include(p => p.ProductoCantidad)
             .Include(p => p.ProductoPorcentaje)
             .Include(p => p.CategoriaPorcentaje)
+        .Include(p => p.PromocionProductos).ThenInclude(pp => pp.Tag)
+.Include(p => p.TagCantidad)
             .Where(p => p.KioscoId == kioscoId)
             .OrderBy(p => p.Nombre)
             .ToListAsync();
@@ -29,6 +31,8 @@ public class PromocionRepository : IPromocionRepository
             .Include(p => p.ProductoCantidad)
             .Include(p => p.ProductoPorcentaje)
             .Include(p => p.CategoriaPorcentaje)
+            .Include(p => p.PromocionProductos).ThenInclude(pp => pp.Tag)
+.Include(p => p.TagCantidad)
             .Where(p => p.KioscoId == kioscoId
                      && p.Activa
                      && (p.FechaDesde == null || p.FechaDesde <= hoy)
@@ -39,6 +43,8 @@ public class PromocionRepository : IPromocionRepository
     public async Task<Promocion?> GetByIdAsync(int id) =>
         await _context.Promociones
             .Include(p => p.PromocionProductos).ThenInclude(pp => pp.Producto)
+        .Include(p => p.PromocionProductos).ThenInclude(pp => pp.Tag)
+.Include(p => p.TagCantidad)
             .FirstOrDefaultAsync(p => p.PromocionId == id);
 
     public async Task<Promocion> CreateAsync(Promocion promocion)
