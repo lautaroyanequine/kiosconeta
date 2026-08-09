@@ -49,7 +49,7 @@ const AdminPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Contenido */}
+      {/* Contenidooo */}
       <div className="flex-1 overflow-y-auto p-6">
         {tabActiva === 'gastos'    && <GastosAdmin />}
         {tabActiva === 'sueldos'   && <Sueldos />}
