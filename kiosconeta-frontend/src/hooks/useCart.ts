@@ -8,6 +8,15 @@ import { promocionesApi } from '@/apis/promocionesApi';
 import type { ItemCarrito, ProductoSimple } from '@/types';
 import type { PromocionAplicadaDTO } from '@/apis/promocionesApi';
 
+// Línea ya resuelta de un combo: qué producto puntual cubre cada componente
+// (necesario cuando el componente del combo era "cualquier producto con tag X"
+// y el cajero eligió uno concreto al armarlo).
+export interface ResolucionComboLinea {
+  productoId: number;
+  nombre: string;
+  cantidad: number; // cantidad por UNIDAD de combo (se multiplica x item.cantidad al cobrar)
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // HOOK
 // ────────────────────────────────────────────────────────────────────────────
@@ -63,58 +72,79 @@ export const useCart = (kioscoId?: number) => {
   }, [items, detectarPromos]);
 
   // ── Agregar ───────────────────────────────────────────────────────────────
+  //
+  // resolucionCombo: solo se pasa para combos que tienen al menos una línea
+  // "por tag" ya resuelta a un producto puntual. Cuando viene presente, el
+  // ítem se agrega SIEMPRE como una línea nueva del carrito (no se mergea con
+  // otra unidad del mismo combo), porque dos unidades del mismo combo pueden
+  // haber resuelto el tag con productos distintos (ej: alfajor Mondelez A
+  // vs B) y no tiene sentido sumarlas en una sola fila.
 
-  const addItem = (producto: ProductoSimple,precioOverride?: number) => {
-    const precio = precioOverride ?? producto.precioVenta; 
+  const addItem = (
+    producto: ProductoSimple,
+    precioOverride?: number,
+    resolucionCombo?: ResolucionComboLinea[]
+  ) => {
+    const precio = precioOverride ?? producto.precioVenta;
+
     setItems(prev => {
-      const existing = prev.find(i => i.productoId === producto.productoId);
-      if (existing) {
-        if (existing.cantidad >= existing.stock) {
-          alert('No hay stock suficiente');
-          return prev;
+      if (!resolucionCombo) {
+        const existing = prev.find(i => i.productoId === producto.productoId && !i.resolucionCombo);
+        if (existing) {
+          if (existing.cantidad >= existing.stock) {
+            alert('No hay stock suficiente');
+            return prev;
+          }
+          return prev.map(i =>
+            i.lineId === existing.lineId
+              ? { ...i, cantidad: i.cantidad + 1, subtotal: calcularSubtotal(i.precioUnitario, i.cantidad + 1) }
+              : i
+          );
         }
-        return prev.map(i =>
-          i.productoId === producto.productoId
-            ? { ...i, cantidad: i.cantidad + 1, subtotal: calcularSubtotal(i.precioUnitario, i.cantidad + 1) }
-            : i
-        );
       }
+
+      const lineId = resolucionCombo
+        ? `${producto.productoId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        : String(producto.productoId);
+
       return [...prev, {
+        lineId,
         productoId:     producto.productoId,
         nombre:         producto.nombre,
         precioUnitario: precio,
         cantidad:       1,
         subtotal:       precio,
         stock:          producto.stock,
+        resolucionCombo,
       }];
     });
   };
 
   // ── Quitar ────────────────────────────────────────────────────────────────
 
-  const removeItem = (productoId: number) => {
-    setItems(prev => prev.filter(i => i.productoId !== productoId));
+  const removeItem = (lineId: string) => {
+    setItems(prev => prev.filter(i => i.lineId !== lineId));
   };
 
   // ── Actualizar cantidad ───────────────────────────────────────────────────
 
-  const updateQuantity = (productoId: number, cantidad: number) => {
-    if (cantidad <= 0) { removeItem(productoId); return; }
+  const updateQuantity = (lineId: string, cantidad: number) => {
+    if (cantidad <= 0) { removeItem(lineId); return; }
     setItems(prev => prev.map(i => {
-      if (i.productoId !== productoId) return i;
+      if (i.lineId !== lineId) return i;
       if (cantidad > i.stock) { alert('No hay stock suficiente'); return i; }
       return { ...i, cantidad, subtotal: calcularSubtotal(i.precioUnitario, cantidad) };
     }));
   };
 
-  const incrementQuantity = (productoId: number) => {
-    const item = items.find(i => i.productoId === productoId);
-    if (item) updateQuantity(productoId, item.cantidad + 1);
+  const incrementQuantity = (lineId: string) => {
+    const item = items.find(i => i.lineId === lineId);
+    if (item) updateQuantity(lineId, item.cantidad + 1);
   };
 
-  const decrementQuantity = (productoId: number) => {
-    const item = items.find(i => i.productoId === productoId);
-    if (item) updateQuantity(productoId, item.cantidad - 1);
+  const decrementQuantity = (lineId: string) => {
+    const item = items.find(i => i.lineId === lineId);
+    if (item) updateQuantity(lineId, item.cantidad - 1);
   };
 
   // ── Limpiar ───────────────────────────────────────────────────────────────

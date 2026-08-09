@@ -76,12 +76,15 @@ export interface CreateProductoVentaDTO {
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface ItemCarrito {
+  lineId: string;
   productoId: number;
   nombre: string;
   precioUnitario: number;
   cantidad: number;
   subtotal: number;
-  stock: number;              // Stock disponible
+  stock: number;          
+  resolucionCombo?: { productoId: number; nombre: string; cantidad: number }[]; // ← nuevo
+
 }
 
 export interface Carrito {

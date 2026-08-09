@@ -47,7 +47,11 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   // Productos
   const [productos, setProductos]                   = useState<ProductoSimple[]>([]);
-  const [combosVirtuales, setCombosVirtuales]       = useState<(ProductoSimple & { esCombo: true; promocionId: number; productosCombo: { productoId: number; nombre: string; cantidad: number }[] })[]>([]);
+  const [combosVirtuales, setCombosVirtuales] = useState<(ProductoSimple & {
+    esCombo: true;
+    promocionId: number;
+    productosCombo: { productoId?: number; nombre?: string; tagId?: number; tagNombre?: string; cantidad: number }[];
+  })[]>([]);
   const [productosFiltrados, setProductosFiltrados] = useState<ProductoSimple[]>([]);
   const [busqueda, setBusqueda]                     = useState('');
   const [categoriaActiva, setCategoriaActiva]       = useState('todas');
@@ -55,7 +59,10 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   const [sueltoModal, setSueltoModal] = useState<{ producto: ProductoSimple; cantidad: number } | null>(null);
 
   // Modal de selección de combo
-  const [comboModal, setComboModal] = useState<{ combo: typeof combosVirtuales[0]; cantidades: Record<number, number> } | null>(null);
+  const [comboModal, setComboModal] = useState<{
+    combo: typeof combosVirtuales[0];
+    lineas: { cantidad: number; productoIdElegido?: number }[]; // alineado por índice con combo.productosCombo
+  } | null>(null);
   
   // Métodos de pago
   const [metodosPago, setMetodosPago]           = useState<MetodoPago[]>([]);
@@ -112,6 +119,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
           productosCombo: p.productos.map(pp => ({
             productoId: pp.productoId,
             nombre:     pp.productoNombre,
+            tagId:      pp.tagId,
+            tagNombre:  pp.tagNombre,
             cantidad:   pp.cantidad,
           })),
         }));
@@ -265,12 +274,20 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     // Expandir combos a sus productos reales
     const productosParaVenta = cart.items.flatMap(item => {
       if (item.productoId < 0) {
+        if (item.resolucionCombo && item.resolucionCombo.length > 0) {
+          return item.resolucionCombo.map(pc => ({
+            productoId: pc.productoId,
+            cantidad:   pc.cantidad * item.cantidad,
+          }));
+        }
         const combo = combosVirtuales.find(c => c.productoId === item.productoId);
         if (!combo) return [];
-        return combo.productosCombo.map(pc => ({
-          productoId: pc.productoId,
-          cantidad:   pc.cantidad * item.cantidad,
-        }));
+        return combo.productosCombo
+          .filter(pc => pc.productoId != null) // por si quedara alguna línea por tag sin resolver
+          .map(pc => ({
+            productoId: pc.productoId!,
+            cantidad:   pc.cantidad * item.cantidad,
+          }));
       }
       return [{ productoId: item.productoId, cantidad: item.cantidad }];
     });
@@ -436,7 +453,10 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     const combo = combosVirtuales.find(c => c.productoId === p.productoId)!;
     setComboModal({
       combo,
-      cantidades: Object.fromEntries(combo.productosCombo.map(pc => [pc.productoId, pc.cantidad])),
+      lineas: combo.productosCombo.map(pc => ({
+        cantidad: pc.cantidad,
+        productoIdElegido: pc.productoId, // ya viene resuelto si la línea es de producto fijo
+      })),
     });
   } else if ((p as any).suelto) {  
     setSueltoModal({ producto: p, cantidad: 1, });
@@ -483,11 +503,11 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
         <div className="divide-y divide-neutral-100">
           {cart.items.map(item => (
             <CartItemRow
-              key={item.productoId}
+              key={item.lineId}
               item={item}
-              onIncrement={() => cart.incrementQuantity(item.productoId)}
-              onDecrement={() => cart.decrementQuantity(item.productoId)}
-              onRemove={() => cart.removeItem(item.productoId)}
+              onIncrement={() => cart.incrementQuantity(item.lineId)}
+              onDecrement={() => cart.decrementQuantity(item.lineId)}
+              onRemove={() => cart.removeItem(item.lineId)}
             />
           ))}
         </div>
@@ -617,39 +637,76 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               Ajustá las cantidades de cada componente antes de agregar al carrito.
             </p>
             <div className="space-y-3 mb-5">
-              {comboModal.combo.productosCombo.map(pc => {
-                const qty = comboModal.cantidades[pc.productoId] ?? pc.cantidad;
-                const prod = productos.find(p => p.productoId === pc.productoId);
-                const sinStock = prod && prod.stock < qty;
+              {comboModal.combo.productosCombo.map((pc, idx) => {
+                const linea = comboModal.lineas[idx];
+                const qty = linea?.cantidad ?? pc.cantidad;
+                const esLineaPorTag = pc.productoId == null && pc.tagId != null;
+
+                // Línea fija: ya sabemos qué producto es
+                const prodFijo = !esLineaPorTag
+                  ? productos.find(p => p.productoId === pc.productoId)
+                  : undefined;
+
+                // Línea por tag: opciones posibles + la elegida
+                const opcionesTag = esLineaPorTag
+                  ? productos.filter(p => (p as any).tagIds?.includes(pc.tagId))
+                  : [];
+                const prodElegido = esLineaPorTag
+                  ? productos.find(p => p.productoId === linea?.productoIdElegido)
+                  : prodFijo;
+
+                const sinStock = prodElegido && prodElegido.stock < qty;
+
+                const setLinea = (cambios: Partial<{ cantidad: number; productoIdElegido?: number }>) => {
+                  setComboModal(prev => {
+                    if (!prev) return prev;
+                    const nuevasLineas = prev.lineas.map((l, i) => i === idx ? { ...l, ...cambios } : l);
+                    return { ...prev, lineas: nuevasLineas };
+                  });
+                };
+
                 return (
-                  <div key={pc.productoId}
-                    className="flex items-center gap-3 bg-neutral-50 rounded-xl px-4 py-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-neutral-800 text-sm leading-tight">{pc.nombre}</p>
-                      {prod && (
-                        <p className={`text-xs mt-0.5 ${sinStock ? 'text-red-500' : 'text-neutral-400'}`}>
-                          Stock: {prod.stock}{sinStock && ' · insuficiente'}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => setComboModal(prev => prev && ({
-                          ...prev,
-                          cantidades: { ...prev.cantidades, [pc.productoId]: Math.max(1, qty - 1) }
-                        }))}
-                        className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-primary hover:text-primary transition-all">
-                        <Minus size={11} />
-                      </button>
-                      <span className="w-7 text-center font-bold text-neutral-800">{qty}</span>
-                      <button
-                        onClick={() => setComboModal(prev => prev && ({
-                          ...prev,
-                          cantidades: { ...prev.cantidades, [pc.productoId]: qty + 1 }
-                        }))}
-                        className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-primary hover:text-primary transition-all">
-                        <Plus size={11} />
-                      </button>
+                  <div key={idx} className="bg-neutral-50 rounded-xl px-4 py-3 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        {esLineaPorTag ? (
+                          <>
+                            <p className="text-[11px] font-medium text-blue-500 uppercase tracking-wide mb-1">
+                              {pc.tagNombre ?? 'Elegí uno'}
+                            </p>
+                            <select
+                              value={linea?.productoIdElegido ?? ''}
+                              onChange={e => setLinea({ productoIdElegido: e.target.value ? Number(e.target.value) : undefined })}
+                              className="w-full text-sm font-semibold text-neutral-800 bg-white border border-neutral-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-primary"
+                            >
+                              <option value="">Seleccioná un producto...</option>
+                              {opcionesTag.map(p => (
+                                <option key={p.productoId} value={p.productoId}>{p.nombre}</option>
+                              ))}
+                            </select>
+                          </>
+                        ) : (
+                          <p className="font-semibold text-neutral-800 text-sm leading-tight">{pc.nombre}</p>
+                        )}
+                        {prodElegido && (
+                          <p className={`text-xs mt-1 ${sinStock ? 'text-red-500' : 'text-neutral-400'}`}>
+                            Stock: {prodElegido.stock}{sinStock && ' · insuficiente'}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => setLinea({ cantidad: Math.max(1, qty - 1) })}
+                          className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-primary hover:text-primary transition-all">
+                          <Minus size={11} />
+                        </button>
+                        <span className="w-7 text-center font-bold text-neutral-800">{qty}</span>
+                        <button
+                          onClick={() => setLinea({ cantidad: qty + 1 })}
+                          className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-primary hover:text-primary transition-all">
+                          <Plus size={11} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -662,6 +719,30 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               </button>
               <button
                 onClick={() => {
+  // ¿Falta elegir algún producto en una línea por tag?
+  const faltaElegir = comboModal.combo.productosCombo.some((pc, idx) =>
+    pc.productoId == null && !comboModal.lineas[idx]?.productoIdElegido
+  );
+  if (faltaElegir) {
+    alert('Elegí un producto para cada componente del combo');
+    return;
+  }
+
+  const tieneLineaPorTag = comboModal.combo.productosCombo.some(pc => pc.productoId == null && pc.tagId != null);
+
+  const resolucionCombo = tieneLineaPorTag
+    ? comboModal.combo.productosCombo.map((pc, idx) => {
+        const linea = comboModal.lineas[idx];
+        const productoId = pc.productoId ?? linea!.productoIdElegido!;
+        const prod = productos.find(p => p.productoId === productoId);
+        return {
+          productoId,
+          nombre:   pc.nombre ?? prod?.nombre ?? '',
+          cantidad: linea?.cantidad ?? pc.cantidad,
+        };
+      })
+    : undefined;
+
   cart.addItem(
     {
       productoId: comboModal.combo.productoId,   // ya es negativo (-promocionId)
@@ -670,7 +751,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       stock:      999,
       categoria:  'Combo',
     },
-    comboModal.combo.precioVenta  // precioOverride = precioCombo
+    comboModal.combo.precioVenta,  // precioOverride = precioCombo
+    resolucionCombo
   );
   setComboModal(null);
 }}
