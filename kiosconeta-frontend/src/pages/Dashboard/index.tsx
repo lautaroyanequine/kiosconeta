@@ -354,6 +354,7 @@ const DashboardPage: React.FC = () => {
                     valor={formatCurrency(metricas?.totalVendido ?? 0)}
                     icono={<TrendingUp size={20} />}
                     color="primary"
+                    subValor="Ventas registradas, antes de gastos de turno y diferencias de caja"
                   />
                   <Tarjeta
                     label="Cantidad de ventas"

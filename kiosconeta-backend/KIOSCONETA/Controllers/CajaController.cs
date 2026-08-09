@@ -17,15 +17,23 @@ namespace KIOSCONETA.Controllers
             _cajaService = cajaService;
         }
 
-        // ─── GET /api/Caja/kiosco/{kioscoId} ─────────────────────────────────
+        // ─── GET /api/Caja/kiosco/{kioscoId}?anio=2026&mes=8 ─────────────────
         // Resumen completo de caja (saldo, ventas, gastos, movimientos)
+        // anio/mes son opcionales: sin ellos, devuelve el histórico completo.
         [HttpGet("kiosco/{kioscoId}")]
-        public async Task<ActionResult<CajaResumenDTO>> GetResumen(int kioscoId)
+        public async Task<ActionResult<CajaResumenDTO>> GetResumen(
+            int kioscoId,
+            [FromQuery] int? anio,
+            [FromQuery] int? mes)
         {
             try
             {
-                var resumen = await _cajaService.GetResumenAsync(kioscoId);
+                var resumen = await _cajaService.GetResumenAsync(kioscoId, anio, mes);
                 return Ok(resumen);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {

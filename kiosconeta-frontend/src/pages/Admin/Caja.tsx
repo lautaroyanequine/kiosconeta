@@ -66,8 +66,11 @@ interface CajaResumen {
 // HELPERS
 // ────────────────────────────────────────────────────────────────────────────
 
-// Convierte la respuesta de "crear movimiento manual" al shape del extracto,
-// para poder insertarlo de forma optimista en la lista sin recargar todo.
+// Convierte la respuesta de "crear movimiento manual" al shape del extracto.
+// (Actualmente no se usa: tras crear un movimiento se recarga todo el resumen
+// respetando el filtro de período. Se deja por si se necesita un parche optimista
+// en el futuro para la vista "todo el historial".)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mapCreadoAExtracto = (m: MovimientoCajaCreado): MovimientoExtracto => ({
   id: `mov-${m.movimientoCajaId}`,
   fecha: m.fecha,
@@ -96,9 +99,10 @@ const iconoPorOrigen = (origen: OrigenMovimiento) => {
 // ────────────────────────────────────────────────────────────────────────────
 
 const cajaApi = {
-  getResumen: async (kioscoId: number): Promise<CajaResumen> => {
+  getResumen: async (kioscoId: number, periodo?: { anio: number; mes: number }): Promise<CajaResumen> => {
     try {
-      const r = await apiClient.get<CajaResumen>(`/Caja/kiosco/${kioscoId}`)
+      const query = periodo ? `?anio=${periodo.anio}&mes=${periodo.mes}` : ''
+      const r = await apiClient.get<CajaResumen>(`/Caja/kiosco/${kioscoId}${query}`)
       return handleResponse(r)
     } catch (e) { return handleError(e) }
   },
@@ -126,6 +130,21 @@ const cajaApi = {
       return handleResponse(r)
     } catch (e) { return handleError(e) }
   },
+}
+
+// Últimos N meses para el selector, más reciente primero
+const generarOpcionesMes = (cantidad = 12) => {
+  const opciones: { anio: number; mes: number; label: string }[] = []
+  const hoy = new Date()
+  for (let i = 0; i < cantidad; i++) {
+    const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1)
+    opciones.push({
+      anio: d.getFullYear(),
+      mes: d.getMonth() + 1,
+      label: d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }),
+    })
+  }
+  return opciones
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -190,17 +209,24 @@ export const Caja: React.FC = () => {
   // ── Filtro de origen ──────────────────────────────────────────────────────
   const [filtroOrigen, setFiltroOrigen] = useState<'todos' | OrigenMovimiento>('todos')
 
+  // ── Filtro de período (mes) ───────────────────────────────────────────────
+  const opcionesMes = React.useMemo(() => generarOpcionesMes(12), [])
+  const [periodo, setPeriodo] = useState<'todo' | string>('todo') // string = "anio-mes", ej "2026-8"
+
   // ── Eliminar ──────────────────────────────────────────────────────────────
   const [eliminando, setEliminando]       = useState<string | null>(null)
 
-  useEffect(() => { cargar() }, [])
+  useEffect(() => { cargar() }, [periodo])
 
   const cargar = async () => {
     if (!user?.kioscoId) return
     setLoading(true)
     setError('')
     try {
-      const data = await cajaApi.getResumen(user.kioscoId)
+      const periodoParam = periodo === 'todo'
+        ? undefined
+        : { anio: Number(periodo.split('-')[0]), mes: Number(periodo.split('-')[1]) }
+      const data = await cajaApi.getResumen(user.kioscoId, periodoParam)
       setResumen(data)
     } catch (err: any) {
       setError(err.message || 'Error al cargar caja')
@@ -216,26 +242,15 @@ export const Caja: React.FC = () => {
     setIsSubmittingMov(true)
     setErrorMov('')
     try {
-      const creado = await cajaApi.createMovimiento(user.kioscoId, {
+      await cajaApi.createMovimiento(user.kioscoId, {
         descripcion: movDescripcion.trim(),
         monto: parseFloat(movMonto),
         tipo: movTipo,
         empleadoId: user.empleadoId,
       })
-      const nuevo = mapCreadoAExtracto(creado)
-      setResumen(prev => prev ? {
-        ...prev,
-        movimientos: [nuevo, ...prev.movimientos],
-        saldoActual: movTipo === 1
-          ? prev.saldoActual + nuevo.monto
-          : prev.saldoActual - nuevo.monto,
-        totalIngresosManual: movTipo === 1
-          ? prev.totalIngresosManual + nuevo.monto
-          : prev.totalIngresosManual,
-        totalEgresosManual: movTipo === 2
-          ? prev.totalEgresosManual + nuevo.monto
-          : prev.totalEgresosManual,
-      } : prev)
+      // El movimiento nuevo tiene fecha de hoy: si estamos viendo otro mes,
+      // un parche optimista lo mostraría mal — mejor recargar respetando el filtro.
+      await cargar()
       cerrarModalMovimiento()
     } catch (err: any) {
       setErrorMov(err.message || 'Error al registrar movimiento')
@@ -282,11 +297,11 @@ export const Caja: React.FC = () => {
     setIsSubmittingSaldo(true)
     setErrorSaldo('')
     try {
-      const actualizado = await cajaApi.updateSaldoInicial(user.kioscoId, {
+      await cajaApi.updateSaldoInicial(user.kioscoId, {
         saldoInicial: parseFloat(nuevoSaldo),
         empleadoId: user.empleadoId,
       })
-      setResumen(actualizado)
+      await cargar() // recarga respetando el período actualmente seleccionado
       setModalSaldo(false)
       setNuevoSaldo('')
     } catch (err: any) {
@@ -336,9 +351,23 @@ export const Caja: React.FC = () => {
 
         {/* ── SALDO ACTUAL ──────────────────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-neutral-200 p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
             <h2 className="text-base font-bold text-neutral-800">Estado de la caja</h2>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <select
+                value={periodo}
+                onChange={(e) => setPeriodo(e.target.value)}
+                className="text-xs text-neutral-600 px-3 py-1.5 rounded-lg border border-neutral-200
+                           hover:border-neutral-300 transition-colors bg-white outline-none
+                           focus:ring-2 focus:ring-primary/20 focus:border-primary capitalize"
+              >
+                <option value="todo">Todo el historial</option>
+                {opcionesMes.map(o => (
+                  <option key={`${o.anio}-${o.mes}`} value={`${o.anio}-${o.mes}`} className="capitalize">
+                    {o.label}
+                  </option>
+                ))}
+              </select>
               <button
                 onClick={() => { setNuevoSaldo(resumen.saldoInicial.toString()); setModalSaldo(true) }}
                 className="flex items-center gap-1.5 text-xs text-neutral-500 hover:text-primary
@@ -358,6 +387,13 @@ export const Caja: React.FC = () => {
               </button>
             </div>
           </div>
+
+          {periodo !== 'todo' && (
+            <p className="text-xs text-neutral-400 -mt-2 mb-4">
+              Saldo actual y saldo inicial siempre muestran el valor real de hoy — el resto de los
+              totales y los movimientos de abajo están filtrados al período seleccionado.
+            </p>
+          )}
 
           {/* Tarjetas */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">

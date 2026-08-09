@@ -2,7 +2,6 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
-using Domain.Enums;
 
 namespace Application.Services
 {
@@ -20,24 +19,69 @@ namespace Application.Services
         }
 
         // ═══════════════════════════════════════════════════
-        // RESUMEN (Modificado para aceptar rango de fechas)
+        // RESUMEN
+        // anio/mes = null → histórico completo (comportamiento de siempre)
+        // anio+mes → solo ese mes calendario para los totales/movimientos.
+        // Saldo actual y saldo inicial SIEMPRE reflejan el valor real de hoy,
+        // sin importar el período elegido (no tiene sentido "el saldo de marzo").
         // ═══════════════════════════════════════════════════
 
-        public async Task<CajaResumenDTO> GetResumenAsync(int kioscoId)
+        public async Task<CajaResumenDTO> GetResumenAsync(int kioscoId, int? anio = null, int? mes = null)
         {
+            DateTime? fechaDesde = null;
+            DateTime? fechaHasta = null;
+
+            if (anio.HasValue && mes.HasValue)
+            {
+                if (mes.Value < 1 || mes.Value > 12)
+                    throw new InvalidOperationException("El mes debe estar entre 1 y 12");
+
+                fechaDesde = new DateTime(anio.Value, mes.Value, 1, 0, 0, 0, DateTimeKind.Utc);
+                fechaHasta = fechaDesde.Value.AddMonths(1);
+            }
+
             var saldo = await _cajaRepository.GetSaldoByKioscoAsync(kioscoId);
-            var ventasEfectivo = await _cajaRepository.GetTotalVentasEfectivoAsync(kioscoId);
-            var ventasVirtual = await _cajaRepository.GetTotalVentasVirtualAsync(kioscoId);
-            var gastos = await _cajaRepository.GetTotalGastosAsync(kioscoId);
-            var ingresosManuales = await _cajaRepository.GetTotalIngresosManualAsync(kioscoId);
-            var egresosManuales = await _cajaRepository.GetTotalEgresosManualAsync(kioscoId);
-            var cantidadVentas = await _cajaRepository.GetCantidadVentasAsync(kioscoId);
-            var gananciaTotal = await _cajaRepository.GetGananciaTotalAsync(kioscoId);
-
-            var extracto = await _cajaRepository.GetExtractoAsync(kioscoId); // ← nuevo
-
             var saldoInicial = saldo?.SaldoInicial ?? 0;
-            var saldoActual = saldoInicial + ventasEfectivo + ventasVirtual - gastos + ingresosManuales - egresosManuales;
+
+            // ── Histórico completo: siempre se calcula, es la base del saldo real de hoy ──
+            var ventasEfectivoTotal = await _cajaRepository.GetTotalVentasEfectivoAsync(kioscoId);
+            var ventasVirtualTotal = await _cajaRepository.GetTotalVentasVirtualAsync(kioscoId);
+            var gastosTotal = await _cajaRepository.GetTotalGastosAsync(kioscoId);
+            var ingresosManualesTotal = await _cajaRepository.GetTotalIngresosManualAsync(kioscoId);
+            var egresosManualesTotal = await _cajaRepository.GetTotalEgresosManualAsync(kioscoId);
+
+            var saldoActual = saldoInicial
+                + ventasEfectivoTotal
+                + ventasVirtualTotal
+                - gastosTotal
+                + ingresosManualesTotal
+                - egresosManualesTotal;
+
+            // ── Totales del período mostrado (tarjetas + extracto) ──
+            // Si no hay filtro, son los mismos que ya calculamos arriba (evita repetir la consulta)
+            var ventasEfectivo = fechaDesde.HasValue
+                ? await _cajaRepository.GetTotalVentasEfectivoAsync(kioscoId, fechaDesde, fechaHasta)
+                : ventasEfectivoTotal;
+
+            var ventasVirtual = fechaDesde.HasValue
+                ? await _cajaRepository.GetTotalVentasVirtualAsync(kioscoId, fechaDesde, fechaHasta)
+                : ventasVirtualTotal;
+
+            var gastos = fechaDesde.HasValue
+                ? await _cajaRepository.GetTotalGastosAsync(kioscoId, fechaDesde, fechaHasta)
+                : gastosTotal;
+
+            var ingresosManuales = fechaDesde.HasValue
+                ? await _cajaRepository.GetTotalIngresosManualAsync(kioscoId, fechaDesde, fechaHasta)
+                : ingresosManualesTotal;
+
+            var egresosManuales = fechaDesde.HasValue
+                ? await _cajaRepository.GetTotalEgresosManualAsync(kioscoId, fechaDesde, fechaHasta)
+                : egresosManualesTotal;
+
+            var cantidadVentas = await _cajaRepository.GetCantidadVentasAsync(kioscoId, fechaDesde, fechaHasta);
+            var gananciaTotal = await _cajaRepository.GetGananciaTotalAsync(kioscoId, fechaDesde, fechaHasta);
+            var extracto = await _cajaRepository.GetExtractoAsync(kioscoId, fechaDesde, fechaHasta);
 
             return new CajaResumenDTO
             {
@@ -51,9 +95,10 @@ namespace Application.Services
                 CantidadVentas = cantidadVentas,
                 TotalIngresosManual = ingresosManuales,
                 TotalEgresosManual = egresosManuales,
-                Movimientos = extracto // ← ahora es el extracto completo
+                Movimientos = extracto
             };
-        } 
+        }
+
         // ═══════════════════════════════════════════════════
         // MOVIMIENTOS
         // ═══════════════════════════════════════════════════
@@ -112,7 +157,7 @@ namespace Application.Services
 
             await _cajaRepository.UpsertSaldoAsync(kioscoId, dto.SaldoInicial);
 
-            // Devuelve el resumen con las fechas del mes actual por defecto
+            // Devuelve el resumen histórico completo (sin filtro de período)
             return await GetResumenAsync(kioscoId);
         }
 

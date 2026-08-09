@@ -336,6 +336,9 @@ export const ResumenMensual: React.FC = () => {
               <p className="text-xs text-neutral-500">Total facturado</p>
             </div>
             <p className="text-lg font-bold text-neutral-900">{formatCurrency(totalesMes.total)}</p>
+            <p className="text-xs text-neutral-400 mt-0.5">
+              Efectivo + virtual realmente declarado al cerrar cada turno
+            </p>
           </div>
           <div className="px-5 py-4 border-r border-neutral-100">
             <div className="flex items-center gap-2 mb-1">
