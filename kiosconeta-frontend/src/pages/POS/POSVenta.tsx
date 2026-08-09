@@ -48,10 +48,10 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   // Productos
   const [productos, setProductos]                   = useState<ProductoSimple[]>([]);
   const [combosVirtuales, setCombosVirtuales] = useState<(ProductoSimple & {
-    esCombo: true;
-    promocionId: number;
-    productosCombo: { productoId?: number; nombre?: string; tagId?: number; tagNombre?: string; cantidad: number }[];
-  })[]>([]);
+  esCombo: true;
+  promocionId: number;
+  productosCombo: { productoId?: number; nombre?: string; tagId?: number; tagNombre?: string; cantidad: number }[];
+})[]>([]);
   const [productosFiltrados, setProductosFiltrados] = useState<ProductoSimple[]>([]);
   const [busqueda, setBusqueda]                     = useState('');
   const [categoriaActiva, setCategoriaActiva]       = useState('todas');
