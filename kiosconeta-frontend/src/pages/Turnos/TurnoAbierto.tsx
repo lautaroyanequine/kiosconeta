@@ -448,6 +448,12 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
                   <span className="text-neutral-500">Virtual declarado</span>
                   <span className="font-medium">{formatCurrency(turnoFinalizado.virtualFinal)}</span>
                 </div>
+                <div className="flex justify-between py-2.5 px-3 rounded-xl bg-amber-50 font-semibold mb-2">
+                  <span className="text-amber-700">Valor declarado total</span>
+                  <span className="text-amber-900">
+                    {formatCurrency(turnoFinalizado.efectivoFinal + turnoFinalizado.virtualFinal)}
+                  </span>
+                </div>
 
                 {/* Diferencia efectivo */}
                 <div className={`flex justify-between py-2 px-3 rounded-lg font-semibold

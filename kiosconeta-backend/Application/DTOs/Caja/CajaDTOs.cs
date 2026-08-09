@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using System.Text.Json.Serialization;   // ← agregar este using arriba del archivo
 
 namespace Application.DTOs.Caja
 {
@@ -48,6 +49,7 @@ namespace Application.DTOs.Caja
         public decimal SaldoInicial { get; set; }
         public int EmpleadoId { get; set; }
     }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum OrigenMovimiento
     {
         CierreTurno,
