@@ -217,7 +217,8 @@ const VentasPage: React.FC = () => {
     return ventas.filter(v =>
       v.empleadoNombre.toLowerCase().includes(q) ||
       String(v.numeroVenta).includes(q) ||
-      v.metodoPagoNombre.toLowerCase().includes(q)
+      v.metodoPagoNombre.toLowerCase().includes(q) ||
+      v.productos?.some(p => p.productoNombre.toLowerCase().includes(q))
     );
   }, [ventas, filtros.busqueda]);
 
@@ -295,12 +296,39 @@ const VentasPage: React.FC = () => {
           ))}
         </div>
 
+        {/* ── TABS DE ESTADO ──────────────────────────────────────────── */}
+        <div className="border-b border-neutral-200">
+          <div className="flex gap-1">
+            <button
+              onClick={() => setFiltros(p => ({ ...p, soloAnuladas: false }))}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                !filtros.soloAnuladas
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              Todas
+            </button>
+            <button
+              onClick={() => setFiltros(p => ({ ...p, soloAnuladas: true }))}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-1.5 ${
+                filtros.soloAnuladas
+                  ? 'border-danger text-danger'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              <Ban size={13} />
+              Anuladas
+            </button>
+          </div>
+        </div>
+
         {/* ── FILTROS ──────────────────────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-neutral-200 p-4 space-y-3">
           <div className="flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[200px]">
               <Input
-                placeholder="Buscar por empleado, nro. venta o método de pago..."
+                placeholder="Buscar por empleado, nro. venta, método de pago o producto..."
                 value={filtros.busqueda}
                 onChange={e => setFiltros(p => ({ ...p, busqueda: e.target.value }))}
                 leftIcon={<Search size={16} />}
@@ -317,15 +345,6 @@ const VentasPage: React.FC = () => {
                 className="px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:border-primary"
               />
             </div>
-            <button
-              onClick={() => setFiltros(p => ({ ...p, soloAnuladas: !p.soloAnuladas }))}
-              className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
-                filtros.soloAnuladas
-                  ? 'bg-red-50 border-red-400 text-red-700'
-                  : 'bg-white border-neutral-300 text-neutral-600 hover:border-neutral-400'
-              }`}>
-              Solo anuladas
-            </button>
           </div>
           <div className="flex gap-2">
             <span className="text-xs text-neutral-400 self-center mr-1">Rango rápido:</span>
