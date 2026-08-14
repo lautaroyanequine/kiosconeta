@@ -33,6 +33,9 @@ export interface Venta {
   // Método de pago
   metodoPagoId: number;
   metodoPagoNombre: string;
+  // Pago combinado (solo si metodoPagoNombre === "Pago combinado")
+  montoEfectivo?: number | null;
+  montoVirtual?: number | null;
   // Turno
   turnoId: number;
   turnoNombre: string;
@@ -62,7 +65,9 @@ export interface CreateVentaDTO {
   descuento?: number   
   cantidadCombos?: number;
   combos?: { promocionId: number; cantidad: number }[]  // ← reemplaza promocionId/cantidadCombos
- 
+  // Pago combinado: obligatorios solo cuando metodoPagoId es el de "Pago combinado"
+  montoEfectivo?: number;
+  montoVirtual?: number;
 }
 
 export interface CreateProductoVentaDTO {

@@ -15,7 +15,8 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
             entity.HasData(
                 new MetodoDePago { MetodoDePagoID = 1, Nombre = "Efectivo" },
                 new MetodoDePago { MetodoDePagoID = 2, Nombre = "Mercado Pago" },
-                new MetodoDePago { MetodoDePagoID = 3, Nombre = "Débito" }
+                new MetodoDePago { MetodoDePagoID = 3, Nombre = "Débito" },
+                new MetodoDePago { MetodoDePagoID = 4, Nombre = "Pago combinado" }
             );
         }
     }

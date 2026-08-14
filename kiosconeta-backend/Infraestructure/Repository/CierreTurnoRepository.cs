@@ -39,14 +39,37 @@ namespace Infraestructure.Repository
                 {
                     v.Total,
                     v.PrecioCosto,
+                    v.MontoEfectivo,
+                    v.MontoVirtual,
                     EsEfectivo = v.MetodoPago.Nombre.ToLower().Contains("efectivo")
                 })
                 .ToListAsync();
 
+            decimal totalEfectivo = 0;
+            decimal totalVirtual = 0;
+
+            foreach (var v in ventasData)
+            {
+                // Pago combinado: usa el split real cargado en la venta
+                if (v.MontoEfectivo.HasValue || v.MontoVirtual.HasValue)
+                {
+                    totalEfectivo += v.MontoEfectivo ?? 0;
+                    totalVirtual += v.MontoVirtual ?? 0;
+                }
+                else if (v.EsEfectivo)
+                {
+                    totalEfectivo += v.Total;
+                }
+                else
+                {
+                    totalVirtual += v.Total;
+                }
+            }
+
             return (
                 ventasData.Sum(v => v.Total),
-                ventasData.Where(v => v.EsEfectivo).Sum(v => v.Total),
-                ventasData.Where(v => !v.EsEfectivo).Sum(v => v.Total),
+                totalEfectivo,
+                totalVirtual,
                 ventasData.Sum(v => v.Total - v.PrecioCosto),
                 ventasData.Count
             );
@@ -179,4 +202,4 @@ namespace Infraestructure.Repository
                 .ToListAsync();
         }
     }
-}  
+}

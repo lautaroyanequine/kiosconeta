@@ -18,12 +18,42 @@ namespace Application.Services
         public CierreTurnoService(
             ICierreTurnoRepository cierreTurnoRepository,
             IVentaRepository ventaRepository,
-            IGastoRepository gastoRepository,IAuditoriaService auditoriaService)
+            IGastoRepository gastoRepository, IAuditoriaService auditoriaService)
         {
             _cierreTurnoRepository = cierreTurnoRepository;
             _ventaRepository = ventaRepository;
             _gastoRepository = gastoRepository;
             _auditoriaService = auditoriaService;
+        }
+
+        // ── Suma efectivo/virtual respetando el split de pagos combinados ─────────
+        // Si la venta tiene MontoEfectivo/MontoVirtual cargados (pago combinado),
+        // se usa ese split. Si no, se clasifica por el nombre del método de pago.
+        private static (decimal totalEfectivo, decimal totalVirtual) CalcularTotalesEfectivoVirtual(
+            IEnumerable<Venta> ventas)
+        {
+            decimal totalEfectivo = 0;
+            decimal totalVirtual = 0;
+
+            foreach (var v in ventas)
+            {
+                if (v.MontoEfectivo.HasValue || v.MontoVirtual.HasValue)
+                {
+                    totalEfectivo += v.MontoEfectivo ?? 0;
+                    totalVirtual += v.MontoVirtual ?? 0;
+                }
+                else if (v.MetodoPago != null &&
+                         v.MetodoPago.Nombre.Trim().ToLower().Contains("efectivo"))
+                {
+                    totalEfectivo += v.Total;
+                }
+                else
+                {
+                    totalVirtual += v.Total;
+                }
+            }
+
+            return (totalEfectivo, totalVirtual);
         }
 
         // ========== CONSULTAS ==========
@@ -65,10 +95,7 @@ namespace Application.Services
             var ventas = turno.Ventas?.Where(v => !v.Anulada).ToList() ?? new List<Venta>();
 
             var totalVentas = ventas.Sum(v => v.Total);
-            var totalEfectivo = ventas.Where(v => v.MetodoPago.Nombre.ToLower().Contains("efectivo"))
-                                     .Sum(v => v.Total);
-            var totalVirtual = ventas.Where(v => !v.MetodoPago.Nombre.ToLower().Contains("efectivo"))
-                                    .Sum(v => v.Total);
+            var (totalEfectivo, totalVirtual) = CalcularTotalesEfectivoVirtual(ventas);
 
             // Calcular gastos del turno
             var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(turno.CierreTurnoId);
@@ -77,7 +104,7 @@ namespace Application.Services
             return new TurnoActualDTO
             {
                 CierreTurnoId = turno.CierreTurnoId,
-                TurnoId = turno.TurnoId, 
+                TurnoId = turno.TurnoId,
                 TurnoNombre = turno.Turno?.Nombre ?? "",
                 FechaApertura = turno.FechaApertura,
                 EfectivoInicial = turno.EfectivoInicial,
@@ -119,7 +146,7 @@ namespace Application.Services
             var cierre = CierreTurno.Abrir(
             dto.KioscoId,
             dto.EfectivoInicial,
-            dto.VirtualInicial,  
+            dto.VirtualInicial,
             dto.Observaciones ?? string.Empty,
             dto.TurnoId,
             dto.FechaDispositivo
@@ -144,26 +171,7 @@ namespace Application.Services
                 .ToList() ?? new List<Venta>();
 
             // ── TOTALES POR MÉTODO DE PAGO ────────────────────────────────────────
-            var totalEfectivo = ventas
-                .Where(v => v.MetodoPago != null &&
-                            v.MetodoPago.Nombre.Trim().ToLower().Contains("efectivo"))
-                .Sum(v => v.Total);
-
-            var totalVirtual = ventas
-                .Where(v => v.MetodoPago != null &&
-                            !v.MetodoPago.Nombre.Trim().ToLower().Contains("efectivo"))
-                .Sum(v => v.Total);
-
-            // ── DIAGNÓSTICO (solo en desarrollo, borrar en producción) ────────────
-            if (ventas.Any() && totalEfectivo == 0 && totalVirtual == 0)
-            {
-                var ventasSinMetodo = ventas.Where(v => v.MetodoPago == null).ToList();
-                if (ventasSinMetodo.Any())
-                {
-                    totalEfectivo = ventas.Sum(v => v.Total);
-                    totalVirtual = 0;
-                }
-            }
+            var (totalEfectivo, totalVirtual) = CalcularTotalesEfectivoVirtual(ventas);
 
             // ── GASTOS ────────────────────────────────────────────────────────────
             var gastos = await _gastoRepository

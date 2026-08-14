@@ -12,6 +12,14 @@
         public int? CantidadCombos { get; set; }
         public List<ComboVentaDTO> Combos { get; set; } = new(); // ← reemplaza PromocionId
 
+        /// <summary>
+        /// Obligatorio solo si MetodoPagoId corresponde a "Pago combinado".
+        /// Debe cumplirse: MontoEfectivo + MontoVirtual == Total (con tolerancia de centavos).
+        /// </summary>
+        public decimal? MontoEfectivo { get; set; }
+
+        /// <summary>Obligatorio solo si MetodoPagoId corresponde a "Pago combinado".</summary>
+        public decimal? MontoVirtual { get; set; }
     }
     public class ComboVentaDTO
     {
@@ -48,6 +56,12 @@
 
         public int MetodoPagoId { get; set; }
         public string MetodoPagoNombre { get; set; }
+
+        /// <summary>Solo si el método de pago es "Pago combinado".</summary>
+        public decimal? MontoEfectivo { get; set; }
+
+        /// <summary>Solo si el método de pago es "Pago combinado".</summary>
+        public decimal? MontoVirtual { get; set; }
 
         public int TurnoId { get; set; }
         public string TurnoNombre { get; set; }

@@ -28,6 +28,18 @@
         public int MetodoPagoId { get; set; }
         public MetodoDePago MetodoPago { get; set; }
 
+        /// <summary>
+        /// Solo se completa cuando MetodoPago = "Pago combinado".
+        /// Parte del Total pagada en efectivo.
+        /// </summary>
+        public decimal? MontoEfectivo { get; set; }
+
+        /// <summary>
+        /// Solo se completa cuando MetodoPago = "Pago combinado".
+        /// Parte del Total pagada por método virtual (Mercado Pago, transferencia, etc.).
+        /// </summary>
+        public decimal? MontoVirtual { get; set; }
+
         public int TurnoId { get; set; }
         public Turno Turno { get; set; }
 

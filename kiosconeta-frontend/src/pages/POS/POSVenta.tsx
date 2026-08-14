@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   Search, ShoppingCart, DollarSign, Smartphone,
   CreditCard, Trash2, Plus, Minus, CheckCircle2,
-  Barcode, Package, Clock, Tag, Loader2
+  Barcode, Package, Clock, Tag, Loader2, Layers
 } from 'lucide-react';
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { productosApi, ventasApi, metodosPagoApi, auditoriaApi } from '@/apis';
@@ -28,6 +28,7 @@ interface POSVentaProps {
 
 const getMetodoIcon = (nombre: string) => {
   const n = nombre.toLowerCase();
+  if (n.includes('combinado') || n.includes('mixto'))       return Layers;
   if (n.includes('efectivo'))                               return DollarSign;
   if (n.includes('débito') || n.includes('debito'))         return CreditCard;
   if (n.includes('transferencia') || n.includes('mercado')) return Smartphone;
@@ -77,6 +78,10 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   // Efectivo / vuelto
   const [montoEfectivo, setMontoEfectivo] = useState('');
+
+  // Pago combinado (efectivo + virtual)
+  const [montoEfectivoMixto, setMontoEfectivoMixto] = useState('');
+  const [montoVirtualMixto, setMontoVirtualMixto]   = useState('');
 
   // Scanner
   const [ultimoCodigo, setUltimoCodigo]     = useState('');
@@ -194,7 +199,14 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     const diff = now - lastKeyTime.current;
     lastKeyTime.current = now;
 
-    if (document.activeElement === efectivoRef.current) return;
+    // No robar el foco si el usuario está escribiendo en cualquier input/textarea
+    // que no sea el buscador (efectivo, pago combinado, etc.)
+    const activeEl = document.activeElement as HTMLElement | null;
+    const escribiendoEnOtroCampo =
+      activeEl &&
+      activeEl !== busquedaRef.current &&
+      (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+    if (escribiendoEnOtroCampo) return;
 
     if (e.key === 'Enter') {
       if (scanBuffer.current.length >= 4) {
@@ -235,12 +247,28 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   const metodoPagoSeleccionado = metodosPago.find(m => m.metodoDePagoID === cart.metodoPagoId);
   const esEfectivo = metodoPagoSeleccionado?.nombre.toLowerCase().includes('efectivo');
+  const esPagoCombinado = metodoPagoSeleccionado?.nombre.toLowerCase().includes('combinado');
 
   const vuelto = useMemo(() => {
     const monto = parseFloat(montoEfectivo);
     if (!isNaN(monto) && monto > 0) return monto - cart.total;
     return null;
   }, [montoEfectivo, cart.total]);
+
+  // ── Pago combinado: total cargado y diferencia contra el total del carrito ──
+  const totalMixto = useMemo(() => {
+    const e = parseFloat(montoEfectivoMixto) || 0;
+    const v = parseFloat(montoVirtualMixto) || 0;
+    return e + v;
+  }, [montoEfectivoMixto, montoVirtualMixto]);
+
+  // Redondeo a centavos para evitar falsos positivos por floats (0.1 + 0.2 !== 0.3)
+  const diferenciaMixto = useMemo(
+    () => Math.round((totalMixto - cart.total) * 100) / 100,
+    [totalMixto, cart.total]
+  );
+
+  const pagoMixtoValido = !esPagoCombinado || Math.abs(diferenciaMixto) < 0.01;
 
   // ── Limpiar carrito con auditoría ─────────────────────────────────────────
 
@@ -253,6 +281,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     }
     cart.clearCart();
     setMontoEfectivo('');
+    setMontoEfectivoMixto('');
+    setMontoVirtualMixto('');
   }, [cart, user]);
 
   // ── Cobrar ────────────────────────────────────────────────────────────────
@@ -267,6 +297,15 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       alert('El monto ingresado es menor al total');
       return;
     }
+  }
+
+  if (esPagoCombinado && !pagoMixtoValido) {
+    alert(
+      diferenciaMixto > 0
+        ? `Sobran ${formatCurrency(diferenciaMixto)} — el efectivo + virtual no puede superar el total`
+        : `Faltan ${formatCurrency(Math.abs(diferenciaMixto))} para completar el total`
+    );
+    return;
   }
 
   setIsProcessing(true);
@@ -309,6 +348,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       productos:    productosParaVenta,
       descuento:    cart.totalDescuento > 0 ? cart.totalDescuento : undefined,
       combos:       combosEnVenta.length > 0 ? combosEnVenta : undefined, // ← lista completa
+      montoEfectivo: esPagoCombinado ? (parseFloat(montoEfectivoMixto) || 0) : undefined,
+      montoVirtual:  esPagoCombinado ? (parseFloat(montoVirtualMixto) || 0) : undefined,
     });
 
     console.log('VENTA CREADA:', venta);
@@ -316,7 +357,9 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     setVentaConfirmada({
       ventaId:    venta.ventaId,
       total:      venta.total,
-      metodoPago: metodoPagoSeleccionado?.nombre || '',
+      metodoPago: esPagoCombinado
+        ? `${metodoPagoSeleccionado?.nombre || 'Pago combinado'} (${formatCurrency(parseFloat(montoEfectivoMixto) || 0)} efectivo + ${formatCurrency(parseFloat(montoVirtualMixto) || 0)} virtual)`
+        : metodoPagoSeleccionado?.nombre || '',
       vuelto:     esEfectivo && montoEfectivo
         ? Math.max(0, parseFloat(montoEfectivo) - venta.total)
         : undefined,
@@ -325,6 +368,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
     cart.clearCart();
     setMontoEfectivo('');
+    setMontoEfectivoMixto('');
+    setMontoVirtualMixto('');
     setBusqueda('');
   } catch (err: any) {
     console.log('ERROR EN COBRO:', err);
@@ -332,7 +377,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   } finally {
     setIsProcessing(false);
   }
-}, [cart, user, turnoActual, esEfectivo, montoEfectivo, metodoPagoSeleccionado, onTurnoActualizado, combosVirtuales]);
+}, [cart, user, turnoActual, esEfectivo, montoEfectivo, esPagoCombinado, pagoMixtoValido, diferenciaMixto, montoEfectivoMixto, montoVirtualMixto, metodoPagoSeleccionado, onTurnoActualizado, combosVirtuales]);
   //                                                                                                                                      ↑ agregar productos
   //                                                                                                            
 
@@ -546,14 +591,19 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               <p className="text-xs font-medium text-neutral-400 mb-2 uppercase tracking-wide">
                 Método de pago
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {metodosPago.map(m => {
                   const Icon = getMetodoIcon(m.nombre);
                   const sel  = cart.metodoPagoId === m.metodoDePagoID;
                   return (
                     <button
                       key={m.metodoDePagoID}
-                      onClick={() => { cart.setMetodoPagoId(m.metodoDePagoID); setMontoEfectivo(''); }}
+                      onClick={() => {
+                        cart.setMetodoPagoId(m.metodoDePagoID);
+                        setMontoEfectivo('');
+                        setMontoEfectivoMixto('');
+                        setMontoVirtualMixto('');
+                      }}
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all
                         ${sel
                           ? 'border-primary bg-primary/5 text-primary'
@@ -603,10 +653,59 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
         </div>
       )}
 
-      <button onClick={handleCobrar} disabled={!cart.isValid || isProcessing || cart.detectandoPromos}
+      {/* Pago combinado: efectivo + virtual */}
+      {esPagoCombinado && cart.items.length > 0 && (
+        <div className="space-y-2 p-3 rounded-lg border border-neutral-200 bg-neutral-50">
+          <p className="text-xs font-medium text-neutral-500">Dividir el pago</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="relative">
+              <DollarSign size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-400 z-10 pointer-events-none" />
+              <input
+                type="number"
+                value={montoEfectivoMixto}
+                onChange={e => setMontoEfectivoMixto(e.target.value)}
+                placeholder="Efectivo"
+                style={{ paddingLeft: '1.9rem' }}
+                className="w-full pr-2 py-2.5 rounded-lg border border-neutral-300 text-sm
+                           outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+              />
+            </div>
+            <div className="relative">
+              <Smartphone size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-400 z-10 pointer-events-none" />
+              <input
+                type="number"
+                value={montoVirtualMixto}
+                onChange={e => setMontoVirtualMixto(e.target.value)}
+                placeholder="Virtual"
+                style={{ paddingLeft: '1.9rem' }}
+                className="w-full pr-2 py-2.5 rounded-lg border border-neutral-300 text-sm
+                           outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center px-0.5">
+            <span className="text-xs text-neutral-400">Total cargado</span>
+            <span className={`text-sm font-bold ${pagoMixtoValido ? 'text-success' : 'text-danger'}`}>
+              {formatCurrency(totalMixto)} <span className="font-normal text-neutral-400">/ {formatCurrency(cart.total)}</span>
+            </span>
+          </div>
+
+          {!pagoMixtoValido && (montoEfectivoMixto || montoVirtualMixto) && (
+            <div className="flex justify-between items-center bg-danger-50 px-3 py-2 rounded-lg">
+              <span className="text-sm font-medium text-danger-700">
+                {diferenciaMixto > 0 ? 'Sobra' : 'Falta'}
+              </span>
+              <span className="text-lg font-bold text-danger">{formatCurrency(Math.abs(diferenciaMixto))}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      <button onClick={handleCobrar} disabled={!cart.isValid || isProcessing || cart.detectandoPromos || !pagoMixtoValido}
         className={`w-full py-3.5 rounded-xl font-bold text-base transition-all
           flex items-center justify-center gap-2
-          ${cart.isValid && !isProcessing && !cart.detectandoPromos
+          ${cart.isValid && !isProcessing && !cart.detectandoPromos && pagoMixtoValido
             ? 'bg-primary text-white hover:bg-primary-600 active:scale-[0.98] shadow-lg shadow-primary/20'
             : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'}`}>
         {isProcessing

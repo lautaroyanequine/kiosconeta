@@ -25,7 +25,7 @@ public class VentaService : IVentaService
         ICierreTurnoRepository cierreTurnoRepository,
         INumeradorRepository numeradorRepository,
         IAuditoriaService auditoriaService,
-        IPromocionRepository promocionRepository )
+        IPromocionRepository promocionRepository)
     {
         _ventaRepository = ventaRepository;
         _productoRepository = productoRepository;
@@ -299,6 +299,32 @@ public class VentaService : IVentaService
         if (totalFinal < 0)
             totalFinal = 0;
 
+        // ── Pago combinado (efectivo + virtual) ──────────────────────────────
+        var esPagoCombinado = metodoPago.Nombre.Trim().ToLower().Contains("combinado")
+            || metodoPago.Nombre.Trim().ToLower().Contains("mixto");
+
+        decimal? montoEfectivoVenta = null;
+        decimal? montoVirtualVenta = null;
+
+        if (esPagoCombinado)
+        {
+            var montoEfectivo = dto.MontoEfectivo ?? 0;
+            var montoVirtual = dto.MontoVirtual ?? 0;
+
+            if (montoEfectivo < 0 || montoVirtual < 0)
+                throw new InvalidOperationException("Los montos del pago combinado no pueden ser negativos");
+
+            // Tolerancia de 1 centavo para evitar falsos negativos por redondeo de floats
+            var diferencia = Math.Abs((montoEfectivo + montoVirtual) - totalFinal);
+            if (diferencia > 0.01m)
+                throw new InvalidOperationException(
+                    $"El pago combinado (efectivo {montoEfectivo:C} + virtual {montoVirtual:C}) " +
+                    $"no coincide con el total de la venta ({totalFinal:C})");
+
+            montoEfectivoVenta = montoEfectivo;
+            montoVirtualVenta = montoVirtual;
+        }
+
         var numeroVenta =
             await _numeradorRepository.GenerarNumeroVentaAsync(empleado.KioscoID);
 
@@ -313,6 +339,9 @@ public class VentaService : IVentaService
             Subtotal = subtotalVenta,
             Descuento = descuentoFinal,
             Total = totalFinal,
+
+            MontoEfectivo = montoEfectivoVenta,
+            MontoVirtual = montoVirtualVenta,
 
             PrecioCosto = costoTotal,
             NumeroVenta = numeroVenta,
@@ -406,6 +435,9 @@ public class VentaService : IVentaService
 
             MetodoPagoId = venta.MetodoPagoId,
             MetodoPagoNombre = venta.MetodoPago?.Nombre ?? "",
+
+            MontoEfectivo = venta.MontoEfectivo,
+            MontoVirtual = venta.MontoVirtual,
 
             TurnoId = venta.TurnoId,
             TurnoNombre = venta.Turno?.Nombre ?? "",

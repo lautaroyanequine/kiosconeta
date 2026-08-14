@@ -59,20 +59,40 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
   const { empleadoActivo } = useEmpleadoActivo()
   const { liberarEmpleado } = useEmpleadoActivo()
 
-  // ── Estado del formulario ─────────────────────────────────────────────────
-  const [efectivoContado, setEfectivoContado] = useState('')
-  const [virtualAcreditado, setVirtualAcreditado] = useState('')
-  const [observaciones, setObservaciones] = useState(() => {
-  const guardado = localStorage.getItem(`turno-observaciones-${turno.turnoId}`)
-  return guardado || ''})
+  // ── Estado del formulario (persistido por turno mientras dure el turno) ────
+  // Mismo patrón que ya usaba "observaciones": se guarda en localStorage con
+  // una clave por campo + turnoId, así los valores sobreviven si el usuario
+  // cambia de pantalla y vuelve antes de cerrar el turno.
+  const campoGuardado = (campo: string) =>
+    localStorage.getItem(`turno-${campo}-${turno.turnoId}`) || ''
+
+  const [efectivoContado, setEfectivoContado] = useState(() => campoGuardado('efectivoContado'))
+  const [virtualAcreditado, setVirtualAcreditado] = useState(() => campoGuardado('virtualAcreditado'))
+  const [observaciones, setObservaciones] = useState(() => campoGuardado('observaciones'))
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [confirmando, setConfirmando] = useState(false)
   const [turnoFinalizado, setTurnoFinalizado] = useState<CierreTurnoResponse | null>(null)
   
   // Estados nuevos para el fondo
-  const [efectivoFinalFondo, setEfectivoFinalFondo] = useState('')
-  const [virtualFinalFondo, setVirtualFinalFondo]   = useState('')
+  const [efectivoFinalFondo, setEfectivoFinalFondo] = useState(() => campoGuardado('efectivoFinalFondo'))
+  const [virtualFinalFondo, setVirtualFinalFondo]   = useState(() => campoGuardado('virtualFinalFondo'))
+
+  useEffect(() => {
+    localStorage.setItem(`turno-efectivoContado-${turno.turnoId}`, efectivoContado)
+  }, [efectivoContado, turno.turnoId])
+
+  useEffect(() => {
+    localStorage.setItem(`turno-virtualAcreditado-${turno.turnoId}`, virtualAcreditado)
+  }, [virtualAcreditado, turno.turnoId])
+
+  useEffect(() => {
+    localStorage.setItem(`turno-efectivoFinalFondo-${turno.turnoId}`, efectivoFinalFondo)
+  }, [efectivoFinalFondo, turno.turnoId])
+
+  useEffect(() => {
+    localStorage.setItem(`turno-virtualFinalFondo-${turno.turnoId}`, virtualFinalFondo)
+  }, [virtualFinalFondo, turno.turnoId])
 
   useEffect(() => {
   localStorage.setItem(
@@ -124,6 +144,10 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
       })
       if (!resultado) throw new Error('El backend no devolvió datos del cierre')
       
+      localStorage.removeItem(`turno-efectivoContado-${turno.turnoId}`)
+      localStorage.removeItem(`turno-virtualAcreditado-${turno.turnoId}`)
+      localStorage.removeItem(`turno-efectivoFinalFondo-${turno.turnoId}`)
+      localStorage.removeItem(`turno-virtualFinalFondo-${turno.turnoId}`)
       localStorage.removeItem(`turno-observaciones-${turno.turnoId}`)
 
       // Casteo seguro para evitar el error de incompatibilidad de TypeScript
