@@ -87,18 +87,22 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
   const [incluirPrecios, setIncluirPrecios] = useState(true)
   const [copiado, setCopiado] = useState(false)
 
-  const productosConFaltante: ProductoConFaltante[] = React.useMemo(() =>
-    productos.map((p: any) => ({
+  const productosConFaltante: ProductoConFaltante[] = React.useMemo(() => {
+    if (productos.length > 0) {
+      // 🔍 TEMPORAL — borrar después de confirmar los nombres de campo reales
+      console.log('DEBUG producto de ejemplo:', productos[0])
+    }
+    return productos.map((p: any) => ({
       productoId: p.productoId,
       nombre: p.nombre,
-      categoria: p.categoria || 'Sin categoría',
+      categoria: p.categoriaNombre || 'Sin categoría',
       distribuidor: p.distribuidorNombre || 'Sin distribuidor',
       stockActual: p.stockActual ?? 0,
       stockMinimo: p.stockMinimo ?? 0,
       precioCosto: p.precioCosto ?? 0,
       faltante: Math.max(0, (p.stockMinimo ?? 0) - (p.stockActual ?? 0)),
     }))
-  , [productos])
+  }, [productos])
 
   const categorias = React.useMemo(() =>
     [...new Set(productosConFaltante.map(p => p.categoria))].sort()

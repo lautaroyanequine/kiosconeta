@@ -27,7 +27,7 @@ namespace Application.Services
 
         public async Task<ProductoResponseDTO?> GetByIdAsync(int id, int kioscoId)
         {
-            var producto = await _productoRepository.GetByIdAsync(id,kioscoId);
+            var producto = await _productoRepository.GetByIdAsync(id, kioscoId);
             return producto != null ? MapToResponseDTO(producto) : null;
         }
 
@@ -91,9 +91,9 @@ namespace Application.Services
             return productos.Select(MapToResponseDTO);
         }
 
-        public async Task<ProductoResponseDTO?> GetByCodigoBarraAsync(string codigoBarra,int kioscoId)
+        public async Task<ProductoResponseDTO?> GetByCodigoBarraAsync(string codigoBarra, int kioscoId)
         {
-            var producto = await _productoRepository.GetByCodigoBarraAsync(codigoBarra,kioscoId);
+            var producto = await _productoRepository.GetByCodigoBarraAsync(codigoBarra, kioscoId);
             return producto != null ? MapToResponseDTO(producto) : null;
         }
 
@@ -121,13 +121,13 @@ namespace Application.Services
 
             if (!string.IsNullOrEmpty(dto.CodigoBarra))
             {
-                var existeCodigo = await _productoRepository.ExistsCodigoBarraAsync(dto.CodigoBarra,dto.KioscoId);
+                var existeCodigo = await _productoRepository.ExistsCodigoBarraAsync(dto.CodigoBarra, dto.KioscoId);
                 if (existeCodigo)
                 {
                     throw new InvalidOperationException($"Ya existe un producto con el código de barra: {dto.CodigoBarra}");
                 }
             }
-            
+
 
             // Mapear DTO a Entidad
             var producto = new Producto
@@ -153,14 +153,14 @@ namespace Application.Services
             if (dto.TagIds != null)
                 await _productoRepository.AsignarTagsAsync(productoCreado.ProductoId, dto.TagIds);
             // Recargar con relaciones
-            var productoCompleto = await _productoRepository.GetByIdAsync(productoCreado.ProductoId,dto.KioscoId);
+            var productoCompleto = await _productoRepository.GetByIdAsync(productoCreado.ProductoId, dto.KioscoId);
             return MapToResponseDTO(productoCompleto!);
         }
 
-        public async Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto,int empleadoId)
+        public async Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto, int empleadoId)
         {
             // Validar que existe
-            var productoExistente = await _productoRepository.GetByIdAsync(dto.ProductoId,dto.KioscoId);
+            var productoExistente = await _productoRepository.GetByIdAsync(dto.ProductoId, dto.KioscoId);
             if (productoExistente == null)
             {
                 throw new KeyNotFoundException($"No se encontró el producto con ID: {dto.ProductoId}");
@@ -210,12 +210,12 @@ namespace Application.Services
                         stockAnterior = stockOriginal,
                         stockNuevo = dto.StockActual
                     }
-             
+
                 );
             }
 
             // Recargar con relaciones
-            var productoCompleto = await _productoRepository.GetByIdAsync(productoActualizado.ProductoId,productoActualizado.KioscoId);
+            var productoCompleto = await _productoRepository.GetByIdAsync(productoActualizado.ProductoId, productoActualizado.KioscoId);
             return MapToResponseDTO(productoCompleto!);
         }
 
@@ -241,9 +241,9 @@ namespace Application.Services
             return await _productoRepository.ActivarDesactivarAsync(id, activo);
         }
 
-        public async Task<bool> ActualizarStockAsync(int id, int cantidad, int empleadoId,int kioscoId)
+        public async Task<bool> ActualizarStockAsync(int id, int cantidad, int empleadoId, int kioscoId)
         {
-            var producto = await _productoRepository.GetByIdAsync(id,kioscoId);
+            var producto = await _productoRepository.GetByIdAsync(id, kioscoId);
             if (producto == null)
                 throw new KeyNotFoundException($"No se encontró el producto con ID: {id}");
 
@@ -292,6 +292,7 @@ namespace Application.Services
                 CategoriaId = producto.CategoriaId,
                 CategoriaNombre = producto.Categoria?.Nombre ?? "Sin categoría",
                 DistribuidorId = producto.DistribuidorId,
+                DistribuidorNombre = producto.DistribuidorNav?.Nombre ?? "Sin distribuidor",
                 CodigoBarra = producto.CodigoBarra,
                 Descripcion = producto.Descripcion,
                 Imagen = producto.Imagen,

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infraestructure.Repository
 {
-    
+
     public class ProductoRepository : IProductoRepository
     {
         private readonly AppDbContext _context;
@@ -19,17 +19,19 @@ namespace Infraestructure.Repository
 
         public async Task<Producto?> GetByIdAsync(int id, int kioscoId)
         {
-          return await _context.Productos
-        .Include(p => p.Categoria)
-        .Include(p => p.Kiosco)
-        .Include(p => p.ProductoTags).ThenInclude(pt => pt.Tag) 
-        .FirstOrDefaultAsync(p => p.ProductoId == id && p.KioscoId == kioscoId);
+            return await _context.Productos
+          .Include(p => p.Categoria)
+          .Include(p => p.DistribuidorNav)
+          .Include(p => p.Kiosco)
+          .Include(p => p.ProductoTags).ThenInclude(pt => pt.Tag)
+          .FirstOrDefaultAsync(p => p.ProductoId == id && p.KioscoId == kioscoId);
         }
 
         public async Task<IEnumerable<Producto>> GetAllAsync()
         {
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Include(p => p.Kiosco)
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
@@ -49,6 +51,7 @@ namespace Infraestructure.Repository
         {
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Where(p => p.Activo && p.ProductoTags.Any(pt => pt.TagId == tagId))
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
@@ -57,6 +60,7 @@ namespace Infraestructure.Repository
         {
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Include(p => p.ProductoTags).ThenInclude(pt => pt.Tag)   // ← agregar
                 .Where(p => p.KioscoId == kioscoId)
                 .OrderBy(p => p.Nombre)
@@ -73,6 +77,7 @@ namespace Infraestructure.Repository
         {
             return await _context.Productos
                 .Include(p => p.Categoria) // Por si necesitás el nombre de la categoría en el DTO
+                .Include(p => p.DistribuidorNav)
                 .Where(p => p.KioscoId == kioscoId && p.StockActual <= 0 && p.Activo)
                 .ToListAsync();
         }
@@ -80,6 +85,7 @@ namespace Infraestructure.Repository
         {
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Where(p => p.KioscoId == kioscoId && p.Activo)
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
@@ -89,6 +95,7 @@ namespace Infraestructure.Repository
         {
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Where(p => p.CategoriaId == categoriaId && p.Activo)
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
@@ -98,6 +105,7 @@ namespace Infraestructure.Repository
         {
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Where(p => p.KioscoId == kioscoId
                          && p.Activo
                          && p.StockActual <= p.StockMinimo)
@@ -111,6 +119,7 @@ namespace Infraestructure.Repository
 
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Where(p => p.KioscoId == kioscoId
                          && p.Activo
                          && p.FechaVencimiento != null
@@ -120,11 +129,12 @@ namespace Infraestructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<Producto?> GetByCodigoBarraAsync(string codigoBarra ,int kioscoId )
+        public async Task<Producto?> GetByCodigoBarraAsync(string codigoBarra, int kioscoId)
         {
 
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .FirstOrDefaultAsync(p =>
                     p.CodigoBarra == codigoBarra &&
                     p.KioscoId == kioscoId &&
@@ -138,6 +148,7 @@ namespace Infraestructure.Repository
 
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Where(p => p.KioscoId == kioscoId
                          && p.Activo
                          && (p.Nombre.ToLower().Contains(searchTerm)
@@ -190,7 +201,7 @@ namespace Infraestructure.Repository
 
             producto.Activo = activo;
             producto.FechaModificacion = DateTime.UtcNow;
-           
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -216,7 +227,7 @@ namespace Infraestructure.Repository
 
         public async Task<bool> ExistsCodigoBarraAsync(string codigoBarra, int kioscoId)
         {
-    
+
             return await _context.Productos
                 .AnyAsync(p => p.CodigoBarra == codigoBarra && p.Activo && p.KioscoId == kioscoId);
         }
@@ -231,6 +242,7 @@ namespace Infraestructure.Repository
         {
             var query = _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Where(p => p.KioscoId == kioscoId)
                 .AsQueryable();
 
@@ -277,6 +289,7 @@ namespace Infraestructure.Repository
             // Devolver productos activos que NO están en esa lista
             return await _context.Productos
                 .Include(p => p.Categoria)
+                .Include(p => p.DistribuidorNav)
                 .Where(p => p.KioscoId == kioscoId
                          && p.Activo
                          && !productosConMovimiento.Contains(p.ProductoId))
