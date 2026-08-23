@@ -134,6 +134,8 @@ builder.Services.AddScoped<ICajaService, CajaService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IPromocionService, PromocionService>();
 
+builder.Services.AddScoped<IProductoImportExportService, ProductoImportExportService>();
+
 // ========== CORS ==========
 builder.Services.AddCors(options =>
 {

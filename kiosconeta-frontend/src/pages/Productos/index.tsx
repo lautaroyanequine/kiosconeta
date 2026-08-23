@@ -18,6 +18,8 @@ import {
   PackagePlus,
   Truck,
   Tag,
+  Download,
+  Upload,
 } from 'lucide-react';
 import { TagsTab } from './TagsTab';
 import { Button, Input, Badge, Table, Modal, LoadingOverlay } from '@/components/commons';
@@ -31,6 +33,9 @@ import { useProductos } from './useProductos';
 import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO } from '@/types';
 import { distribuidoresApi } from '@/apis/distribuidoresApi';
 import type { Distribuidor } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { productoImportExportApi, descargarBlob } from '@/apis/prodcutoImportExportApi';
+import { ImportarProductosModal } from './ImportarProductosModal';
 
 // ────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -83,7 +88,10 @@ const StatCard: React.FC<{
 // ────────────────────────────────────────────────────────────────────────────
 
 const ProductosPage: React.FC = () => {
+  const { user } = useAuth();
   const [tabActiva, setTabActiva] = useState<Tab>('productos');
+  const [modalImportar, setModalImportar] = useState(false);
+  const [exportando, setExportando] = useState(false);
 
   const {
     productos,
@@ -153,6 +161,21 @@ const ProductosPage: React.FC = () => {
       </button>
     </div>
   );
+
+  // ── Exportar catálogo a Excel ────────────────────────────────────────
+  const handleExportar = async () => {
+    if (!user?.kioscoId) return;
+    setExportando(true);
+    try {
+      const blob = await productoImportExportApi.exportar(user.kioscoId);
+      const fecha = new Date().toISOString().split('T')[0];
+      descargarBlob(blob, `productos_${fecha}.xlsx`);
+    } catch (err: any) {
+      alert(err.message || 'Error al exportar los productos');
+    } finally {
+      setExportando(false);
+    }
+  };
 
   // ── Columnas de la tabla ─────────────────────────────────────────────
 
@@ -281,6 +304,24 @@ const ProductosPage: React.FC = () => {
                 className="flex-1 sm:flex-none justify-center"
               >
                 Actualizar
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon={<Download size={15} />}
+                onClick={handleExportar}
+                loading={exportando}
+                className="flex-1 sm:flex-none justify-center"
+              >
+                Exportar
+              </Button>
+              <Button
+                variant="outline"
+                leftIcon={<Upload size={15} />}
+                onClick={() => setModalImportar(true)}
+                className="flex-1 sm:flex-none justify-center"
+              >
+                Importar
               </Button>
               <Button
                 variant="outline"
@@ -625,6 +666,15 @@ const ProductosPage: React.FC = () => {
         onClose={() => setModalIngreso(false)}
         onConfirmar={ingresarMercaderia}
       />
+
+      {user?.kioscoId && (
+        <ImportarProductosModal
+          isOpen={modalImportar}
+          kioscoId={user.kioscoId}
+          onClose={() => setModalImportar(false)}
+          onImportado={recargar}
+        />
+      )}
 
       <Modal
         isOpen={!!productoAEliminar}

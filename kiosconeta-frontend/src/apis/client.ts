@@ -44,6 +44,14 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Si el body es un FormData (ej. subida de archivos), sacamos el
+    // Content-Type fijo: axios necesita setearlo él mismo con el
+    // "boundary" correcto para que el multipart se arme bien.
+    // Si dejamos "application/json" acá, el archivo nunca llega al backend.
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     return config;
   },
   (error: AxiosError) => {
