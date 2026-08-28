@@ -8,10 +8,18 @@ namespace Application.Interfaces.Services
         Task<byte[]> ExportarExcelAsync(int kioscoId);
 
         /// <summary>
-        /// Parsea el Excel subido y arma la vista previa (crear / actualizar / error)
-        /// sin persistir nada en la base de datos.
+        /// Lee cualquier Excel subido y devuelve qué columnas detectó (con encabezados
+        /// si los hay), unas filas de muestra, y una sugerencia automática de mapeo
+        /// basada en el texto de los encabezados.
         /// </summary>
-        Task<ImportarProductosPreviewResponseDTO> PreviewImportacionAsync(int kioscoId, Stream archivoExcel);
+        Task<LeerEstructuraExcelResponseDTO> LeerEstructuraAsync(Stream archivoExcel);
+
+        /// <summary>
+        /// Parsea el Excel usando el mapeo de columnas indicado y arma la vista previa
+        /// (crear / actualizar / error) sin persistir nada en la base de datos.
+        /// </summary>
+        Task<ImportarProductosPreviewResponseDTO> PreviewImportacionAsync(
+            int kioscoId, Stream archivoExcel, ColumnaMapeoDTO mapeo);
 
         /// <summary>
         /// Persiste las filas confirmadas por el usuario: crea categorías/distribuidores

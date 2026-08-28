@@ -24,11 +24,23 @@ export interface ImportarProductoFila {
 export interface ImportarProductoPreviewItem {
   numeroFila: number;
   datos: ImportarProductoFila;
+
+  /**
+   * Acción que se realizará al confirmar:
+   * - Crear
+   * - Actualizar
+   * - Error
+   */
   accion: 'Crear' | 'Actualizar' | 'Error';
+
   productoIdExistente: number | null;
+
   categoriaNueva: boolean;
   distribuidorNuevo: boolean;
+
   errores: string[];
+advertencias: string[]; 
+  // Valores anteriores cuando la acción es "Actualizar"
   precioCostoAnterior: number | null;
   precioVentaAnterior: number | null;
   stockActualAnterior: number | null;
@@ -37,6 +49,7 @@ export interface ImportarProductoPreviewItem {
 
 export interface ImportarProductosPreviewResponse {
   items: ImportarProductoPreviewItem[];
+
   totalCrear: number;
   totalActualizar: number;
   totalErrores: number;
@@ -51,56 +64,256 @@ export interface ImportarProductosResultado {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// MAPEO DE COLUMNAS
+// ────────────────────────────────────────────────────────────────────────────
+
+export interface ColumnaExcel {
+  /**
+   * Índice 1-based de la columna.
+   * Ejemplo:
+   * A = 1
+   * B = 2
+   */
+  indice: number;
+
+  letra: string;
+
+  /**
+   * Encabezado detectado en la primera fila.
+   */
+  encabezado: string | null;
+}
+
+export interface ColumnaMapeo {
+  codigoBarraColumna: number | null;
+
+  nombreColumna: number;
+  categoriaColumna: number;
+
+  distribuidorColumna: number | null;
+
+  precioCostoColumna: number;
+  precioVentaColumna: number;
+
+  stockActualColumna: number;
+  stockMinimoColumna: number;
+
+  sueltoColumna: number | null;
+
+  /**
+   * Indica si la primera fila del Excel contiene encabezados.
+   */
+  tieneEncabezados: boolean;
+}
+
+/**
+ * Propiedades de ColumnaMapeo que representan columnas del Excel.
+ *
+ * Excluimos "tieneEncabezados" porque es un boolean
+ * y no una columna numérica.
+ */
+export type CampoColumnaMapeo = Exclude<
+  keyof ColumnaMapeo,
+  'tieneEncabezados'
+>;
+
+export interface LeerEstructuraExcelResponse {
+  columnas: ColumnaExcel[];
+
+  /**
+   * Primeras filas del Excel.
+   * La clave representa el índice de la columna.
+   */
+  filasEjemplo: Record<number, string>[];
+
+  /**
+   * Mapeo sugerido automáticamente por el backend.
+   */
+  mapeoSugerido: ColumnaMapeo | null;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // API
 // ────────────────────────────────────────────────────────────────────────────
 
 export const productoImportExportApi = {
+
+  // ────────────────────────────────────────────────────────────────────────
+  // EXPORTAR
+  // ────────────────────────────────────────────────────────────────────────
+
   /**
-   * Descarga el catálogo completo como .xlsx (Blob listo para bajar en el navegador)
+   * Descarga el catálogo completo como .xlsx.
    */
   exportar: async (kioscoId: number): Promise<Blob> => {
     try {
-      const response = await apiClient.get(`/Productos/kiosco/${kioscoId}/exportar`, {
-        responseType: 'blob',
-      });
+      const response = await apiClient.get(
+        `/Productos/kiosco/${kioscoId}/exportar`,
+        {
+          responseType: 'blob',
+        }
+      );
+
       return response.data as Blob;
     } catch (error) {
       return handleError(error);
     }
   },
 
+  // ────────────────────────────────────────────────────────────────────────
+  // LEER ESTRUCTURA
+  // ────────────────────────────────────────────────────────────────────────
+
   /**
-   * Sube el Excel y devuelve la vista previa (no persiste nada todavía)
+   * Sube un Excel y devuelve:
+   *
+   * - columnas detectadas
+   * - filas de ejemplo
+   * - sugerencia automática de mapeo
+   *
+   * No persiste nada.
    */
-  previewImportacion: async (
+  leerEstructura: async (
     kioscoId: number,
     archivo: File
-  ): Promise<ImportarProductosPreviewResponse> => {
+  ): Promise<LeerEstructuraExcelResponse> => {
     try {
       const formData = new FormData();
+
       formData.append('archivo', archivo);
-      const response = await apiClient.post<ImportarProductosPreviewResponse>(
-        `/Productos/kiosco/${kioscoId}/importar/preview`,
-        formData
-      );
+
+      const response =
+        await apiClient.post<LeerEstructuraExcelResponse>(
+          `/Productos/kiosco/${kioscoId}/importar/leer-estructura`,
+          formData
+        );
+
       return handleResponse(response);
     } catch (error) {
       return handleError(error);
     }
   },
 
+  // ────────────────────────────────────────────────────────────────────────
+  // PREVIEW
+  // ────────────────────────────────────────────────────────────────────────
+
   /**
-   * Confirma la importación de las filas seleccionadas (persiste en la base)
+   * Sube:
+   *
+   * - Excel
+   * - mapeo de columnas
+   *
+   * y devuelve la vista previa.
+   *
+   * NO persiste información.
+   */
+  previewImportacion: async (
+    kioscoId: number,
+    archivo: File,
+    mapeo: ColumnaMapeo
+  ): Promise<ImportarProductosPreviewResponse> => {
+    try {
+      const formData = new FormData();
+
+      // Archivo
+      formData.append('archivo', archivo);
+
+      // Código de barras (opcional)
+      if (mapeo.codigoBarraColumna != null) {
+        formData.append(
+          'codigoBarraColumna',
+          String(mapeo.codigoBarraColumna)
+        );
+      }
+
+      // Campos obligatorios
+      formData.append(
+        'nombreColumna',
+        String(mapeo.nombreColumna)
+      );
+
+      formData.append(
+        'categoriaColumna',
+        String(mapeo.categoriaColumna)
+      );
+
+      formData.append(
+        'precioCostoColumna',
+        String(mapeo.precioCostoColumna)
+      );
+
+      formData.append(
+        'precioVentaColumna',
+        String(mapeo.precioVentaColumna)
+      );
+
+      formData.append(
+        'stockActualColumna',
+        String(mapeo.stockActualColumna)
+      );
+
+      formData.append(
+        'stockMinimoColumna',
+        String(mapeo.stockMinimoColumna)
+      );
+
+      // Distribuidor (opcional)
+      if (mapeo.distribuidorColumna != null) {
+        formData.append(
+          'distribuidorColumna',
+          String(mapeo.distribuidorColumna)
+        );
+      }
+
+      // Suelto (opcional)
+      if (mapeo.sueltoColumna != null) {
+        formData.append(
+          'sueltoColumna',
+          String(mapeo.sueltoColumna)
+        );
+      }
+
+      // Encabezados
+      formData.append(
+        'tieneEncabezados',
+        String(mapeo.tieneEncabezados)
+      );
+
+      const response =
+        await apiClient.post<ImportarProductosPreviewResponse>(
+          `/Productos/kiosco/${kioscoId}/importar/preview`,
+          formData
+        );
+
+      return handleResponse(response);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // CONFIRMAR IMPORTACIÓN
+  // ────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Confirma la importación de las filas seleccionadas.
+   *
+   * Esta operación SÍ persiste los cambios en la base de datos.
    */
   confirmarImportacion: async (
     kioscoId: number,
     filas: ImportarProductoFila[]
   ): Promise<ImportarProductosResultado> => {
     try {
-      const response = await apiClient.post<ImportarProductosResultado>(
-        `/Productos/kiosco/${kioscoId}/importar/confirmar`,
-        { filas }
-      );
+      const response =
+        await apiClient.post<ImportarProductosResultado>(
+          `/Productos/kiosco/${kioscoId}/importar/confirmar`,
+          {
+            filas,
+          }
+        );
+
       return handleResponse(response);
     } catch (error) {
       return handleError(error);
@@ -109,16 +322,25 @@ export const productoImportExportApi = {
 };
 
 // ────────────────────────────────────────────────────────────────────────────
-// HELPER: disparar la descarga del blob en el navegador
+// HELPER: DESCARGAR BLOB
 // ────────────────────────────────────────────────────────────────────────────
 
-export const descargarBlob = (blob: Blob, nombreArchivo: string) => {
+export const descargarBlob = (
+  blob: Blob,
+  nombreArchivo: string
+) => {
   const url = window.URL.createObjectURL(blob);
+
   const a = document.createElement('a');
+
   a.href = url;
   a.download = nombreArchivo;
+
   document.body.appendChild(a);
+
   a.click();
+
   a.remove();
+
   window.URL.revokeObjectURL(url);
 };

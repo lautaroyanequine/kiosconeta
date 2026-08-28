@@ -1,6 +1,8 @@
-﻿namespace Application.DTOs.Producto
+﻿
+
+namespace Application.DTOs.Producto
 {
-    // ─── Fila cruda leída del Excel ────────────────────────────────────────
+    // ─── Fila cruda leída del Excel (ya normalizada según el mapeo) ────────
     public class ImportarProductoFilaDTO
     {
         public int NumeroFila { get; set; } // fila real en el Excel (para mostrar errores)
@@ -28,6 +30,7 @@
         public bool CategoriaNueva { get; set; }
         public bool DistribuidorNuevo { get; set; }
         public List<string> Errores { get; set; } = new();
+        public List<string> Advertencias { get; set; } = new();
 
         // Para mostrar el "antes / después" cuando Accion = "Actualizar"
         public decimal? PrecioCostoAnterior { get; set; }
@@ -57,5 +60,60 @@
         public int CategoriasCreadas { get; set; }
         public int DistribuidoresCreados { get; set; }
         public List<string> Errores { get; set; } = new();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // MAPEO DE COLUMNAS (Excel "libre", no la plantilla fija)
+    // ═══════════════════════════════════════════════════════════════════
+
+    // ─── Una columna detectada en el archivo subido ─────────────────────
+    public class ColumnaExcelDTO
+    {
+        public int Indice { get; set; }        // 1-based
+        public string Letra { get; set; } = string.Empty; // "A", "B", "C"...
+        public string? Encabezado { get; set; } // texto de la fila 1, si lo hay
+    }
+
+    // ─── Respuesta de "leer estructura": qué columnas hay + filas de muestra
+    public class LeerEstructuraExcelResponseDTO
+    {
+        public List<ColumnaExcelDTO> Columnas { get; set; } = new();
+
+        /// <summary>Primeras filas de datos: índice de columna → valor como texto</summary>
+        public List<Dictionary<int, string>> FilasEjemplo { get; set; } = new();
+
+        /// <summary>Sugerencia automática de mapeo, basada en los encabezados detectados</summary>
+        public ColumnaMapeoDTO? MapeoSugerido { get; set; }
+    }
+
+    // ─── El mapeo que arma el usuario (o que le sugerimos) ──────────────
+    public class ColumnaMapeoDTO
+    {
+        public int? CodigoBarraColumna { get; set; }
+        public int NombreColumna { get; set; }
+        public int CategoriaColumna { get; set; }
+        public int? DistribuidorColumna { get; set; }
+        public int PrecioCostoColumna { get; set; }
+        public int PrecioVentaColumna { get; set; }
+        public int StockActualColumna { get; set; }
+        public int StockMinimoColumna { get; set; }
+        public int? SueltoColumna { get; set; }
+        public bool TieneEncabezados { get; set; } = true;
+    }
+
+    // ─── Body multipart para el endpoint de preview con mapeo ───────────
+    public class ImportarPreviewRequestDTO
+    {
+        public Stream Archivo { get; set; } = null!;
+        public int? CodigoBarraColumna { get; set; }
+        public int NombreColumna { get; set; }
+        public int CategoriaColumna { get; set; }
+        public int? DistribuidorColumna { get; set; }
+        public int PrecioCostoColumna { get; set; }
+        public int PrecioVentaColumna { get; set; }
+        public int StockActualColumna { get; set; }
+        public int StockMinimoColumna { get; set; }
+        public int? SueltoColumna { get; set; }
+        public bool TieneEncabezados { get; set; } = true;
     }
 }

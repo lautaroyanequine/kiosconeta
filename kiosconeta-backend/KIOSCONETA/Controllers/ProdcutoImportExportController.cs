@@ -38,10 +38,11 @@ namespace KIOSCONETA.Controllers
             }
         }
 
-        // ─── POST /api/Productos/kiosco/{kioscoId}/importar/preview ──────────
-        // Sube el Excel y devuelve la vista previa (no persiste nada)
-        [HttpPost("kiosco/{kioscoId}/importar/preview")]
-        public async Task<ActionResult<ImportarProductosPreviewResponseDTO>> Preview(
+        // ─── POST /api/Productos/kiosco/{kioscoId}/importar/leer-estructura ──
+        // Sube CUALQUIER Excel y devuelve las columnas detectadas + una
+        // sugerencia automática de mapeo, sin persistir nada.
+        [HttpPost("kiosco/{kioscoId}/importar/leer-estructura")]
+        public async Task<ActionResult<LeerEstructuraExcelResponseDTO>> LeerEstructura(
             int kioscoId, [FromForm] IFormFile archivo)
         {
             try
@@ -54,12 +55,58 @@ namespace KIOSCONETA.Controllers
                     return BadRequest(new { message = "El archivo debe ser un Excel (.xlsx)" });
 
                 using var stream = archivo.OpenReadStream();
-                var preview = await _importExportService.PreviewImportacionAsync(kioscoId, stream);
-                return Ok(preview);
+                var estructura = await _importExportService.LeerEstructuraAsync(stream);
+                return Ok(estructura);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error al leer el archivo", error = ex.Message });
+            }
+        }
+
+        // ─── POST /api/Productos/kiosco/{kioscoId}/importar/preview ──────────
+        // Recibe el archivo + el mapeo de columnas elegido por el usuario,
+        // y devuelve la vista previa (no persiste nada)
+        [HttpPost("kiosco/{kioscoId}/importar/preview")]
+        public async Task<ActionResult<ImportarProductosPreviewResponseDTO>> Preview(
+    int kioscoId,
+    [FromForm] IFormFile archivo,
+    [FromForm] ColumnaMapeoDTO mapeo)
+        {
+            try
+            {
+                if (archivo == null || archivo.Length == 0)
+                    return BadRequest(new { message = "No se recibió ningún archivo" });
+
+                if (mapeo.NombreColumna <= 0 ||
+                    mapeo.CategoriaColumna <= 0 ||
+                    mapeo.PrecioCostoColumna <= 0 ||
+                    mapeo.PrecioVentaColumna <= 0 ||
+                    mapeo.StockActualColumna <= 0 ||
+                    mapeo.StockMinimoColumna <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Faltan columnas obligatorias por mapear (nombre, categoría, precio costo, precio venta, stock actual y stock mínimo)."
+                    });
+                }
+
+                await using var stream = archivo.OpenReadStream();
+
+                var preview = await _importExportService.PreviewImportacionAsync(
+                    kioscoId,
+                    stream,
+                    mapeo);
+
+                return Ok(preview);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Error al leer el archivo.",
+                    error = ex.Message
+                });
             }
         }
 

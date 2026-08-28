@@ -296,5 +296,20 @@ namespace Infraestructure.Repository
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
         }
+
+        // ═══════════════════════════════════════════════════
+        // LIMPIEZA DEL CHANGE TRACKER (usado por importaciones masivas)
+        // ═══════════════════════════════════════════════════
+
+        public Task LimpiarSeguimientoAsync()
+        {
+            // Compatible con EF Core 5+ (no depende de ChangeTracker.Clear(),
+            // que recién existe desde EF Core 7)
+            foreach (var entry in _context.ChangeTracker.Entries().ToList())
+            {
+                entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            }
+            return Task.CompletedTask;
+        }
     }
 }
