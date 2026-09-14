@@ -235,6 +235,10 @@ export const useProductos = () => {
       codigoBarra:   producto.codigoBarra,
       precioCosto:   costoCambio ? precioCosto : producto.precioCosto,
       precioVenta:   producto.precioVenta,
+      // Sin esto, el DTO en C# (no nullable) llega en 0/'Unidad' y el backend
+      // resetea silenciosamente un producto por kilo a "Unidad" en cada ingreso
+      // de mercadería que toque costo o distribuidor.
+      unidadMedida:  producto.unidadMedida,
       stockActual:   producto.stockActual + cantidad,
       stockMinimo:   producto.stockMinimo,
       categoriaId:   producto.categoriaId,

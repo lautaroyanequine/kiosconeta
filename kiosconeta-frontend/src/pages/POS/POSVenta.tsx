@@ -58,6 +58,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   const [categoriaActiva, setCategoriaActiva]       = useState('todas');
   const [isLoadingProductos, setIsLoadingProductos] = useState(true);
   const [sueltoModal, setSueltoModal] = useState<{ producto: ProductoSimple; cantidad: number } | null>(null);
+  const [pesoModal, setPesoModal] = useState<{ producto: ProductoSimple; gramos: number; editandoLineId?: string } | null>(null);
 
   // Modal de selección de combo
   const [comboModal, setComboModal] = useState<{
@@ -175,6 +176,18 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   useEffect(() => { debouncedFilter(busqueda, categoriaActiva); }, [busqueda, categoriaActiva]);
 
+  // ── Alta al carrito (usada por click en grilla, código de barras y Enter) ──
+  // Centraliza la decisión: un producto por kilo SIEMPRE pasa por el modal de
+  // peso, sea cual sea el camino por el que llegó (click, scanner o búsqueda).
+  const agregarProducto = useCallback((p: ProductoSimple) => {
+    const esPorKilo = p.unidadMedida === 'Kilogramo' || p.unidadMedida === 1;
+    if (esPorKilo) {
+      setPesoModal({ producto: p, gramos: 250 });
+    } else {
+      cart.addItem(p);
+    }
+  }, [cart]);
+
   // ── Scanner ───────────────────────────────────────────────────────────────
 
   const buscarPorCodigo = useCallback(async (codigo: string) => {
@@ -182,17 +195,17 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     setUltimoCodigo(codigo);
     try {
       const local = productos.find(p => (p as any).codigoBarra === codigo);
-      if (local) { cart.addItem(local); setCodigoFeedback('ok'); }
+      if (local) { agregarProducto(local); setCodigoFeedback('ok'); }
       else {
         console.log("Local:", local);
 
         const remoto = await productosApi.getByCodigoBarra(codigo);
-        if (remoto) { cart.addItem(remoto); setCodigoFeedback('ok'); }
+        if (remoto) { agregarProducto(remoto); setCodigoFeedback('ok'); }
         else setCodigoFeedback('error');
       }
     } catch { setCodigoFeedback('error'); }
     finally { setTimeout(() => setCodigoFeedback(null), 1500); }
-  }, [productos, cart]);
+  }, [productos, agregarProducto]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     const now  = Date.now();
@@ -217,7 +230,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
       }
       if (busqueda.trim() && productosFiltrados.length > 0) {
         e.preventDefault();
-        cart.addItem(productosFiltrados[0]);
+        agregarProducto(productosFiltrados[0]);
         setBusqueda('');
         busquedaRef.current?.focus();
       }
@@ -236,7 +249,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     } else if (e.key.length === 1 && !e.ctrlKey && !e.altKey) {
       busquedaRef.current?.focus();
     }
-  }, [busqueda, productosFiltrados, cart, isProcessing]);
+  }, [busqueda, productosFiltrados, cart, isProcessing, agregarProducto, buscarPorCodigo]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -492,7 +505,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
                 key={p.productoId}
                 producto={p}
                 isCombo={esCombo}
-                isSuelto={(p as any).suelto === true} 
+                isSuelto={(p as any).suelto === true}
+                isPorKilo={p.unidadMedida === 'Kilogramo' || p.unidadMedida === 1}
                 onClick={() => {
   if (esCombo) {
     const combo = combosVirtuales.find(c => c.productoId === p.productoId)!;
@@ -506,7 +520,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   } else if ((p as any).suelto) {  
     setSueltoModal({ producto: p, cantidad: 1, });
   } else {
-    cart.addItem(p);
+    agregarProducto(p);
   }
 }}
               />
@@ -553,6 +567,10 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               onIncrement={() => cart.incrementQuantity(item.lineId)}
               onDecrement={() => cart.decrementQuantity(item.lineId)}
               onRemove={() => cart.removeItem(item.lineId)}
+              onEditarPeso={() => {
+                const producto = productos.find(p => p.productoId === item.productoId);
+                if (producto) setPesoModal({ producto, gramos: item.cantidad, editandoLineId: item.lineId });
+              }}
             />
           ))}
         </div>
@@ -952,6 +970,126 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   </div>
 )}
 
+      {/* Modal peso (productos por kilo) */}
+{pesoModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+    onClick={() => setPesoModal(null)}>
+    <div className="bg-white rounded-2xl p-6 shadow-2xl w-80 max-w-[90vw]"
+      onClick={e => e.stopPropagation()}>
+
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+          <Package size={20} className="text-amber-600" />
+        </div>
+        <div>
+          <h3 className="font-bold text-neutral-900 text-base leading-tight">{pesoModal.producto.nombre}</h3>
+          <p className="text-xs text-amber-600">{formatCurrency(pesoModal.producto.precioVenta)} / kg</p>
+        </div>
+      </div>
+      <p className="text-xs text-neutral-400 mb-3">¿Cuánto pesás o cuánto vendiste?</p>
+
+      {/* Presets rápidos */}
+      <div className="grid grid-cols-4 gap-1.5 mb-3">
+        {[100, 250, 500, 1000].map(g => (
+          <button
+            key={g}
+            onClick={() => setPesoModal(prev => prev && ({ ...prev, gramos: g }))}
+            className={`py-1.5 rounded-lg text-xs font-semibold border-2 transition-all
+              ${pesoModal.gramos === g
+                ? 'border-amber-500 bg-amber-50 text-amber-700'
+                : 'border-neutral-200 text-neutral-500 hover:border-amber-300'}`}>
+            {g < 1000 ? `${g}g` : '1kg'}
+          </button>
+        ))}
+      </div>
+
+      {/* Gramos y $ vendido: se autocompletan entre sí (misma fuente de verdad: gramos) */}
+      <div className="flex items-center justify-center gap-2 mb-1">
+        <div className="flex flex-col items-center">
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={pesoModal.gramos}
+            onChange={e => {
+              const v = Math.round(Number(e.target.value));
+              if (!isNaN(v) && v >= 0) {
+                setPesoModal(prev => prev && ({ ...prev, gramos: v }));
+              }
+            }}
+            onFocus={e => e.target.select()}
+            onKeyDown={e => e.stopPropagation()}
+            className="w-24 text-center text-2xl font-bold text-neutral-900 border-2 border-neutral-200 rounded-xl py-2 focus:outline-none focus:border-amber-500"
+          />
+          <span className="text-[11px] font-semibold text-neutral-400 mt-1">gramos</span>
+        </div>
+
+        <span className="text-neutral-300 text-lg font-bold mt-[-14px]">=</span>
+
+        <div className="flex flex-col items-center">
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={Math.round((pesoModal.gramos / 1000) * pesoModal.producto.precioVenta * 100) / 100}
+            onChange={e => {
+              const importe = Number(e.target.value);
+              if (!isNaN(importe) && importe >= 0 && pesoModal.producto.precioVenta > 0) {
+                const g = Math.round((importe / pesoModal.producto.precioVenta) * 1000);
+                setPesoModal(prev => prev && ({ ...prev, gramos: g }));
+              }
+            }}
+            onFocus={e => e.target.select()}
+            onKeyDown={e => e.stopPropagation()}
+            className="w-24 text-center text-2xl font-bold text-amber-600 border-2 border-neutral-200 rounded-xl py-2 focus:outline-none focus:border-amber-500"
+          />
+          <span className="text-[11px] font-semibold text-neutral-400 mt-1">pesos $</span>
+        </div>
+      </div>
+      <p className="text-center text-xs text-neutral-400 mb-4">
+        = {(pesoModal.gramos / 1000).toLocaleString('es-AR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg
+      </p>
+
+      {/* Solo bloqueamos si conocemos el stock real y es insuficiente.
+          Si el stock viene undefined (bug de datos), no frenamos la venta —
+          mejor eso a trabar el POS por un dato faltante. */}
+      {typeof pesoModal.producto.stock === 'number' && pesoModal.gramos > pesoModal.producto.stock && (
+        <p className="text-center text-xs text-red-500 mb-3">Stock insuficiente (quedan {pesoModal.producto.stock}g)</p>
+      )}
+
+      {/* Total preview */}
+      <div className="bg-neutral-50 rounded-xl px-4 py-3 mb-5 flex justify-between items-center">
+        <span className="text-sm text-neutral-500">
+          {(pesoModal.gramos / 1000).toLocaleString('es-AR', { maximumFractionDigits: 3 })} kg × {formatCurrency(pesoModal.producto.precioVenta)}
+        </span>
+        <span className="text-lg font-bold text-amber-600">
+          {formatCurrency(Math.round((pesoModal.gramos / 1000) * pesoModal.producto.precioVenta * 100) / 100)}
+        </span>
+      </div>
+
+      <div className="flex gap-2">
+        <button onClick={() => setPesoModal(null)}
+          className="flex-1 py-2.5 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-600 hover:bg-neutral-50">
+          Cancelar
+        </button>
+        <button
+          disabled={typeof pesoModal.producto.stock === 'number' && pesoModal.gramos > pesoModal.producto.stock}
+          onClick={() => {
+            if (pesoModal.editandoLineId) {
+              cart.updateQuantity(pesoModal.editandoLineId, pesoModal.gramos);
+            } else {
+              cart.addItem(pesoModal.producto, undefined, undefined, pesoModal.gramos);
+            }
+            setPesoModal(null);
+          }}
+          className="flex-1 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-semibold hover:bg-amber-700 active:scale-[0.97] transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+          {pesoModal.editandoLineId ? 'Actualizar' : 'Agregar al carrito'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {/* Modal venta confirmada */}
 {ventaConfirmada && (
   <VentaConfirmModal
@@ -976,9 +1114,14 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 // SUB-COMPONENTES
 // ════════════════════════════════════════════════════════════════════════════
 
-const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; isSuelto?: boolean; onClick: () => void }> = ({ producto, isCombo, isSuelto, onClick }) => {
+const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; isSuelto?: boolean; isPorKilo?: boolean; onClick: () => void }> = ({ producto, isCombo, isSuelto, isPorKilo, onClick }) => {
   const sinStock  = producto.stock === 0 && !isCombo;
-  const stockBajo = !sinStock && !isCombo && producto.stock > 0 && producto.stock < 10;
+  // Para productos por kilo, stock está en GRAMOS: el umbral de "stock bajo" es distinto (ej: < 500g).
+  const stockBajo = !sinStock && !isCombo && producto.stock > 0 &&
+    (isPorKilo ? producto.stock < 500 : producto.stock < 10);
+  const stockLabel = isPorKilo
+    ? (producto.stock >= 1000 ? `${(producto.stock / 1000).toLocaleString('es-AR', { maximumFractionDigits: 1 })}kg` : `${producto.stock}g`)
+    : `${producto.stock}u`;
 
   return (
     <button onClick={onClick} disabled={sinStock}
@@ -986,16 +1129,18 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; isSu
         ${sinStock  ? 'border-neutral-100 opacity-40 cursor-not-allowed'
         : isCombo   ? 'border-blue-200 hover:border-blue-400 hover:shadow-md active:scale-[0.97]'
         : isSuelto  ? 'border-green-200 hover:border-green-400 hover:shadow-md active:scale-[0.97]'
+        : isPorKilo ? 'border-amber-200 hover:border-amber-400 hover:shadow-md active:scale-[0.97]'
                     : 'border-neutral-200 hover:border-primary hover:shadow-md active:scale-[0.97]'}`}>
 
       <div className="flex items-center justify-between gap-1">
         <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors
-          ${isCombo  ? 'bg-blue-100 group-hover:bg-blue-500'
-          : isSuelto ? 'bg-green-100 group-hover:bg-green-500'
-                     : 'bg-primary/10 group-hover:bg-primary'}`}>
+          ${isCombo   ? 'bg-blue-100 group-hover:bg-blue-500'
+          : isSuelto  ? 'bg-green-100 group-hover:bg-green-500'
+          : isPorKilo ? 'bg-amber-100 group-hover:bg-amber-500'
+                      : 'bg-primary/10 group-hover:bg-primary'}`}>
           {isCombo
             ? <Tag     size={18} className="text-blue-600  group-hover:text-white transition-colors" />
-            : <Package size={18} className={`${isSuelto ? 'text-green-600' : 'text-primary'} group-hover:text-white transition-colors`} />}
+            : <Package size={18} className={`${isSuelto ? 'text-green-600' : isPorKilo ? 'text-amber-600' : 'text-primary'} group-hover:text-white transition-colors`} />}
         </div>
         {isCombo && (
           <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">Combo</span>
@@ -1003,11 +1148,14 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; isSu
         {isSuelto && !isCombo && (
           <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-600">Suelto</span>
         )}
+        {isPorKilo && !isCombo && (
+          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">Por kilo</span>
+        )}
         {!isCombo && sinStock && (
           <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-500">Sin stock</span>
         )}
         {!isCombo && stockBajo && (
-          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">{producto.stock}u</span>
+          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">{stockLabel}</span>
         )}
       </div>
 
@@ -1015,47 +1163,64 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; isSu
         <p className="font-bold text-neutral-900 leading-tight line-clamp-2 flex-1" style={{ fontSize: '0.95rem' }}>
           {producto.nombre}
         </p>
-        {!isCombo && !sinStock && !stockBajo && producto.stock < 50 && (
-          <span className="text-[10px] text-neutral-300 shrink-0 tabular-nums">{producto.stock}u</span>
+        {!isCombo && !sinStock && !stockBajo && (isPorKilo ? producto.stock < 2000 : producto.stock < 50) && (
+          <span className="text-[10px] text-neutral-300 shrink-0 tabular-nums">{stockLabel}</span>
         )}
       </div>
 
       <p className={`text-base font-extrabold tracking-tight
-        ${isCombo ? 'text-blue-600' : isSuelto ? 'text-green-600' : 'text-primary'}`}>
-        {formatCurrency(producto.precioVenta)}
+        ${isCombo ? 'text-blue-600' : isSuelto ? 'text-green-600' : isPorKilo ? 'text-amber-600' : 'text-primary'}`}>
+        {formatCurrency(producto.precioVenta)}{isPorKilo && <span className="text-xs font-semibold"> / kg</span>}
       </p>
     </button>
   );
 };
 
 const CartItemRow: React.FC<{
-  item: any; onIncrement: () => void; onDecrement: () => void; onRemove: () => void;
-}> = ({ item, onIncrement, onDecrement, onRemove }) => (
-  <div className="flex items-center gap-3 px-5 py-3.5 hover:bg-neutral-50 transition-colors">
-    <div className="flex-1 min-w-0">
-      <p className="text-sm font-semibold text-neutral-800 truncate">{item.nombre}</p>
-      <p className="text-xs text-neutral-400 mt-0.5">{formatCurrency(item.precioUnitario)} c/u</p>
-    </div>
-    <div className="flex items-center gap-2">
-      <button onClick={onDecrement}
-        className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center
-                   text-neutral-400 hover:border-primary hover:text-primary transition-all active:scale-90">
-        <Minus size={12} />
+  item: any; onIncrement: () => void; onDecrement: () => void; onRemove: () => void; onEditarPeso?: () => void;
+}> = ({ item, onIncrement, onDecrement, onRemove, onEditarPeso }) => {
+  const esPorKilo = item.unidadMedida === 'Kilogramo' || item.unidadMedida === 1;
+
+  return (
+    <div className="flex items-center gap-3 px-5 py-3.5 hover:bg-neutral-50 transition-colors">
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-neutral-800 truncate">{item.nombre}</p>
+        <p className="text-xs text-neutral-400 mt-0.5">
+          {formatCurrency(item.precioUnitario)} {esPorKilo ? '/ kg' : 'c/u'}
+        </p>
+      </div>
+
+      {esPorKilo ? (
+        <button
+          onClick={onEditarPeso}
+          className="px-3 py-1.5 rounded-lg border-2 border-neutral-200 text-sm font-bold text-neutral-800
+                     hover:border-amber-400 hover:text-amber-600 transition-all">
+          {(item.cantidad / 1000).toLocaleString('es-AR', { maximumFractionDigits: 3 })} kg
+        </button>
+      ) : (
+        <div className="flex items-center gap-2">
+          <button onClick={onDecrement}
+            className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center
+                       text-neutral-400 hover:border-primary hover:text-primary transition-all active:scale-90">
+            <Minus size={12} />
+          </button>
+          <span className="w-8 text-center text-base font-bold text-neutral-800">{item.cantidad}</span>
+          <button onClick={onIncrement} disabled={item.cantidad >= item.stock}
+            className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center
+                       text-neutral-400 hover:border-primary hover:text-primary transition-all active:scale-90
+                       disabled:opacity-30 disabled:cursor-not-allowed">
+            <Plus size={12} />
+          </button>
+        </div>
+      )}
+
+      <span className="text-base font-bold text-neutral-800 w-24 text-right">{formatCurrency(item.subtotal)}</span>
+      <button onClick={onRemove} className="text-neutral-300 hover:text-danger transition-colors ml-1">
+        <Trash2 size={15} />
       </button>
-      <span className="w-8 text-center text-base font-bold text-neutral-800">{item.cantidad}</span>
-      <button onClick={onIncrement} disabled={item.cantidad >= item.stock}
-        className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center
-                   text-neutral-400 hover:border-primary hover:text-primary transition-all active:scale-90
-                   disabled:opacity-30 disabled:cursor-not-allowed">
-        <Plus size={12} />
-      </button>
     </div>
-    <span className="text-base font-bold text-neutral-800 w-24 text-right">{formatCurrency(item.subtotal)}</span>
-    <button onClick={onRemove} className="text-neutral-300 hover:text-danger transition-colors ml-1">
-      <Trash2 size={15} />
-    </button>
-  </div>
-);
+  );
+};
 
 const VentaModal: React.FC<{
   data: { ventaId: number; total: number; metodoPago: string; vuelto?: number; descuento?: number };

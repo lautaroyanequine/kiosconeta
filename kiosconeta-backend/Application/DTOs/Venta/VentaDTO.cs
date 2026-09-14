@@ -1,5 +1,7 @@
 ﻿namespace Application.DTOs.Venta
 {
+    using Domain.Enums;
+
     // ─── CREAR VENTA ─────────────────────────────────
     public class CreateVentaDTO
     {
@@ -31,6 +33,8 @@
     public class ProductoVentaDTO
     {
         public int ProductoId { get; set; }
+        // Para productos UnidadMedida.Unidad: cantidad de unidades.
+        // Para productos UnidadMedida.Kilogramo: peso en GRAMOS (ej: 250 = 250g).
         public int Cantidad { get; set; }
         // PrecioUnitario se toma del producto en la BD, no lo envía el frontend
     }
@@ -76,9 +80,12 @@
         public int ProductoVentaId { get; set; }
         public int ProductoId { get; set; }
         public string ProductoNombre { get; set; }
+        public UnidadMedida UnidadMedida { get; set; }
+        // Para Kilogramo: Cantidad está en GRAMOS.
         public int Cantidad { get; set; }
+        // Para Kilogramo: PrecioUnitario es "por kilo" (no multiplicar directo por Cantidad).
         public decimal PrecioUnitario { get; set; }
-        public decimal Subtotal { get; set; }          // Cantidad * PrecioUnitario (calculado)
+        public decimal Subtotal { get; set; }          // Calculado según UnidadMedida
     }
 
     // ─── FILTROS PARA BÚSQUEDA ───────────────────────

@@ -7,8 +7,18 @@ import { Modal, Input, Button } from '@/components/commons';
 import { calcularMargenGanancia } from '@/utils/helpers';
 import { formatCurrency } from '@/utils/formatters';
 import { useAuth } from '@/contexts/AuthContext'
-import type { Producto, Distribuidor,Categoria, CreateProductoDTO, UpdateProductoDTO ,Tag} from '@/types';
+import type { Producto, Distribuidor,Categoria, CreateProductoDTO, UpdateProductoDTO ,Tag, UnidadMedida} from '@/types';
 import type { ModalMode } from './useProductos';
+
+// ────────────────────────────────────────────────────────────────────────────
+// Convención de UnidadMedida contra el backend
+// ────────────────────────────────────────────────────────────────────────────
+// System.Text.Json serializa enums de C# como NÚMERO por default (0, 1).
+// Si en tu Program.cs agregaste JsonStringEnumConverter, poné esto en true.
+const ES_ENUM_STRING = false;
+const UNIDAD: UnidadMedida     = ES_ENUM_STRING ? 'Unidad'    : 0;
+const KILOGRAMO: UnidadMedida  = ES_ENUM_STRING ? 'Kilogramo' : 1;
+const esKilogramo = (u: UnidadMedida) => u === 'Kilogramo' || u === 1;
 
 // ────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -34,6 +44,7 @@ interface FormState {
   codigoBarras: string;
   precioCosto: string;
   precioVenta: string;
+  unidadMedida: UnidadMedida;
   stock: string;
   stockMinimo: string;
   categoriaId: string;
@@ -48,6 +59,7 @@ const FORM_INICIAL: FormState = {
   codigoBarras: '',
   precioCosto: '',
   precioVenta: '',
+  unidadMedida: UNIDAD,
   stock: '',
   stockMinimo: '10',
   categoriaId: '',
@@ -75,6 +87,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
 }) => {
   const [form, setForm] = useState<FormState>(FORM_INICIAL);
   const [errores, setErrores] = useState<Partial<FormState>>({});
+  const porKilo = esKilogramo(form.unidadMedida);
 
   useEffect(() => {
   if (mode === 'editar' && producto) {
@@ -83,6 +96,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
       codigoBarras: producto.codigoBarra || '',
       precioCosto: String(producto.precioCosto),
       precioVenta: String(producto.precioVenta),
+      unidadMedida: producto.unidadMedida ?? UNIDAD,
       stock: String(producto.stockActual),
       stockMinimo: String(producto.stockMinimo),
       categoriaId: String(producto.categoriaId),
@@ -119,6 +133,13 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
     }));
   };
 
+  // Unidad / Por kilo son mutuamente excluyentes con "Suelto"
+  // (uno cuenta unidades enteras pedidas a mano, el otro pesa) — al elegir
+  // "Por kilo" apagamos "suelto" si estaba prendido.
+  const seleccionarUnidadMedida = (u: UnidadMedida) => {
+    setForm(prev => ({ ...prev, unidadMedida: u, suelto: esKilogramo(u) ? false : prev.suelto }));
+  };
+
 
   // ── Validación ────────────────────────────────────────────────────────
 
@@ -151,6 +172,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
   codigoBarra: form.codigoBarras.trim() || undefined,
   precioCosto: Number(form.precioCosto),
   precioVenta: Number(form.precioVenta),
+  unidadMedida: form.unidadMedida,
   tagIds: form.tagIds,
   stockActual: Number(form.stock),
   stockMinimo: Number(form.stockMinimo),
@@ -227,11 +249,40 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
           onChange={(e) => handleChange('codigoBarras', e.target.value)}
         />
 
+        {/* Unidad de medida: por unidad o por kilo */}
+        <div>
+          <label className="input-label mb-1 block">Se vende</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => seleccionarUnidadMedida(UNIDAD)}
+              className={`py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
+                !porKilo
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'
+              }`}
+            >
+              Por unidad
+            </button>
+            <button
+              type="button"
+              onClick={() => seleccionarUnidadMedida(KILOGRAMO)}
+              className={`py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
+                porKilo
+                  ? 'border-amber-500 bg-amber-50 text-amber-700'
+                  : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'
+              }`}
+            >
+              Por kilo (fiambre, pan, etc.)
+            </button>
+          </div>
+        </div>
+
         {/* Precios */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Input
-              label="Precio de costo"
+              label={porKilo ? 'Precio de costo (por kilo)' : 'Precio de costo'}
               type="number"
               min="0"
               step="0.01"
@@ -244,7 +295,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
           </div>
           <div>
             <Input
-              label="Precio de venta"
+              label={porKilo ? 'Precio de venta (por kilo)' : 'Precio de venta'}
               type="number"
               min="0"
               step="0.01"
@@ -274,7 +325,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
             {form.precioCosto && form.precioVenta && (
               <span className="ml-2 opacity-70">
                 (ganás {formatCurrency(Number(form.precioVenta) - Number(form.precioCosto))} por
-                unidad)
+                {porKilo ? ' kilo' : ' unidad'})
               </span>
             )}
           </div>
@@ -283,7 +334,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
         {/* Stock */}
         <div className="grid grid-cols-2 gap-4">
           <Input
-            label="Stock actual"
+            label={porKilo ? 'Stock actual (gramos)' : 'Stock actual'}
             type="number"
             min="0"
             step="1"
@@ -291,18 +342,19 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
             value={form.stock}
             onChange={(e) => handleChange('stock', e.target.value)}
             error={errores.stock}
+            helperText={porKilo ? 'Cargá el peso en gramos (ej: 8000 = 8kg)' : undefined}
             required
           />
           <Input
-            label="Stock mínimo"
+            label={porKilo ? 'Stock mínimo (gramos)' : 'Stock mínimo'}
             type="number"
             min="0"
             step="1"
-            placeholder="10"
+            placeholder={porKilo ? '500' : '10'}
             value={form.stockMinimo}
             onChange={(e) => handleChange('stockMinimo', e.target.value)}
             error={errores.stockMinimo}
-            helperText="Umbral para alertas de stock bajo"
+            helperText={porKilo ? 'En gramos — umbral para alerta de stock bajo' : 'Umbral para alertas de stock bajo'}
             required
           />
         </div>
@@ -335,24 +387,26 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
         </div>
 
 
-        {/* Producto suelto */}
-<div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200">
-  <div>
-    <p className="text-sm font-medium text-neutral-700">Producto suelto</p>
-    <p className="text-xs text-neutral-400">Al venderlo pedirá la cantidad (caramelos, cigarrillos, etc.)</p>
-  </div>
-  <button
-    type="button"
-    onClick={() => setForm(prev => ({ ...prev, suelto: !prev.suelto }))}
-    className={`relative w-11 h-6 rounded-full transition-colors ${
-      form.suelto ? 'bg-green-500' : 'bg-neutral-300'
-    }`}
-  >
-    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-      form.suelto ? 'translate-x-5' : 'translate-x-0.5'
-    }`} />
-  </button>
-</div>
+        {/* Producto suelto (no aplica a productos por kilo: ahí ya se pide el peso) */}
+        {!porKilo && (
+          <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+            <div>
+              <p className="text-sm font-medium text-neutral-700">Producto suelto</p>
+              <p className="text-xs text-neutral-400">Al venderlo pedirá la cantidad (caramelos, cigarrillos, etc.)</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setForm(prev => ({ ...prev, suelto: !prev.suelto }))}
+              className={`relative w-11 h-6 rounded-full transition-colors ${
+                form.suelto ? 'bg-green-500' : 'bg-neutral-300'
+              }`}
+            >
+              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                form.suelto ? 'translate-x-5' : 'translate-x-0.5'
+              }`} />
+            </button>
+          </div>
+        )}
 
 
 {/* Tags */}

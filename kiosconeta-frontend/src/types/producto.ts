@@ -2,6 +2,14 @@
 // TYPES: Productos
 // ════════════════════════════════════════════════════════════════════════════
 
+// Reflejo de Domain.Enums.UnidadMedida del backend.
+// OJO: si tu API serializa enums de C# como número (comportamiento default de
+// System.Text.Json), vas a recibir/tener que mandar 0/1. Si tenés configurado
+// JsonStringEnumConverter, es 'Unidad'/'Kilogramo'. Este tipo cubre ambos casos
+// a propósito — mirá el Network tab una vez contra tu API y, si querés, lo
+// achicamos a uno solo. Ver también ProductoModal.tsx (constante ES_ENUM_STRING).
+export type UnidadMedida = 'Unidad' | 'Kilogramo' | 0 | 1;
+
 // ────────────────────────────────────────────────────────────────────────────
 // PRODUCTO (Entity completa)
 // ────────────────────────────────────────────────────────────────────────────
@@ -12,6 +20,7 @@ export interface Producto {
   codigoBarra?: string;
   precioCosto: number;
   precioVenta: number;
+  unidadMedida?: UnidadMedida; // default: 'Unidad' / 0
   stockActual: number;
   stockMinimo: number;
   categoriaId: number;
@@ -36,6 +45,7 @@ export interface CreateProductoDTO {
   codigoBarra?: string;
   precioCosto: number;
   precioVenta: number;
+  unidadMedida?: UnidadMedida; // default: 'Unidad' / 0
   stockActual: number;
   stockMinimo: number;
   categoriaId: number;
@@ -51,6 +61,7 @@ export interface UpdateProductoDTO {
   codigoBarra?: string;
   precioCosto: number;
   precioVenta: number;
+  unidadMedida?: UnidadMedida;
   stockActual: number;
   stockMinimo: number;
   tagIds?: number[];
@@ -87,7 +98,8 @@ export interface ProductoSimple {
   productoId: number;
   nombre: string;
   precioVenta: number;
-  stock: number;
+  unidadMedida?: UnidadMedida; // clave para el carrito: define si stock/cantidad son gramos
+  stock: number;               // para unidadMedida='Kilogramo', stock está en GRAMOS
   categoria: string;
 }
 

@@ -80,6 +80,7 @@ interface MetricasPeriodo {
   turnosCerrados: number
   totalEfectivo: number  
   totalVirtual: number    
+  gananciaTotal: number
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -383,7 +384,7 @@ const DashboardPage: React.FC = () => {
               />
               <Tarjeta
                 label="Ganancia total"
-                valor={formatCurrency(caja?.gananciaTotal ?? 0)}
+                valor={formatCurrency(metricas?.gananciaTotal ?? 0)}
                 icono={<TrendingUp size={20} />}
                 color="success"
               />

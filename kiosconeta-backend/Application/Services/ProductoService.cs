@@ -135,6 +135,7 @@ namespace Application.Services
                 Nombre = dto.Nombre,
                 PrecioCosto = dto.PrecioCosto,
                 PrecioVenta = dto.PrecioVenta,
+                UnidadMedida = dto.UnidadMedida,
                 CategoriaId = dto.CategoriaId,
                 DistribuidorId = dto.DistribuidorId,
                 CodigoBarra = dto.CodigoBarra,
@@ -177,6 +178,7 @@ namespace Application.Services
             productoExistente.Nombre = dto.Nombre;
             productoExistente.PrecioCosto = dto.PrecioCosto;
             productoExistente.PrecioVenta = dto.PrecioVenta;
+            productoExistente.UnidadMedida = dto.UnidadMedida;
             productoExistente.CategoriaId = dto.CategoriaId;
             productoExistente.DistribuidorId = dto.DistribuidorId;
             productoExistente.CodigoBarra = dto.CodigoBarra;
@@ -288,6 +290,7 @@ namespace Application.Services
                 Nombre = producto.Nombre,
                 PrecioCosto = producto.PrecioCosto,
                 PrecioVenta = producto.PrecioVenta,
+                UnidadMedida = producto.UnidadMedida,
                 MargenGanancia = margen,
                 CategoriaId = producto.CategoriaId,
                 CategoriaNombre = producto.Categoria?.Nombre ?? "Sin categoría",

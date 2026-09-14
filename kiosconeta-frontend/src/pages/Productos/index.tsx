@@ -30,7 +30,7 @@ import { IngresoMercaderiaModal } from './IngresoMercaderiaModal';
 import { PromocionesTab } from './PromocionesTab';
 import { DistribuidoresTab } from './DistribuidoresTab'; //
 import { useProductos } from './useProductos';
-import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO } from '@/types';
+import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO, UnidadMedida } from '@/types';
 import { distribuidoresApi } from '@/apis/distribuidoresApi';
 import type { Distribuidor } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -46,11 +46,27 @@ type Tab = 'productos' | 'promociones' | 'distribuidores' | 'tags';
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS UI
 // ────────────────────────────────────────────────────────────────────────────
-const StockBadge: React.FC<{ stock: number; stockMinimo: number }> = ({
+
+// Un producto por kilo guarda stock en GRAMOS (ver Domain.Enums.UnidadMedida).
+// getStockStatus sigue funcionando igual (compara stock vs stockMinimo, ambos
+// en la misma unidad) — lo único que cambia acá es cómo se MUESTRA el número.
+const esKilogramo = (unidadMedida?: UnidadMedida) =>
+  unidadMedida === 'Kilogramo' || unidadMedida === 1;
+
+const formatStock = (stock: number, unidadMedida?: UnidadMedida) => {
+  if (!esKilogramo(unidadMedida)) return `${stock}`;
+  return stock >= 1000
+    ? `${(stock / 1000).toLocaleString('es-AR', { maximumFractionDigits: 2 })}kg`
+    : `${stock}g`;
+};
+
+const StockBadge: React.FC<{ stock: number; stockMinimo: number; unidadMedida?: UnidadMedida }> = ({
   stock,
   stockMinimo,
+  unidadMedida,
 }) => {
   const status = getStockStatus(stock, stockMinimo);
+  const label = formatStock(stock, unidadMedida);
   if (status === 'critico')
     return (
       <Badge variant="danger" className="text-xs">
@@ -60,10 +76,10 @@ const StockBadge: React.FC<{ stock: number; stockMinimo: number }> = ({
   if (status === 'bajo')
     return (
       <Badge variant="warning" className="text-xs">
-        Stock bajo ({stock})
+        Stock bajo ({label})
       </Badge>
     );
-  return <span className="text-sm font-medium text-neutral-700">{stock}</span>;
+  return <span className="text-sm font-medium text-neutral-700">{label}</span>;
 };
 
 const StatCard: React.FC<{
@@ -185,7 +201,14 @@ const ProductosPage: React.FC = () => {
       header: 'Producto',
       render: (p: Producto) => (
         <div>
-          <p className="font-medium text-neutral-900">{p.nombre}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="font-medium text-neutral-900">{p.nombre}</p>
+            {esKilogramo(p.unidadMedida) && (
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">
+                Por kilo
+              </span>
+            )}
+          </div>
           {p.codigoBarra && (
             <p className="text-xs text-neutral-400 font-mono">{p.codigoBarra}</p>
           )}
@@ -219,7 +242,9 @@ const ProductosPage: React.FC = () => {
       header: 'Costo',
       align: 'right' as const,
       render: (p: Producto) => (
-        <span className="text-sm text-neutral-600">{formatCurrency(p.precioCosto)}</span>
+        <span className="text-sm text-neutral-600">
+          {formatCurrency(p.precioCosto)}{esKilogramo(p.unidadMedida) && <span className="text-[10px]">/kg</span>}
+        </span>
       ),
     },
     {
@@ -228,7 +253,7 @@ const ProductosPage: React.FC = () => {
       align: 'right' as const,
       render: (p: Producto) => (
         <span className="text-sm font-semibold text-neutral-900">
-          {formatCurrency(p.precioVenta)}
+          {formatCurrency(p.precioVenta)}{esKilogramo(p.unidadMedida) && <span className="text-[10px] font-normal">/kg</span>}
         </span>
       ),
     },
@@ -242,7 +267,7 @@ const ProductosPage: React.FC = () => {
           title="Ajustar stock"
           className="flex items-center gap-1.5 mx-auto hover:opacity-70 transition-opacity"
         >
-          <StockBadge stock={p.stockActual} stockMinimo={p.stockMinimo} />
+          <StockBadge stock={p.stockActual} stockMinimo={p.stockMinimo} unidadMedida={p.unidadMedida} />
         </button>
       ),
     },
@@ -562,7 +587,14 @@ const ProductosPage: React.FC = () => {
                       {/* Nombre + estado */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="font-medium text-neutral-900 truncate">{p.nombre}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-medium text-neutral-900 truncate">{p.nombre}</p>
+                            {esKilogramo(p.unidadMedida) && (
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600 shrink-0">
+                                Por kilo
+                              </span>
+                            )}
+                          </div>
                           {p.codigoBarra && (
                             <p className="text-xs text-neutral-400 font-mono truncate">
                               {p.codigoBarra}
@@ -596,7 +628,7 @@ const ProductosPage: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-baseline gap-2">
                           <span className="text-lg font-bold text-neutral-900">
-                            {formatCurrency(p.precioVenta)}
+                            {formatCurrency(p.precioVenta)}{esKilogramo(p.unidadMedida) && <span className="text-xs font-normal">/kg</span>}
                           </span>
                           <span className="text-xs text-neutral-400">
                             costo {formatCurrency(p.precioCosto)}
@@ -607,7 +639,7 @@ const ProductosPage: React.FC = () => {
                           title="Ajustar stock"
                           className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
                         >
-                          <StockBadge stock={p.stockActual} stockMinimo={p.stockMinimo} />
+                          <StockBadge stock={p.stockActual} stockMinimo={p.stockMinimo} unidadMedida={p.unidadMedida} />
                         </button>
                       </div>
 

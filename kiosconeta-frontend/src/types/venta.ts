@@ -2,6 +2,8 @@
 // TYPES: Ventas
 // ════════════════════════════════════════════════════════════════════════════
 
+import type { UnidadMedida } from '@/types/producto';
+
 // ────────────────────────────────────────────────────────────────────────────
 // VENTA (Entity completa)
 // ────────────────────────────────────────────────────────────────────────────
@@ -47,7 +49,8 @@ export interface ProductoVenta {
   productoVentaId: number;
   productoId: number;
   productoNombre: string;
-  cantidad: number;
+  unidadMedida?: UnidadMedida;
+  cantidad: number; // para unidadMedida='Kilogramo', son GRAMOS
   precioUnitario: number;
   subtotal: number;
 }
@@ -72,7 +75,7 @@ export interface CreateVentaDTO {
 
 export interface CreateProductoVentaDTO {
   productoId: number;
-  cantidad: number;
+  cantidad: number; // para productos por kilo, GRAMOS
   // precioUnitario lo toma el backend del producto directamente
 }
 
@@ -85,6 +88,7 @@ export interface ItemCarrito {
   productoId: number;
   nombre: string;
   precioUnitario: number;
+  unidadMedida?: UnidadMedida; // si es 'Kilogramo', cantidad/stock están en GRAMOS
   cantidad: number;
   subtotal: number;
   stock: number;          

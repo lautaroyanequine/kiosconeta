@@ -1,5 +1,7 @@
 ﻿namespace Application.DTOs.Producto
 {
+    using Domain.Enums;
+
     /// <summary>
     /// DTO para crear un nuevo producto
     /// </summary>
@@ -8,6 +10,7 @@
         public string Nombre { get; set; }
         public decimal PrecioCosto { get; set; }
         public decimal PrecioVenta { get; set; }
+        public UnidadMedida UnidadMedida { get; set; } = UnidadMedida.Unidad;
         public int CategoriaId { get; set; }
         public int? DistribuidorId { get; set; }
         public List<int>? TagIds { get; set; }

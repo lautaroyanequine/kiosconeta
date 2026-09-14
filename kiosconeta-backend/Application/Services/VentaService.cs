@@ -162,8 +162,8 @@ public class VentaService : IVentaService
             if (producto.StockActual < productoDto.Cantidad)
                 throw new InvalidOperationException($"Stock insuficiente para {producto.Nombre}");
 
-            subtotalVenta += producto.PrecioVenta * productoDto.Cantidad;
-            costoTotal += producto.PrecioCosto * productoDto.Cantidad;
+            subtotalVenta += CalcularImporteItem(producto.UnidadMedida, productoDto.Cantidad, producto.PrecioVenta);
+            costoTotal += CalcularImporteItem(producto.UnidadMedida, productoDto.Cantidad, producto.PrecioCosto);
 
             productosVenta.Add(new ProductoVenta
             {
@@ -447,10 +447,25 @@ public class VentaService : IVentaService
                 ProductoVentaId = pv.ProductoVentaId,
                 ProductoId = pv.ProductoId,
                 ProductoNombre = pv.Producto?.Nombre ?? "",
+                UnidadMedida = pv.Producto?.UnidadMedida ?? UnidadMedida.Unidad,
                 Cantidad = pv.Cantidad,
                 PrecioUnitario = pv.PrecioUnitario,
-                Subtotal = pv.Cantidad * pv.PrecioUnitario
+                Subtotal = CalcularImporteItem(
+                    pv.Producto?.UnidadMedida ?? UnidadMedida.Unidad,
+                    pv.Cantidad,
+                    pv.PrecioUnitario)
             }).ToList() ?? new List<ProductoVentaResponseDTO>()
         };
+    }
+
+    // Importe de un ítem de venta, respetando la unidad de medida del producto:
+    // - Unidad: Cantidad son unidades enteras → Precio * Cantidad.
+    // - Kilogramo: Cantidad son GRAMOS y Precio es "por kilo" → (Cantidad/1000) * Precio.
+    // Redondeado a 2 decimales para no arrastrar fracciones de centavo.
+    private static decimal CalcularImporteItem(UnidadMedida unidadMedida, int cantidad, decimal precio)
+    {
+        return unidadMedida == UnidadMedida.Kilogramo
+            ? Math.Round((cantidad / 1000m) * precio, 2, MidpointRounding.AwayFromZero)
+            : cantidad * precio;
     }
 }

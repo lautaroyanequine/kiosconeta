@@ -34,6 +34,22 @@ namespace Application.Services
         }
 
         // ═══════════════════════════════════════════════════
+        // Importe de una cantidad de producto, respetando la unidad de medida
+        // (mismo criterio que VentaService.CalcularImporteItem):
+        // - Unidad: cantidad son unidades enteras → precio * cantidad.
+        // - Kilogramo: cantidad está en GRAMOS y precio es "por kilo" →
+        //   (cantidad / 1000) * precio.
+        // Sin esto, cualquier suma de Cantidad*Precio sobre un producto por
+        // kilo da 1000x el valor real (gramos tratados como si fueran kilos).
+        // ═══════════════════════════════════════════════════
+        private static decimal CalcularImporte(UnidadMedida unidadMedida, int cantidad, decimal precio)
+        {
+            return unidadMedida == UnidadMedida.Kilogramo
+                ? Math.Round((cantidad / 1000m) * precio, 2, MidpointRounding.AwayFromZero)
+                : cantidad * precio;
+        }
+
+        // ═══════════════════════════════════════════════════
         // DASHBOARD GENERAL
         // ═══════════════════════════════════════════════════
 
@@ -106,7 +122,7 @@ namespace Application.Services
                     ProductoId = g.Key.ProductoId,
                     Nombre = g.Key.Nombre,
                     CantidadVendida = g.Sum(pv => pv.Cantidad),
-                    TotalVentas = g.Sum(pv => pv.Cantidad * pv.PrecioUnitario),
+                    TotalVentas = g.Sum(pv => CalcularImporte(pv.Producto.UnidadMedida, pv.Cantidad, pv.PrecioUnitario)),
                     Categoria = g.Key.Categoria
                 })
                 .OrderByDescending(p => p.CantidadVendida)
@@ -172,8 +188,8 @@ namespace Application.Services
                     : new List<ProductoVenta>(); // Asegúrate de usar el tipo correcto de tu entidad de venta
 
                 var unidades = ventasProducto.Sum(v => v.Cantidad);
-                var ingresos = ventasProducto.Sum(v => v.PrecioUnitario * v.Cantidad);
-                var costo = ventasProducto.Sum(v => v.Producto.PrecioCosto * v.Cantidad);
+                var ingresos = ventasProducto.Sum(v => CalcularImporte(p.UnidadMedida, v.Cantidad, v.PrecioUnitario));
+                var costo = ventasProducto.Sum(v => CalcularImporte(p.UnidadMedida, v.Cantidad, v.Producto.PrecioCosto));
                 var ganancia = ingresos - costo;
 
                 var promDiario = (decimal)unidades / diasAnalizados;
@@ -205,8 +221,10 @@ namespace Application.Services
                     DiasAnalizados = diasAnalizados,
                     PromedioVentasDiarias = Math.Round(promDiario, 2),
                     RecomendacionCompra = recomendacion,
-                    CostoTotalRecomendado = recomendacion * p.PrecioCosto,
-                    DiasStockRestante = diasStock,  
+                    // recomendacion está en la misma unidad que "unidades" (gramos para
+                    // productos por kilo) — CalcularImporte lo pasa a plata correctamente.
+                    CostoTotalRecomendado = CalcularImporte(p.UnidadMedida, recomendacion, p.PrecioCosto),
+                    DiasStockRestante = diasStock,
                     UltimaVenta = ultimaVenta,
                 };
             })
@@ -325,7 +343,7 @@ namespace Application.Services
                 FranjasHorarias = franjasHorarias,
                 DistribucionHoraria = distribucionHoraria,
                 DiasSemana = diasSemana,
-                 CantidadQuiebresStock = quiebresProducto.Count,
+                CantidadQuiebresStock = quiebresProducto.Count,
                 FechasQuiebresStock = quiebresProducto
                 .Select(a => a.Fecha)
                 .OrderByDescending(f => f)
@@ -365,6 +383,12 @@ namespace Application.Services
 
             var diferenciaCaja = turnosCerrados.Sum(t => t.Diferencia);
 
+            // Ganancia del período — Venta.Total y Venta.PrecioCosto ya vienen
+            // correctamente calculados por venta (incluyendo productos por kilo),
+            // así que acá solo hace falta sumarlos.
+            var costoVentas = ventasList.Sum(v => v.PrecioCosto);
+            var gananciaTotal = totalVendido - costoVentas;
+
             return new MetricasPeriodoDTO
             {
                 TotalVendido = totalVendido,
@@ -373,7 +397,8 @@ namespace Application.Services
                 DiferenciaCaja = diferenciaCaja,
                 TurnosCerrados = turnosCerrados.Count,
                 TotalEfectivo = totalEfectivo,
-                TotalVirtual = totalVirtual
+                TotalVirtual = totalVirtual,
+                GananciaTotal = gananciaTotal
             };
         }
 
@@ -496,7 +521,7 @@ namespace Application.Services
                     ProductoId = g.Key.ProductoId,
                     Nombre = g.Key.Nombre,
                     CantidadVendida = g.Sum(pv => pv.Cantidad),
-                    TotalVentas = g.Sum(pv => pv.Cantidad * pv.PrecioUnitario),
+                    TotalVentas = g.Sum(pv => CalcularImporte(pv.Producto.UnidadMedida, pv.Cantidad, pv.PrecioUnitario)),
                     Categoria = g.Key.Categoria
                 })
                 .OrderByDescending(p => p.CantidadVendida)
@@ -542,7 +567,7 @@ namespace Application.Services
 
             var valorStock = productosList
                 .Where(p => p.Activo)
-                .Sum(p => p.PrecioCosto * p.StockActual);
+                .Sum(p => CalcularImporte(p.UnidadMedida, p.StockActual, p.PrecioCosto));
 
             var bajoStockDetalle = productosList
                 .Where(p => p.Activo && p.StockActual <= p.StockMinimo)

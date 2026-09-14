@@ -1,5 +1,6 @@
 ﻿namespace Domain.Entities
 {
+    using Domain.Enums;
 
     public class Producto
     {
@@ -10,11 +11,15 @@
         public decimal PrecioCosto { get; set; }
         public decimal PrecioVenta { get; set; }
 
+        // Unidad (default): Stock/Cantidad en unidades enteras.
+        // Kilogramo: Stock/Cantidad en GRAMOS; PrecioCosto/PrecioVenta son "por kilo".
+        public UnidadMedida UnidadMedida { get; set; } = UnidadMedida.Unidad;
+
         public int CategoriaId { get; set; }
         public Categoria Categoria { get; set; }
 
-        public int? DistribuidorId { get; set; }         
-        public Distribuidor? DistribuidorNav { get; set; }  
+        public int? DistribuidorId { get; set; }
+        public Distribuidor? DistribuidorNav { get; set; }
         public string CodigoBarra { get; set; }
 
         public string? Descripcion { get; set; }

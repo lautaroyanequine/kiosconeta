@@ -55,6 +55,9 @@
         public int TurnosCerrados { get; set; }
         public decimal TotalEfectivo { get; set; }
         public decimal TotalVirtual { get; set; }
+        // Ganancia bruta de ventas del período (Total - CostoVentas), sin restar
+        // gastos de turno. Mismo criterio que ReporteVentasDTO.GananciaTotal.
+        public decimal GananciaTotal { get; set; }
     }
     // ─── PRODUCTO MÁS VENDIDO ────────────────────────
     public class ProductoMasVendidoDTO

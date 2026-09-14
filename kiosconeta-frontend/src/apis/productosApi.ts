@@ -15,6 +15,21 @@ import type {
   ResultadoPaginado
 } from '../types';
 
+// El backend, en los endpoints usados para el POS (/activos y /codigo-barra),
+// devuelve el ProductoResponseDTO completo (stockActual, categoriaNombre...),
+// no un DTO liviano con los nombres que espera ProductoSimple (stock, categoria).
+// Sin este mapeo, "stock" queda undefined para TODOS los productos — lo cual
+// no tira error en ningún lado porque nada compara explícitamente contra
+// undefined, pero deja el control de stock del POS desactivado en silencio.
+const mapAProductoSimple = (p: any): ProductoSimple => ({
+  productoId:   p.productoId,
+  nombre:       p.nombre,
+  precioVenta:  p.precioVenta,
+  unidadMedida: p.unidadMedida,
+  stock:        p.stock ?? p.stockActual, // soporta ambos por si el DTO cambia a futuro
+  categoria:    p.categoria ?? p.categoriaNombre ?? '',
+});
+
 // ────────────────────────────────────────────────────────────────────────────
 // PRODUCTOS API
 // ────────────────────────────────────────────────────────────────────────────
@@ -92,10 +107,11 @@ getPaginado: async (
    */
   getByCodigoBarra: async (codigoBarra: string): Promise<ProductoSimple | null> => {
     try {
-      const response = await apiClient.get<ProductoSimple>(
+      const response = await apiClient.get<any>(
         `/productos/codigo-barra/${codigoBarra}`
       );
-      return handleResponse(response);
+      const data = handleResponse(response);
+      return data ? mapAProductoSimple(data) : null;
     } catch (error: any) {
       if (error.statusCode === 404) return null;
       return handleError(error);
@@ -107,10 +123,11 @@ getPaginado: async (
    */
   getActivos: async (kioscoId: number): Promise<ProductoSimple[]> => {
     try {
-      const response = await apiClient.get<ProductoSimple[]>(
+      const response = await apiClient.get<any[]>(
         `/productos/kiosco/${kioscoId}/activos`
       );
-      return handleResponse(response);
+      const data = handleResponse(response);
+      return (data ?? []).map(mapAProductoSimple);
     } catch (error) {
       return handleError(error);
     }

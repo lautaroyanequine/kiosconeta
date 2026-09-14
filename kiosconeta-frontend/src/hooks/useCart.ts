@@ -17,6 +17,24 @@ export interface ResolucionComboLinea {
   cantidad: number; // cantidad por UNIDAD de combo (se multiplica x item.cantidad al cobrar)
 }
 
+// Un producto "por kilo" guarda cantidad en GRAMOS y precioUnitario "por kilo"
+// (misma convención que el backend — ver Domain.Enums.UnidadMedida). El resto
+// del sistema sigue tratando "cantidad" como unidades enteras.
+const esKilogramo = (unidadMedida: unknown) =>
+  unidadMedida === 'Kilogramo' || unidadMedida === 1;
+
+// Subtotal de una línea del carrito, respetando la unidad de medida.
+// No reemplaza calcularSubtotal (que puede estar en uso en otros lugares) —
+// solo bifurca acá, donde sabemos si el ítem es por kilo o por unidad.
+const calcularSubtotalItem = (
+  precioUnitario: number,
+  cantidad: number,
+  unidadMedida?: unknown
+) =>
+  esKilogramo(unidadMedida)
+    ? Math.round((cantidad / 1000) * precioUnitario * 100) / 100
+    : calcularSubtotal(precioUnitario, cantidad);
+
 // ────────────────────────────────────────────────────────────────────────────
 // HOOK
 // ────────────────────────────────────────────────────────────────────────────
@@ -83,21 +101,28 @@ export const useCart = (kioscoId?: number) => {
   const addItem = (
     producto: ProductoSimple,
     precioOverride?: number,
-    resolucionCombo?: ResolucionComboLinea[]
+    resolucionCombo?: ResolucionComboLinea[],
+    cantidadInicial?: number // gramos, para productos por kilo agregados desde el modal de peso
   ) => {
     const precio = precioOverride ?? producto.precioVenta;
+    const unidadMedida = (producto as any).unidadMedida;
+    const esPorKilo = esKilogramo(unidadMedida);
+    const cantidad = cantidadInicial ?? 1;
 
     setItems(prev => {
       if (!resolucionCombo) {
         const existing = prev.find(i => i.productoId === producto.productoId && !i.resolucionCombo);
         if (existing) {
-          if (existing.cantidad >= existing.stock) {
+          // Por kilo: cada "agregar" suma el peso elegido (no +1 gramo).
+          // Por unidad: se comporta como siempre, +1.
+          const nuevaCantidad = esPorKilo ? existing.cantidad + cantidad : existing.cantidad + 1;
+          if (nuevaCantidad > existing.stock) {
             alert('No hay stock suficiente');
             return prev;
           }
           return prev.map(i =>
             i.lineId === existing.lineId
-              ? { ...i, cantidad: i.cantidad + 1, subtotal: calcularSubtotal(i.precioUnitario, i.cantidad + 1) }
+              ? { ...i, cantidad: nuevaCantidad, subtotal: calcularSubtotalItem(i.precioUnitario, nuevaCantidad, (i as any).unidadMedida) }
               : i
           );
         }
@@ -112,11 +137,12 @@ export const useCart = (kioscoId?: number) => {
         productoId:     producto.productoId,
         nombre:         producto.nombre,
         precioUnitario: precio,
-        cantidad:       1,
-        subtotal:       precio,
+        cantidad,
+        subtotal:       calcularSubtotalItem(precio, cantidad, unidadMedida),
         stock:          producto.stock,
+        unidadMedida,
         resolucionCombo,
-      }];
+      } as ItemCarrito];
     });
   };
 
@@ -133,7 +159,7 @@ export const useCart = (kioscoId?: number) => {
     setItems(prev => prev.map(i => {
       if (i.lineId !== lineId) return i;
       if (cantidad > i.stock) { alert('No hay stock suficiente'); return i; }
-      return { ...i, cantidad, subtotal: calcularSubtotal(i.precioUnitario, cantidad) };
+      return { ...i, cantidad, subtotal: calcularSubtotalItem(i.precioUnitario, cantidad, (i as any).unidadMedida) };
     }));
   };
 
