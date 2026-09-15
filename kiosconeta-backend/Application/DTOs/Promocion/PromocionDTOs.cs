@@ -105,6 +105,9 @@ namespace Application.DTOs.Promocion
         public int ProductoId { get; set; }
         public int Cantidad { get; set; }
         public decimal PrecioUnitario { get; set; }
+        // Si es Kilogramo, Cantidad está en GRAMOS y PrecioUnitario es "por kilo"
+        // (misma convención que en toda la venta — ver Domain.Enums.UnidadMedida).
+        public UnidadMedida UnidadMedida { get; set; } = UnidadMedida.Unidad;
     }
 
     // ── Resultado de detección ────────────────────────────

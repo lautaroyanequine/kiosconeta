@@ -65,6 +65,7 @@ export const useCart = (kioscoId?: number) => {
           productoId:     i.productoId,
           cantidad:       i.cantidad,
           precioUnitario: i.precioUnitario,
+          unidadMedida:   i.unidadMedida,
         }))
       );
       setPromosAplicadas(resultado.promocionesAplicadas);
@@ -105,7 +106,7 @@ export const useCart = (kioscoId?: number) => {
     cantidadInicial?: number // gramos, para productos por kilo agregados desde el modal de peso
   ) => {
     const precio = precioOverride ?? producto.precioVenta;
-    const unidadMedida = (producto as any).unidadMedida;
+    const unidadMedida = producto.unidadMedida;
     const esPorKilo = esKilogramo(unidadMedida);
     const cantidad = cantidadInicial ?? 1;
 
@@ -122,7 +123,7 @@ export const useCart = (kioscoId?: number) => {
           }
           return prev.map(i =>
             i.lineId === existing.lineId
-              ? { ...i, cantidad: nuevaCantidad, subtotal: calcularSubtotalItem(i.precioUnitario, nuevaCantidad, (i as any).unidadMedida) }
+              ? { ...i, cantidad: nuevaCantidad, subtotal: calcularSubtotalItem(i.precioUnitario, nuevaCantidad, i.unidadMedida) }
               : i
           );
         }
@@ -142,7 +143,7 @@ export const useCart = (kioscoId?: number) => {
         stock:          producto.stock,
         unidadMedida,
         resolucionCombo,
-      } as ItemCarrito];
+      }];
     });
   };
 
@@ -159,7 +160,7 @@ export const useCart = (kioscoId?: number) => {
     setItems(prev => prev.map(i => {
       if (i.lineId !== lineId) return i;
       if (cantidad > i.stock) { alert('No hay stock suficiente'); return i; }
-      return { ...i, cantidad, subtotal: calcularSubtotalItem(i.precioUnitario, cantidad, (i as any).unidadMedida) };
+      return { ...i, cantidad, subtotal: calcularSubtotalItem(i.precioUnitario, cantidad, i.unidadMedida) };
     }));
   };
 

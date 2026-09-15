@@ -2,6 +2,7 @@
 using Application.Interfaces.Repository;
 using Application.Interfaces.Services;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Enums.Domain.Enums;
 
 public class PromocionService : IPromocionService
@@ -14,6 +15,17 @@ public class PromocionService : IPromocionService
     {
         _repo = repo;
         _productoRepo = productoRepo;
+    }
+
+    // Mismo criterio que VentaService/DashboardService: para productos por kilo,
+    // Cantidad está en GRAMOS y PrecioUnitario es "por kilo".
+    private static bool EsKilogramo(UnidadMedida unidadMedida) => unidadMedida == UnidadMedida.Kilogramo;
+
+    private static decimal CalcularImporte(UnidadMedida unidadMedida, int cantidad, decimal precioUnitario)
+    {
+        return EsKilogramo(unidadMedida)
+            ? Math.Round((cantidad / 1000m) * precioUnitario, 2, MidpointRounding.AwayFromZero)
+            : cantidad * precioUnitario;
     }
 
     public async Task<IEnumerable<PromocionResponseDTO>> GetByKioscoAsync(int kioscoId)
@@ -141,7 +153,7 @@ public class PromocionService : IPromocionService
 
 
 
-        var totalOriginal = carrito.Sum(i => i.PrecioUnitario * i.Cantidad);
+        var totalOriginal = carrito.Sum(i => CalcularImporte(i.UnidadMedida, i.Cantidad, i.PrecioUnitario));
         var aplicadas = new List<PromocionAplicadaDTO>();
 
         foreach (var promo in promos)
@@ -184,15 +196,18 @@ public class PromocionService : IPromocionService
             {
                 var item = carrito.FirstOrDefault(c => c.ProductoId == pp.ProductoId);
                 if (item == null || item.Cantidad < pp.Cantidad) return null;
-                precioOriginal += item.PrecioUnitario * pp.Cantidad;
+                precioOriginal += CalcularImporte(item.UnidadMedida, pp.Cantidad, item.PrecioUnitario);
             }
             else if (pp.TagId != null)
             {
                 // Nota: esto requiere resolver productos por tag de forma síncrona;
                 // ver comentario abajo sobre precargar el mapa de tags antes del foreach.
+                // Los productos por kilo quedan afuera de este pool: "cantidad" para
+                // ellos son gramos, y Enumerable.Repeat con miles de gramos generaría
+                // listas gigantes además de no tener sentido como "N unidades".
                 var idsTag = _tagProductosCache.TryGetValue(pp.TagId.Value, out var ids) ? ids : new HashSet<int>();
                 var unidades = carrito
-                    .Where(c => idsTag.Contains(c.ProductoId))
+                    .Where(c => idsTag.Contains(c.ProductoId) && !EsKilogramo(c.UnidadMedida))
                     .SelectMany(c => Enumerable.Repeat(c.PrecioUnitario, c.Cantidad))
                     .OrderBy(precio => precio)
                     .ToList();
@@ -229,14 +244,18 @@ public class PromocionService : IPromocionService
         if (promo.ProductoIdCantidad != null)
         {
             var item = carrito.FirstOrDefault(c => c.ProductoId == promo.ProductoIdCantidad);
-            if (item == null) return null;
+            // Las promos NxM (2x1, 3x2) no aplican a productos por kilo: su "cantidad"
+            // es en gramos, no unidades discretas, y no hay traducción sensata a
+            // "llevate 3, pagá 2" — además de que repetir por gramo puede generar
+            // listas de miles de elementos.
+            if (item == null || EsKilogramo(item.UnidadMedida)) return null;
             unidades = Enumerable.Repeat(item.PrecioUnitario, item.Cantidad).ToList();
         }
         else
         {
             var idsTag = _tagProductosCache.TryGetValue(promo.TagIdCantidad!.Value, out var ids) ? ids : new HashSet<int>();
             unidades = carrito
-                .Where(c => idsTag.Contains(c.ProductoId))
+                .Where(c => idsTag.Contains(c.ProductoId) && !EsKilogramo(c.UnidadMedida))
                 .SelectMany(c => Enumerable.Repeat(c.PrecioUnitario, c.Cantidad))
                 .ToList();
         }
@@ -302,7 +321,7 @@ public class PromocionService : IPromocionService
 
         // Suma total de unidades y $ de TODOS los productos que matchean (ej: todos los alfajores Mondelez juntos)
         int cantidadAplicable = itemsAplicables.Sum(i => i.Cantidad);
-        decimal baseDescuento = itemsAplicables.Sum(i => i.PrecioUnitario * i.Cantidad);
+        decimal baseDescuento = itemsAplicables.Sum(i => CalcularImporte(i.UnidadMedida, i.Cantidad, i.PrecioUnitario));
 
         if (promo.CantidadMinimaDescuento.HasValue && cantidadAplicable < promo.CantidadMinimaDescuento.Value)
             return null;
@@ -314,6 +333,11 @@ public class PromocionService : IPromocionService
 
         if (promo.PrecioFijoDescuento.HasValue && promo.CantidadMinimaDescuento.HasValue)
         {
+            // Esta modalidad agrupa de a N UNIDADES DISCRETAS a precio fijo por grupo.
+            // No tiene traducción sensata para productos por kilo (gramos) — si algún
+            // ítem aplicable es por kilo, no aplicamos esta variante de la promo.
+            if (itemsAplicables.Any(i => EsKilogramo(i.UnidadMedida))) return null;
+
             // Agrupar de a N: cada grupo completo sale el precio fijo,
             // las unidades sueltas que sobran se cobran a precio normal (promedio del carrito aplicable)
             var grupos = cantidadAplicable / promo.CantidadMinimaDescuento.Value;

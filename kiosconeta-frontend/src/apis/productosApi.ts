@@ -22,12 +22,9 @@ import type {
 // no tira error en ningún lado porque nada compara explícitamente contra
 // undefined, pero deja el control de stock del POS desactivado en silencio.
 const mapAProductoSimple = (p: any): ProductoSimple => ({
-  productoId:   p.productoId,
-  nombre:       p.nombre,
-  precioVenta:  p.precioVenta,
-  unidadMedida: p.unidadMedida,
-  stock:        p.stock ?? p.stockActual, // soporta ambos por si el DTO cambia a futuro
-  categoria:    p.categoria ?? p.categoriaNombre ?? '',
+  ...p, // conserva TODO lo que venga (suelto, codigoBarra, etc.) — solo normalizamos abajo
+  stock:     p.stock ?? p.stockActual, // soporta ambos por si el DTO cambia a futuro
+  categoria: p.categoria ?? p.categoriaNombre ?? '',
 });
 
 // ────────────────────────────────────────────────────────────────────────────

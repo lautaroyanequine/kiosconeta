@@ -229,7 +229,7 @@ public class VentaService : IVentaService
                             comboIncompleto = true;
                             break;
                         }
-                        sumaUnitariosCombo += prod.PrecioVenta * pp.Cantidad * comboDto.Cantidad;
+                        sumaUnitariosCombo += CalcularImporteItem(prod.UnidadMedida, pp.Cantidad * comboDto.Cantidad, prod.PrecioVenta);
                     }
                     else if (pp.TagId != null)
                     {
@@ -239,8 +239,12 @@ public class VentaService : IVentaService
 
                         // Precios unitarios de lo que el cliente realmente lleva de ese tag,
                         // de más barato a más caro (mismo criterio que en la detección de promos)
+                        // Los productos por kilo quedan afuera de este pool: su "cantidad"
+                        // son gramos, no unidades discretas — Enumerable.Repeat con miles
+                        // de gramos no tiene sentido y puede generar listas gigantes.
                         var preciosDisponibles = dto.Productos
-                            .Where(p => idsTag.Contains(p.ProductoId) && productosDict.ContainsKey(p.ProductoId))
+                            .Where(p => idsTag.Contains(p.ProductoId) && productosDict.ContainsKey(p.ProductoId)
+                                        && productosDict[p.ProductoId].UnidadMedida != UnidadMedida.Kilogramo)
                             .SelectMany(p => Enumerable.Repeat(productosDict[p.ProductoId].PrecioVenta, p.Cantidad))
                             .OrderBy(precio => precio)
                             .ToList();
