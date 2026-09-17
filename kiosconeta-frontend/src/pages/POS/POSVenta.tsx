@@ -156,15 +156,23 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
   // ── Filtrar ───────────────────────────────────────────────────────────────
 
+  // Coincide si el nombre contiene TODAS las palabras de la búsqueda, sin
+  // importar el orden — "red point 20" también encuentra "red 20 point".
+  const coincideBusqueda = (nombre: string, query: string) => {
+    const palabras = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const nombreLower = nombre.toLowerCase();
+    return palabras.every(palabra => nombreLower.includes(palabra));
+  };
+
   const filtrarProductos = useCallback((query: string, cat: string) => {
     const q = query.trim().toLowerCase();
     // Combos: siempre visibles en "todas", también en búsqueda de texto
     const combosVisibles = cat === 'todas'
-      ? (q ? combosVirtuales.filter(c => c.nombre.toLowerCase().includes(q)) : combosVirtuales)
+      ? (q ? combosVirtuales.filter(c => coincideBusqueda(c.nombre, q)) : combosVirtuales)
       : [];
     let prods = [...productos];
     if (cat !== 'todas') prods = prods.filter(p => p.categoria === cat);
-    if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
+    if (q) prods = prods.filter(p => coincideBusqueda(p.nombre, q));
     // Combos primero, luego productos
     setProductosFiltrados([...(combosVisibles as any[]), ...prods].slice(0, 12));
   }, [productos, combosVirtuales]);

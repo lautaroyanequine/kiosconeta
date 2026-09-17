@@ -102,6 +102,14 @@ export const useProductos = () => {
   // FILTRADO (en cliente — el backend ya devuelve todo)
   // ────────────────────────────────────────────────────────────────────────
 
+  // Coincide si el nombre contiene TODAS las palabras de la búsqueda, sin
+  // importar el orden — mismo criterio que en POSVenta.tsx.
+  const coincideBusqueda = (nombre: string, query: string) => {
+    const palabras = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const nombreLower = nombre.toLowerCase();
+    return palabras.every(palabra => nombreLower.includes(palabra));
+  };
+
   const productosFiltrados = useMemo(() => {
     return productos.filter((p) => {
       if (filtros.soloActivos && !p.activo) return false;
@@ -110,7 +118,7 @@ export const useProductos = () => {
       if (filtros.categoriaId !== '' && p.categoriaId !== filtros.categoriaId) return false;
       if (filtros.busqueda) {
         const q = filtros.busqueda.toLowerCase();
-        const matchNombre = p.nombre.toLowerCase().includes(q);
+        const matchNombre = coincideBusqueda(p.nombre, q);
         const matchCodigo = p.codigoBarra?.toLowerCase().includes(q);
         if (!matchNombre && !matchCodigo) return false;
       }

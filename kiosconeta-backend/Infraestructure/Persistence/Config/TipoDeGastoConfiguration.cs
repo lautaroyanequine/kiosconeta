@@ -32,8 +32,10 @@ namespace Infraestructure.Persistence.Config
                 .HasForeignKey(g => g.TipoDeGastoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Evita tipos duplicados
-            entityBuilder.HasIndex(t => t.Nombre)
+            // Evita tipos duplicados DENTRO DEL MISMO KIOSCO — antes era único
+            // por Nombre solo (global), lo que impedía que dos kioscos distintos
+            // tuvieran un tipo de gasto con el mismo nombre.
+            entityBuilder.HasIndex(t => new { t.KioscoId, t.Nombre })
                 .IsUnique();
         }
 
