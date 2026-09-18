@@ -7,6 +7,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { EmpleadoActivoProvider } from './contexts/EmpleadoActivoContext';
 import { AppRoutes } from './routes/appRoutes';
+import { ErrorBoundary } from './components/commons/ErrorBoundary'; // ajustá el path si tu carpeta de componentes es otra
 
 // ────────────────────────────────────────────────────────────────────────────
 // LOADING FALLBACK
@@ -27,15 +28,17 @@ const LoadingFallback= () => (
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <EmpleadoActivoProvider>
-          <Suspense fallback={<LoadingFallback />}>
-            <AppRoutes />
-          </Suspense>
-        </EmpleadoActivoProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <EmpleadoActivoProvider>
+            <Suspense fallback={<LoadingFallback />}>
+              <AppRoutes />
+            </Suspense>
+          </EmpleadoActivoProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
