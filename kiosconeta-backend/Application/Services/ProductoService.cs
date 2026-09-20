@@ -273,6 +273,97 @@ namespace Application.Services
             return resultado;
         }
 
+        public async Task<AjustePrecioMasivoResponseDTO> AjustarPreciosMasivoAsync(AjustePrecioMasivoDTO dto, int empleadoId)
+        {
+            if (dto.ProductoIds == null || dto.ProductoIds.Count == 0)
+                throw new InvalidOperationException("Debés seleccionar al menos un producto");
+
+            if (!dto.ValorVenta.HasValue && !dto.ValorCosto.HasValue)
+                throw new InvalidOperationException("Indicá un ajuste para precio de venta, de costo, o ambos");
+
+            if (dto.ValorVenta == 0 && dto.ValorCosto == 0)
+                throw new InvalidOperationException("El ajuste no puede ser 0");
+
+            decimal CalcularNuevo(decimal actual, decimal valor) => dto.TipoAjuste == TipoAjustePrecio.Porcentaje
+                ? Math.Round(actual * (1 + valor / 100m), 2, MidpointRounding.AwayFromZero)
+                : Math.Round(actual + valor, 2, MidpointRounding.AwayFromZero);
+
+            var resultado = new AjustePrecioMasivoResponseDTO();
+
+            foreach (var id in dto.ProductoIds.Distinct())
+            {
+                var producto = await _productoRepository.GetByIdAsync(id, dto.KioscoId);
+                if (producto == null)
+                {
+                    resultado.Errores.Add($"ID {id}: no encontrado en este kiosco, se omitió");
+                    continue;
+                }
+
+                var nuevoPrecioVenta = dto.ValorVenta.HasValue
+                    ? CalcularNuevo(producto.PrecioVenta, dto.ValorVenta.Value)
+                    : producto.PrecioVenta;
+
+                var nuevoPrecioCosto = dto.ValorCosto.HasValue
+                    ? CalcularNuevo(producto.PrecioCosto, dto.ValorCosto.Value)
+                    : producto.PrecioCosto;
+
+                if (nuevoPrecioVenta <= 0 || nuevoPrecioCosto < 0)
+                {
+                    resultado.Errores.Add($"{producto.Nombre}: el ajuste daría un precio inválido, se omitió");
+                    continue;
+                }
+
+                if (nuevoPrecioVenta <= nuevoPrecioCosto)
+                {
+                    resultado.Errores.Add($"{producto.Nombre}: el precio de venta quedaría menor o igual al de costo, se omitió");
+                    continue;
+                }
+
+                producto.PrecioVenta = nuevoPrecioVenta;
+                producto.PrecioCosto = nuevoPrecioCosto;
+                producto.FechaModificacion = DateTime.UtcNow;
+
+                var actualizado = await _productoRepository.UpdateAsync(producto);
+                resultado.Productos.Add(MapToResponseDTO(actualizado));
+            }
+
+            resultado.CantidadActualizados = resultado.Productos.Count;
+
+            if (resultado.CantidadActualizados > 0)
+            {
+                // Sospechoso si toca muchos productos de una o algún ajuste porcentual es grande —
+                // mismo criterio de umbrales que ya usás en otros lados (stock, diferencia de caja).
+                var mayorPorcentaje = dto.TipoAjuste == TipoAjustePrecio.Porcentaje
+                    ? Math.Max(Math.Abs(dto.ValorVenta ?? 0), Math.Abs(dto.ValorCosto ?? 0))
+                    : 0;
+                var esSospechoso = resultado.CantidadActualizados > 15 || mayorPorcentaje > 50;
+
+                await _auditoriaService.RegistrarAsync(
+                    empleadoId: empleadoId,
+                    kioscoId: dto.KioscoId,
+                    tipoEvento: TipoEventoAuditoria.PreciosAjustadosMasivo,
+                    descripcion: $"Ajuste masivo de precios: {resultado.CantidadActualizados} producto(s), " +
+                                 $"{dto.TipoAjuste} — venta: {(dto.ValorVenta.HasValue ? dto.ValorVenta.Value.ToString() : "sin cambio")}, " +
+                                 $"costo: {(dto.ValorCosto.HasValue ? dto.ValorCosto.Value.ToString() : "sin cambio")}",
+                    datos: new
+                    {
+                        productoIds = dto.ProductoIds,
+                        cantidadActualizados = resultado.CantidadActualizados,
+                        tipoAjuste = dto.TipoAjuste.ToString(),
+                        valorVenta = dto.ValorVenta,
+                        valorCosto = dto.ValorCosto,
+                        errores = resultado.Errores
+                    },
+                    esSospechoso: esSospechoso,
+                    motivoSospecha: esSospechoso
+                        ? $"Ajuste masivo sobre {resultado.CantidadActualizados} productos"
+                        : null
+                );
+            }
+
+            return resultado;
+        }
+
         // ========== MAPEO ==========
 
         private ProductoResponseDTO MapToResponseDTO(Producto producto)

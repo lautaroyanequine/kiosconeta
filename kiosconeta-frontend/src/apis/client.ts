@@ -83,14 +83,22 @@ apiClient.interceptors.response.use(
     const { status, data } = error.response;
     
     switch (status) {
-      case 401:
+      case 401: {
+        const urlFallida = (error.config?.url || '').toLowerCase();
+        const esIntentoDeLogin = urlFallida.includes('login');
+
+        if (esIntentoDeLogin) {
+          // Esto NO es una sesión expirada — es el login rechazando el
+          // usuario/contraseña. No limpiamos storage ni redirigimos:
+          // dejamos que el formulario muestre el error real.
+          return Promise.reject({
+            message: (data as any)?.message || 'Usuario o contraseña incorrectos',
+            statusCode: 401,
+          });
+        }
+
         // Token del empleado expiró → volver a selección de empleado
-console.error(
-  '401 - token usado:',
-  (getStorage(STORAGE_KEYS.TOKEN) as string)?.substring(0, 50)
-);        console.error('401 - empleado activo:', getStorage(STORAGE_KEYS.EMPLEADO_ACTIVO));
-        console.error('401 - url:', (error as any)?.config?.url);
-        debugger;
+        console.error('401 - url:', urlFallida);
         removeStorage(STORAGE_KEYS.TOKEN);
         removeStorage(STORAGE_KEYS.USER);
         removeStorage(STORAGE_KEYS.EMPLEADO_ACTIVO);
@@ -103,11 +111,12 @@ console.error(
         if (!enLogin && !enSeleccion) {
           window.location.href = tieneKiosco ? '/seleccionar-empleado' : '/login';
         }
-        
+
         return Promise.reject({
           message: MESSAGES.ERROR.SESSION_EXPIRED,
           statusCode: 401,
         });
+      }
       
       case 403:
         // Sin permisos

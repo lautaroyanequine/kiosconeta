@@ -20,6 +20,7 @@ import {
   Tag,
   Download,
   Upload,
+  DollarSign,
 } from 'lucide-react';
 import { TagsTab } from './TagsTab';
 import { Button, Input, Badge, Table, Modal, LoadingOverlay } from '@/components/commons';
@@ -27,6 +28,7 @@ import { formatCurrency, formatDate, getStockStatus } from '@/utils/formatters';
 import { ProductoModal } from './ProductoModal';
 import { StockModal } from './StockModal';
 import { IngresoMercaderiaModal } from './IngresoMercaderiaModal';
+import { AjustePrecioMasivoModal } from './AjustePrecioMasivoModal';
 import { PromocionesTab } from './PromocionesTab';
 import { DistribuidoresTab } from './DistribuidoresTab'; //
 import { useProductos } from './useProductos';
@@ -138,6 +140,11 @@ const ProductosPage: React.FC = () => {
     modalIngreso,
     setModalIngreso,
     ingresarMercaderia,
+    modalAjustePrecios,
+    setModalAjustePrecios,
+    ajustarPreciosMasivo,
+    isSavingAjustePrecios,
+    ajustePreciosError,
     productoAEliminar,
     isDeleting,
     confirmarEliminar,
@@ -347,6 +354,14 @@ const ProductosPage: React.FC = () => {
                 className="flex-1 sm:flex-none justify-center"
               >
                 Importar
+              </Button>
+              <Button
+                variant="outline"
+                leftIcon={<DollarSign size={15} />}
+                onClick={() => setModalAjustePrecios(true)}
+                className="flex-1 sm:flex-none justify-center"
+              >
+                Editar precios
               </Button>
               <Button
                 variant="outline"
@@ -697,6 +712,16 @@ const ProductosPage: React.FC = () => {
         distribuidores={distribuidores} 
         onClose={() => setModalIngreso(false)}
         onConfirmar={ingresarMercaderia}
+      />
+
+      <AjustePrecioMasivoModal
+        isOpen={modalAjustePrecios}
+        productos={productos}
+        categorias={categorias}
+        isSaving={isSavingAjustePrecios}
+        saveError={ajustePreciosError}
+        onClose={() => setModalAjustePrecios(false)}
+        onConfirmar={ajustarPreciosMasivo}
       />
 
       {user?.kioscoId && (

@@ -138,3 +138,23 @@ export interface Tag {
   nombre: string;
   activo: boolean;
 }
+
+// ────────────────────────────────────────────────────────────────────────────
+// AJUSTE MASIVO DE PRECIOS
+// ────────────────────────────────────────────────────────────────────────────
+
+export type TipoAjustePrecio = 'Porcentaje' | 'MontoFijo';
+
+export interface AjustePrecioMasivoDTO {
+  kioscoId: number;
+  productoIds: number[];
+  tipoAjuste: TipoAjustePrecio;
+  valorVenta?: number; // undefined = no tocar precio de venta
+  valorCosto?: number; // undefined = no tocar precio de costo
+}
+
+export interface AjustePrecioMasivoResponseDTO {
+  cantidadActualizados: number;
+  productos: Producto[];
+  errores: string[];
+}

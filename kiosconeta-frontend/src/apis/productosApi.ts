@@ -12,7 +12,10 @@ import type {
   ProductoFiltros,
   Categoria,
   CreateCategoriaDTO,
-  ResultadoPaginado
+  ResultadoPaginado,
+  AjustePrecioMasivoDTO,
+  AjustePrecioMasivoResponseDTO,
+  TipoAjustePrecio
 } from '../types';
 
 // El backend, en los endpoints usados para el POS (/activos y /codigo-barra),
@@ -26,6 +29,14 @@ const mapAProductoSimple = (p: any): ProductoSimple => ({
   stock:     p.stock ?? p.stockActual, // soporta ambos por si el DTO cambia a futuro
   categoria: p.categoria ?? p.categoriaNombre ?? '',
 });
+
+// El backend deserializa los enums de C# como NÚMERO (comportamiento default
+// de System.Text.Json, sin JsonStringEnumConverter configurado) — mandar el
+// string literal rompe el model binding y da un 400 genérico de validación.
+const TIPO_AJUSTE_NUM: Record<TipoAjustePrecio, number> = {
+  Porcentaje: 0,
+  MontoFijo: 1,
+};
 
 // ────────────────────────────────────────────────────────────────────────────
 // PRODUCTOS API
@@ -213,6 +224,24 @@ getPaginado: async (
     try {
       await apiClient.patch(
 `${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/stock?cantidad=${cantidad}&idEmpleado=${idEmpleado}&kioscoId=${kioscoId}`      );
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  /**
+   * Ajustar precios de varios productos a la vez (por %, o monto fijo)
+   */
+  ajustarPreciosMasivo: async (data: AjustePrecioMasivoDTO): Promise<AjustePrecioMasivoResponseDTO> => {
+    try {
+      const response = await apiClient.patch<AjustePrecioMasivoResponseDTO>(
+        '/productos/ajuste-masivo',
+        {
+          ...data,
+          tipoAjuste: TIPO_AJUSTE_NUM[data.tipoAjuste],
+        }
+      );
+      return handleResponse(response);
     } catch (error) {
       return handleError(error);
     }

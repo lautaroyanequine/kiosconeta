@@ -181,7 +181,7 @@ namespace KIOSCONETA.Controllers
             try
             {
                 string codigoLimpio = codigoBarra.Trim();
-                var producto = await _productoService.GetByCodigoBarraAsync(codigoBarra,KioscoId);
+                var producto = await _productoService.GetByCodigoBarraAsync(codigoBarra, KioscoId);
 
                 if (producto == null)
                     return NotFound(new { message = $"No se encontró producto con código: {codigoBarra}" });
@@ -261,7 +261,7 @@ namespace KIOSCONETA.Controllers
 
                 }
 
-                var producto = await _productoService.UpdateAsync(dto,empleadoId);
+                var producto = await _productoService.UpdateAsync(dto, empleadoId);
                 return Ok(producto);
             }
             catch (KeyNotFoundException ex)
@@ -329,7 +329,7 @@ namespace KIOSCONETA.Controllers
         {
             try
             {
-                await _productoService.ActualizarStockAsync(id, cantidad, idEmpleado,kioscoId);
+                await _productoService.ActualizarStockAsync(id, cantidad, idEmpleado, kioscoId);
                 return Ok(new { message = "Stock actualizado correctamente", cantidad });
             }
             catch (KeyNotFoundException ex)
@@ -343,6 +343,30 @@ namespace KIOSCONETA.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error al actualizar stock", error = ex.Message });
+            }
+        }
+
+        /// Ajustar el precio de varios productos a la vez (por %, o monto fijo)
+        [HttpPatch("ajuste-masivo")]
+        [RequierePermiso("productos.editar")]
+        public async Task<ActionResult<AjustePrecioMasivoResponseDTO>> AjusteMasivo([FromBody] AjustePrecioMasivoDTO dto)
+        {
+            try
+            {
+                var empleadoId = int.Parse(User.FindFirst("EmpleadoId")?.Value ?? "0");
+                if (empleadoId == 0)
+                    return Unauthorized(new { message = "No se pudo identificar al empleado" });
+
+                var resultado = await _productoService.AjustarPreciosMasivoAsync(dto, empleadoId);
+                return Ok(resultado);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al ajustar precios", error = ex.Message });
             }
         }
 

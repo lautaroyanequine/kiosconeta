@@ -10,7 +10,7 @@ namespace Application.Interfaces.Services
     public interface IProductoService
     {
         // Consultas
-        Task<ProductoResponseDTO?> GetByIdAsync(int id,int kioscoId);
+        Task<ProductoResponseDTO?> GetByIdAsync(int id, int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetAllAsync();
         // IProductoService
         Task<ResultadoPaginadoDTO<ProductoResponseDTO>> GetByKioscoIdPaginadoAsync(
@@ -27,15 +27,16 @@ namespace Application.Interfaces.Services
         Task<IEnumerable<ProductoResponseDTO>> GetSinStockAsync(int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetBajoStockAsync(int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetProximosAVencerAsync(int kioscoId);
-        Task<ProductoResponseDTO?> GetByCodigoBarraAsync(string codigoBarra,int kioscoId);
+        Task<ProductoResponseDTO?> GetByCodigoBarraAsync(string codigoBarra, int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> SearchAsync(string searchTerm, int kioscoId);
         Task<IEnumerable<ProductoResponseDTO>> GetSinMovimientoAsync(int kioscoId, int dias = 7);
 
         // Comandos
         Task<ProductoResponseDTO> CreateAsync(CreateProductoDTO dto);
-        Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto,int empleadoId);
+        Task<ProductoResponseDTO> UpdateAsync(UpdateProductoDTO dto, int empleadoId);
         Task<bool> DeleteAsync(int id);
         Task<bool> ActivarDesactivarAsync(int id, bool activo);
-        Task<bool> ActualizarStockAsync(int id, int cantidad,int idEmpleado,int kioscoId);
+        Task<bool> ActualizarStockAsync(int id, int cantidad, int idEmpleado, int kioscoId);
+        Task<AjustePrecioMasivoResponseDTO> AjustarPreciosMasivoAsync(AjustePrecioMasivoDTO dto, int empleadoId);
     }
 }

@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { productosApi, categoriasApi } from '@/apis';
 import { useAuth } from '@/contexts/AuthContext';
 import { tagsApi } from '@/apis/promocionesApi'; 
-import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO ,Distribuidor , Tag} from '@/types';
+import type { Producto, Categoria, CreateProductoDTO, UpdateProductoDTO ,Distribuidor , Tag, TipoAjustePrecio} from '@/types';
 import { distribuidoresApi } from '@/apis/distribuidoresApi';
 // ────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -63,6 +63,11 @@ export const useProductos = () => {
 
   // ── Estado: modal ingreso de mercadería ───────────────────────────────
   const [modalIngreso, setModalIngreso] = useState(false);
+
+  // ── Estado: modal ajuste masivo de precios ────────────────────────────
+  const [modalAjustePrecios, setModalAjustePrecios] = useState(false);
+  const [isSavingAjustePrecios, setIsSavingAjustePrecios] = useState(false);
+  const [ajustePreciosError, setAjustePreciosError] = useState<string | null>(null);
 
   // ── Estado: confirmación eliminar ─────────────────────────────────────
   const [productoAEliminar, setProductoAEliminar] = useState<Producto | null>(null);
@@ -273,6 +278,52 @@ export const useProductos = () => {
 };
 
   // ────────────────────────────────────────────────────────────────────────
+  // AJUSTE MASIVO DE PRECIOS
+  // ────────────────────────────────────────────────────────────────────────
+
+  const ajustarPreciosMasivo = async (
+    productoIds: number[],
+    tipoAjuste: TipoAjustePrecio,
+    valorVenta: number | undefined,
+    valorCosto: number | undefined
+  ) => {
+    if (!user?.kioscoId) return;
+    setIsSavingAjustePrecios(true);
+    setAjustePreciosError(null);
+
+    try {
+      const resultado = await productosApi.ajustarPreciosMasivo({
+        kioscoId: user.kioscoId,
+        productoIds,
+        tipoAjuste,
+        valorVenta,
+        valorCosto,
+      });
+
+      // Actualizamos en el estado local solo los productos que realmente
+      // se modificaron (algunos pueden haberse omitido, ver resultado.errores)
+      setProductos(prev => {
+        const actualizadosPorId = new Map(resultado.productos.map(p => [p.productoId, p]));
+        return prev.map(p => actualizadosPorId.get(p.productoId) ?? p);
+      });
+
+      if (resultado.errores.length > 0) {
+        setAjustePreciosError(
+          `Se actualizaron ${resultado.cantidadActualizados} de ${productoIds.length}. ` +
+          `Omitidos: ${resultado.errores.join(' | ')}`
+        );
+        // No cerramos el modal si hubo omisiones, para que el usuario lea el detalle
+      } else {
+        setModalAjustePrecios(false);
+      }
+    } catch (err: any) {
+      setAjustePreciosError(err.message || 'Error al ajustar los precios');
+    } finally {
+      setIsSavingAjustePrecios(false);
+    }
+  };
+
+  // ────────────────────────────────────────────────────────────────────────
   // ELIMINAR
   // ────────────────────────────────────────────────────────────────────────
 
@@ -351,6 +402,13 @@ eliminarTagLocal,
     modalIngreso,
     setModalIngreso,
     ingresarMercaderia,
+
+    // Ajuste masivo de precios
+    modalAjustePrecios,
+    setModalAjustePrecios,
+    ajustarPreciosMasivo,
+    isSavingAjustePrecios,
+    ajustePreciosError,
 
     // Eliminar
     productoAEliminar,
