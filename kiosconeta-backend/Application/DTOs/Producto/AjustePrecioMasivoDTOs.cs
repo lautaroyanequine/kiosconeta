@@ -3,7 +3,10 @@
     public enum TipoAjustePrecio
     {
         Porcentaje = 0,
-        MontoFijo = 1
+        MontoFijo = 1,
+        // Reemplaza el precio directo, no lo calcula a partir del actual —
+        // ValorVenta/ValorCosto acá son el precio final, no un delta.
+        PrecioFijo = 2
     }
 
     /// <summary>

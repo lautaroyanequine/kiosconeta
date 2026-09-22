@@ -284,9 +284,13 @@ namespace Application.Services
             if (dto.ValorVenta == 0 && dto.ValorCosto == 0)
                 throw new InvalidOperationException("El ajuste no puede ser 0");
 
-            decimal CalcularNuevo(decimal actual, decimal valor) => dto.TipoAjuste == TipoAjustePrecio.Porcentaje
-                ? Math.Round(actual * (1 + valor / 100m), 2, MidpointRounding.AwayFromZero)
-                : Math.Round(actual + valor, 2, MidpointRounding.AwayFromZero);
+            decimal CalcularNuevo(decimal actual, decimal valor) => dto.TipoAjuste switch
+            {
+                TipoAjustePrecio.Porcentaje => Math.Round(actual * (1 + valor / 100m), 2, MidpointRounding.AwayFromZero),
+                TipoAjustePrecio.MontoFijo => Math.Round(actual + valor, 2, MidpointRounding.AwayFromZero),
+                TipoAjustePrecio.PrecioFijo => Math.Round(valor, 2, MidpointRounding.AwayFromZero), // valor ES el precio final, no un delta
+                _ => actual
+            };
 
             var resultado = new AjustePrecioMasivoResponseDTO();
 

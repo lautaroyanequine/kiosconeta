@@ -143,7 +143,7 @@ export interface Tag {
 // AJUSTE MASIVO DE PRECIOS
 // ────────────────────────────────────────────────────────────────────────────
 
-export type TipoAjustePrecio = 'Porcentaje' | 'MontoFijo';
+export type TipoAjustePrecio = 'Porcentaje' | 'MontoFijo' | 'PrecioFijo';
 
 export interface AjustePrecioMasivoDTO {
   kioscoId: number;

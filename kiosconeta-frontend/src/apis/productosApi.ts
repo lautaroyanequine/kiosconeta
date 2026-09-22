@@ -36,6 +36,7 @@ const mapAProductoSimple = (p: any): ProductoSimple => ({
 const TIPO_AJUSTE_NUM: Record<TipoAjustePrecio, number> = {
   Porcentaje: 0,
   MontoFijo: 1,
+  PrecioFijo: 2,
 };
 
 // ────────────────────────────────────────────────────────────────────────────

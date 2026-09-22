@@ -34,7 +34,7 @@ const coincideBusqueda = (nombre: string, query: string) => {
 
 const redondear = (n: number) => Math.round(n * 100) / 100;
 
-// Un selector +/- y una magnitud, para venta y costo por separado.
+// Un selector +/- y una magnitud (o, en modo Precio fijo, un solo input directo).
 const AjusteInput: React.FC<{
   label: string;
   direccion: 'aumentar' | 'disminuir';
@@ -42,33 +42,51 @@ const AjusteInput: React.FC<{
   magnitud: string;
   onMagnitud: (m: string) => void;
   tipoAjuste: TipoAjustePrecio;
-}> = ({ label, direccion, onDireccion, magnitud, onMagnitud, tipoAjuste }) => (
-  <div className="border border-neutral-200 rounded-lg p-3">
-    <p className="text-xs font-semibold text-neutral-500 mb-2">{label}</p>
-    <div className="grid grid-cols-2 gap-2 mb-2">
-      <button type="button" onClick={() => onDireccion('aumentar')}
-        className={`py-1.5 rounded-lg text-sm font-semibold border-2 transition-all ${
-          direccion === 'aumentar' ? 'border-green-500 bg-green-50 text-green-700' : 'border-neutral-200 text-neutral-500'
-        }`}>
-        Aumentar
-      </button>
-      <button type="button" onClick={() => onDireccion('disminuir')}
-        className={`py-1.5 rounded-lg text-sm font-semibold border-2 transition-all ${
-          direccion === 'disminuir' ? 'border-red-500 bg-red-50 text-red-600' : 'border-neutral-200 text-neutral-500'
-        }`}>
-        Disminuir
-      </button>
+}> = ({ label, direccion, onDireccion, magnitud, onMagnitud, tipoAjuste }) => {
+  if (tipoAjuste === 'PrecioFijo') {
+    return (
+      <div className="border border-neutral-200 rounded-lg p-3">
+        <p className="text-xs font-semibold text-neutral-500 mb-2">{label}</p>
+        <Input
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="Ej: 1900"
+          value={magnitud}
+          onChange={e => onMagnitud(e.target.value)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-neutral-200 rounded-lg p-3">
+      <p className="text-xs font-semibold text-neutral-500 mb-2">{label}</p>
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <button type="button" onClick={() => onDireccion('aumentar')}
+          className={`py-1.5 rounded-lg text-sm font-semibold border-2 transition-all ${
+            direccion === 'aumentar' ? 'border-green-500 bg-green-50 text-green-700' : 'border-neutral-200 text-neutral-500'
+          }`}>
+          Aumentar
+        </button>
+        <button type="button" onClick={() => onDireccion('disminuir')}
+          className={`py-1.5 rounded-lg text-sm font-semibold border-2 transition-all ${
+            direccion === 'disminuir' ? 'border-red-500 bg-red-50 text-red-600' : 'border-neutral-200 text-neutral-500'
+          }`}>
+          Disminuir
+        </button>
+      </div>
+      <Input
+        type="number"
+        min="0"
+        step={tipoAjuste === 'Porcentaje' ? '1' : '0.01'}
+        placeholder={tipoAjuste === 'Porcentaje' ? 'Ej: 10' : 'Ej: 500'}
+        value={magnitud}
+        onChange={e => onMagnitud(e.target.value)}
+      />
     </div>
-    <Input
-      type="number"
-      min="0"
-      step={tipoAjuste === 'Porcentaje' ? '1' : '0.01'}
-      placeholder={tipoAjuste === 'Porcentaje' ? 'Ej: 10' : 'Ej: 500'}
-      value={magnitud}
-      onChange={e => onMagnitud(e.target.value)}
-    />
-  </div>
-);
+  );
+};
 
 export const AjustePrecioMasivoModal: React.FC<AjustePrecioMasivoModalProps> = ({
   isOpen,
@@ -95,10 +113,10 @@ export const AjustePrecioMasivoModal: React.FC<AjustePrecioMasivoModalProps> = (
   const tocaCosto = campoVisible === 'PrecioCosto' || campoVisible === 'Ambos';
 
   const valorVenta = tocaVenta && magnitudVenta !== ''
-    ? (direccionVenta === 'disminuir' ? -1 : 1) * Number(magnitudVenta)
+    ? (tipoAjuste === 'PrecioFijo' ? Number(magnitudVenta) : (direccionVenta === 'disminuir' ? -1 : 1) * Number(magnitudVenta))
     : undefined;
   const valorCosto = tocaCosto && magnitudCosto !== ''
-    ? (direccionCosto === 'disminuir' ? -1 : 1) * Number(magnitudCosto)
+    ? (tipoAjuste === 'PrecioFijo' ? Number(magnitudCosto) : (direccionCosto === 'disminuir' ? -1 : 1) * Number(magnitudCosto))
     : undefined;
 
   // Reset al cerrar para no arrastrar filtros de la vez anterior
@@ -122,8 +140,10 @@ export const AjustePrecioMasivoModal: React.FC<AjustePrecioMasivoModalProps> = (
   const hayFiltro = categoriaId !== '' || busqueda.trim() !== '';
   const seleccionados = coincidencias.filter(p => !excluidos.has(p.productoId));
 
-  const calcularNuevo = (actual: number, valor: number) =>
-    tipoAjuste === 'Porcentaje' ? redondear(actual * (1 + valor / 100)) : redondear(actual + valor);
+  const calcularNuevo = (actual: number, valor: number) => {
+    if (tipoAjuste === 'PrecioFijo') return redondear(valor); // valor ES el precio final
+    return tipoAjuste === 'Porcentaje' ? redondear(actual * (1 + valor / 100)) : redondear(actual + valor);
+  };
 
   const nuevoVentaDe = (p: Producto) => valorVenta !== undefined ? calcularNuevo(p.precioVenta, valorVenta) : p.precioVenta;
   const nuevoCostoDe = (p: Producto) => valorCosto !== undefined ? calcularNuevo(p.precioCosto, valorCosto) : p.precioCosto;
@@ -197,7 +217,7 @@ export const AjustePrecioMasivoModal: React.FC<AjustePrecioMasivoModalProps> = (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="input-label mb-1 block">Tipo de ajuste</label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button type="button" onClick={() => setTipoAjuste('Porcentaje')}
                 className={`py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
                   tipoAjuste === 'Porcentaje' ? 'border-primary bg-primary/5 text-primary' : 'border-neutral-200 text-neutral-500'
@@ -208,7 +228,13 @@ export const AjustePrecioMasivoModal: React.FC<AjustePrecioMasivoModalProps> = (
                 className={`py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
                   tipoAjuste === 'MontoFijo' ? 'border-primary bg-primary/5 text-primary' : 'border-neutral-200 text-neutral-500'
                 }`}>
-                Monto fijo ($)
+                +/- monto ($)
+              </button>
+              <button type="button" onClick={() => setTipoAjuste('PrecioFijo')}
+                className={`py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
+                  tipoAjuste === 'PrecioFijo' ? 'border-primary bg-primary/5 text-primary' : 'border-neutral-200 text-neutral-500'
+                }`}>
+                Precio fijo
               </button>
             </div>
           </div>
