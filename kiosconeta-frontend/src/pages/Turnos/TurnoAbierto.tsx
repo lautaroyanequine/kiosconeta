@@ -166,32 +166,38 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
     <div className="h-full flex flex-col bg-neutral-50 overflow-hidden">
 
       {/* ── HEADER ────────────────────────────────────────────────────────── */}
-      <div className="bg-white border-b border-neutral-200 px-6 py-4 shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-neutral-900">
+      <div className="bg-white border-b border-neutral-200 px-4 sm:px-6 py-3 sm:py-4 shrink-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-neutral-900 truncate">
               Turno {turno.turnoNombre || 'en curso'}
             </h1>
             <span className="flex items-center gap-1.5 text-xs bg-success-50 text-success-700
-                             px-2.5 py-1 rounded-full font-medium">
+                             px-2.5 py-1 rounded-full font-medium shrink-0">
               <Clock size={12} />
               Desde {turno.fechaAperturaFormateada}
             </span>
           </div>
           {turno.empleados?.length > 0 && (
-            <div className="flex items-center gap-2 text-sm text-neutral-500">
-              <Users size={15} />
-              <span>{turno.empleados.join(', ')}</span>
+            <div className="flex items-center gap-2 text-sm text-neutral-500 min-w-0">
+              <Users size={15} className="shrink-0" />
+              <span className="truncate">{turno.empleados.join(', ')}</span>
             </div>
           )}
         </div>
       </div>
 
       {/* ── CONTENIDO ─────────────────────────────────────────────────────── */}
-      <div className="flex-1 flex overflow-hidden p-6 gap-6">
+      {/*
+        Mobile/tablet (< lg): una sola columna, todo el bloque scrollea junto
+        (nada de paneles con scroll independiente — más natural en touch).
+        Desktop (lg+): layout de dos columnas de siempre, cada una con su
+        propio scroll.
+      */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden p-4 sm:p-6 gap-4 sm:gap-6">
 
         {/* ── PANEL IZQUIERDO: Estadísticas y Resúmenes ─────────────────── */}
-        <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+        <div className="flex-1 flex flex-col gap-4 lg:overflow-y-auto lg:pr-1">
           
           {/* Tarjeta de ventas de la izquierda */}
           <div className="bg-white rounded-xl border border-neutral-200 p-5">
@@ -214,8 +220,8 @@ export const TurnoAbierto: React.FC<TurnoAbiertoProps> = ({ turno, onCerrado }) 
         </div>
 
         {/* ── PANEL DERECHO: Formulario de cierre ───────────────────────── */}
-        <div className="w-[400px] shrink-0 flex flex-col gap-4">
-          <div className="bg-white rounded-xl border border-neutral-200 p-5 flex-1 overflow-y-auto">
+        <div className="w-full lg:w-[400px] shrink-0 flex flex-col gap-4">
+          <div className="bg-white rounded-xl border border-neutral-200 p-5 flex-1 lg:overflow-y-auto">
             <h3 className="text-base font-bold text-neutral-800 mb-5">Cerrar turno</h3>
 
             {error && (

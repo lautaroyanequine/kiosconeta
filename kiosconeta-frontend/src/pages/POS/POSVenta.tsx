@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   Search, ShoppingCart, DollarSign, Smartphone,
   CreditCard, Trash2, Plus, Minus, CheckCircle2,
-  Barcode, Package, Clock, Tag, Loader2, Layers
+  Barcode, Package, Clock, Tag, Loader2, Layers, ChevronLeft
 } from 'lucide-react';
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { productosApi, ventasApi, metodosPagoApi, auditoriaApi } from '@/apis';
@@ -59,6 +59,9 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   const [isLoadingProductos, setIsLoadingProductos] = useState(true);
   const [sueltoModal, setSueltoModal] = useState<{ producto: ProductoSimple; cantidad: number } | null>(null);
   const [pesoModal, setPesoModal] = useState<{ producto: ProductoSimple; gramos: number; editandoLineId?: string } | null>(null);
+  // Solo relevante en mobile (< lg): ahí el carrito es un overlay a pantalla
+  // completa en vez de panel fijo. En lg: siempre se ve, este estado se ignora.
+  const [carritoAbierto, setCarritoAbierto] = useState(false);
 
   // Modal de selección de combo
   const [comboModal, setComboModal] = useState<{
@@ -422,13 +425,14 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
       {/* Barra superior */}
       <div className="bg-white border-b border-neutral-200 px-4 py-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <h1 className="text-base font-bold text-primary">Punto de Venta</h1>
-          <span className="text-sm text-neutral-500">{user?.nombre}</span>
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <h1 className="text-base font-bold text-primary shrink-0">Punto de Venta</h1>
+          <span className="hidden sm:inline text-sm text-neutral-500 truncate">{user?.nombre}</span>
           <span className="flex items-center gap-1.5 text-xs bg-success-50 text-success-700
-                           px-2.5 py-1 rounded-full font-medium">
+                           px-2 sm:px-2.5 py-1 rounded-full font-medium shrink-0">
             <Clock size={12} />
-            Turno abierto — desde {turnoActual.fechaAperturaFormateada}
+            <span className="hidden md:inline">Turno abierto — desde {turnoActual.fechaAperturaFormateada}</span>
+            <span className="md:hidden">Turno abierto</span>
           </span>
         </div>
         <div className="hidden lg:flex items-center gap-4 text-xs text-neutral-400">
@@ -498,14 +502,14 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     </div>
 
     {/* ... (Grilla de productos sin cambios) ... */}
-    <div className="flex-1 overflow-y-auto p-2">
+    <div className="flex-1 overflow-y-auto p-2 pb-20 lg:pb-2">
       {productosFiltrados.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-neutral-300">
           <Package size={48} className="mb-3 opacity-30" />
           <p className="text-sm text-neutral-400">Sin resultados</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
           {productosFiltrados.map(p => {
             const esCombo = (p as any).esCombo === true;
             return (
@@ -539,11 +543,36 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     </div>
   </div>
 
+  {/* Barra flotante "Ver carrito" — solo mobile/tablet (< lg), y solo con items */}
+  {cart.items.length > 0 && !carritoAbierto && (
+    <button
+      onClick={() => setCarritoAbierto(true)}
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-primary text-white
+                 px-4 py-3.5 flex items-center justify-between shadow-[0_-4px_12px_rgba(0,0,0,0.15)]
+                 active:opacity-90 transition-opacity"
+    >
+      <span className="flex items-center gap-2 font-semibold text-sm">
+        <ShoppingCart size={18} />
+        Ver carrito · {cart.items.length} producto{cart.items.length !== 1 ? 's' : ''}
+      </span>
+      <span className="font-bold text-base">{formatCurrency(cart.total)}</span>
+    </button>
+  )}
+
   {/* Panel derecho: Carrito */}
-  <div className="w-[480px] bg-white border-l border-neutral-200 flex flex-col shrink-0">
+  <div className={`
+    ${carritoAbierto ? 'flex fixed inset-0 z-50' : 'hidden'}
+    lg:flex lg:static lg:z-auto lg:w-[480px]
+    bg-white border-l border-neutral-200 flex-col shrink-0
+  `}>
     {/* ... (Header e Items del carrito sin cambios) ... */}
     <div className="px-5 py-4 border-b border-neutral-100 flex items-center justify-between">
       <div className="flex items-center gap-2">
+        {/* Volver a productos — solo mobile, acá el carrito tapa toda la pantalla */}
+        <button onClick={() => setCarritoAbierto(false)}
+          className="lg:hidden -ml-2 p-2 rounded-lg text-neutral-500 hover:bg-neutral-100">
+          <ChevronLeft size={20} />
+        </button>
         <ShoppingCart size={20} className="text-primary" />
         <span className="font-bold text-base text-neutral-800">Carrito</span>
         {cart.items.length > 0 && (
@@ -617,7 +646,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               <p className="text-xs font-medium text-neutral-400 mb-2 uppercase tracking-wide">
                 Método de pago
               </p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 xs:grid-cols-4 gap-2">
                 {metodosPago.map(m => {
                   const Icon = getMetodoIcon(m.nombre);
                   const sel  = cart.metodoPagoId === m.metodoDePagoID;
@@ -1102,7 +1131,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 {ventaConfirmada && (
   <VentaConfirmModal
     isOpen={!!ventaConfirmada}
-    onClose={() => { setVentaConfirmada(null); busquedaRef.current?.focus();     onTurnoActualizado();
+    onClose={() => { setVentaConfirmada(null); setCarritoAbierto(false); busquedaRef.current?.focus();     onTurnoActualizado();
 }}
     ventaId={ventaConfirmada.ventaId}
     total={ventaConfirmada.total}
