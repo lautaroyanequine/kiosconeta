@@ -4,6 +4,12 @@
     public class CreateEmpleadoDTO
     {
         public string Nombre { get; set; }
+        public string? Legajo { get; set; }
+        public string? Telefono { get; set; }
+        public bool EsAdmin { get; set; }
+        // Opcional: si viene, EmpleadoService la asigna vía IAuthService.AsignarPinAsync
+        // (valida formato 4-6 dígitos y hashea con BCrypt).
+        public string? Pin { get; set; }
         public int KioscoID { get; set; }
         public int? UsuarioID { get; set; }
     }

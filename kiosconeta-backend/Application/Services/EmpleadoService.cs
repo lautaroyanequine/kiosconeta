@@ -8,10 +8,12 @@ namespace Application.Services
     public class EmpleadoService : IEmpleadoService
     {
         private readonly IEmpleadoRepository _empleadoRepository;
+        private readonly IAuthService _authService;
 
-        public EmpleadoService(IEmpleadoRepository empleadoRepository)
+        public EmpleadoService(IEmpleadoRepository empleadoRepository, IAuthService authService)
         {
             _empleadoRepository = empleadoRepository;
+            _authService = authService;
         }
 
         // ========== CONSULTAS ==========
@@ -61,13 +63,25 @@ namespace Application.Services
             var empleado = new Empleado
             {
                 Nombre = dto.Nombre.Trim(),
+                // Legajo y EsAdmin se perdían acá igual que el PIN: el modal
+                // los manda pero nunca se copiaban a la entidad.
+                Legajo = string.IsNullOrWhiteSpace(dto.Legajo) ? null : dto.Legajo.Trim(),
+                EsAdmin = dto.EsAdmin,
                 KioscoID = dto.KioscoID,
                 UsuarioID = dto.UsuarioID,
                 Activo = true
             };
 
             var creado = await _empleadoRepository.CreateAsync(empleado);
-            return await MapToResponseDTO(creado);
+
+            // El PIN se hashea y guarda a través del mismo mecanismo que usa
+            // "Asignar PIN" desde la lista de empleados — un solo lugar que
+            // sabe validar formato y hashear, en vez de duplicar esa lógica acá.
+            if (!string.IsNullOrWhiteSpace(dto.Pin))
+                await _authService.AsignarPinAsync(creado.EmpleadoId, dto.Pin);
+
+            var conPin = await _empleadoRepository.GetByIdAsync(creado.EmpleadoId);
+            return await MapToResponseDTO(conPin ?? creado);
         }
 
         public async Task<EmpleadoResponseDTO> UpdateAsync(UpdateEmpleadoDTO dto)
