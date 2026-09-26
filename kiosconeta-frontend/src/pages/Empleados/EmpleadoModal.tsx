@@ -160,7 +160,8 @@ export const EmpleadoModal: React.FC<EmpleadoModalProps> = ({
 
         {mode === 'crear' && (
           <p className="text-xs text-neutral-400 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2">
-            💡 El empleado se crea sin permisos. Podés asignarle una plantilla de rol desde la lista.
+            💡 El empleado se crea con los permisos de <strong>Cajero</strong> por defecto.
+            Podés cambiarle la plantilla desde &quot;Permisos&quot; en la lista.
           </p>
         )}
 

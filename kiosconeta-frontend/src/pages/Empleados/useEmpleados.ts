@@ -156,7 +156,24 @@ export const useEmpleados = () => {
     setSaveError(null);
     try {
       if (modalMode === 'crear') {
-        await empleadosApi.create(data as CreateEmpleadoDTO);
+        const nuevo = await empleadosApi.create(data as CreateEmpleadoDTO);
+
+        // Sin esto el empleado se crea sin ningún permiso y al loguearse ve
+        // todo en blanco. Le asignamos la plantilla "Cajero" por defecto —
+        // mismo mecanismo que usa el admin al aplicar una plantilla a mano
+        // desde el modal de Permisos.
+        const plantillaCajero = plantillas.find(p => p.rol === 'Cajero');
+        if (plantillaCajero) {
+          try {
+            await permisosApi.reemplazar({
+              empleadoId: nuevo.empleadoId,
+              permisosIds: plantillaCajero.permisosIds,
+            });
+          } catch {
+            // No bloqueamos la creación del empleado si esto falla — el admin
+            // puede asignar permisos manualmente después desde la lista.
+          }
+        }
       } else if (modalMode === 'editar' && empleadoSeleccionado) {
         const dto = data as UpdateEmpleadoDTO;
         await empleadosApi.update(empleadoSeleccionado.empleadoId, {
