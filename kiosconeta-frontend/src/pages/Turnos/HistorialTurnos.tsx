@@ -117,7 +117,7 @@ export const HistorialTurnos: React.FC = () => {
 
       {/* ── FILTROS ───────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-xl border border-neutral-200 p-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3">
           <div className="relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
             <input
@@ -201,7 +201,7 @@ export const HistorialTurnos: React.FC = () => {
                   className="w-full flex items-center gap-4 px-5 py-4 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className="text-sm font-semibold text-neutral-800">
                         {turno.fechaFormateada ? turno.fechaFormateada.split(' ')[0] : (turno.fecha ? turno.fecha.split('T')[0].split('-').reverse().join('/') : '—')}
                       </span>
@@ -218,9 +218,23 @@ export const HistorialTurnos: React.FC = () => {
                     {turno.empleados?.length > 0 && (
                       <div className="flex items-center gap-1 text-xs text-neutral-400">
                         <Users size={11} />
-                        <span>{turno.empleados.map(e => e.empleadoNombre).join(', ')}</span>
+                        <span className="truncate">{turno.empleados.map(e => e.empleadoNombre).join(', ')}</span>
                       </div>
                     )}
+                    {/* Resumen compacto — solo mobile (< sm), donde el resto de las columnas está oculto */}
+                    <div className="flex items-center gap-3 mt-1.5 sm:hidden">
+                      <span className="text-xs font-semibold text-success">
+                        Ganancia {formatCurrency(turno.gananciaTotal)}
+                      </span>
+                      <span className={`text-xs font-semibold
+                        ${turno.diferencia === 0 ? 'text-success'
+                        : turno.diferencia > 0  ? 'text-success'
+                        : 'text-danger'}`}>
+                        {turno.diferencia === 0
+                          ? '✓ Cuadra'
+                          : `Dif. ${turno.diferencia > 0 ? '+' : ''}${formatCurrency(turno.diferencia)}`}
+                      </span>
+                    </div>
                   </div>
 <div className="text-right hidden sm:block shrink-0">
   <p className="text-xs text-neutral-400 mb-0.5">Ventas</p>
@@ -236,12 +250,12 @@ export const HistorialTurnos: React.FC = () => {
   </p>
 </div>
 
-                  <div className="text-right shrink-0">
+                  <div className="text-right hidden sm:block shrink-0">
                     <p className="text-xs text-neutral-400 mb-0.5">Ganancia</p>
                     <p className="text-sm font-bold text-success">{formatCurrency(turno.gananciaTotal)}</p>
                   </div>
 
-                  <div className="text-right shrink-0">
+                  <div className="text-right hidden sm:block shrink-0">
   <p className="text-xs text-neutral-400 mb-0.5">Diferencia</p>
   <p className={`text-sm font-bold
     ${turno.diferencia === 0 ? 'text-success'
