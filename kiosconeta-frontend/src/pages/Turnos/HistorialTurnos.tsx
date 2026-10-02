@@ -147,19 +147,25 @@ export const HistorialTurnos: React.FC = () => {
             )}
           </select>
 
-          <input
-            type="date"
-            value={filtroFechaDesde}
-            onChange={e => setFiltroFechaDesde(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-          />
+          <div>
+            <label className="block text-xs text-neutral-400 mb-1">Desde</label>
+            <input
+              type="date"
+              value={filtroFechaDesde}
+              onChange={e => setFiltroFechaDesde(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+            />
+          </div>
 
-          <input
-            type="date"
-            value={filtroFechaHasta}
-            onChange={e => setFiltroFechaHasta(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-          />
+          <div>
+            <label className="block text-xs text-neutral-400 mb-1">Hasta</label>
+            <input
+              type="date"
+              value={filtroFechaHasta}
+              onChange={e => setFiltroFechaHasta(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+            />
+          </div>
         </div>
 
         {hayFiltros && (
@@ -295,7 +301,7 @@ export const HistorialTurnos: React.FC = () => {
                       </div>
 
                       {/* ── VENTAS ── */}
-                      <div className="col-span-4">
+                      <div className="col-span-2 md:col-span-4">
                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-2">
                           Ventas del turno
                         </p>
@@ -330,7 +336,7 @@ export const HistorialTurnos: React.FC = () => {
 </div>
 
                       {/* ── CONTROL DE CAJA ── */}
-                      <div className="col-span-4">
+                      <div className="col-span-2 md:col-span-4">
                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-2">
                           Control de caja (sin fondo)
                         </p>
@@ -367,7 +373,7 @@ export const HistorialTurnos: React.FC = () => {
                       </div>
 
                       {/* ── FONDO ── */}
-                      <div className="col-span-4">
+                      <div className="col-span-2 md:col-span-4">
                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-2">
                           Fondo
                         </p>
