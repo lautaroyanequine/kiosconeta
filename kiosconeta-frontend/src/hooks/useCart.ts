@@ -39,9 +39,47 @@ const calcularSubtotalItem = (
 // HOOK
 // ────────────────────────────────────────────────────────────────────────────
 
+// Clave de localStorage para el carrito en curso de un kiosco. Se mantiene
+// solo mientras el carrito tiene ítems — se borra al vaciarlo o confirmar la venta.
+const claveCarrito = (kioscoId: number) => `kiosconeta_carrito_${kioscoId}`;
+
 export const useCart = (kioscoId?: number) => {
   const [items, setItems]           = useState<ItemCarrito[]>([]);
   const [metodoPagoId, setMetodoPagoId] = useState<number | undefined>();
+  const cargadoRef = useRef(false);
+
+  // ── Cargar el carrito guardado ──────────────────────────────────────────
+  // kioscoId puede llegar undefined en el primer render (mientras carga el
+  // usuario autenticado), así que esto espera a que esté disponible en vez
+  // de intentar leerlo solo en el useState inicial.
+  useEffect(() => {
+    if (!kioscoId || cargadoRef.current) return;
+    cargadoRef.current = true;
+    try {
+      const guardado = localStorage.getItem(claveCarrito(kioscoId));
+      if (guardado) {
+        const parsed = JSON.parse(guardado);
+        if (Array.isArray(parsed) && parsed.length > 0) setItems(parsed);
+      }
+    } catch {
+      // localStorage corrupto o deshabilitado — seguimos con carrito vacío
+    }
+  }, [kioscoId]);
+
+  // ── Guardar cada vez que cambian los items ──────────────────────────────
+  useEffect(() => {
+    if (!kioscoId) return;
+    try {
+      if (items.length > 0) {
+        localStorage.setItem(claveCarrito(kioscoId), JSON.stringify(items));
+      } else {
+        localStorage.removeItem(claveCarrito(kioscoId));
+      }
+    } catch {
+      // Si falla (localStorage lleno/deshabilitado) no bloqueamos la venta,
+      // el carrito sigue funcionando en memoria para esta sesión.
+    }
+  }, [items, kioscoId]);
 
   // Promos
   const [promosAplicadas, setPromosAplicadas]     = useState<PromocionAplicadaDTO[]>([]);
@@ -181,6 +219,9 @@ export const useCart = (kioscoId?: number) => {
     setMetodoPagoId(undefined);
     setPromosAplicadas([]);
     setTotalDescuento(0);
+    if (kioscoId) {
+      try { localStorage.removeItem(claveCarrito(kioscoId)); } catch {}
+    }
   };
 
   // ── Totales ───────────────────────────────────────────────────────────────

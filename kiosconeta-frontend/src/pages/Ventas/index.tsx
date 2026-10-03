@@ -24,6 +24,11 @@ interface Filtros {
   soloAnuladas: boolean;
 }
 
+// Una venta es de pago combinado si vienen cargados los montos de efectivo/virtual
+// (el backend solo los setea en ese caso) — más confiable que comparar el nombre.
+const esPagoCombinado = (venta: Venta) =>
+  venta.montoEfectivo != null || venta.montoVirtual != null;
+
 const hoy = () => new Date().toISOString().split('T')[0];
 const haceDias = (n: number) => {
   const d = new Date();
@@ -80,6 +85,11 @@ const VentaDetalleModal: React.FC<{
         <div className="bg-neutral-50 rounded-lg p-3">
           <p className="text-xs text-neutral-500 mb-1">Método de pago</p>
           <p className="text-sm font-medium text-neutral-800">{venta.metodoPagoNombre}</p>
+          {esPagoCombinado(venta) && (
+            <p className="text-xs text-neutral-500 mt-1">
+              Efectivo {formatCurrency(venta.montoEfectivo ?? 0)} · Virtual {formatCurrency(venta.montoVirtual ?? 0)}
+            </p>
+          )}
         </div>
         <div className="bg-neutral-50 rounded-lg p-3">
           <p className="text-xs text-neutral-500 mb-1">Turno</p>
@@ -259,15 +269,15 @@ const VentasPage: React.FC = () => {
 
   return (
     <>
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
         {/* ── HEADER ──────────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-neutral-900">Ventas</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">Ventas</h1>
             <p className="text-sm text-neutral-500 mt-0.5">Historial de ventas del kiosco</p>
           </div>
           <Button variant="ghost" size="sm" leftIcon={<RefreshCw size={15} />}
-            onClick={() => cargarVentas(1, true)}>
+            onClick={() => cargarVentas(1, true)} className="self-start sm:self-auto">
             Actualizar
           </Button>
         </div>
@@ -281,7 +291,7 @@ const VentasPage: React.FC = () => {
         )}
 
         {/* ── STATS ────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 max-w-md">
           {[
             { label: 'Ventas', icon: <Receipt size={18} className="text-purple-600" />, color: 'bg-purple-50', fmt: String(stats.total) },
             { label: 'Anuladas', icon: <Ban size={18} className="text-red-500" />, color: 'bg-red-50', fmt: String(stats.anuladas) },
@@ -325,8 +335,8 @@ const VentasPage: React.FC = () => {
 
         {/* ── FILTROS ──────────────────────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-neutral-200 p-4 space-y-3">
-          <div className="flex flex-wrap gap-3 items-end">
-            <div className="flex-1 min-w-[200px]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+            <div className="w-full sm:flex-1 sm:min-w-[200px]">
               <Input
                 placeholder="Buscar por empleado, nro. venta, método de pago o producto..."
                 value={filtros.busqueda}
@@ -334,20 +344,20 @@ const VentasPage: React.FC = () => {
                 leftIcon={<Search size={16} />}
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <input type="date" value={filtros.fechaDesde}
                 onChange={e => setFiltros(p => ({ ...p, fechaDesde: e.target.value }))}
-                className="px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:border-primary"
+                className="flex-1 sm:flex-none px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:border-primary"
               />
-              <span className="text-neutral-400 text-sm">—</span>
+              <span className="text-neutral-400 text-sm shrink-0">—</span>
               <input type="date" value={filtros.fechaHasta}
                 onChange={e => setFiltros(p => ({ ...p, fechaHasta: e.target.value }))}
-                className="px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:border-primary"
+                className="flex-1 sm:flex-none px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:border-primary"
               />
             </div>
           </div>
-          <div className="flex gap-2">
-            <span className="text-xs text-neutral-400 self-center mr-1">Rango rápido:</span>
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs text-neutral-400 self-center mr-1 w-full sm:w-auto">Rango rápido:</span>
             {[
               { label: 'Hoy', dias: 0 },
               { label: '7 días', dias: 7 },
@@ -363,13 +373,13 @@ const VentasPage: React.FC = () => {
                 {r.label}
               </button>
             ))}
-            <span className="ml-auto text-xs text-neutral-400 self-center">
+            <span className="sm:ml-auto text-xs text-neutral-400 self-center">
               {ventasFiltradas.length} cargadas
             </span>
           </div>
         </div>
 
-        {/* ── TABLA ────────────────────────────────────────────────────── */}
+        {/* ── LISTADO ──────────────────────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
           {ventasFiltradas.length === 0 && !isLoading ? (
             <div className="py-16 text-center text-neutral-400">
@@ -377,60 +387,104 @@ const VentasPage: React.FC = () => {
               <p>No se encontraron ventas en el período seleccionado</p>
             </div>
           ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="text-xs text-neutral-400 uppercase tracking-wide border-b border-neutral-100">
-                  <th className="text-left py-3 pl-6 pr-3 font-medium">#</th>
-                  <th className="text-left py-3 px-3 font-medium">Fecha</th>
-                  <th className="text-left py-3 px-3 font-medium hidden md:table-cell">Empleado</th>
-                  <th className="text-left py-3 px-3 font-medium hidden lg:table-cell">Pago</th>
-                  <th className="text-left py-3 px-3 font-medium hidden lg:table-cell">Productos</th>
-                  <th className="text-right py-3 px-3 font-medium">Total</th>
-                  <th className="text-center py-3 px-3 font-medium">Estado</th>
-                  <th className="py-3 pl-3 pr-6 w-8" />
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* Tabla — solo desktop (md+) */}
+              <table className="w-full hidden md:table">
+                <thead>
+                  <tr className="text-xs text-neutral-400 uppercase tracking-wide border-b border-neutral-100">
+                    <th className="text-left py-3 pl-6 pr-3 font-medium">#</th>
+                    <th className="text-left py-3 px-3 font-medium">Fecha</th>
+                    <th className="text-left py-3 px-3 font-medium hidden md:table-cell">Empleado</th>
+                    <th className="text-left py-3 px-3 font-medium hidden lg:table-cell">Pago</th>
+                    <th className="text-left py-3 px-3 font-medium hidden lg:table-cell">Productos</th>
+                    <th className="text-right py-3 px-3 font-medium">Total</th>
+                    <th className="text-center py-3 px-3 font-medium">Estado</th>
+                    <th className="py-3 pl-3 pr-6 w-8" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {ventasFiltradas.map(venta => (
+                    <tr key={venta.ventaId} onClick={() => setVentaDetalle(venta)}
+                      className="cursor-pointer hover:bg-neutral-50 transition-colors border-b border-neutral-100 last:border-0">
+                      <td className="py-3 pl-6 pr-3">
+                        <span className="text-sm font-mono text-neutral-500">#{venta.numeroVenta}</span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <p className="text-sm text-neutral-800">{formatDate(venta.fecha)}</p>
+                        <p className="text-xs text-neutral-400">
+                          {new Date(venta.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </td>
+                      <td className="py-3 px-3 hidden md:table-cell">
+                        <span className="text-sm text-neutral-700">{venta.empleadoNombre}</span>
+                      </td>
+                      <td className="py-3 px-3 hidden lg:table-cell">
+                        <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">
+                          {venta.metodoPagoNombre}
+                        </span>
+                        {esPagoCombinado(venta) && (
+                          <p className="text-[11px] text-neutral-400 mt-1 whitespace-nowrap">
+                            Ef. {formatCurrency(venta.montoEfectivo ?? 0)} · Virt. {formatCurrency(venta.montoVirtual ?? 0)}
+                          </p>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 hidden lg:table-cell">
+                        <span className="text-xs text-neutral-500">
+                          {venta.productos?.length ?? 0} ítem{(venta.productos?.length ?? 0) !== 1 ? 's' : ''}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <span className={`text-sm font-semibold ${venta.anulada ? 'line-through text-neutral-400' : 'text-neutral-900'}`}>
+                          {formatCurrency(venta.total)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        {venta.anulada ? <Badge variant="danger">Anulada</Badge> : <Badge variant="success">Ok</Badge>}
+                      </td>
+                      <td className="py-3 pl-3 pr-6">
+                        <ChevronRight size={16} className="text-neutral-300" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Cards — solo mobile/tablet (< md) */}
+              <div className="md:hidden divide-y divide-neutral-100">
                 {ventasFiltradas.map(venta => (
-                  <tr key={venta.ventaId} onClick={() => setVentaDetalle(venta)}
-                    className="cursor-pointer hover:bg-neutral-50 transition-colors border-b border-neutral-100 last:border-0">
-                    <td className="py-3 pl-6 pr-3">
-                      <span className="text-sm font-mono text-neutral-500">#{venta.numeroVenta}</span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <p className="text-sm text-neutral-800">{formatDate(venta.fecha)}</p>
-                      <p className="text-xs text-neutral-400">
-                        {new Date(venta.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </td>
-                    <td className="py-3 px-3 hidden md:table-cell">
-                      <span className="text-sm text-neutral-700">{venta.empleadoNombre}</span>
-                    </td>
-                    <td className="py-3 px-3 hidden lg:table-cell">
-                      <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">
-                        {venta.metodoPagoNombre}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 hidden lg:table-cell">
-                      <span className="text-xs text-neutral-500">
-                        {venta.productos?.length ?? 0} ítem{(venta.productos?.length ?? 0) !== 1 ? 's' : ''}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 text-right">
-                      <span className={`text-sm font-semibold ${venta.anulada ? 'line-through text-neutral-400' : 'text-neutral-900'}`}>
+                  <button
+                    key={venta.ventaId}
+                    onClick={() => setVentaDetalle(venta)}
+                    className="w-full text-left px-4 py-3 hover:bg-neutral-50 active:bg-neutral-100 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-mono text-neutral-500">#{venta.numeroVenta}</span>
+                          {venta.anulada ? <Badge variant="danger">Anulada</Badge> : <Badge variant="success">Ok</Badge>}
+                        </div>
+                        <p className="text-xs text-neutral-400 mt-0.5">
+                          {formatDate(venta.fecha)} · {new Date(venta.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                      <span className={`text-base font-bold shrink-0 ${venta.anulada ? 'line-through text-neutral-400' : 'text-neutral-900'}`}>
                         {formatCurrency(venta.total)}
                       </span>
-                    </td>
-                    <td className="py-3 px-3 text-center">
-                      {venta.anulada ? <Badge variant="danger">Anulada</Badge> : <Badge variant="success">Ok</Badge>}
-                    </td>
-                    <td className="py-3 pl-3 pr-6">
-                      <ChevronRight size={16} className="text-neutral-300" />
-                    </td>
-                  </tr>
+                    </div>
+                    <div className="flex items-center gap-x-3 gap-y-1 flex-wrap text-xs text-neutral-500 mt-2">
+                      <span>{venta.empleadoNombre}</span>
+                      <span className="bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">
+                        {venta.metodoPagoNombre}
+                      </span>
+                      {esPagoCombinado(venta) && (
+                        <span>Ef. {formatCurrency(venta.montoEfectivo ?? 0)} · Virt. {formatCurrency(venta.montoVirtual ?? 0)}</span>
+                      )}
+                      <span>{venta.productos?.length ?? 0} ítem{(venta.productos?.length ?? 0) !== 1 ? 's' : ''}</span>
+                    </div>
+                  </button>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
 
           {/* ── TRIGGER SCROLL INFINITO ─────────────────────────────── */}
