@@ -100,6 +100,68 @@ productosCombo: (p.productos ?? []).map(pp => ({
   cantidadMinimaDescuento: p.cantidadMinimaDescuento != null ? String(p.cantidadMinimaDescuento) : '',
 });
 
+// Reconstruye el DTO completo de actualización a partir de una promo ya guardada,
+// reemplazando únicamente su precio propio (precioCombo o precioFijoDescuento según el tipo).
+// Se usa para el ajuste de precios masivo: se reutiliza el endpoint normal de update,
+// pero preservando todos los demás campos de la promo intactos.
+const promoToUpdateDTO = (p: PromocionResponseDTO, nuevoPrecio: number): CreatePromocionDTO => {
+  const base: CreatePromocionDTO = {
+    nombre: p.nombre,
+    descripcion: p.descripcion || undefined,
+    tipo: p.tipo,
+    fechaDesde: p.fechaDesde || undefined,
+    fechaHasta: p.fechaHasta || undefined,
+  };
+
+  if (p.tipo === 1) {
+    Object.assign(base, {
+      precioCombo: nuevoPrecio,
+      productos: (p.productos ?? []).map(pp => ({
+        productoId: pp.productoId,
+        tagId: pp.tagId,
+        cantidad: pp.cantidad,
+      })),
+    });
+  }
+
+  if (p.tipo === 2) {
+    Object.assign(base, {
+      productoIdCantidad: p.productoIdCantidad,
+      tagIdCantidad:      p.tagIdCantidad ?? undefined,
+      cantidadRequerida:  p.cantidadRequerida,
+      cantidadPaga:       p.cantidadPaga,
+    });
+  }
+
+  if (p.tipo === 3) {
+    Object.assign(base, {
+      porcentajeDescuento:     p.porcentajeDescuento,
+      precioFijoDescuento:     nuevoPrecio,
+      productoIdPorcentaje:    p.productoIdPorcentaje,
+      categoriaIdPorcentaje:   p.categoriaIdPorcentaje,
+      tagIdPorcentaje:         p.tagIdPorcentaje ?? undefined,
+      cantidadMinimaDescuento: p.cantidadMinimaDescuento,
+    });
+  }
+
+  return base;
+};
+
+// Precio propio de la promo (el único campo que el ajuste masivo puede mover).
+// Solo los combos y los descuentos de "precio fijo" tienen uno.
+const precioActualPromo = (p: PromocionResponseDTO): number | null => {
+  if (p.tipo === 1) return p.precioCombo ?? null;
+  if (p.tipo === 3) return p.precioFijoDescuento ?? null;
+  return null;
+};
+
+const coincideBusquedaPromo = (nombre: string, query: string): boolean => {
+  const palabras = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (palabras.length === 0) return true;
+  const target = nombre.toLowerCase();
+  return palabras.every(w => target.includes(w));
+};
+
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS
 // ────────────────────────────────────────────────────────────────────────────
@@ -754,6 +816,175 @@ if (form.tipo === 2) {
 };
 
 // ────────────────────────────────────────────────────────────────────────────
+// MODAL: Ajuste de precios masivo (promos)
+// Solo aplica a Combos (precioCombo) y a descuentos de "precio fijo" (precioFijoDescuento):
+// son los únicos tipos de promo con un precio propio para mover en conjunto.
+// ────────────────────────────────────────────────────────────────────────────
+
+type TipoAjustePromo = 'Porcentaje' | 'MontoFijo' | 'PrecioFijo';
+
+const AjustePrecioPromosModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  promos: PromocionResponseDTO[];
+  onApply: (cambios: { promo: PromocionResponseDTO; nuevoPrecio: number }[]) => Promise<void>;
+  isApplying: boolean;
+}> = ({ isOpen, onClose, promos, onApply, isApplying }) => {
+  const [busqueda, setBusqueda]     = useState('');
+  const [tipoAjuste, setTipoAjuste] = useState<TipoAjustePromo>('Porcentaje');
+  const [valor, setValor]           = useState('');
+  const [excluidos, setExcluidos]   = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (isOpen) {
+      setBusqueda('');
+      setTipoAjuste('Porcentaje');
+      setValor('');
+      setExcluidos(new Set());
+    }
+  }, [isOpen]);
+
+  const elegibles = promos.filter(p => precioActualPromo(p) != null);
+  const filtradas = elegibles.filter(p => coincideBusquedaPromo(p.nombre, busqueda));
+
+  const calcularNuevoPrecio = (actual: number): number | null => {
+    if (!valor.trim()) return null;
+    const v = Number(valor);
+    if (isNaN(v)) return null;
+    let nuevo: number;
+    if (tipoAjuste === 'Porcentaje') nuevo = actual * (1 + v / 100);
+    else if (tipoAjuste === 'MontoFijo') nuevo = actual + v;
+    else nuevo = v; // PrecioFijo: mismo precio exacto para todas
+    nuevo = Math.round(nuevo * 100) / 100;
+    return nuevo > 0 ? nuevo : null;
+  };
+
+  const filas = filtradas.map(p => {
+    const actual = precioActualPromo(p)!;
+    const nuevo  = calcularNuevoPrecio(actual);
+    return {
+      promo: p,
+      actual,
+      nuevo,
+      excluida: excluidos.has(p.promocionId),
+      invalida: valor.trim() !== '' && nuevo === null,
+    };
+  });
+
+  const toggleExcluir = (id: number) => {
+    setExcluidos(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const aAplicar = filas.filter(f => !f.excluida && f.nuevo != null);
+
+  const handleApply = async () => {
+    if (aAplicar.length === 0) return;
+    await onApply(aAplicar.map(f => ({ promo: f.promo, nuevoPrecio: f.nuevo! })));
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Ajustar precios de promociones"
+      size="lg"
+      footer={
+        <>
+          <Button variant="outline" onClick={onClose} disabled={isApplying}>Cancelar</Button>
+          <Button variant="primary" onClick={handleApply} loading={isApplying} disabled={aAplicar.length === 0}>
+            Aplicar a {aAplicar.length} promo{aAplicar.length === 1 ? '' : 's'}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <p className="text-xs text-neutral-500">
+          Solo se pueden ajustar en conjunto los <strong>combos</strong> y los descuentos de <strong>precio fijo</strong>,
+          que son los tipos de promo con un precio propio. Las promos de % puro o "llevá N / pagá menos" no tienen
+          un precio para mover.
+        </p>
+
+        <input
+          type="text"
+          value={busqueda}
+          onChange={e => setBusqueda(e.target.value)}
+          placeholder="Buscar promo por nombre..."
+          className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary"
+        />
+
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            { v: 'Porcentaje', label: '% Porcentaje' },
+            { v: 'MontoFijo',  label: '+/- Monto fijo' },
+            { v: 'PrecioFijo', label: 'Precio fijo' },
+          ] as { v: TipoAjustePromo; label: string }[]).map(opt => (
+            <button
+              key={opt.v}
+              type="button"
+              onClick={() => setTipoAjuste(opt.v)}
+              className={`p-2 rounded-lg border-2 text-xs font-semibold transition-all
+                ${tipoAjuste === opt.v ? 'border-primary bg-primary/5 text-primary' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300'}`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        <div>
+          <label className="block text-xs font-medium text-neutral-600 mb-1">
+            {tipoAjuste === 'Porcentaje' && 'Porcentaje (ej: 10 para +10%, -10 para -10%)'}
+            {tipoAjuste === 'MontoFijo' && 'Monto a sumar (negativo para restar)'}
+            {tipoAjuste === 'PrecioFijo' && 'Nuevo precio exacto para todas las seleccionadas'}
+          </label>
+          <input
+            type="number" step="0.01"
+            value={valor}
+            onChange={e => setValor(e.target.value)}
+            placeholder="0"
+            className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:border-primary"
+          />
+        </div>
+
+        <div className="max-h-72 overflow-y-auto border border-neutral-200 rounded-lg divide-y divide-neutral-100">
+          {filas.length === 0 && (
+            <p className="text-xs text-neutral-400 text-center py-6">
+              No hay promos de combo o precio fijo que coincidan
+            </p>
+          )}
+          {filas.map(f => (
+            <label
+              key={f.promo.promocionId}
+              className={`flex items-center gap-3 px-3 py-2 text-sm cursor-pointer ${f.excluida ? 'opacity-40' : ''}`}
+            >
+              <input
+                type="checkbox"
+                checked={!f.excluida}
+                onChange={() => toggleExcluir(f.promo.promocionId)}
+                className="shrink-0"
+              />
+              <span className="flex-1 min-w-0 truncate">{f.promo.nombre}</span>
+              <span className="text-neutral-400 text-xs">{formatCurrency(f.actual)}</span>
+              <span className="text-neutral-300">→</span>
+              {f.invalida ? (
+                <span className="text-red-500 text-xs font-medium">inválido</span>
+              ) : (
+                <span className="font-semibold text-primary text-xs">
+                  {f.nuevo != null ? formatCurrency(f.nuevo) : '—'}
+                </span>
+              )}
+            </label>
+          ))}
+        </div>
+      </div>
+    </Modal>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────────────
 // TARJETA DE PROMO
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -839,6 +1070,23 @@ const PromoCard: React.FC<{
         {renderDetalle()}
       </div>
 
+      {/* Margen estimado */}
+      {promo.margenEstimadoPorcentaje != null && (
+        <div className="flex items-center justify-between text-xs bg-neutral-50 rounded-lg px-2.5 py-1.5">
+          <span className="text-neutral-500">
+            Margen{promo.margenEsEstimado ? ' (estimado)' : ''}
+          </span>
+          <span className={`font-semibold ${promo.margenEstimadoPorcentaje >= 0 ? 'text-success-700' : 'text-red-500'}`}>
+            {promo.margenEstimadoPorcentaje.toFixed(1)}%
+            {promo.gananciaEstimada != null && (
+              <span className="text-neutral-400 font-normal ml-1">
+                ({formatCurrency(promo.gananciaEstimada)})
+              </span>
+            )}
+          </span>
+        </div>
+      )}
+
       {/* Vigencia */}
       {(promo.fechaDesde || promo.fechaHasta) && (
         <div className="flex items-center gap-1 text-xs text-neutral-400">
@@ -901,6 +1149,9 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos , tags
   const [deletingId, setDeletingId]     = useState<number | null>(null);
   const [promoAEliminar, setPromoAEliminar] = useState<PromocionResponseDTO | null>(null);
 
+  const [modalPreciosAbierto, setModalPreciosAbierto] = useState(false);
+  const [isAjustandoPrecios, setIsAjustandoPrecios]   = useState(false);
+
   // ── Cargar ───────────────────────────────────────────────────────────────
   const cargar = useCallback(async () => {
     if (!user?.kioscoId) return;
@@ -939,6 +1190,29 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos , tags
       setSaveError(err.message || (promoAEditar ? 'Error al actualizar la promoción' : 'Error al crear la promoción'));
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // ── Ajuste de precios masivo ─────────────────────────────────────────────
+  const handleAjustarPrecios = async (
+    cambios: { promo: PromocionResponseDTO; nuevoPrecio: number }[]
+  ) => {
+    setIsAjustandoPrecios(true);
+    try {
+      const actualizadas = await Promise.all(
+        cambios.map(({ promo, nuevoPrecio }) =>
+          promocionesApi.update(promo.promocionId, promoToUpdateDTO(promo, nuevoPrecio))
+        )
+      );
+      setPromos(prev => {
+        const porId = new Map(actualizadas.map(a => [a.promocionId, a]));
+        return prev.map(p => porId.get(p.promocionId) ?? p);
+      });
+      setModalPreciosAbierto(false);
+    } catch (err: any) {
+      setError(err.message || 'Error al ajustar los precios de las promociones');
+    } finally {
+      setIsAjustandoPrecios(false);
     }
   };
 
@@ -1004,6 +1278,9 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos , tags
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" leftIcon={<RefreshCw size={14} />} onClick={cargar}>
             Actualizar
+          </Button>
+          <Button variant="outline" size="sm" leftIcon={<Percent size={14} />} onClick={() => setModalPreciosAbierto(true)}>
+            Editar precios
           </Button>
           <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => { setPromoAEditar(null); setModalAbierto(true); }}>
             Nueva promoción
@@ -1084,6 +1361,15 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos , tags
         productos={productos}
         tags={tags}  
         promoAEditar={promoAEditar}
+      />
+
+      {/* Modal ajuste de precios masivo */}
+      <AjustePrecioPromosModal
+        isOpen={modalPreciosAbierto}
+        onClose={() => setModalPreciosAbierto(false)}
+        promos={promos}
+        onApply={handleAjustarPrecios}
+        isApplying={isAjustandoPrecios}
       />
 
       {/* Modal confirmar eliminar */}

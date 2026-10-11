@@ -31,7 +31,10 @@ public class PromocionService : IPromocionService
     public async Task<IEnumerable<PromocionResponseDTO>> GetByKioscoAsync(int kioscoId)
     {
         var promos = await _repo.GetByKioscoAsync(kioscoId);
-        return promos.Select(MapToDTO);
+        var resultado = new List<PromocionResponseDTO>();
+        foreach (var p in promos)
+            resultado.Add(await MapToDTOAsync(p));
+        return resultado;
     }
 
     public async Task<PromocionResponseDTO> CreateAsync(int kioscoId, CreatePromocionDTO dto)
@@ -69,7 +72,7 @@ public class PromocionService : IPromocionService
             }).ToList()
         };
         var creada = await _repo.CreateAsync(promo);
-        return MapToDTO(creada);
+        return await MapToDTOAsync(creada);
     }
 
     public async Task<PromocionResponseDTO> UpdateAsync(int id, CreatePromocionDTO dto)
@@ -109,7 +112,7 @@ public class PromocionService : IPromocionService
         }).ToList();
 
         var actualizada = await _repo.UpdateAsync(promoExistente, reemplazarProductos: true);
-        return MapToDTO(actualizada);
+        return await MapToDTOAsync(actualizada);
     }
 
     public async Task<bool> ToggleActivaAsync(int id)
@@ -370,39 +373,134 @@ public class PromocionService : IPromocionService
     }
     // ── MAPEO ─────────────────────────────────────────────────────────────
 
-    private PromocionResponseDTO MapToDTO(Promocion p) => new()
+    private async Task<PromocionResponseDTO> MapToDTOAsync(Promocion p)
     {
-        PromocionId = p.PromocionId,
-        Nombre = p.Nombre,
-        Descripcion = p.Descripcion,
-        Tipo = p.Tipo,
-        Activa = p.Activa,
-        FechaDesde = p.FechaDesde,
-        FechaHasta = p.FechaHasta,
-        PrecioCombo = p.PrecioCombo,
-        CantidadRequerida = p.CantidadRequerida,
-        CantidadPaga = p.CantidadPaga,
-        ProductoIdCantidad = p.ProductoIdCantidad,
-        ProductoNombreCantidad = p.ProductoCantidad?.Nombre,
-        PorcentajeDescuento = p.PorcentajeDescuento,
-        PrecioFijoDescuento = p.PrecioFijoDescuento,
-        ProductoIdPorcentaje = p.ProductoIdPorcentaje,
-        ProductoNombrePorcentaje = p.ProductoPorcentaje?.Nombre,
-        CategoriaIdPorcentaje = p.CategoriaIdPorcentaje,
-        CategoriaNombrePorcentaje = p.CategoriaPorcentaje?.Nombre,
-        CantidadMinimaDescuento = p.CantidadMinimaDescuento,   // ← NUEVO
-        TagIdPorcentaje = p.TagIdPorcentaje,
-        TagNombrePorcentaje = p.TagPorcentaje?.Nombre,
-        TagIdCantidad = p.TagIdCantidad,
-        TagNombreCantidad = p.TagCantidad?.Nombre,
-        Productos = p.PromocionProductos.Select(pp => new PromocionProductoDTO
+        var (ganancia, margen, esEstimado) = await CalcularMargenAsync(p);
+
+        return new PromocionResponseDTO
         {
-            ProductoId = pp.ProductoId,
-            ProductoNombre = pp.Producto?.Nombre ?? "",
-            TagId = pp.TagId,
-            TagNombre = pp.Tag?.Nombre,
-            Cantidad = pp.Cantidad,
-            PrecioUnitario = pp.Producto?.PrecioVenta ?? 0
-        }).ToList()
-    };
+            PromocionId = p.PromocionId,
+            Nombre = p.Nombre,
+            Descripcion = p.Descripcion,
+            Tipo = p.Tipo,
+            Activa = p.Activa,
+            FechaDesde = p.FechaDesde,
+            FechaHasta = p.FechaHasta,
+            PrecioCombo = p.PrecioCombo,
+            CantidadRequerida = p.CantidadRequerida,
+            CantidadPaga = p.CantidadPaga,
+            ProductoIdCantidad = p.ProductoIdCantidad,
+            ProductoNombreCantidad = p.ProductoCantidad?.Nombre,
+            PorcentajeDescuento = p.PorcentajeDescuento,
+            PrecioFijoDescuento = p.PrecioFijoDescuento,
+            ProductoIdPorcentaje = p.ProductoIdPorcentaje,
+            ProductoNombrePorcentaje = p.ProductoPorcentaje?.Nombre,
+            CategoriaIdPorcentaje = p.CategoriaIdPorcentaje,
+            CategoriaNombrePorcentaje = p.CategoriaPorcentaje?.Nombre,
+            CantidadMinimaDescuento = p.CantidadMinimaDescuento,   // ← NUEVO
+            TagIdPorcentaje = p.TagIdPorcentaje,
+            TagNombrePorcentaje = p.TagPorcentaje?.Nombre,
+            TagIdCantidad = p.TagIdCantidad,
+            TagNombreCantidad = p.TagCantidad?.Nombre,
+            GananciaEstimada = ganancia,
+            MargenEstimadoPorcentaje = margen,
+            MargenEsEstimado = esEstimado,
+            Productos = p.PromocionProductos.Select(pp => new PromocionProductoDTO
+            {
+                ProductoId = pp.ProductoId,
+                ProductoNombre = pp.Producto?.Nombre ?? "",
+                TagId = pp.TagId,
+                TagNombre = pp.Tag?.Nombre,
+                Cantidad = pp.Cantidad,
+                PrecioUnitario = pp.Producto?.PrecioVenta ?? 0
+            }).ToList()
+        };
+    }
+
+    // Margen estimado con los costos ACTUALES de los productos — no depende
+    // de haber vendido la promo ninguna vez. Devuelve null cuando no se puede
+    // calcular con confianza razonable (ej: % sobre una categoría o tag amplio,
+    // donde el costo real depende de qué producto puntual se termine vendiendo).
+    //
+    // Para combos/cantidad con una línea "por tag" (sin producto fijo), se usa
+    // el producto de MENOR COSTO del tag como estimación conservadora — mismo
+    // criterio que ya usamos para excluir kilo de esas líneas: la venta real
+    // puede resolver el tag con un producto más caro, así que esto marca
+    // esEstimado=true para dejarlo claro en la UI.
+    private async Task<(decimal? ganancia, decimal? margen, bool esEstimado)> CalcularMargenAsync(Promocion p)
+    {
+        switch (p.Tipo)
+        {
+            case TipoPromocion.Combo:
+                {
+                    if (!p.PrecioCombo.HasValue || p.PrecioCombo.Value <= 0)
+                        return (null, null, false);
+
+                    decimal costoTotal = 0;
+                    bool estimado = false;
+
+                    foreach (var pp in p.PromocionProductos)
+                    {
+                        var prod = pp.Producto;
+                        if (prod == null && pp.TagId.HasValue)
+                        {
+                            var candidatos = await _productoRepo.GetByTagAsync(pp.TagId.Value);
+                            prod = candidatos.OrderBy(c => c.PrecioCosto).FirstOrDefault();
+                            estimado = true;
+                        }
+                        if (prod == null) return (null, null, false); // sin datos suficientes, no arriesgamos un número
+
+                        costoTotal += CalcularImporte(prod.UnidadMedida, pp.Cantidad, prod.PrecioCosto);
+                    }
+
+                    var ganancia = p.PrecioCombo.Value - costoTotal;
+                    var margen = Math.Round(ganancia / p.PrecioCombo.Value * 100, 1);
+                    return (ganancia, margen, estimado);
+                }
+
+            case TipoPromocion.Cantidad:
+                {
+                    var prod = p.ProductoCantidad;
+                    bool estimado = false;
+
+                    if (prod == null && p.TagIdCantidad.HasValue)
+                    {
+                        var candidatos = await _productoRepo.GetByTagAsync(p.TagIdCantidad.Value);
+                        prod = candidatos.OrderBy(c => c.PrecioCosto).FirstOrDefault();
+                        estimado = true;
+                    }
+                    if (prod == null || !p.CantidadRequerida.HasValue || !p.CantidadPaga.HasValue)
+                        return (null, null, false);
+
+                    var ingreso = CalcularImporte(prod.UnidadMedida, p.CantidadPaga.Value, prod.PrecioVenta);
+                    var costo = CalcularImporte(prod.UnidadMedida, p.CantidadRequerida.Value, prod.PrecioCosto);
+                    if (ingreso <= 0) return (null, null, false);
+
+                    var ganancia = ingreso - costo;
+                    var margen = Math.Round(ganancia / ingreso * 100, 1);
+                    return (ganancia, margen, estimado);
+                }
+
+            case TipoPromocion.Porcentaje:
+                {
+                    // Categoría o tag amplio: el costo real varía según qué producto
+                    // se venda — no arriesgamos un número que podría ser engañoso.
+                    if (p.ProductoIdPorcentaje == null || p.ProductoPorcentaje == null)
+                        return (null, null, false);
+
+                    var prod = p.ProductoPorcentaje;
+                    decimal precioFinal = p.PrecioFijoDescuento
+                        ?? Math.Round(prod.PrecioVenta * (1 - (p.PorcentajeDescuento ?? 0) / 100m), 2, MidpointRounding.AwayFromZero);
+
+                    if (precioFinal <= 0) return (null, null, false);
+
+                    var ganancia = precioFinal - prod.PrecioCosto;
+                    var margen = Math.Round(ganancia / precioFinal * 100, 1);
+                    return (ganancia, margen, false);
+                }
+
+            default:
+                return (null, null, false);
+        }
+    }
 }

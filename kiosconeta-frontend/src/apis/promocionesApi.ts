@@ -43,9 +43,13 @@ export interface PromocionResponseDTO {
   categoriaNombrePorcentaje?: string;
   cantidadMinimaDescuento?: number;   
 
-  tagIdPorcentaje?: number | null;       
-  tagNombrePorcentaje?: string | null; 
+  tagIdPorcentaje?: number | null;
+  tagNombrePorcentaje?: string | null;
 
+  // Margen estimado
+  gananciaEstimada?: number | null;
+  margenEstimadoPorcentaje?: number | null;
+  margenEsEstimado?: boolean;
 }
 
 export interface CreatePromocionDTO {
@@ -56,7 +60,7 @@ export interface CreatePromocionDTO {
   fechaHasta?: string;
   // Combo
   precioCombo?: number;
-  productos?: { productoId: number; cantidad: number }[];
+  productos?: { productoId?: number; tagId?: number; cantidad: number }[];
   // Cantidad
   cantidadRequerida?: number;
   cantidadPaga?: number;

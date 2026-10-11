@@ -43,6 +43,16 @@ namespace Application.DTOs.Promocion
 
         // Porcentaje con cantidad mínima (precio por volumen)
         public int? CantidadMinimaDescuento { get; set; }
+
+        // ── Margen estimado (calculado con los costos actuales, sin vender) ──
+        // null cuando no se puede estimar con confianza (ej: promo por categoría
+        // o tag amplio, donde el costo real depende de qué producto se venda).
+        public decimal? GananciaEstimada { get; set; }
+        public decimal? MargenEstimadoPorcentaje { get; set; }
+        // true si para calcularlo tuvimos que asumir el producto más barato de
+        // un tag (porque la promo no apunta a un producto específico) — el
+        // margen real de una venta puntual puede ser mayor a este estimado.
+        public bool MargenEsEstimado { get; set; }
     }
 
     public class PromocionProductoDTO
