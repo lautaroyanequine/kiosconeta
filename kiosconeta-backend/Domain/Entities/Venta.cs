@@ -46,5 +46,8 @@
         public int NumeroVenta { get; set; }
         public bool Anulada { get; set; }
         public IList<ProductoVenta> ProductoVentas { get; set; }
+
+        /// <summary>Combos vendidos en esta venta (ver VentaCombo).</summary>
+        public IList<VentaCombo> VentaCombos { get; set; } = new List<VentaCombo>();
     }
 }

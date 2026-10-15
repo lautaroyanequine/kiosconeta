@@ -77,12 +77,15 @@ namespace Application.Services
         public async Task<IEnumerable<ProductoResponseDTO>> GetSinStockAsync(int kioscoId)
         {
             var productos = await _productoRepository.GetSinStockAsync(kioscoId);
-            return productos.Select(MapToResponseDTO);
+            // Un producto dado de baja (Activo = false) no se vende más, así que no
+            // tiene sentido avisar que "falta" reponerlo: se excluye de este listado.
+            return productos.Where(p => p.Activo).Select(MapToResponseDTO);
         }
         public async Task<IEnumerable<ProductoResponseDTO>> GetBajoStockAsync(int kioscoId)
         {
             var productos = await _productoRepository.GetBajoStockAsync(kioscoId);
-            return productos.Select(MapToResponseDTO);
+            // Mismo criterio que GetSinStockAsync: productos inactivos no son "faltantes".
+            return productos.Where(p => p.Activo).Select(MapToResponseDTO);
         }
 
         public async Task<IEnumerable<ProductoResponseDTO>> GetProximosAVencerAsync(int kioscoId)

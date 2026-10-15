@@ -72,6 +72,9 @@
 
         // Productos vendidos
         public List<ProductoVentaResponseDTO> Productos { get; set; } = new();
+
+        // Combos vendidos (además de sus productos, que ya figuran arriba por separado)
+        public List<VentaComboResponseDTO> Combos { get; set; } = new();
     }
 
     // ─── PRODUCTO VENDIDO (en la respuesta) ──────────
@@ -86,6 +89,17 @@
         // Para Kilogramo: PrecioUnitario es "por kilo" (no multiplicar directo por Cantidad).
         public decimal PrecioUnitario { get; set; }
         public decimal Subtotal { get; set; }          // Calculado según UnidadMedida
+    }
+
+    // ─── COMBO VENDIDO (en la respuesta) ─────────────
+    // Los productos del combo YA están en Productos (arriba) con su precio real;
+    // esto solo informa que, además, se vendieron como parte de este combo.
+    public class VentaComboResponseDTO
+    {
+        public int? PromocionId { get; set; }
+        public string PromocionNombre { get; set; } = string.Empty;
+        public int Cantidad { get; set; }
+        public decimal PrecioCombo { get; set; }
     }
 
     // ─── FILTROS PARA BÚSQUEDA ───────────────────────

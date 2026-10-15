@@ -27,6 +27,7 @@ namespace Infraestructure.Persistence
 
         // ===== Ventas =====
         public DbSet<Venta> Ventas { get; set; }
+        public DbSet<VentaCombo> VentaCombos { get; set; }
         public DbSet<MetodoDePago> MetodosDePago { get; set; }
         public DbSet<CierreTurno> CierresTurno { get; set; }
         public DbSet<CierreTurnoEmpleado> CierreTurnoEmpleados { get; set; } // intermedia
@@ -50,7 +51,7 @@ namespace Infraestructure.Persistence
 
         public DbSet<Promocion> Promociones { get; set; }
         public DbSet<PromocionProducto> PromocionProductos { get; set; }
-        
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
@@ -66,10 +67,10 @@ namespace Infraestructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
-    // 1️⃣ Catálogos / Base
-    // =========================
-    new PermisoConfiguration(modelBuilder.Entity<Permiso>());
+
+            // 1️⃣ Catálogos / Base
+            // =========================
+            new PermisoConfiguration(modelBuilder.Entity<Permiso>());
             new TipoDeGastoConfiguration(modelBuilder.Entity<TipoDeGasto>());
             new CategoriaConfiguration(modelBuilder.Entity<Categoria>());
             new MetodoDePagoConfiguration(modelBuilder.Entity<MetodoDePago>());
@@ -99,6 +100,7 @@ namespace Infraestructure.Persistence
             // 5️⃣ Operaciones / Movimientos
             // =========================
             new VentaConfiguration(modelBuilder.Entity<Venta>());
+            new VentaComboConfiguration(modelBuilder.Entity<VentaCombo>());
             new GastoConfiguration(modelBuilder.Entity<Gasto>());
             new CierreTurnoConfiguration(modelBuilder.Entity<CierreTurno>());
             new NumeradorVentaConfiguration(modelBuilder.Entity<NumeradorVenta>());
@@ -115,7 +117,7 @@ namespace Infraestructure.Persistence
             KioscoData.Seed(modelBuilder.Entity<Kiosco>());
             TurnoData.Seed(modelBuilder.Entity<Turno>());
             MetodoPagoData.Seed(modelBuilder.Entity<MetodoDePago>());
-           CategoriaData.Seed(modelBuilder.Entity<Categoria>());
+            CategoriaData.Seed(modelBuilder.Entity<Categoria>());
             EmpleadoData.Seed(modelBuilder.Entity<Empleado>());
             ProductoData.Seed(modelBuilder.Entity<Producto>());
             PermisoData.Seed(modelBuilder.Entity<Permiso>());

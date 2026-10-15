@@ -53,6 +53,7 @@ interface VentaResumen {
   cierreTurnoId: number
   metodoPagoNombre: string; anulada: boolean; empleadoNombre: string
   productos: { productoId: number; productoNombre: string; cantidad: number; precioUnitario: number }[]
+  combos?: { promocionId: number | null; promocionNombre: string; cantidad: number; precioCombo: number }[]
 }
 
 interface Producto {
@@ -195,7 +196,9 @@ const DashboardPage: React.FC = () => {
       setProductosSinMov(sinMovRes.status === 'fulfilled' ? (sinMovRes.value?.productos ?? []) : [])
       setCaja(cajaRes.status === 'fulfilled' ? cajaRes.value : null)
       setTurnos(turnosRes.status === 'fulfilled' && Array.isArray(turnosRes.value) ? turnosRes.value : [])
-      setProductosSinStock(sinStockRes.status === 'fulfilled' && Array.isArray(sinStockRes.value) ? sinStockRes.value : [])
+      const sinStockData = sinStockRes.status === 'fulfilled' && Array.isArray(sinStockRes.value) ? sinStockRes.value : []
+      // Un producto dado de baja no debe figurar como "faltante": ya no se vende.
+      setProductosSinStock(sinStockData.filter((p: Producto) => p.activo))
     } catch (err) {
       console.error('Error cargando dashboard:', err)
     } finally {

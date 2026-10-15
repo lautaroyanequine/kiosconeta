@@ -1605,7 +1605,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$db2RMmzMd327Pgq0snwNfevPc36C0tp/uOjJ/PXcWmXw2WQMgmmP6"
+                            Password = "$2a$11$CJEB3VAjj9VLCWmZuyTCweWraUqCOmKsXMJUs5gvOMCKmSA9gKA/y"
                         });
                 });
 
@@ -1677,6 +1677,40 @@ namespace Infraestructure.Migrations
                     b.HasIndex("TurnoId");
 
                     b.ToTable("Venta", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.VentaCombo", b =>
+                {
+                    b.Property<int>("VentaComboId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VentaComboId"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("PrecioCombo")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("PromocionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PromocionNombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int>("VentaId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("VentaComboId");
+
+                    b.HasIndex("PromocionId");
+
+                    b.HasIndex("VentaId");
+
+                    b.ToTable("VentaCombos");
                 });
 
             modelBuilder.Entity("NumeradorVenta", b =>
@@ -2107,6 +2141,24 @@ namespace Infraestructure.Migrations
                     b.Navigation("Turno");
                 });
 
+            modelBuilder.Entity("Domain.Entities.VentaCombo", b =>
+                {
+                    b.HasOne("Domain.Entities.Promocion", "Promocion")
+                        .WithMany()
+                        .HasForeignKey("PromocionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Domain.Entities.Venta", "Venta")
+                        .WithMany("VentaCombos")
+                        .HasForeignKey("VentaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Promocion");
+
+                    b.Navigation("Venta");
+                });
+
             modelBuilder.Entity("NumeradorVenta", b =>
                 {
                     b.HasOne("Domain.Entities.Kiosco", "Kiosco")
@@ -2206,6 +2258,8 @@ namespace Infraestructure.Migrations
             modelBuilder.Entity("Domain.Entities.Venta", b =>
                 {
                     b.Navigation("ProductoVentas");
+
+                    b.Navigation("VentaCombos");
                 });
 
             modelBuilder.Entity("TipoDeGasto", b =>

@@ -176,6 +176,10 @@ public class VentaService : IVentaService
         decimal descuentoCombos = 0;
         decimal recargoCombos = 0;
 
+        // Registro de qué combos se vendieron (nombre + cantidad), para que el análisis
+        // de productos pueda mostrar el combo como tal además de sus productos sueltos.
+        var ventaCombos = new List<VentaCombo>();
+
         if (dto.Combos != null && dto.Combos.Any())
         {
             // Precarga de productos por tag, para no repetir consultas si un combo
@@ -284,6 +288,14 @@ public class VentaService : IVentaService
                     // Combo más caro → recargo
                     recargoCombos += Math.Abs(diferencia);
                 }
+
+                ventaCombos.Add(new VentaCombo
+                {
+                    PromocionId = promo.PromocionId,
+                    PromocionNombre = promo.Nombre,
+                    Cantidad = comboDto.Cantidad,
+                    PrecioCombo = promo.PrecioCombo.Value
+                });
             }
         }
 
@@ -350,6 +362,7 @@ public class VentaService : IVentaService
             PrecioCosto = costoTotal,
             NumeroVenta = numeroVenta,
             ProductoVentas = productosVenta,
+            VentaCombos = ventaCombos,
             Fecha = DateTime.UtcNow,
             Anulada = false
         };
@@ -458,7 +471,15 @@ public class VentaService : IVentaService
                     pv.Producto?.UnidadMedida ?? UnidadMedida.Unidad,
                     pv.Cantidad,
                     pv.PrecioUnitario)
-            }).ToList() ?? new List<ProductoVentaResponseDTO>()
+            }).ToList() ?? new List<ProductoVentaResponseDTO>(),
+
+            Combos = venta.VentaCombos?.Select(vc => new VentaComboResponseDTO
+            {
+                PromocionId = vc.PromocionId,
+                PromocionNombre = vc.PromocionNombre,
+                Cantidad = vc.Cantidad,
+                PrecioCombo = vc.PrecioCombo
+            }).ToList() ?? new List<VentaComboResponseDTO>()
         };
     }
 

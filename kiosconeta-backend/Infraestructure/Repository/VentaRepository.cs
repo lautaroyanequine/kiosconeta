@@ -25,6 +25,7 @@ namespace Infraestructure.Repository
                 .Include(v => v.Turno)
                 .Include(v => v.ProductoVentas)
                     .ThenInclude(pv => pv.Producto)
+                    .Include(v => v.VentaCombos)
                 .FirstOrDefaultAsync(v => v.VentaId == id);
         }
 
@@ -36,22 +37,24 @@ namespace Infraestructure.Repository
                 .Include(v => v.Turno)
                 .Include(v => v.ProductoVentas)
                     .ThenInclude(pv => pv.Producto)
+                    .Include(v => v.VentaCombos)
                 .OrderByDescending(v => v.Fecha)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Venta>> GetByKioscoIdAsync(int kioscoId)
         {
-                    return await _context.Ventas
-                .Include(v => v.Empleado)
-                .Include(v => v.MetodoPago)
-                .Include(v => v.Turno)
-                .Include(v => v.ProductoVentas)
-                    .ThenInclude(pv => pv.Producto)
-                .Where(v => v.Empleado.KioscoID == kioscoId)
-                .OrderByDescending(v => v.Fecha)
-                .Take(50)           // ← LIMITAR
-                .ToListAsync();
+            return await _context.Ventas
+        .Include(v => v.Empleado)
+        .Include(v => v.MetodoPago)
+        .Include(v => v.Turno)
+        .Include(v => v.ProductoVentas)
+            .ThenInclude(pv => pv.Producto)
+            .Include(v => v.VentaCombos)
+        .Where(v => v.Empleado.KioscoID == kioscoId)
+        .OrderByDescending(v => v.Fecha)
+        .Take(50)           // ← LIMITAR
+        .ToListAsync();
         }
 
         public async Task<IEnumerable<Venta>> GetByEmpleadoIdAsync(int empleadoId)
@@ -62,6 +65,7 @@ namespace Infraestructure.Repository
                 .Include(v => v.Turno)
                 .Include(v => v.ProductoVentas)
                     .ThenInclude(pv => pv.Producto)
+                    .Include(v => v.VentaCombos)
                 .Where(v => v.EmpleadoId == empleadoId)
                 .OrderByDescending(v => v.Fecha)
                 .ToListAsync();
@@ -75,6 +79,7 @@ namespace Infraestructure.Repository
                 .Include(v => v.Turno)
                 .Include(v => v.ProductoVentas)
                     .ThenInclude(pv => pv.Producto)
+                    .Include(v => v.VentaCombos)
                 .Where(v => v.Fecha >= fechaDesde && v.Fecha <= fechaHasta)
                 .OrderByDescending(v => v.Fecha)
                 .ToListAsync();
@@ -91,6 +96,7 @@ namespace Infraestructure.Repository
                 .Include(v => v.Turno)
                 .Include(v => v.ProductoVentas)
                     .ThenInclude(pv => pv.Producto)
+                    .Include(v => v.VentaCombos)
                 .Where(v => v.Empleado.KioscoID == kioscoId
                          && v.Fecha >= hoy
                          && v.Fecha < manana)
@@ -106,6 +112,7 @@ namespace Infraestructure.Repository
         .Include(v => v.Turno)
         .Include(v => v.ProductoVentas)
             .ThenInclude(pv => pv.Producto)
+            .Include(v => v.VentaCombos)
         .Where(v => v.Empleado.KioscoID == kioscoId)
         .AsQueryable();
 
@@ -166,6 +173,7 @@ namespace Infraestructure.Repository
                 return await _context.Ventas
                     .Include(v => v.ProductoVentas)
                     .ThenInclude(pv => pv.Producto)
+                    .Include(v => v.VentaCombos)
                     .FirstAsync(v => v.VentaId == venta.VentaId);
             }
             catch
@@ -174,7 +182,7 @@ namespace Infraestructure.Repository
                 throw;
             }
         }
-        
+
         public async Task<bool> AnularVentaAsync(int ventaId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();

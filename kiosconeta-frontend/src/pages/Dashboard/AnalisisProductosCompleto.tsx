@@ -45,8 +45,20 @@ interface Props {
   productosSinMov: any[]
   productosSinStock: any[]
   stockBajo: any[]
-  desde: Date  
+  desde: Date
   hasta: Date
+}
+
+// Entrada del ranking "Más vendidos": puede ser un producto suelto o un combo.
+// Cuando una venta incluye un combo, el combo aparece como su propia línea
+// (con su nombre) ADEMÁS de que cada producto que lo compone sigue sumando
+// en su propia línea de producto, porque así se graba la venta.
+interface TopProductoItem {
+  key: string
+  nombre: string
+  cantidad: number
+  total: number
+  esCombo: boolean
 }
 
 type SortKey = 'unidadesVendidas' | 'ganancia' | 'margenGanancia' | 'recomendacionCompra' | 'diasStockRestante'
@@ -88,20 +100,20 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
   const [copiado, setCopiado] = useState(false)
 
   const productosConFaltante: ProductoConFaltante[] = React.useMemo(() => {
-    if (productos.length > 0) {
-      // 🔍 TEMPORAL — borrar después de confirmar los nombres de campo reales
-      console.log('DEBUG producto de ejemplo:', productos[0])
-    }
-    return productos.map((p: any) => ({
-      productoId: p.productoId,
-      nombre: p.nombre,
-      categoria: p.categoriaNombre || 'Sin categoría',
-      distribuidor: p.distribuidorNombre || 'Sin distribuidor',
-      stockActual: p.stockActual ?? 0,
-      stockMinimo: p.stockMinimo ?? 0,
-      precioCosto: p.precioCosto ?? 0,
-      faltante: Math.max(0, (p.stockMinimo ?? 0) - (p.stockActual ?? 0)),
-    }))
+    // Un producto dado de baja no se repone: no tiene sentido que aparezca
+    // acá como "faltante" ni que entre en el presupuesto de reposición.
+    return productos
+      .filter((p: any) => p.activo !== false)
+      .map((p: any) => ({
+        productoId: p.productoId,
+        nombre: p.nombre,
+        categoria: p.categoriaNombre || 'Sin categoría',
+        distribuidor: p.distribuidorNombre || 'Sin distribuidor',
+        stockActual: p.stockActual ?? 0,
+        stockMinimo: p.stockMinimo ?? 0,
+        precioCosto: p.precioCosto ?? 0,
+        faltante: Math.max(0, (p.stockMinimo ?? 0) - (p.stockActual ?? 0)),
+      }))
   }, [productos])
 
   const categorias = React.useMemo(() =>
@@ -477,14 +489,28 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
   const [busqueda, setBusqueda] = useState('')
   const [cargado, setCargado]   = useState(false)
 
-  // Top productos del período actual (desde ventasFiltradas del dashboard)
+  // Top productos del período actual (desde ventasFiltradas del dashboard).
+  // Los productos del combo ya vienen sumando como líneas sueltas (así se graban);
+  // acá además agregamos el combo como su propia línea con su nombre, para que
+  // el combo en sí también sea visible en el ranking, no solo sus componentes.
   const topProductos = React.useMemo(() => {
-    const mapa: Record<number, { nombre: string; cantidad: number; total: number }> = {}
-    ventasFiltradas.forEach(v => v.productos?.forEach((p: any) => {
-      if (!mapa[p.productoId]) mapa[p.productoId] = { nombre: p.productoNombre, cantidad: 0, total: 0 }
-      mapa[p.productoId].cantidad += p.cantidad
-      mapa[p.productoId].total += p.precioUnitario * p.cantidad
-    }))
+    const mapa: Record<string, TopProductoItem> = {}
+
+    ventasFiltradas.forEach(v => {
+      v.productos?.forEach((p: any) => {
+        const key = `p-${p.productoId}`
+        if (!mapa[key]) mapa[key] = { key, nombre: p.productoNombre, cantidad: 0, total: 0, esCombo: false }
+        mapa[key].cantidad += p.cantidad
+        mapa[key].total += p.precioUnitario * p.cantidad
+      })
+      v.combos?.forEach((c: any) => {
+        const key = `c-${c.promocionId ?? c.promocionNombre}`
+        if (!mapa[key]) mapa[key] = { key, nombre: c.promocionNombre, cantidad: 0, total: 0, esCombo: true }
+        mapa[key].cantidad += c.cantidad
+        mapa[key].total += (c.precioCombo ?? 0) * c.cantidad
+      })
+    })
+
     return Object.values(mapa).sort((a, b) => b.cantidad - a.cantidad)
   }, [ventasFiltradas])
 
@@ -626,7 +652,7 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
           ) : (
             <div className="space-y-2.5 max-h-80 overflow-y-auto">
               {topProductos.map((p, i) => (
-                <div key={i} className="flex items-center gap-3">
+                <div key={p.key} className="flex items-center gap-3">
                   <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0
                     ${i === 0 ? 'bg-warning-100 text-warning-700'
                     : i === 1 ? 'bg-neutral-200 text-neutral-600'
@@ -636,7 +662,14 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs font-medium text-neutral-800 truncate">{p.nombre}</p>
+                      <p className="text-xs font-medium text-neutral-800 truncate flex items-center gap-1.5">
+                        {p.esCombo && (
+                          <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-blue-50 text-blue-600 border border-blue-200 rounded-full px-1.5 py-0.5">
+                            Combo
+                          </span>
+                        )}
+                        <span className="truncate">{p.nombre}</span>
+                      </p>
                       <div className="flex items-center gap-2 shrink-0 ml-2">
                         <span className="text-xs text-neutral-400">{formatCurrency(p.total)}</span>
                         <span className="text-xs font-bold text-primary">{p.cantidad}u</span>
@@ -644,7 +677,7 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
                     </div>
                     <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                       <div className={`h-full rounded-full transition-all
-                        ${i === 0 ? 'bg-primary' : i < 3 ? 'bg-primary/60' : 'bg-primary/30'}`}
+                        ${p.esCombo ? 'bg-blue-400' : i === 0 ? 'bg-primary' : i < 3 ? 'bg-primary/60' : 'bg-primary/30'}`}
                         style={{ width: `${(p.cantidad / maxCantidad) * 100}%` }} />
                     </div>
                   </div>
@@ -665,9 +698,16 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
             <p className="text-sm text-neutral-400 text-center py-6">Sin ventas en el período</p>
           ) : (
             <div className="space-y-2 max-h-80 overflow-y-auto">
-              {[...topProductos].reverse().map((p, i) => (
-                <div key={i} className="flex items-center justify-between py-2 border-b border-neutral-50">
-                  <p className="text-sm text-neutral-700 truncate flex-1">{p.nombre}</p>
+              {[...topProductos].reverse().map((p) => (
+                <div key={p.key} className="flex items-center justify-between py-2 border-b border-neutral-50">
+                  <p className="text-sm text-neutral-700 truncate flex-1 flex items-center gap-1.5">
+                    {p.esCombo && (
+                      <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-blue-50 text-blue-600 border border-blue-200 rounded-full px-1.5 py-0.5">
+                        Combo
+                      </span>
+                    )}
+                    <span className="truncate">{p.nombre}</span>
+                  </p>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <span className="text-xs text-neutral-400">{formatCurrency(p.total)}</span>
                     <span className="text-sm font-semibold text-warning-700">{p.cantidad}u</span>
