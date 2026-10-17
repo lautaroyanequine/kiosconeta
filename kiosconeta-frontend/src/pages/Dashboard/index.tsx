@@ -178,17 +178,14 @@ const DashboardPage: React.FC = () => {
     setLoading(true)
     const id = user.kioscoId
     try {
-      const [ventasRes, productosRes, sinMovRes, cajaRes, turnosRes, sinStockRes] = await Promise.allSettled([
-        apiClient.post(`/Ventas/kiosco/${id}/buscar`, {}).then(r => handleResponse(r)),
+      const [, productosRes, sinMovRes, cajaRes, turnosRes, sinStockRes] = await Promise.allSettled([
+        Promise.resolve([]), // las ventas se cargan aparte, según el período elegido
         apiClient.get(`/Productos/kiosco/${id}`).then(r => handleResponse(r)),
         apiClient.get(`/Productos/kiosco/${id}/sin-movimiento?dias=30`).then(r => handleResponse(r)),
         apiClient.get(`/Caja/kiosco/${id}`).then(r => handleResponse(r)),
         apiClient.get(`/CierreTurnos/kiosco/${id}`).then(r => handleResponse(r)),
         apiClient.get(`/Productos/kiosco/${id}/sin-stock`).then(r => handleResponse(r)),
       ])
-
-      const ventasData = ventasRes.status === 'fulfilled' ? ventasRes.value : []
-      setVentas(Array.isArray(ventasData) ? ventasData : (ventasData?.data || ventasData?.items || []))
 
       const productosData = productosRes.status === 'fulfilled' ? productosRes.value : []
       setProductos(Array.isArray(productosData) ? productosData : (productosData?.data || productosData?.items || []))
@@ -218,6 +215,27 @@ const DashboardPage: React.FC = () => {
       .then(res => setMetricas(handleResponse(res)))
       .catch(err => console.error('Error métricas período:', err))
       .finally(() => setLoadingMetricas(false))
+  }, [desde, hasta, user?.kioscoId])
+
+  // ── Ventas del período elegido ────────────────────────────────────────────
+  // El endpoint /buscar pagina de a 20 por defecto: sin pedir el período y un
+  // tamaño de página grande, el dashboard solo veía las últimas 20 ventas.
+  useEffect(() => {
+    if (!user?.kioscoId) return
+    const d = new Date(desde); d.setDate(d.getDate() - 1)   // margen por zona horaria
+    const h = new Date(hasta); h.setDate(h.getDate() + 1)
+    apiClient
+      .post(`/Ventas/kiosco/${user.kioscoId}/buscar`, {
+        fechaDesde: d.toISOString(),
+        fechaHasta: h.toISOString(),
+        pagina: 1,
+        tamanoPagina: 20000,
+      })
+      .then(r => {
+        const data = handleResponse(r)
+        setVentas(Array.isArray(data) ? data : (data?.data || data?.items || []))
+      })
+      .catch(err => console.error('Error cargando ventas del período:', err))
   }, [desde, hasta, user?.kioscoId])
 
   // ── Ventas filtradas (para análisis de productos y charts) ────────────────

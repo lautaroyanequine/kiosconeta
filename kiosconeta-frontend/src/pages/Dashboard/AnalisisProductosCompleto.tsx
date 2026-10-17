@@ -98,7 +98,16 @@ interface TopProductoItem {
   cantidad: number
   total: number
   esCombo: boolean
+  // Producto por peso: `cantidad` ya está en KILOS (la venta lo guarda en gramos).
+  esKilo?: boolean
 }
+
+const esUnidadKilo = (u: any) => u === 1 || u === 'Kilogramo'
+
+const formatCantidadRanking = (item: { cantidad: number; esKilo?: boolean }) =>
+  item.esKilo
+    ? `${item.cantidad.toLocaleString('es-AR', { maximumFractionDigits: 2 })} kg`
+    : `${item.cantidad}u`
 
 type SortKey = 'unidadesVendidas' | 'ganancia' | 'margenGanancia' | 'recomendacionCompra' | 'diasStockRestante'
 type Periodo = 7 | 30 | 90
@@ -538,9 +547,14 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
     ventasFiltradas.forEach(v => {
       v.productos?.forEach((p: any) => {
         const key = `p-${p.productoId}`
-        if (!mapa[key]) mapa[key] = { key, nombre: p.productoNombre, cantidad: 0, total: 0, esCombo: false }
-        mapa[key].cantidad += p.cantidad
-        mapa[key].total += p.precioUnitario * p.cantidad
+        const esKilo = esUnidadKilo(p.unidadMedida)
+        if (!mapa[key]) mapa[key] = { key, nombre: p.productoNombre, cantidad: 0, total: 0, esCombo: false, esKilo }
+        // Por kilo: Cantidad viene en gramos y el precio es por kilo, así que
+        // se muestra en kg y el total sale del subtotal ya calculado por el backend.
+        mapa[key].cantidad += esKilo ? p.cantidad / 1000 : p.cantidad
+        mapa[key].total += p.subtotal ?? (esKilo
+          ? (p.precioUnitario * p.cantidad) / 1000
+          : p.precioUnitario * p.cantidad)
       })
       v.combos?.forEach((c: any) => {
         const key = `c-${c.promocionId ?? c.promocionNombre}`
@@ -552,6 +566,28 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
 
     return Object.values(mapa).sort((a, b) => b.cantidad - a.cantidad)
   }, [ventasFiltradas])
+
+  // Menor rotación: todos los productos ACTIVOS (incluidos los que no se
+  // vendieron nada en el período, que son los de menor rotación de verdad),
+  // más los combos vendidos, de menos a más vendido.
+  const menorRotacion = React.useMemo(() => {
+    const vendidos = new Map(topProductos.map(t => [t.key, t]))
+    const lista: TopProductoItem[] = []
+    productos.forEach((pr: any) => {
+      if (pr.activo === false) return
+      const key = `p-${pr.productoId}`
+      const v = vendidos.get(key)
+      lista.push(v ?? {
+        key, nombre: pr.nombre, cantidad: 0, total: 0, esCombo: false,
+        esKilo: esUnidadKilo(pr.unidadMedida),
+      })
+      vendidos.delete(key)
+    })
+    // Lo vendido que no está en la lista de productos activos (combos, o
+    // productos dados de baja) se agrega solo si es combo.
+    vendidos.forEach(v => { if (v.esCombo) lista.push(v) })
+    return lista.sort((a, b) => a.cantidad - b.cantidad || a.nombre.localeCompare(b.nombre))
+  }, [topProductos, productos])
 
   const maxCantidad = topProductos[0]?.cantidad ?? 1
 
@@ -751,7 +787,7 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
                       </p>
                       <div className="flex items-center gap-2 shrink-0 ml-2">
                         <span className="text-xs text-neutral-400">{formatCurrency(p.total)}</span>
-                        <span className="text-xs font-bold text-primary">{p.cantidad}u</span>
+                        <span className="text-xs font-bold text-primary">{formatCantidadRanking(p)}</span>
                       </div>
                     </div>
                     <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
@@ -773,11 +809,11 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
               Menor rotación (período seleccionado)
             </h3>
           </div>
-          {topProductos.length === 0 ? (
+          {menorRotacion.length === 0 ? (
             <p className="text-sm text-neutral-400 text-center py-6">Sin ventas en el período</p>
           ) : (
             <div className="space-y-2 max-h-80 overflow-y-auto">
-              {[...topProductos].reverse().map((p) => (
+              {menorRotacion.map((p) => (
                 <div key={p.key} className="flex items-center justify-between py-2 border-b border-neutral-50">
                   <p className="text-sm text-neutral-700 truncate flex-1 flex items-center gap-1.5">
                     {p.esCombo && (
@@ -789,7 +825,7 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
                   </p>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <span className="text-xs text-neutral-400">{formatCurrency(p.total)}</span>
-                    <span className="text-sm font-semibold text-warning-700">{p.cantidad}u</span>
+                    <span className="text-sm font-semibold text-warning-700">{formatCantidadRanking(p)}</span>
                   </div>
                 </div>
               ))}
