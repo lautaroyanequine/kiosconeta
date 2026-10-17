@@ -28,5 +28,12 @@
 
         /// <summary>Precio unitario del combo en el momento de la venta.</summary>
         public decimal PrecioCombo { get; set; }
+
+        /// <summary>
+        /// Costo REAL de los productos que se llevó el cliente por estos Cantidad combos,
+        /// al momento de la venta. Null en ventas anteriores a este campo (ahí el análisis
+        /// cae a una estimación con costos actuales).
+        /// </summary>
+        public decimal? CostoTotal { get; set; }
     }
 }

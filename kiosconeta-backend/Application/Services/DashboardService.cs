@@ -16,6 +16,7 @@ namespace Application.Services
         private readonly IProductoVentaRepository _productoVentaRepository;
         private readonly ICierreTurnoRepository _cierreTurnoRepository;
         private readonly IAuditoriaRepository _auditoriaRepository;
+        private readonly IPromocionRepository _promocionRepository;
 
         public DashboardService(
             IVentaRepository ventaRepository,
@@ -23,7 +24,8 @@ namespace Application.Services
             IProductoRepository productoRepository,
             IProductoVentaRepository productoVentaRepository,
             ICierreTurnoRepository cierreTurnoRepository,
-            IAuditoriaRepository auditoriaRepository)
+            IAuditoriaRepository auditoriaRepository,
+            IPromocionRepository promocionRepository)
         {
             _ventaRepository = ventaRepository;
             _gastoRepository = gastoRepository;
@@ -31,6 +33,7 @@ namespace Application.Services
             _productoVentaRepository = productoVentaRepository;
             _cierreTurnoRepository = cierreTurnoRepository;
             _auditoriaRepository = auditoriaRepository;
+            _promocionRepository = promocionRepository;
         }
 
         // ═══════════════════════════════════════════════════
@@ -174,6 +177,113 @@ namespace Application.Services
             // 2. Traemos las ventas del período
             var ventas = await _productoVentaRepository.GetByKioscoYPeriodoAsync(kioscoId, fechaDesde, fechaHasta);
 
+            // 2b. Combos vendidos en el período (sus productos componentes ya están
+            // contados arriba, cada uno por separado — esto solo agrega el combo como tal).
+            var ventasDelPeriodo = (await _ventaRepository.GetByFechaAsync(fechaDesde, fechaHasta))
+                .Where(v => v.Empleado.KioscoID == kioscoId && !v.Anulada)
+                .ToList();
+
+            var combosVendidos = new List<AnalisisComboDTO>();
+
+            var gruposCombos = ventasDelPeriodo
+                .SelectMany(v => (v.VentaCombos ?? new List<VentaCombo>())
+                    .Select(vc => new { Venta = v, Combo = vc }))
+                .GroupBy(x => new { x.Combo.PromocionId, x.Combo.PromocionNombre })
+                .OrderByDescending(g => g.Sum(x => x.Combo.Cantidad));
+
+            foreach (var g in gruposCombos)
+            {
+                var cantidad = g.Sum(x => x.Combo.Cantidad);
+                var ingresosCombo = g.Sum(x => x.Combo.Cantidad * x.Combo.PrecioCombo);
+                var promDiarioCombo = (decimal)cantidad / diasAnalizados;
+
+                var dto = new AnalisisComboDTO
+                {
+                    PromocionId = g.Key.PromocionId,
+                    Nombre = g.Key.PromocionNombre,
+                    CantidadVendida = cantidad,
+                    TotalIngresos = ingresosCombo,
+                    PromedioVentasDiarias = Math.Round(promDiarioCombo, 2),
+                    UltimaVenta = g.Max(x => x.Venta.Fecha)
+                };
+
+                // Ganancia REAL: las ventas nuevas guardan el costo exacto del combo al momento
+                // de la venta. Solo las anteriores a ese dato (CostoTotal null) se estiman.
+                var filasSinCosto = g.Where(x => !x.Combo.CostoTotal.HasValue).ToList();
+                var costoReal = g.Where(x => x.Combo.CostoTotal.HasValue).Sum(x => x.Combo.CostoTotal!.Value);
+                if (!filasSinCosto.Any())
+                {
+                    var gananciaReal = ingresosCombo - costoReal;
+                    dto.Ganancia = gananciaReal;
+                    dto.MargenGanancia = ingresosCombo > 0 ? Math.Round(gananciaReal / ingresosCombo * 100, 1) : 0;
+                    dto.GananciaEsEstimada = false;
+                }
+
+                // Stock (y estimación de costo para ventas viejas) con la definición ACTUAL del combo.
+                if (g.Key.PromocionId.HasValue)
+                {
+                    var promo = await _promocionRepository.GetByIdAsync(g.Key.PromocionId.Value);
+                    if (promo?.PromocionProductos != null && promo.PromocionProductos.Any())
+                    {
+                        var idsFijos = promo.PromocionProductos
+                            .Where(pp => pp.ProductoId.HasValue)
+                            .Select(pp => pp.ProductoId!.Value)
+                            .Distinct().ToList();
+                        var prodsFijos = (await _productoRepository.GetByIdsAsync(idsFijos))
+                            .ToDictionary(x => x.ProductoId);
+
+                        decimal costoUnitario = 0;
+                        bool estimado = false, datosCompletos = true;
+                        int? combosArmables = null;
+
+                        foreach (var pp in promo.PromocionProductos)
+                        {
+                            Producto? prod = null;
+                            int stockDisponible;
+
+                            if (pp.ProductoId.HasValue && prodsFijos.TryGetValue(pp.ProductoId.Value, out var pf))
+                            {
+                                prod = pf;
+                                stockDisponible = pf.StockActual;
+                            }
+                            else if (pp.TagId.HasValue)
+                            {
+                                var delTag = (await _productoRepository.GetByTagAsync(pp.TagId.Value)).ToList();
+                                prod = delTag.OrderBy(c => c.PrecioCosto).FirstOrDefault();
+                                stockDisponible = delTag.Sum(c => c.StockActual);
+                                estimado = true;
+                            }
+                            else { datosCompletos = false; break; }
+
+                            if (prod == null || pp.Cantidad <= 0) { datosCompletos = false; break; }
+
+                            costoUnitario += CalcularImporte(prod.UnidadMedida, pp.Cantidad, prod.PrecioCosto);
+
+                            var armables = stockDisponible / pp.Cantidad;
+                            combosArmables = combosArmables.HasValue ? Math.Min(combosArmables.Value, armables) : armables;
+                        }
+
+                        if (datosCompletos)
+                        {
+                            if (filasSinCosto.Any())
+                            {
+                                var cantidadSinCosto = filasSinCosto.Sum(x => x.Combo.Cantidad);
+                                var gananciaEst = ingresosCombo - costoReal - costoUnitario * cantidadSinCosto;
+                                dto.Ganancia = gananciaEst;
+                                dto.MargenGanancia = ingresosCombo > 0 ? Math.Round(gananciaEst / ingresosCombo * 100, 1) : 0;
+                                dto.GananciaEsEstimada = true; // parte del costo es el actual, no el histórico
+                            }
+                            dto.StockActual = combosArmables;
+                            dto.DiasStockRestante = combosArmables.HasValue
+                                ? (promDiarioCombo > 0 ? Math.Round(combosArmables.Value / promDiarioCombo, 1) : 999)
+                                : null;
+                        }
+                    }
+                }
+
+                combosVendidos.Add(dto);
+            }
+
             // 3. Optimizamos: Agrupamos ventas en un diccionario por ProductoId para acceso rápido
             var ventasLookup = ventas
                 .GroupBy(v => v.ProductoId)
@@ -240,7 +350,8 @@ namespace Application.Services
                 TotalIngresos = detalleProductos.Sum(p => p.TotalIngresos),
                 TotalGanancia = detalleProductos.Sum(p => p.Ganancia),
                 TotalInversionNecesaria = detalleProductos.Sum(p => p.CostoTotalRecomendado),
-                Productos = detalleProductos
+                Productos = detalleProductos,
+                Combos = combosVendidos
             };
         }
 

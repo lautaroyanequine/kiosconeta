@@ -54,6 +54,33 @@
         public DateTime? UltimaVenta { get; set; }
     }
 
+    // Combo vendido en el período, agregado por promoción (nombre + cantidad + ingresos).
+    // Sus productos componentes YA están contados, cada uno por separado, dentro de
+    // AnalisisProductoDTO (así se graba la venta): esto solo agrega el combo como tal,
+    // por eso no tiene StockActual/DiasStockRestante propios (no son "un producto").
+    public class AnalisisComboDTO
+    {
+        public int? PromocionId { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public int CantidadVendida { get; set; }
+        public decimal TotalIngresos { get; set; }
+
+        public decimal PromedioVentasDiarias { get; set; }
+        public DateTime? UltimaVenta { get; set; }
+
+        // Ganancia/margen ESTIMADOS con los costos actuales de los productos del combo
+        // (VentaCombo solo guarda el precio de venta, no el costo al momento de la venta).
+        // Null si la promoción ya no existe o no hay datos suficientes.
+        public decimal? Ganancia { get; set; }
+        public decimal? MargenGanancia { get; set; }
+        public bool GananciaEsEstimada { get; set; }
+
+        // "Stock" del combo = cuántos combos se pueden armar hoy con el stock actual
+        // (limita el componente más escaso). Null si no se puede calcular.
+        public int? StockActual { get; set; }
+        public decimal? DiasStockRestante { get; set; }
+    }
+
     public class AnalisisProductosResponseDTO
     {
         public int DiasAnalizados { get; set; }
@@ -64,5 +91,6 @@
         public decimal TotalGanancia { get; set; }
         public decimal TotalInversionNecesaria { get; set; }
         public List<AnalisisProductoDTO> Productos { get; set; } = new();
+        public List<AnalisisComboDTO> Combos { get; set; } = new();
     }
 }

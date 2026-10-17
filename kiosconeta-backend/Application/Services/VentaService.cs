@@ -222,6 +222,7 @@ public class VentaService : IVentaService
                     continue;
 
                 decimal sumaUnitariosCombo = 0;
+                decimal costoRealCombo = 0; // costo de lo que realmente se llevó, al momento de la venta
                 bool comboIncompleto = false;
 
                 foreach (var pp in promo.PromocionProductos)
@@ -234,6 +235,7 @@ public class VentaService : IVentaService
                             break;
                         }
                         sumaUnitariosCombo += CalcularImporteItem(prod.UnidadMedida, pp.Cantidad * comboDto.Cantidad, prod.PrecioVenta);
+                        costoRealCombo += CalcularImporteItem(prod.UnidadMedida, pp.Cantidad * comboDto.Cantidad, prod.PrecioCosto);
                     }
                     else if (pp.TagId != null)
                     {
@@ -246,20 +248,24 @@ public class VentaService : IVentaService
                         // Los productos por kilo quedan afuera de este pool: su "cantidad"
                         // son gramos, no unidades discretas — Enumerable.Repeat con miles
                         // de gramos no tiene sentido y puede generar listas gigantes.
-                        var preciosDisponibles = dto.Productos
+                        var unidadesDisponibles = dto.Productos
                             .Where(p => idsTag.Contains(p.ProductoId) && productosDict.ContainsKey(p.ProductoId)
                                         && productosDict[p.ProductoId].UnidadMedida != UnidadMedida.Kilogramo)
-                            .SelectMany(p => Enumerable.Repeat(productosDict[p.ProductoId].PrecioVenta, p.Cantidad))
-                            .OrderBy(precio => precio)
+                            .SelectMany(p => Enumerable.Repeat(
+                                new { Precio = productosDict[p.ProductoId].PrecioVenta, Costo = productosDict[p.ProductoId].PrecioCosto },
+                                p.Cantidad))
+                            .OrderBy(u => u.Precio)
                             .ToList();
 
                         var necesarias = pp.Cantidad * comboDto.Cantidad;
-                        if (preciosDisponibles.Count < necesarias)
+                        if (unidadesDisponibles.Count < necesarias)
                         {
                             comboIncompleto = true;
                             break;
                         }
-                        sumaUnitariosCombo += preciosDisponibles.Take(necesarias).Sum();
+                        var elegidas = unidadesDisponibles.Take(necesarias).ToList();
+                        sumaUnitariosCombo += elegidas.Sum(u => u.Precio);
+                        costoRealCombo += elegidas.Sum(u => u.Costo);
                     }
                     else
                     {
@@ -294,7 +300,8 @@ public class VentaService : IVentaService
                     PromocionId = promo.PromocionId,
                     PromocionNombre = promo.Nombre,
                     Cantidad = comboDto.Cantidad,
-                    PrecioCombo = promo.PrecioCombo.Value
+                    PrecioCombo = promo.PrecioCombo.Value,
+                    CostoTotal = costoRealCombo
                 });
             }
         }

@@ -17,6 +17,9 @@ namespace Infraestructure.Persistence.Configurations
             builder.Property(vc => vc.PrecioCombo)
                 .HasColumnType("decimal(18,2)");
 
+            builder.Property(vc => vc.CostoTotal)
+                .HasColumnType("decimal(18,2)");
+
             builder.HasOne(vc => vc.Venta)
                 .WithMany(v => v.VentaCombos)
                 .HasForeignKey(vc => vc.VentaId)

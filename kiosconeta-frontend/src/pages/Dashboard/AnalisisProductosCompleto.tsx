@@ -30,6 +30,23 @@ interface AnalisisProducto {
   ultimaVenta?: string
 }
 
+// Combo vendido en el período (backend: AnalisisComboDTO). Sus productos
+// componentes ya están contados cada uno por separado dentro de `productos`
+// (así se graba la venta) — esto agrega el combo como su propia línea.
+interface AnalisisCombo {
+  promocionId: number | null
+  nombre: string
+  cantidadVendida: number
+  totalIngresos: number
+  promedioVentasDiarias: number
+  ultimaVenta?: string | null
+  ganancia?: number | null
+  margenGanancia?: number | null
+  gananciaEsEstimada?: boolean
+  stockActual?: number | null
+  diasStockRestante?: number | null
+}
+
 interface AnalisisResponse {
   diasAnalizados: number
   totalProductosVendidos: number
@@ -37,6 +54,28 @@ interface AnalisisResponse {
   totalGanancia: number
   totalInversionNecesaria: number
   productos: AnalisisProducto[]
+  combos: AnalisisCombo[]
+}
+
+// Fila unificada para la tabla "Análisis detallado por producto": puede ser
+// un producto suelto o un combo. Un combo no tiene stock/costo propio (es un
+// conjunto de productos), así que esos campos quedan null y se muestran "—".
+interface FilaAnalisis {
+  key: string
+  nombre: string
+  categoria: string
+  unidadesVendidas: number
+  totalIngresos: number
+  ganancia: number | null
+  margenGanancia: number | null
+  gananciaEsEstimada?: boolean
+  stockActual: number | null
+  diasStockRestante: number | null
+  promedioVentasDiarias: number | null
+  ultimaVenta?: string
+  recomendacionCompra: number | null
+  costoTotalRecomendado: number | null
+  esCombo: boolean
 }
 
 interface Props {
@@ -543,10 +582,50 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
     else { setSortKey(key); setSortAsc(false) }
   }
 
-  const productosFiltrados = (data?.productos ?? [])
+  // Productos y combos del período, unificados en una sola lista de filas.
+  const filasAnalisis: FilaAnalisis[] = React.useMemo(() => {
+    const filasProductos: FilaAnalisis[] = (data?.productos ?? []).map(p => ({
+      key: `p-${p.productoId}`,
+      nombre: p.nombre,
+      categoria: p.categoria,
+      unidadesVendidas: p.unidadesVendidas,
+      totalIngresos: p.totalIngresos,
+      ganancia: p.ganancia,
+      margenGanancia: p.margenGanancia,
+      stockActual: p.stockActual,
+      diasStockRestante: p.diasStockRestante,
+      promedioVentasDiarias: p.promedioVentasDiarias,
+      ultimaVenta: p.ultimaVenta,
+      recomendacionCompra: p.recomendacionCompra,
+      costoTotalRecomendado: p.costoTotalRecomendado,
+      esCombo: false,
+    }))
+
+    const filasCombos: FilaAnalisis[] = (data?.combos ?? []).map(c => ({
+      key: `c-${c.promocionId ?? c.nombre}`,
+      nombre: c.nombre,
+      categoria: 'Combo',
+      unidadesVendidas: c.cantidadVendida,
+      totalIngresos: c.totalIngresos,
+      ganancia: c.ganancia ?? null,
+      margenGanancia: c.margenGanancia ?? null,
+      gananciaEsEstimada: c.gananciaEsEstimada ?? false,
+      stockActual: c.stockActual ?? null,
+      diasStockRestante: c.diasStockRestante ?? null,
+      promedioVentasDiarias: c.promedioVentasDiarias,
+      ultimaVenta: c.ultimaVenta ?? undefined,
+      recomendacionCompra: null,
+      costoTotalRecomendado: null,
+      esCombo: true,
+    }))
+
+    return [...filasProductos, ...filasCombos]
+  }, [data])
+
+  const productosFiltrados = filasAnalisis
     .filter(p => p.nombre.toLowerCase().includes(busqueda.toLowerCase()))
     .sort((a, b) => {
-      const diff = a[sortKey] - b[sortKey]
+      const diff = (a[sortKey] ?? 0) - (b[sortKey] ?? 0)
       return sortAsc ? diff : -diff
     })
 
@@ -830,43 +909,62 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
               <tbody className="divide-y divide-neutral-100">
                 {productosFiltrados.map(p => (
                   <tr
-                    key={p.productoId}
-                    className="hover:bg-neutral-50 transition-colors cursor-pointer"
-                    onClick={() => setProductoSeleccionado(p)}
-                  >                    <td className="px-4 py-3 font-medium text-neutral-800 sticky left-0 bg-white">{p.nombre}</td>
+                    key={p.key}
+                    className={`transition-colors ${p.esCombo ? 'bg-blue-50/40 hover:bg-blue-50/70' : 'hover:bg-neutral-50 cursor-pointer'}`}
+                    onClick={() => { if (!p.esCombo) setProductoSeleccionado(p as any) }}
+                  >
+                    <td className={`px-4 py-3 font-medium text-neutral-800 sticky left-0 ${p.esCombo ? 'bg-blue-50/40' : 'bg-white'}`}>
+                      <span className="flex items-center gap-1.5">
+                        {p.esCombo && (
+                          <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-blue-50 text-blue-600 border border-blue-200 rounded-full px-1.5 py-0.5">
+                            Combo
+                          </span>
+                        )}
+                        {p.nombre}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-neutral-400">{p.categoria}</td>
                     <td className="px-4 py-3 text-right font-bold text-neutral-800">{p.unidadesVendidas}</td>
                     <td className="px-4 py-3 text-right text-neutral-600">{formatCurrency(p.totalIngresos)}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-success-700">{formatCurrency(p.ganancia)}</td>
-                    <td className="px-4 py-3 text-right">
-                      <span className={`px-2 py-0.5 rounded-full font-semibold text-xs
-                        ${p.margenGanancia >= 30 ? 'bg-success-50 text-success-700'
-                        : p.margenGanancia >= 10 ? 'bg-warning-50 text-warning-700'
-                        : 'bg-danger-50 text-danger'}`}>
-                        {p.margenGanancia}%
-                      </span>
+                    <td className="px-4 py-3 text-right font-semibold text-success-700">
+                      {p.ganancia != null ? formatCurrency(p.ganancia) : '—'}
+                      {p.ganancia != null && p.gananciaEsEstimada && (
+                        <span className="ml-1 text-[10px] font-normal text-neutral-400" title="Calculada con costos actuales (venta anterior al registro del costo real)">est.</span>
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold text-neutral-600">{p.stockActual}</td>
                     <td className="px-4 py-3 text-right">
-                      <span className={`px-2 py-0.5 rounded-full font-semibold text-xs ${diasStockColor(p.diasStockRestante)}`}>
-                        {p.diasStockRestante >= 999 ? '∞' : `${p.diasStockRestante}d`}
-                      </span>
+                      {p.margenGanancia != null ? (
+                        <span className={`px-2 py-0.5 rounded-full font-semibold text-xs
+                          ${p.margenGanancia >= 30 ? 'bg-success-50 text-success-700'
+                          : p.margenGanancia >= 10 ? 'bg-warning-50 text-warning-700'
+                          : 'bg-danger-50 text-danger'}`}>
+                          {p.margenGanancia}%
+                        </span>
+                      ) : '—'}
                     </td>
-                    <td className="px-4 py-3 text-right text-neutral-400">{p.promedioVentasDiarias}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-neutral-600">{p.stockActual ?? '—'}</td>
+                    <td className="px-4 py-3 text-right">
+                      {p.diasStockRestante != null ? (
+                        <span className={`px-2 py-0.5 rounded-full font-semibold text-xs ${diasStockColor(p.diasStockRestante)}`}>
+                          {p.diasStockRestante >= 999 ? '∞' : `${p.diasStockRestante}d`}
+                        </span>
+                      ) : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-right text-neutral-400">{p.promedioVentasDiarias ?? '—'}</td>
                     <td className="px-4 py-3 text-right text-neutral-400">
                       {p.ultimaVenta
                         ? new Date(p.ultimaVenta).toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit' })
                         : '—'}
-                        
                     </td>
-                    
                     <td className="px-4 py-3 text-right">
-                      <span className="bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-lg">
-                        {p.recomendacionCompra}u
-                      </span>
+                      {p.recomendacionCompra != null ? (
+                        <span className="bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-lg">
+                          {p.recomendacionCompra}u
+                        </span>
+                      ) : '—'}
                     </td>
                     <td className="px-4 py-3 text-right font-semibold text-warning-700">
-                      {formatCurrency(p.costoTotalRecomendado)}
+                      {p.costoTotalRecomendado != null ? formatCurrency(p.costoTotalRecomendado) : '—'}
                     </td>
                   </tr>
                 ))}

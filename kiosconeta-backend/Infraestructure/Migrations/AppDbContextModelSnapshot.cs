@@ -1605,7 +1605,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$CJEB3VAjj9VLCWmZuyTCweWraUqCOmKsXMJUs5gvOMCKmSA9gKA/y"
+                            Password = "$2a$11$4PbqbknydbueGJIohmC4sO8wog/WqXFm1xQ0Pixl9ToNDBM51gMGG"
                         });
                 });
 
@@ -1689,6 +1689,9 @@ namespace Infraestructure.Migrations
 
                     b.Property<int>("Cantidad")
                         .HasColumnType("integer");
+
+                    b.Property<decimal?>("CostoTotal")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("PrecioCombo")
                         .HasColumnType("decimal(18,2)");
