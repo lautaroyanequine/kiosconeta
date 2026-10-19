@@ -13,6 +13,7 @@
         public const string TurnoAbierto = "TURNO_ABIERTO";
         public const string TurnoCerrado = "TURNO_CERRADO";
         public const string TurnoCerradoConDiferencia = "TURNO_DIFERENCIA";
+        public const string TurnoEliminado = "TURNO_ELIMINADO";
 
         // Gastos
         public const string GastoCreado = "GASTO_CREADO";

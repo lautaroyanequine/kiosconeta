@@ -103,6 +103,7 @@ namespace Infraestructure.Repository
                 // Sin Include de Ventas — se calculan aparte
                 .Where(ct => ct.KioscoId == kioscoId)
                 .OrderByDescending(ct => ct.FechaApertura)
+                .ThenByDescending(ct => ct.CierreTurnoId)   // orden estable: sin esto, empates de fecha pueden repetir/saltear turnos entre páginas
                 .Skip((pagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
                 .ToListAsync();
@@ -158,6 +159,25 @@ namespace Infraestructure.Repository
             await _context.SaveChangesAsync();
             return await GetByIdAsync(cierreTurno.CierreTurnoId)
                 ?? throw new Exception("Error al recargar cierre de turno");
+        }
+
+        public async Task<bool> TieneVentasAsync(int cierreTurnoId)
+        {
+            return await _context.Ventas.AnyAsync(v => v.CierreTurnoId == cierreTurnoId);
+        }
+
+        public async Task DeleteAsync(int cierreTurnoId)
+        {
+            var empleados = await _context.CierreTurnoEmpleados
+                .Where(cte => cte.CierreTurnoId == cierreTurnoId)
+                .ToListAsync();
+            _context.CierreTurnoEmpleados.RemoveRange(empleados);
+
+            var cierre = await _context.CierresTurno.FindAsync(cierreTurnoId);
+            if (cierre != null)
+                _context.CierresTurno.Remove(cierre);
+
+            await _context.SaveChangesAsync();
         }
 
         // ========== VALIDACIONES ==========

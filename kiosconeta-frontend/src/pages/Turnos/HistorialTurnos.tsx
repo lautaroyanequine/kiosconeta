@@ -4,7 +4,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect, useMemo,useCallback, useRef  } from 'react'
-import { Clock, ChevronDown, ChevronUp, Users, Search } from 'lucide-react'
+import { Clock, ChevronDown, ChevronUp, Users, Search, Trash2 } from 'lucide-react'
 import { turnosApi } from '@/apis/turnosApi'
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext'
 import { formatCurrency } from '@/utils/formatters'
@@ -21,6 +21,12 @@ export const HistorialTurnos: React.FC = () => {
   const [paginaActual, setPaginaActual] = useState(1);
   const [expandido, setExpandido] = useState<number | null>(null);
   const observerRef = useRef<HTMLDivElement>(null);
+  // Evita pedir la misma página dos veces seguidas (el observer puede disparar
+  // dos veces antes de que cargandoMas se actualice) y que se dupliquen turnos.
+  const cargandoRef = useRef(false);
+  const [eliminandoId, setEliminandoId] = useState<number | null>(null);
+  const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
+  const esAdmin = !!(empleadoActivo as any)?.esAdmin;
 
   const [filtroBusqueda, setFiltroBusqueda] = useState('');
   const [filtroTurno, setFiltroTurno] = useState('');
@@ -31,21 +37,54 @@ export const HistorialTurnos: React.FC = () => {
     const kioscoId = empleadoActivo?.kioscoId ?? user?.kioscoId;
     if (!kioscoId) return;
 
+    if (cargandoRef.current) return;
+    cargandoRef.current = true;
+
     if (pagina === 1) setLoading(true);
     else setCargandoMas(true);
 
     try {
       const resultado = await turnosApi.getByKiosco(kioscoId, pagina, 10);
-      setTurnos(prev => resetear ? resultado.items : [...prev, ...resultado.items]);
+      setTurnos(prev => {
+        if (resetear) return resultado.items;
+        // Nunca agregar un turno que ya está en la lista (mismo cierreTurnoId).
+        const ids = new Set(prev.map(t => t.cierreTurnoId));
+        return [...prev, ...resultado.items.filter(t => !ids.has(t.cierreTurnoId))];
+      });
       setHayMas(resultado.tienePaginaSiguiente);
       setPaginaActual(pagina);
     } catch (err) {
       console.error('Error cargando historial:', err);
     } finally {
+      cargandoRef.current = false;
       setLoading(false);
       setCargandoMas(false);
     }
   }, [empleadoActivo?.kioscoId, user?.kioscoId]);
+
+  const handleEliminar = async (turno: CierreTurnoResponse) => {
+    const kioscoId = empleadoActivo?.kioscoId ?? user?.kioscoId;
+    if (!kioscoId) return;
+    const ok = window.confirm(
+      `¿Eliminar el turno del ${turno.fechaFormateada?.split(' ')[0] ?? ''} (${turno.turnoNombre})?\n\n` +
+      'Solo se puede eliminar si no tiene ventas ni gastos. Esta acción no se puede deshacer.'
+    );
+    if (!ok) return;
+    setErrorEliminar(null);
+    setEliminandoId(turno.cierreTurnoId);
+    try {
+      await turnosApi.eliminar(kioscoId, turno.cierreTurnoId);
+      setTurnos(prev => prev.filter(t => t.cierreTurnoId !== turno.cierreTurnoId));
+      setExpandido(null);
+    } catch (err: any) {
+      setErrorEliminar(
+        err?.response?.data?.message ?? err?.response?.data?.error ?? err?.message ??
+        'No se pudo eliminar el turno.'
+      );
+    } finally {
+      setEliminandoId(null);
+    }
+  };
 
   useEffect(() => {
     cargarHistorial(1, true);
@@ -405,6 +444,24 @@ export const HistorialTurnos: React.FC = () => {
                       <div className="bg-white rounded-lg px-4 py-3 border border-neutral-200">
                         <p className="text-xs text-neutral-400 mb-1">Observaciones</p>
                         <p className="text-sm text-neutral-700">{turno.observaciones}</p>
+                      </div>
+                    )}
+
+                    {esAdmin && (
+                      <div className="mt-4 flex flex-col items-end gap-2">
+                        {errorEliminar && estaExpandido && (
+                          <p className="text-xs text-danger text-right">{errorEliminar}</p>
+                        )}
+                        <button
+                          onClick={() => handleEliminar(turno)}
+                          disabled={eliminandoId === turno.cierreTurnoId}
+                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-danger
+                                     border border-danger/30 rounded-lg hover:bg-danger-50 transition-colors
+                                     disabled:opacity-50"
+                        >
+                          <Trash2 size={14} />
+                          {eliminandoId === turno.cierreTurnoId ? 'Eliminando…' : 'Eliminar turno'}
+                        </button>
                       </div>
                     )}
                   </div>

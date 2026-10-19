@@ -18,6 +18,9 @@ namespace Application.Interfaces.Repository
         Task<CierreTurno> CreateAsync(CierreTurno cierreTurno);
         Task<CierreTurno> UpdateAsync(CierreTurno cierreTurno);
 
+        Task<bool> TieneVentasAsync(int cierreTurnoId);
+        Task DeleteAsync(int cierreTurnoId);
+
         // Validaciones
         Task<bool> ExistsAsync(int id);
         Task<bool> TieneTurnoAbiertoAsync(int kioscoId);

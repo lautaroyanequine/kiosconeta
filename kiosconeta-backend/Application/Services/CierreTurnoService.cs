@@ -229,6 +229,35 @@ namespace Application.Services
             return await MapToResponseDTO(cierre);
         }
 
+        // Elimina un turno cargado por error o duplicado. Solo si está vacío:
+        // con ventas o gastos asociados NO se borra, para no perder registros de caja.
+        public async Task EliminarTurnoAsync(int kioscoId, int cierreTurnoId, int empleadoId)
+        {
+            var cierre = await _cierreTurnoRepository.GetByIdAsync(cierreTurnoId);
+            if (cierre == null || cierre.KioscoId != kioscoId)
+                throw new InvalidOperationException("Turno no encontrado.");
+
+            if (await _cierreTurnoRepository.TieneVentasAsync(cierreTurnoId))
+                throw new InvalidOperationException(
+                    "No se puede eliminar: el turno tiene ventas registradas.");
+
+            var gastos = await _gastoRepository.GetByCierreTurnoIdAsync(cierreTurnoId);
+            if (gastos.Any())
+                throw new InvalidOperationException(
+                    "No se puede eliminar: el turno tiene gastos registrados.");
+
+            await _cierreTurnoRepository.DeleteAsync(cierreTurnoId);
+
+            await _auditoriaService.RegistrarAsync(
+                empleadoId: empleadoId,
+                kioscoId: kioscoId,
+                tipoEvento: TipoEventoAuditoria.TurnoEliminado,
+                descripcion: $"Turno eliminado (id {cierreTurnoId}, apertura {cierre.FechaApertura:dd/MM/yyyy HH:mm}).",
+                datos: new { cierreTurnoId, cierre.FechaApertura, cierre.TurnoId, Estado = cierre.Estado.ToString() },
+                esSospechoso: true,
+                motivoSospecha: "Turno eliminado manualmente");
+        }
+
         // ========== MAPEO ==========
 
         private async Task<CierreTurnoResponseDTO> MapToResponseDTO(CierreTurno cierre)

@@ -104,4 +104,17 @@ export const turnosApi = {
     return handleError(error);
   }
 },
+
+  /**
+   * Eliminar un turno (solo si no tiene ventas ni gastos)
+   */
+  eliminar: async (kioscoId: number, cierreTurnoId: number): Promise<void> => {
+    try {
+      await apiClient.delete(
+        `${API_ENDPOINTS.TURNOS_KIOSCO(kioscoId)}/${cierreTurnoId}`
+      );
+    } catch (error) {
+      return handleError(error);
+    }
+  },
 };
