@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Tag, Plus, Trash2, ToggleLeft, ToggleRight,
   AlertTriangle, RefreshCw, X, Package, Percent,
-  ShoppingBag, Hash, Calendar, ChevronDown, Loader2, Pencil,
+  ShoppingBag, Hash, Calendar, ChevronDown, Loader2, Pencil, Search,
 } from 'lucide-react';
 import { Button, Badge, Modal } from '@/components/commons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -161,6 +161,19 @@ const coincideBusquedaPromo = (nombre: string, query: string): boolean => {
   const target = nombre.toLowerCase();
   return palabras.every(w => target.includes(w));
 };
+
+// Texto sobre el que busca el buscador del listado: nombre, descripción y
+// los productos / tags / categoría a los que aplica la promo.
+const textoBuscablePromo = (p: PromocionResponseDTO): string =>
+  [
+    p.nombre, p.descripcion,
+    p.productoNombreCantidad, p.tagNombreCantidad,
+    p.productoNombrePorcentaje, p.tagNombrePorcentaje, p.categoriaNombrePorcentaje,
+    ...(p.productos ?? []).flatMap(pp => [pp.productoNombre, pp.tagNombre]),
+  ].filter(Boolean).join(' ');
+
+type FiltroTipoPromo   = 'todos' | TipoPromocion;
+type FiltroEstadoPromo = 'todas' | 'activas' | 'inactivas';
 
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -1004,8 +1017,13 @@ const PromoCard: React.FC<{
           {promo.productos.map((p, i) => (
             <div key={i} className="flex items-center gap-2 text-xs text-neutral-600">
               <Package size={11} className="text-neutral-400 shrink-0" />
-              <span className="flex-1 truncate">{p.productoNombre}</span>
+              <span className="flex-1 truncate">{p.productoNombre || p.tagNombre}</span>
               <span className="text-neutral-400">×{p.cantidad}</span>
+              {p.costoLinea != null && (
+                <span className="w-20 text-right text-neutral-500 tabular-nums" title="Costo de esta línea">
+                  {p.costoEsEstimado ? '~' : ''}{formatCurrency(p.costoLinea)}
+                </span>
+              )}
             </div>
           ))}
           {promo.precioCombo != null && (
@@ -1024,6 +1042,11 @@ const PromoCard: React.FC<{
           <p className="text-purple-600 font-semibold">
             Llevá {promo.cantidadRequerida} → Pagá {promo.cantidadPaga}
           </p>
+          {promo.costoUnitarioProducto != null && (
+            <p className="text-neutral-500">
+              Costo unitario: {formatCurrency(promo.costoUnitarioProducto)}
+            </p>
+          )}
         </div>
       );
     }
@@ -1038,6 +1061,11 @@ const PromoCard: React.FC<{
           )}
           {promo.categoriaNombrePorcentaje && (
             <p className="truncate">en categoría {promo.categoriaNombrePorcentaje}</p>
+          )}
+          {promo.costoUnitarioProducto != null && (
+            <p className="text-neutral-500">
+              Costo del producto: {formatCurrency(promo.costoUnitarioProducto)}
+            </p>
           )}
         </div>
       );
@@ -1069,6 +1097,17 @@ const PromoCard: React.FC<{
       <div className="flex-1">
         {renderDetalle()}
       </div>
+
+      {/* Costo total */}
+      {promo.costoTotal != null && (
+        <div className="flex items-center justify-between text-xs bg-neutral-50 rounded-lg px-2.5 py-1.5 -mb-1">
+          <span className="text-neutral-500">
+            {promo.tipo === 2 ? `Costo de ${promo.cantidadRequerida} u.` : 'Costo total'}
+            {promo.productos?.some(l => l.costoEsEstimado) ? ' (estimado)' : ''}
+          </span>
+          <span className="font-semibold text-neutral-700">{formatCurrency(promo.costoTotal)}</span>
+        </div>
+      )}
 
       {/* Margen estimado */}
       {promo.margenEstimadoPorcentaje != null && (
@@ -1148,6 +1187,10 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos , tags
   const [togglingId, setTogglingId]     = useState<number | null>(null);
   const [deletingId, setDeletingId]     = useState<number | null>(null);
   const [promoAEliminar, setPromoAEliminar] = useState<PromocionResponseDTO | null>(null);
+
+  const [busquedaPromos, setBusquedaPromos] = useState('');
+  const [filtroTipo, setFiltroTipo]         = useState<FiltroTipoPromo>('todos');
+  const [filtroEstado, setFiltroEstado]     = useState<FiltroEstadoPromo>('todas');
 
   const [modalPreciosAbierto, setModalPreciosAbierto] = useState(false);
   const [isAjustandoPrecios, setIsAjustandoPrecios]   = useState(false);
@@ -1261,6 +1304,16 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos , tags
   const activas   = promos.filter(p => p.activa).length;
   const inactivas = promos.filter(p => !p.activa).length;
 
+  // ── Filtros del listado ────────────────────────────────────────────────────
+  const promosFiltradas = promos.filter(p =>
+    (filtroTipo === 'todos' || p.tipo === filtroTipo) &&
+    (filtroEstado === 'todas' || (filtroEstado === 'activas' ? p.activa : !p.activa)) &&
+    coincideBusquedaPromo(textoBuscablePromo(p), busquedaPromos)
+  );
+  const hayFiltros = busquedaPromos.trim() !== '' || filtroTipo !== 'todos' || filtroEstado !== 'todas';
+  const limpiarFiltros = () => { setBusquedaPromos(''); setFiltroTipo('todos'); setFiltroEstado('todas'); };
+  const contarTipo = (t: TipoPromocion) => promos.filter(p => p.tipo === t).length;
+
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
@@ -1312,6 +1365,75 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos , tags
         </div>
       )}
 
+      {/* Buscador + filtros */}
+      {promos.length > 0 && (
+        <div className="space-y-3">
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+            <input
+              type="text"
+              value={busquedaPromos}
+              onChange={e => setBusquedaPromos(e.target.value)}
+              placeholder="Buscar promoción o producto…"
+              style={{ paddingLeft: 40, paddingRight: 36 }}
+              className="w-full py-2.5 text-sm bg-white border border-neutral-200 rounded-xl
+                         focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+            />
+            {busquedaPromos && (
+              <button
+                onClick={() => setBusquedaPromos('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                aria-label="Borrar búsqueda"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {([
+              { id: 'todos', label: 'Todos', count: promos.length },
+              { id: 1, label: TIPO_INFO[1].label, count: contarTipo(1) },
+              { id: 2, label: TIPO_INFO[2].label, count: contarTipo(2) },
+              { id: 3, label: TIPO_INFO[3].label, count: contarTipo(3) },
+            ] as { id: FiltroTipoPromo; label: string; count: number }[]).map(f => (
+              <button
+                key={String(f.id)}
+                onClick={() => setFiltroTipo(f.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors
+                  ${filtroTipo === f.id
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-neutral-600 border-neutral-200 hover:border-primary/40'}`}
+              >
+                {f.label} <span className="opacity-70">({f.count})</span>
+              </button>
+            ))}
+
+            <span className="hidden sm:block w-px h-5 bg-neutral-200 mx-1" />
+
+            <select
+              value={filtroEstado}
+              onChange={e => setFiltroEstado(e.target.value as FiltroEstadoPromo)}
+              className="px-3 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white text-neutral-600
+                         focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="todas">Todas</option>
+              <option value="activas">Solo activas</option>
+              <option value="inactivas">Solo inactivas</option>
+            </select>
+
+            {hayFiltros && (
+              <button onClick={limpiarFiltros} className="text-xs font-medium text-primary hover:underline ml-1">
+                Limpiar filtros
+              </button>
+            )}
+            <span className="ml-auto text-xs text-neutral-400">
+              {promosFiltradas.length} de {promos.length}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center py-16">
@@ -1336,9 +1458,18 @@ export const PromocionesTab: React.FC<PromocionesTabProps> = ({ productos , tags
       )}
 
       {/* Grid de promos */}
-      {!isLoading && promos.length > 0 && (
+      {!isLoading && promos.length > 0 && promosFiltradas.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-sm text-neutral-500">No hay promociones que coincidan con la búsqueda.</p>
+          <button onClick={limpiarFiltros} className="mt-2 text-sm font-medium text-primary hover:underline">
+            Limpiar filtros
+          </button>
+        </div>
+      )}
+
+      {!isLoading && promosFiltradas.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {promos.map(promo => (
+          {promosFiltradas.map(promo => (
             <PromoCard
               key={promo.promocionId}
               promo={promo}

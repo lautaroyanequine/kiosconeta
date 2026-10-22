@@ -377,6 +377,62 @@ public class PromocionService : IPromocionService
     {
         var (ganancia, margen, esEstimado) = await CalcularMargenAsync(p);
 
+        // ── Costos por producto para mostrar en la card ──────────────────────
+        decimal? costoTotal = null;
+        decimal? costoUnitarioProducto = null;
+        var lineas = new List<PromocionProductoDTO>();
+
+        foreach (var pp in p.PromocionProductos)
+        {
+            var prod = pp.Producto;
+            bool estimadoLinea = false;
+            if (prod == null && pp.TagId.HasValue)
+            {
+                var candidatos = await _productoRepo.GetByTagAsync(pp.TagId.Value);
+                prod = candidatos.OrderBy(c => c.PrecioCosto).FirstOrDefault();
+                estimadoLinea = true;
+            }
+            lineas.Add(new PromocionProductoDTO
+            {
+                ProductoId = pp.ProductoId,
+                ProductoNombre = pp.Producto?.Nombre ?? "",
+                TagId = pp.TagId,
+                TagNombre = pp.Tag?.Nombre,
+                Cantidad = pp.Cantidad,
+                PrecioUnitario = pp.Producto?.PrecioVenta ?? 0,
+                CostoUnitario = prod?.PrecioCosto,
+                CostoLinea = prod == null ? null : CalcularImporte(prod.UnidadMedida, pp.Cantidad, prod.PrecioCosto),
+                CostoEsEstimado = estimadoLinea
+            });
+        }
+
+        if (p.Tipo == TipoPromocion.Combo)
+        {
+            // Si alguna línea no se pudo resolver, no mostramos un total engañoso.
+            costoTotal = lineas.Count > 0 && lineas.All(l => l.CostoLinea.HasValue)
+                ? lineas.Sum(l => l.CostoLinea!.Value)
+                : null;
+        }
+        else if (p.Tipo == TipoPromocion.Cantidad)
+        {
+            var prodCant = p.ProductoCantidad;
+            if (prodCant == null && p.TagIdCantidad.HasValue)
+            {
+                var candidatos = await _productoRepo.GetByTagAsync(p.TagIdCantidad.Value);
+                prodCant = candidatos.OrderBy(c => c.PrecioCosto).FirstOrDefault();
+            }
+            if (prodCant != null && p.CantidadRequerida.HasValue)
+            {
+                costoUnitarioProducto = prodCant.PrecioCosto;
+                costoTotal = CalcularImporte(prodCant.UnidadMedida, p.CantidadRequerida.Value, prodCant.PrecioCosto);
+            }
+        }
+        else if (p.Tipo == TipoPromocion.Porcentaje && p.ProductoPorcentaje != null)
+        {
+            costoUnitarioProducto = p.ProductoPorcentaje.PrecioCosto;
+            costoTotal = p.ProductoPorcentaje.PrecioCosto;
+        }
+
         return new PromocionResponseDTO
         {
             PromocionId = p.PromocionId,
@@ -405,15 +461,9 @@ public class PromocionService : IPromocionService
             GananciaEstimada = ganancia,
             MargenEstimadoPorcentaje = margen,
             MargenEsEstimado = esEstimado,
-            Productos = p.PromocionProductos.Select(pp => new PromocionProductoDTO
-            {
-                ProductoId = pp.ProductoId,
-                ProductoNombre = pp.Producto?.Nombre ?? "",
-                TagId = pp.TagId,
-                TagNombre = pp.Tag?.Nombre,
-                Cantidad = pp.Cantidad,
-                PrecioUnitario = pp.Producto?.PrecioVenta ?? 0
-            }).ToList()
+            CostoTotal = costoTotal,
+            CostoUnitarioProducto = costoUnitarioProducto,
+            Productos = lineas
         };
     }
 

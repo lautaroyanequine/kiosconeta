@@ -53,6 +53,14 @@ namespace Application.DTOs.Promocion
         // un tag (porque la promo no apunta a un producto específico) — el
         // margen real de una venta puntual puede ser mayor a este estimado.
         public bool MargenEsEstimado { get; set; }
+
+        // ── Costos (con los costos ACTUALES de los productos) ──
+        // Costo total de lo que se lleva el cliente con UNA aplicación de la promo
+        // (combo completo / N unidades de "cantidad" / 1 unidad con descuento %).
+        public decimal? CostoTotal { get; set; }
+        // Costo unitario del producto en promos de Cantidad y Porcentaje
+        // (en las de Combo está en cada línea de Productos).
+        public decimal? CostoUnitarioProducto { get; set; }
     }
 
     public class PromocionProductoDTO
@@ -63,6 +71,14 @@ namespace Application.DTOs.Promocion
         public int Cantidad { get; set; }
         public string ProductoNombre { get; set; } = string.Empty;
         public decimal PrecioUnitario { get; set; }
+
+        // ── Costo (solo en el response) ──
+        // Costo actual del producto (por kilo si se vende al peso). Para una línea
+        // "por tag" es el del producto MÁS BARATO del tag (estimación).
+        public decimal? CostoUnitario { get; set; }
+        // Costo de la línea completa: CostoUnitario × Cantidad (en gramos/kilo si corresponde).
+        public decimal? CostoLinea { get; set; }
+        public bool CostoEsEstimado { get; set; }
     }
 
     // ── Crear ─────────────────────────────────────────────

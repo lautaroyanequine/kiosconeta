@@ -13,6 +13,10 @@ export interface PromocionProductoDTO {
   tagNombre?: string;
   cantidad: number;
   precioUnitario: number;
+  // Costo actual (línea "por tag": del producto más barato del tag → estimado)
+  costoUnitario?: number | null;
+  costoLinea?: number | null;
+  costoEsEstimado?: boolean;
 }
 
 export interface PromocionResponseDTO {
@@ -50,6 +54,9 @@ export interface PromocionResponseDTO {
   gananciaEstimada?: number | null;
   margenEstimadoPorcentaje?: number | null;
   margenEsEstimado?: boolean;
+  // Costos con los costos actuales de los productos
+  costoTotal?: number | null;
+  costoUnitarioProducto?: number | null;
 }
 
 export interface CreatePromocionDTO {
