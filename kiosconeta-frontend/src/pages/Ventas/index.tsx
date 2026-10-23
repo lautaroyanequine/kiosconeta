@@ -54,7 +54,8 @@ const FiltroSelect: React.FC<{
     <select
       value={valor}
       onChange={e => onChange(e.target.value)}
-      className={`px-3 py-2 border rounded-md text-sm bg-white focus:outline-none focus:border-primary
+      style={{ minWidth: 0 }}
+      className={`flex-1 lg:max-w-[220px] px-3 py-2 border rounded-md text-sm bg-white focus:outline-none focus:border-primary
         ${valor ? 'border-primary text-primary font-medium' : 'border-neutral-300 text-neutral-700'}`}
     >
       <option value="">{todos}</option>
@@ -405,29 +406,41 @@ const VentasPage: React.FC = () => {
 
         {/* ── FILTROS ──────────────────────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-neutral-200 p-4 space-y-3">
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-            <div className="w-full sm:flex-1 sm:min-w-[200px]">
-              <Input
-                placeholder="Buscar por empleado, nro. venta, método de pago o producto..."
-                value={filtros.busqueda}
-                onChange={e => setFiltros(p => ({ ...p, busqueda: e.target.value }))}
-                leftIcon={<Search size={16} />}
-              />
-            </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <input type="date" value={filtros.fechaDesde}
-                onChange={e => setFiltros(p => ({ ...p, fechaDesde: e.target.value }))}
-                className="flex-1 sm:flex-none px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:border-primary"
-              />
-              <span className="text-neutral-400 text-sm shrink-0">—</span>
-              <input type="date" value={filtros.fechaHasta}
-                onChange={e => setFiltros(p => ({ ...p, fechaHasta: e.target.value }))}
-                className="flex-1 sm:flex-none px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:border-primary"
-              />
-            </div>
+          {/* Búsqueda */}
+          <Input
+            placeholder="Buscar por empleado, nro. venta, método de pago o producto..."
+            value={filtros.busqueda}
+            onChange={e => setFiltros(p => ({ ...p, busqueda: e.target.value }))}
+            leftIcon={<Search size={16} />}
+          />
+
+          {/* Fechas + listas desplegables, todo en una misma línea */}
+          <div className="flex flex-wrap lg:flex-nowrap items-center gap-2">
+            <input type="date" value={filtros.fechaDesde} aria-label="Desde"
+              onChange={e => setFiltros(p => ({ ...p, fechaDesde: e.target.value }))}
+              style={{ width: 150, flexShrink: 0 }}
+              className="px-3 py-2 border border-neutral-300 rounded-md text-sm bg-white focus:outline-none focus:border-primary"
+            />
+            <span className="text-neutral-400 text-sm shrink-0">—</span>
+            <input type="date" value={filtros.fechaHasta} aria-label="Hasta"
+              onChange={e => setFiltros(p => ({ ...p, fechaHasta: e.target.value }))}
+              style={{ width: 150, flexShrink: 0 }}
+              className="px-3 py-2 border border-neutral-300 rounded-md text-sm bg-white focus:outline-none focus:border-primary"
+            />
+
+            <span className="hidden lg:block w-px h-6 bg-neutral-200 mx-1 shrink-0" />
+
+            <FiltroSelect todos="Todos los empleados" opciones={opcionesEmpleado} valor={filtros.empleado}
+              onChange={v => setFiltros(p => ({ ...p, empleado: v }))} />
+            <FiltroSelect todos="Todos los pagos" opciones={opcionesPago} valor={filtros.metodoPago}
+              onChange={v => setFiltros(p => ({ ...p, metodoPago: v }))} />
+            <FiltroSelect todos="Todos los turnos" opciones={opcionesTurno} valor={filtros.turno}
+              onChange={v => setFiltros(p => ({ ...p, turno: v }))} />
           </div>
+
+          {/* Rango rápido + contador */}
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-xs text-neutral-400 self-center mr-1 w-full sm:w-auto">Rango rápido:</span>
+            <span className="text-xs text-neutral-400 mr-1">Rango rápido:</span>
             {[
               { label: 'Hoy', dias: 0 },
               { label: '7 días', dias: 7 },
@@ -443,26 +456,16 @@ const VentasPage: React.FC = () => {
                 {r.label}
               </button>
             ))}
-            <span className="sm:ml-auto text-xs text-neutral-400 self-center">
-              {hayFiltrosActivos
-                ? `${ventasFiltradas.length} de ${ventas.length} ventas`
-                : `${ventasFiltradas.length} cargadas`}
-            </span>
-          </div>
-
-          {/* Filtros desplegables */}
-          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-neutral-100">
-            <FiltroSelect todos="Todos los empleados" opciones={opcionesEmpleado} valor={filtros.empleado}
-              onChange={v => setFiltros(p => ({ ...p, empleado: v }))} />
-            <FiltroSelect todos="Todos los pagos" opciones={opcionesPago} valor={filtros.metodoPago}
-              onChange={v => setFiltros(p => ({ ...p, metodoPago: v }))} />
-            <FiltroSelect todos="Todos los turnos" opciones={opcionesTurno} valor={filtros.turno}
-              onChange={v => setFiltros(p => ({ ...p, turno: v }))} />
             {hayFiltrosActivos && (
               <button onClick={limpiarFiltros} className="text-xs font-medium text-primary hover:underline ml-1">
                 Limpiar filtros
               </button>
             )}
+            <span className="sm:ml-auto text-xs text-neutral-400 self-center">
+              {hayFiltrosActivos
+                ? `${ventasFiltradas.length} de ${ventas.length} ventas`
+                : `${ventasFiltradas.length} cargadas`}
+            </span>
           </div>
         </div>
 
