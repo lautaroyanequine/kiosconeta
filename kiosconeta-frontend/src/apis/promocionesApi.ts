@@ -14,6 +14,7 @@ export interface PromocionProductoDTO {
   cantidad: number;
   precioUnitario: number;
   // Costo actual (línea "por tag": del producto más barato del tag → estimado)
+  precioLinea?: number;
   costoUnitario?: number | null;
   costoLinea?: number | null;
   costoEsEstimado?: boolean;
