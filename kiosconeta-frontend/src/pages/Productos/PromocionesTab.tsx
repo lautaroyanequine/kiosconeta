@@ -498,7 +498,8 @@ if (form.tipo === 2) {
           <select
             value={pc.productoId ?? ''}
             onChange={e => actualizarProductoCombo(idx, 'productoId', Number(e.target.value))}
-            className="w-full appearance-none bg-transparent border-none text-sm font-semibold text-neutral-800 focus:outline-none pr-5 truncate"
+            style={{ width: '100%', minWidth: 0 }}
+            className="appearance-none bg-transparent border-none text-sm font-semibold text-neutral-800 focus:outline-none pr-5 truncate"
           >
             <option value="">Seleccionar producto...</option>
             {productos.map(p => (
@@ -509,7 +510,8 @@ if (form.tipo === 2) {
           <select
             value={pc.tagId ?? ''}
             onChange={e => actualizarProductoCombo(idx, 'tagId', Number(e.target.value))}
-            className="w-full appearance-none bg-transparent border-none text-sm font-semibold text-neutral-800 focus:outline-none pr-5 truncate"
+            style={{ width: '100%', minWidth: 0 }}
+            className="appearance-none bg-transparent border-none text-sm font-semibold text-neutral-800 focus:outline-none pr-5 truncate"
           >
             <option value="">Seleccionar tag...</option>
             {tags.filter(t => t.activo).map(t => (
@@ -526,7 +528,8 @@ if (form.tipo === 2) {
           type="number" min="1"
           value={pc.cantidad}
           onChange={e => actualizarProductoCombo(idx, 'cantidad', Number(e.target.value))}
-          className="w-10 text-center text-sm font-bold text-blue-600 border border-blue-200 rounded-md py-0.5 focus:outline-none focus:border-blue-400 bg-blue-50"
+          style={{ width: 60, minWidth: 0, paddingLeft: 4, paddingRight: 4 }}
+          className="text-center text-sm font-bold text-blue-600 border border-blue-200 rounded-md py-0.5 focus:outline-none focus:border-blue-400 bg-blue-50"
         />
       </div>
       <button type="button" onClick={() => quitarProductoCombo(idx)} className="text-neutral-200 hover:text-red-400 shrink-0 ml-1">
