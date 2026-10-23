@@ -22,6 +22,9 @@ interface Filtros {
   fechaHasta: string;
   busqueda: string;       // filtra por empleado o nro. venta en el cliente
   soloAnuladas: boolean;
+  empleado: string;       // '' = todos (nombre del empleado)
+  metodoPago: string;     // '' = todos (nombre del método de pago)
+  turno: string;          // '' = todos (nombre del turno)
 }
 
 // Una venta es de pago combinado si vienen cargados los montos de efectivo/virtual
@@ -29,11 +32,39 @@ interface Filtros {
 const esPagoCombinado = (venta: Venta) =>
   venta.montoEfectivo != null || venta.montoVirtual != null;
 
-const hoy = () => new Date().toISOString().split('T')[0];
+// Fecha LOCAL en formato yyyy-mm-dd (toISOString usa UTC y de noche daba el día siguiente).
+const fechaLocal = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const hoy = () => fechaLocal(new Date());
 const haceDias = (n: number) => {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().split('T')[0];
+  return fechaLocal(d);
+};
+
+// Fila de botones para elegir una opción (o "Todos").
+const FiltroChips: React.FC<{
+  label: string;
+  opciones: string[];
+  valor: string;
+  onChange: (v: string) => void;
+}> = ({ label, opciones, valor, onChange }) => {
+  if (opciones.length === 0) return null;
+  const base = 'px-3 py-1 text-xs rounded-full border transition-colors';
+  const on   = 'bg-primary text-white border-primary';
+  const off  = 'border-neutral-200 text-neutral-600 hover:border-primary hover:text-primary';
+  return (
+    <div className="flex flex-wrap gap-2 items-center">
+      <span className="text-xs text-neutral-400 mr-1 w-full sm:w-20 shrink-0">{label}:</span>
+      <button onClick={() => onChange('')} className={`${base} ${valor === '' ? on : off}`}>Todos</button>
+      {opciones.map(o => (
+        <button key={o} onClick={() => onChange(valor === o ? '' : o)}
+          className={`${base} ${valor === o ? on : off}`}>
+          {o}
+        </button>
+      ))}
+    </div>
+  );
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -168,7 +199,11 @@ const VentasPage: React.FC = () => {
     fechaHasta: hoy(),
     busqueda: '',
     soloAnuladas: false,
+    empleado: '',
+    metodoPago: '',
+    turno: '',
   });
+  const cargandoRef = useRef(false);
 
   const [ventaDetalle, setVentaDetalle] = useState<Venta | null>(null);
   const [ventaAAnular, setVentaAAnular] = useState<Venta | null>(null);
@@ -177,6 +212,8 @@ const VentasPage: React.FC = () => {
   // ── Cargar ventas ────────────────────────────────────────────────────────
   const cargarVentas = useCallback(async (pagina: number, resetear = false) => {
     if (!user?.kioscoId) return;
+    if (cargandoRef.current && !resetear) return;
+    cargandoRef.current = true;
     if (pagina === 1) setIsLoading(true);
     else setCargandoMas(true);
     setError(null);
@@ -187,15 +224,20 @@ const VentasPage: React.FC = () => {
         fechaHasta: filtros.fechaHasta ? `${filtros.fechaHasta}T23:59:59` : undefined,
         soloAnuladas: filtros.soloAnuladas || undefined,
         pagina,
-        tamanoPagina: 20,
+        tamanoPagina: 200,
       });
 
-      setVentas(prev => resetear ? resultado.items : [...prev, ...resultado.items]);
+      setVentas(prev => {
+        if (resetear) return resultado.items;
+        const ids = new Set(prev.map(v => v.ventaId));
+        return [...prev, ...resultado.items.filter(v => !ids.has(v.ventaId))];
+      });
       setHayMas(resultado.tienePaginaSiguiente);
       setPaginaActual(pagina);
     } catch (err: any) {
       setError(err.message || 'Error al cargar las ventas');
     } finally {
+      cargandoRef.current = false;
       setIsLoading(false);
       setCargandoMas(false);
     }
@@ -220,17 +262,48 @@ const VentasPage: React.FC = () => {
     return () => observer.disconnect();
   }, [hayMas, cargandoMas, isLoading, paginaActual, cargarVentas]);
 
-  // ── Filtro local por búsqueda ─────────────────────────────────────────────
+  // ── Opciones de los botones (salen de las ventas cargadas) ────────────────
+  const unicos = (get: (v: Venta) => string | undefined | null, elegido: string) => {
+    const set = new Set<string>();
+    ventas.forEach(v => { const x = get(v); if (x) set.add(x); });
+    if (elegido) set.add(elegido);
+    return [...set].sort((a, b) => a.localeCompare(b));
+  };
+  const opcionesEmpleado = useMemo(() => unicos(v => v.empleadoNombre, filtros.empleado), [ventas, filtros.empleado]);
+  const opcionesPago     = useMemo(() => unicos(v => v.metodoPagoNombre, filtros.metodoPago), [ventas, filtros.metodoPago]);
+  const opcionesTurno    = useMemo(() => unicos(v => v.turnoNombre, filtros.turno), [ventas, filtros.turno]);
+
+  const hayFiltroLocal =
+    filtros.busqueda.trim() !== '' || filtros.empleado !== '' || filtros.metodoPago !== '' || filtros.turno !== '';
+
+  // Con un filtro local activo hay que tener TODAS las ventas del período para
+  // que el resultado sea completo: se siguen cargando páginas sin esperar al scroll.
+  useEffect(() => {
+    if (hayFiltroLocal && hayMas && !cargandoMas && !isLoading) {
+      cargarVentas(paginaActual + 1);
+    }
+  }, [hayFiltroLocal, hayMas, cargandoMas, isLoading, paginaActual, cargarVentas]);
+
+  // ── Filtros locales (búsqueda + botones) ──────────────────────────────────
   const ventasFiltradas = useMemo(() => {
-    if (!filtros.busqueda.trim()) return ventas;
-    const q = filtros.busqueda.toLowerCase();
-    return ventas.filter(v =>
-      v.empleadoNombre.toLowerCase().includes(q) ||
-      String(v.numeroVenta).includes(q) ||
-      v.metodoPagoNombre.toLowerCase().includes(q) ||
-      v.productos?.some(p => p.productoNombre.toLowerCase().includes(q))
-    );
-  }, [ventas, filtros.busqueda]);
+    const q = filtros.busqueda.trim().toLowerCase();
+    return ventas.filter(v => {
+      if (filtros.empleado && v.empleadoNombre !== filtros.empleado) return false;
+      if (filtros.metodoPago && v.metodoPagoNombre !== filtros.metodoPago) return false;
+      if (filtros.turno && v.turnoNombre !== filtros.turno) return false;
+      if (!q) return true;
+      return (
+        v.empleadoNombre.toLowerCase().includes(q) ||
+        String(v.numeroVenta).includes(q) ||
+        v.metodoPagoNombre.toLowerCase().includes(q) ||
+        v.productos?.some(p => p.productoNombre.toLowerCase().includes(q))
+      );
+    });
+  }, [ventas, filtros.busqueda, filtros.empleado, filtros.metodoPago, filtros.turno]);
+
+  const hayFiltrosActivos = hayFiltroLocal;
+  const limpiarFiltros = () =>
+    setFiltros(p => ({ ...p, busqueda: '', empleado: '', metodoPago: '', turno: '' }));
 
   // ── Stats ─────────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -291,9 +364,10 @@ const VentasPage: React.FC = () => {
         )}
 
         {/* ── STATS ────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-4 max-w-md">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-2xl">
           {[
             { label: 'Ventas', icon: <Receipt size={18} className="text-purple-600" />, color: 'bg-purple-50', fmt: String(stats.total) },
+            { label: 'Total vendido', icon: <DollarSign size={18} className="text-green-600" />, color: 'bg-green-50', fmt: formatCurrency(stats.monto) },
             { label: 'Anuladas', icon: <Ban size={18} className="text-red-500" />, color: 'bg-red-50', fmt: String(stats.anuladas) },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-3">
@@ -374,8 +448,25 @@ const VentasPage: React.FC = () => {
               </button>
             ))}
             <span className="sm:ml-auto text-xs text-neutral-400 self-center">
-              {ventasFiltradas.length} cargadas
+              {hayFiltrosActivos
+                ? `${ventasFiltradas.length} de ${ventas.length} ventas`
+                : `${ventasFiltradas.length} cargadas`}
             </span>
+          </div>
+
+          {/* Filtros con botones */}
+          <div className="space-y-2 pt-3 border-t border-neutral-100">
+            <FiltroChips label="Empleado" opciones={opcionesEmpleado} valor={filtros.empleado}
+              onChange={v => setFiltros(p => ({ ...p, empleado: v }))} />
+            <FiltroChips label="Pago" opciones={opcionesPago} valor={filtros.metodoPago}
+              onChange={v => setFiltros(p => ({ ...p, metodoPago: v }))} />
+            <FiltroChips label="Turno" opciones={opcionesTurno} valor={filtros.turno}
+              onChange={v => setFiltros(p => ({ ...p, turno: v }))} />
+            {hayFiltrosActivos && (
+              <button onClick={limpiarFiltros} className="text-xs font-medium text-primary hover:underline">
+                Limpiar filtros
+              </button>
+            )}
           </div>
         </div>
 
