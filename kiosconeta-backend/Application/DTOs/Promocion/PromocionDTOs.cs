@@ -75,6 +75,8 @@ namespace Application.DTOs.Promocion
         // ── Costo (solo en el response) ──
         // Costo actual del producto (por kilo si se vende al peso). Para una línea
         // "por tag" es el del producto MÁS BARATO del tag (estimación).
+        // Importe de la línea a precio de lista (respeta kilos: gramos/1000 × precio por kilo).
+        public decimal PrecioLinea { get; set; }
         public decimal? CostoUnitario { get; set; }
         // Costo de la línea completa: CostoUnitario × Cantidad (en gramos/kilo si corresponde).
         public decimal? CostoLinea { get; set; }

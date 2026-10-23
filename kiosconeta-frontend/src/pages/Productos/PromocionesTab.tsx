@@ -1011,7 +1011,7 @@ const PromoCard: React.FC<{
 
   const renderDetalle = () => {
     if (promo.tipo === 1 && promo.productos?.length) {
-      const sum = promo.productos.reduce((s, p) => s + p.precioUnitario * p.cantidad, 0);
+      const sum = promo.productos.reduce((s, p) => s + (p.precioLinea ?? p.precioUnitario * p.cantidad), 0);
       return (
         <div className="space-y-1.5">
           {promo.productos.map((p, i) => (
@@ -1111,18 +1111,29 @@ const PromoCard: React.FC<{
 
       {/* Margen estimado */}
       {promo.margenEstimadoPorcentaje != null && (
-        <div className="flex items-center justify-between text-xs bg-neutral-50 rounded-lg px-2.5 py-1.5">
-          <span className="text-neutral-500">
-            Margen{promo.margenEsEstimado ? ' (estimado)' : ''}
-          </span>
-          <span className={`font-semibold ${promo.margenEstimadoPorcentaje >= 0 ? 'text-success-700' : 'text-red-500'}`}>
-            {promo.margenEstimadoPorcentaje.toFixed(1)}%
-            {promo.gananciaEstimada != null && (
-              <span className="text-neutral-400 font-normal ml-1">
-                ({formatCurrency(promo.gananciaEstimada)})
+        <div className="bg-neutral-50 rounded-lg px-2.5 py-1.5 space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-neutral-500" title="Ganancia ÷ precio de venta">
+              Margen{promo.margenEsEstimado ? ' (estimado)' : ''}
+            </span>
+            <span className={`font-semibold ${promo.margenEstimadoPorcentaje >= 0 ? 'text-success-700' : 'text-red-500'}`}>
+              {promo.margenEstimadoPorcentaje.toFixed(1)}%
+              {promo.gananciaEstimada != null && (
+                <span className="text-neutral-400 font-normal ml-1">
+                  ({formatCurrency(promo.gananciaEstimada)})
+                </span>
+              )}
+            </span>
+          </div>
+          {/* Recargo sobre costo: ganancia ÷ costo */}
+          {promo.gananciaEstimada != null && promo.costoTotal != null && promo.costoTotal > 0 && (
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-neutral-500" title="Ganancia ÷ costo">Recargo s/ costo</span>
+              <span className={`font-semibold ${promo.gananciaEstimada >= 0 ? 'text-success-700' : 'text-red-500'}`}>
+                {((promo.gananciaEstimada / promo.costoTotal) * 100).toFixed(1)}%
               </span>
-            )}
-          </span>
+            </div>
+          )}
         </div>
       )}
 

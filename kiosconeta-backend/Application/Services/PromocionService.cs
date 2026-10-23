@@ -400,6 +400,7 @@ public class PromocionService : IPromocionService
                 TagNombre = pp.Tag?.Nombre,
                 Cantidad = pp.Cantidad,
                 PrecioUnitario = pp.Producto?.PrecioVenta ?? 0,
+                PrecioLinea = pp.Producto == null ? 0 : CalcularImporte(pp.Producto.UnidadMedida, pp.Cantidad, pp.Producto.PrecioVenta),
                 CostoUnitario = prod?.PrecioCosto,
                 CostoLinea = prod == null ? null : CalcularImporte(prod.UnidadMedida, pp.Cantidad, prod.PrecioCosto),
                 CostoEsEstimado = estimadoLinea
