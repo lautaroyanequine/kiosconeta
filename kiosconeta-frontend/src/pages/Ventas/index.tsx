@@ -42,28 +42,24 @@ const haceDias = (n: number) => {
   return fechaLocal(d);
 };
 
-// Fila de botones para elegir una opción (o "Todos").
-const FiltroChips: React.FC<{
-  label: string;
+// Lista desplegable compacta para filtrar por una opción (o "todos").
+const FiltroSelect: React.FC<{
+  todos: string;            // texto de la opción vacía, ej: "Todos los empleados"
   opciones: string[];
   valor: string;
   onChange: (v: string) => void;
-}> = ({ label, opciones, valor, onChange }) => {
+}> = ({ todos, opciones, valor, onChange }) => {
   if (opciones.length === 0) return null;
-  const base = 'px-3 py-1 text-xs rounded-full border transition-colors';
-  const on   = 'bg-primary text-white border-primary';
-  const off  = 'border-neutral-200 text-neutral-600 hover:border-primary hover:text-primary';
   return (
-    <div className="flex flex-wrap gap-2 items-center">
-      <span className="text-xs text-neutral-400 mr-1 w-full sm:w-20 shrink-0">{label}:</span>
-      <button onClick={() => onChange('')} className={`${base} ${valor === '' ? on : off}`}>Todos</button>
-      {opciones.map(o => (
-        <button key={o} onClick={() => onChange(valor === o ? '' : o)}
-          className={`${base} ${valor === o ? on : off}`}>
-          {o}
-        </button>
-      ))}
-    </div>
+    <select
+      value={valor}
+      onChange={e => onChange(e.target.value)}
+      className={`px-3 py-2 border rounded-md text-sm bg-white focus:outline-none focus:border-primary
+        ${valor ? 'border-primary text-primary font-medium' : 'border-neutral-300 text-neutral-700'}`}
+    >
+      <option value="">{todos}</option>
+      {opciones.map(o => <option key={o} value={o}>{o}</option>)}
+    </select>
   );
 };
 
@@ -454,16 +450,16 @@ const VentasPage: React.FC = () => {
             </span>
           </div>
 
-          {/* Filtros con botones */}
-          <div className="space-y-2 pt-3 border-t border-neutral-100">
-            <FiltroChips label="Empleado" opciones={opcionesEmpleado} valor={filtros.empleado}
+          {/* Filtros desplegables */}
+          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-neutral-100">
+            <FiltroSelect todos="Todos los empleados" opciones={opcionesEmpleado} valor={filtros.empleado}
               onChange={v => setFiltros(p => ({ ...p, empleado: v }))} />
-            <FiltroChips label="Pago" opciones={opcionesPago} valor={filtros.metodoPago}
+            <FiltroSelect todos="Todos los pagos" opciones={opcionesPago} valor={filtros.metodoPago}
               onChange={v => setFiltros(p => ({ ...p, metodoPago: v }))} />
-            <FiltroChips label="Turno" opciones={opcionesTurno} valor={filtros.turno}
+            <FiltroSelect todos="Todos los turnos" opciones={opcionesTurno} valor={filtros.turno}
               onChange={v => setFiltros(p => ({ ...p, turno: v }))} />
             {hayFiltrosActivos && (
-              <button onClick={limpiarFiltros} className="text-xs font-medium text-primary hover:underline">
+              <button onClick={limpiarFiltros} className="text-xs font-medium text-primary hover:underline ml-1">
                 Limpiar filtros
               </button>
             )}
