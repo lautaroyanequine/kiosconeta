@@ -217,8 +217,11 @@ const VentasPage: React.FC = () => {
 
     try {
       const resultado = await ventasApi.getByKiosco(user.kioscoId, {
-        fechaDesde: filtros.fechaDesde ? `${filtros.fechaDesde}T00:00:00` : undefined,
-        fechaHasta: filtros.fechaHasta ? `${filtros.fechaHasta}T23:59:59` : undefined,
+        // Las ventas se guardan en UTC: el día local (00:00–23:59:59.999 de acá) se
+        // convierte a su instante UTC real. Sin esto, con UTC-3 se perdían las
+        // ventas de las 21:00 a las 24:00 del último día del rango.
+        fechaDesde: filtros.fechaDesde ? new Date(`${filtros.fechaDesde}T00:00:00`).toISOString() : undefined,
+        fechaHasta: filtros.fechaHasta ? new Date(`${filtros.fechaHasta}T23:59:59.999`).toISOString() : undefined,
         soloAnuladas: filtros.soloAnuladas || undefined,
         pagina,
         tamanoPagina: 200,
