@@ -10,7 +10,7 @@ import {
 import { Button, Badge, Input, Modal, LoadingOverlay } from '@/components/commons';
 import { useAuth } from '@/contexts/AuthContext';
 import { ventasApi } from '@/apis/ventasApi';
-import { formatCurrency, formatDateTime, formatDate } from '@/utils/formatters';
+import { formatCurrency } from '@/utils/formatters';
 import type { Venta } from '@/types';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -31,6 +31,18 @@ interface Filtros {
 // (el backend solo los setea en ese caso) — más confiable que comparar el nombre.
 const esPagoCombinado = (venta: Venta) =>
   venta.montoEfectivo != null || venta.montoVirtual != null;
+
+// Las ventas se guardan en UTC. Si el servidor manda la fecha SIN zona horaria
+// ("2026-10-24T00:30:00"), el navegador la tomaría como hora local y quedaría
+// corrida 3 horas (una venta de las 21:30 figuraría ya como del día siguiente).
+// Acá se asume UTC cuando falta la zona y se muestra siempre en hora local.
+const parseFechaVenta = (f: string): Date =>
+  new Date(/(Z|[+-]\d{2}:?\d{2})$/i.test(f) ? f : `${f}Z`);
+const fmtFecha = (f: string) =>
+  parseFechaVenta(f).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+const fmtHora = (f: string) =>
+  parseFechaVenta(f).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+const fmtFechaHora = (f: string) => `${fmtFecha(f)} ${fmtHora(f)}`;
 
 // Fecha LOCAL en formato yyyy-mm-dd (toISOString usa UTC y de noche daba el día siguiente).
 const fechaLocal = (d: Date) =>
@@ -104,7 +116,7 @@ const VentaDetalleModal: React.FC<{
       <div className="grid grid-cols-2 gap-3 mb-5">
         <div className="bg-neutral-50 rounded-lg p-3">
           <p className="text-xs text-neutral-500 mb-1">Fecha</p>
-          <p className="text-sm font-medium text-neutral-800">{formatDateTime(venta.fecha)}</p>
+          <p className="text-sm font-medium text-neutral-800">{fmtFechaHora(venta.fecha)}</p>
         </div>
         <div className="bg-neutral-50 rounded-lg p-3">
           <p className="text-xs text-neutral-500 mb-1">Empleado</p>
@@ -503,10 +515,8 @@ const VentasPage: React.FC = () => {
                         <span className="text-sm font-mono text-neutral-500">#{venta.numeroVenta}</span>
                       </td>
                       <td className="py-3 px-3">
-                        <p className="text-sm text-neutral-800">{formatDate(venta.fecha)}</p>
-                        <p className="text-xs text-neutral-400">
-                          {new Date(venta.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
-                        </p>
+                        <p className="text-sm text-neutral-800">{fmtFecha(venta.fecha)}</p>
+                        <p className="text-xs text-neutral-400">{fmtHora(venta.fecha)}</p>
                       </td>
                       <td className="py-3 px-3 hidden md:table-cell">
                         <span className="text-sm text-neutral-700">{venta.empleadoNombre}</span>
@@ -557,7 +567,7 @@ const VentasPage: React.FC = () => {
                           {venta.anulada ? <Badge variant="danger">Anulada</Badge> : <Badge variant="success">Ok</Badge>}
                         </div>
                         <p className="text-xs text-neutral-400 mt-0.5">
-                          {formatDate(venta.fecha)} · {new Date(venta.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                          {fmtFecha(venta.fecha)} · {fmtHora(venta.fecha)}
                         </p>
                       </div>
                       <span className={`text-base font-bold shrink-0 ${venta.anulada ? 'line-through text-neutral-400' : 'text-neutral-900'}`}>
