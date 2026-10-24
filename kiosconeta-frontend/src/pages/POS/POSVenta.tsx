@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   Search, ShoppingCart, DollarSign, Smartphone,
   CreditCard, Trash2, Plus, Minus, CheckCircle2,
-  Barcode, Package, Clock, Tag, Loader2, Layers, ChevronLeft
+  Barcode, Package, Clock, Tag, Loader2, Layers, ChevronLeft, List, LayoutGrid
 } from 'lucide-react';
 import { useEmpleadoActivo } from '@/contexts/EmpleadoActivoContext';
 import { productosApi, ventasApi, metodosPagoApi, auditoriaApi } from '@/apis';
@@ -56,6 +56,15 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   const [productosFiltrados, setProductosFiltrados] = useState<ProductoSimple[]>([]);
   const [busqueda, setBusqueda]                     = useState('');
   const [categoriaActiva, setCategoriaActiva]       = useState('todas');
+  // Vista del listado de productos: filas (nombre completo) o tarjetas. Se recuerda.
+  const [vistaProductos, setVistaProductos] = useState<'lista' | 'tarjetas'>(() => {
+    try { return localStorage.getItem('pos_vista_productos') === 'tarjetas' ? 'tarjetas' : 'lista'; }
+    catch { return 'lista'; }
+  });
+  const cambiarVista = (v: 'lista' | 'tarjetas') => {
+    setVistaProductos(v);
+    try { localStorage.setItem('pos_vista_productos', v); } catch { /* sin storage: no pasa nada */ }
+  };
   const [isLoadingProductos, setIsLoadingProductos] = useState(true);
   const [sueltoModal, setSueltoModal] = useState<{ producto: ProductoSimple; cantidad: number } | null>(null);
   const [pesoModal, setPesoModal] = useState<{ producto: ProductoSimple; gramos: number; editandoLineId?: string } | null>(null);
@@ -449,7 +458,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   {/* Panel izquierdo: Productos */}
   <div className="flex-1 flex flex-col overflow-hidden">
     <div className="px-3 py-2 bg-white border-b border-neutral-200 space-y-1.5">
-      <div className="relative">
+      <div className="flex items-center gap-2">
+      <div className="relative flex-1 min-w-0">
         {/* CORRECCIÓN 1: Buscador de productos */}
         <Search 
           size={16} 
@@ -471,6 +481,19 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
           className="w-full pr-4 py-2.5 rounded-lg border border-neutral-300 text-sm
                      outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
         />
+      </div>
+
+      {/* Cambiar vista: filas / tarjetas */}
+      <div className="flex shrink-0 rounded-lg border border-neutral-300 overflow-hidden bg-white">
+        <button type="button" onClick={() => cambiarVista('lista')} title="Ver en filas"
+          className={`px-2.5 py-2.5 transition-colors ${vistaProductos === 'lista' ? 'bg-primary text-white' : 'text-neutral-500 hover:bg-neutral-100'}`}>
+          <List size={16} />
+        </button>
+        <button type="button" onClick={() => cambiarVista('tarjetas')} title="Ver en tarjetas"
+          className={`px-2.5 py-2.5 transition-colors ${vistaProductos === 'tarjetas' ? 'bg-primary text-white' : 'text-neutral-500 hover:bg-neutral-100'}`}>
+          <LayoutGrid size={16} />
+        </button>
+      </div>
       </div>
 
       {/* ... (resto del código de feedback y categorías sin cambios) ... */}
@@ -509,32 +532,36 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
           <p className="text-sm text-neutral-400">Sin resultados</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
+        <div className={vistaProductos === 'lista'
+          ? 'flex flex-col gap-1.5'
+          : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2'}>
           {productosFiltrados.map(p => {
             const esCombo = (p as any).esCombo === true;
+            const alClick = () => {
+              if (esCombo) {
+                const combo = combosVirtuales.find(c => c.productoId === p.productoId)!;
+                setComboModal({
+                  combo,
+                  lineas: combo.productosCombo.map(pc => ({
+                    cantidad: pc.cantidad,
+                    productoIdElegido: pc.productoId, // ya viene resuelto si la línea es de producto fijo
+                  })),
+                });
+              } else if ((p as any).suelto) {
+                setSueltoModal({ producto: p, cantidad: 1, });
+              } else {
+                agregarProducto(p);
+              }
+            };
+            const Componente = vistaProductos === 'lista' ? ProductoFila : ProductoCard;
             return (
-              <ProductoCard
+              <Componente
                 key={p.productoId}
                 producto={p}
                 isCombo={esCombo}
                 isSuelto={(p as any).suelto === true}
                 isPorKilo={p.unidadMedida === 'Kilogramo' || p.unidadMedida === 1}
-                onClick={() => {
-  if (esCombo) {
-    const combo = combosVirtuales.find(c => c.productoId === p.productoId)!;
-    setComboModal({
-      combo,
-      lineas: combo.productosCombo.map(pc => ({
-        cantidad: pc.cantidad,
-        productoIdElegido: pc.productoId, // ya viene resuelto si la línea es de producto fijo
-      })),
-    });
-  } else if ((p as any).suelto) {  
-    setSueltoModal({ producto: p, cantidad: 1, });
-  } else {
-    agregarProducto(p);
-  }
-}}
+                onClick={alClick}
               />
             );
           })}
@@ -1206,6 +1233,55 @@ const ProductoCard: React.FC<{ producto: ProductoSimple; isCombo?: boolean; isSu
       </div>
 
       <p className={`text-base font-extrabold tracking-tight
+        ${isCombo ? 'text-blue-600' : isSuelto ? 'text-green-600' : isPorKilo ? 'text-amber-600' : 'text-primary'}`}>
+        {formatCurrency(producto.precioVenta)}{isPorKilo && <span className="text-xs font-semibold"> / kg</span>}
+      </p>
+    </button>
+  );
+};
+
+// Misma info que ProductoCard pero en una fila: el nombre usa todo el ancho y se
+// muestra completo (puede ocupar varias líneas), con el precio a la derecha.
+const ProductoFila: React.FC<{ producto: ProductoSimple; isCombo?: boolean; isSuelto?: boolean; isPorKilo?: boolean; onClick: () => void }> = ({ producto, isCombo, isSuelto, isPorKilo, onClick }) => {
+  const sinStock  = producto.stock === 0 && !isCombo;
+  const stockBajo = !sinStock && !isCombo && producto.stock > 0 &&
+    (isPorKilo ? producto.stock < 500 : producto.stock < 10);
+  const stockLabel = isPorKilo
+    ? (producto.stock >= 1000 ? `${(producto.stock / 1000).toLocaleString('es-AR', { maximumFractionDigits: 1 })}kg` : `${producto.stock}g`)
+    : `${producto.stock}u`;
+
+  const color = isCombo ? 'blue' : isSuelto ? 'green' : isPorKilo ? 'amber' : 'primary';
+
+  return (
+    <button onClick={onClick} disabled={sinStock}
+      className={`w-full bg-white rounded-xl px-3 py-2.5 text-left border-2 transition-all group flex items-center gap-3
+        ${sinStock  ? 'border-neutral-100 opacity-40 cursor-not-allowed'
+        : isCombo   ? 'border-blue-200 hover:border-blue-400 hover:shadow-sm active:scale-[0.99]'
+        : isSuelto  ? 'border-green-200 hover:border-green-400 hover:shadow-sm active:scale-[0.99]'
+        : isPorKilo ? 'border-amber-200 hover:border-amber-400 hover:shadow-sm active:scale-[0.99]'
+                    : 'border-neutral-200 hover:border-primary hover:shadow-sm active:scale-[0.99]'}`}>
+
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0
+        ${color === 'blue' ? 'bg-blue-100' : color === 'green' ? 'bg-green-100' : color === 'amber' ? 'bg-amber-100' : 'bg-primary/10'}`}>
+        {isCombo
+          ? <Tag     size={18} className="text-blue-600" />
+          : <Package size={18} className={isSuelto ? 'text-green-600' : isPorKilo ? 'text-amber-600' : 'text-primary'} />}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-neutral-900 leading-snug break-words" style={{ fontSize: '0.95rem' }}>
+          {producto.nombre}
+        </p>
+        <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+          {isCombo && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">Combo</span>}
+          {isSuelto && !isCombo && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-600">Suelto</span>}
+          {isPorKilo && !isCombo && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">Por kilo</span>}
+          {!isCombo && sinStock && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-500">Sin stock</span>}
+          {!isCombo && stockBajo && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">Quedan {stockLabel}</span>}
+        </div>
+      </div>
+
+      <p className={`shrink-0 text-base font-extrabold tracking-tight whitespace-nowrap
         ${isCombo ? 'text-blue-600' : isSuelto ? 'text-green-600' : isPorKilo ? 'text-amber-600' : 'text-primary'}`}>
         {formatCurrency(producto.precioVenta)}{isPorKilo && <span className="text-xs font-semibold"> / kg</span>}
       </p>
