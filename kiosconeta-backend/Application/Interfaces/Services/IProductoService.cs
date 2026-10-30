@@ -37,6 +37,7 @@ namespace Application.Interfaces.Services
         Task<bool> DeleteAsync(int id);
         Task<bool> ActivarDesactivarAsync(int id, bool activo);
         Task<bool> ActualizarStockAsync(int id, int cantidad, int idEmpleado, int kioscoId);
+        Task<ProductoResponseDTO> IngresarMercaderiaAsync(int productoId, int kioscoId, IngresoMercaderiaDTO dto, int empleadoId);
         Task<AjustePrecioMasivoResponseDTO> AjustarPreciosMasivoAsync(AjustePrecioMasivoDTO dto, int empleadoId);
     }
 }

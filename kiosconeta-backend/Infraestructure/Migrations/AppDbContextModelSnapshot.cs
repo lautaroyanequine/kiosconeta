@@ -980,6 +980,12 @@ namespace Infraestructure.Migrations
                         },
                         new
                         {
+                            PermisoID = 51,
+                            Descripcion = "Ingresar mercadería sin editar productos",
+                            Nombre = "productos.ingresar_mercaderia"
+                        },
+                        new
+                        {
                             PermisoID = 9,
                             Descripcion = "Ver categorías",
                             Nombre = "categorias.ver"
@@ -1605,7 +1611,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$4PbqbknydbueGJIohmC4sO8wog/WqXFm1xQ0Pixl9ToNDBM51gMGG"
+                            Password = "$2a$11$hiENHMnUUO8K22rdXouGiu4C1NWnxCTDNe33RGwq9KIXmMgAS1uV2"
                         });
                 });
 

@@ -276,6 +276,58 @@ namespace Application.Services
             return resultado;
         }
 
+        // Ingreso de mercadería: stock + costo + distribuidor en UNA sola operación
+        // (antes eran dos llamadas separadas: si la segunda fallaba, el stock ya estaba sumado).
+        public async Task<ProductoResponseDTO> IngresarMercaderiaAsync(
+            int productoId, int kioscoId, IngresoMercaderiaDTO dto, int empleadoId)
+        {
+            if (dto.Cantidad <= 0)
+                throw new InvalidOperationException("La cantidad a ingresar debe ser mayor a 0");
+            if (dto.PrecioCosto.HasValue && dto.PrecioCosto.Value < 0)
+                throw new InvalidOperationException("El precio de costo no puede ser negativo");
+
+            var producto = await _productoRepository.GetByIdAsync(productoId, kioscoId);
+            if (producto == null)
+                throw new KeyNotFoundException($"No se encontró el producto con ID: {productoId}");
+
+            var stockAnterior = producto.StockActual;
+            var costoAnterior = producto.PrecioCosto;
+            var distribuidorAnterior = producto.DistribuidorId;
+
+            producto.StockActual += dto.Cantidad;
+            if (dto.PrecioCosto.HasValue)
+                producto.PrecioCosto = dto.PrecioCosto.Value;
+            producto.DistribuidorId = dto.DistribuidorId;
+
+            await _productoRepository.UpdateAsync(producto);
+
+            await _auditoriaService.RegistrarAsync(
+                empleadoId: empleadoId,
+                kioscoId: kioscoId,
+                tipoEvento: TipoEventoAuditoria.IngresoMercaderia,
+                descripcion: $"Ingreso de mercadería de '{producto.Nombre}': +{dto.Cantidad}. " +
+                             $"Stock {stockAnterior} → {producto.StockActual}. " +
+                             $"Costo {costoAnterior:F2} → {producto.PrecioCosto:F2}",
+                datos: new
+                {
+                    productoId,
+                    productoNombre = producto.Nombre,
+                    cantidad = dto.Cantidad,
+                    stockAnterior,
+                    stockNuevo = producto.StockActual,
+                    costoAnterior,
+                    costoNuevo = producto.PrecioCosto,
+                    distribuidorAnterior,
+                    distribuidorNuevo = producto.DistribuidorId
+                },
+                esSospechoso: false,
+                motivoSospecha: null
+            );
+
+            var completo = await _productoRepository.GetByIdAsync(productoId, kioscoId);
+            return MapToResponseDTO(completo!);
+        }
+
         public async Task<AjustePrecioMasivoResponseDTO> AjustarPreciosMasivoAsync(AjustePrecioMasivoDTO dto, int empleadoId)
         {
             if (dto.ProductoIds == null || dto.ProductoIds.Count == 0)

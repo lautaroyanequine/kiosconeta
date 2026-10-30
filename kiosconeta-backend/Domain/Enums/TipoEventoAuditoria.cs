@@ -21,6 +21,7 @@
 
         // Productos
         public const string StockAjustado = "STOCK_AJUSTADO";
+        public const string IngresoMercaderia = "INGRESO_MERCADERIA";
         public const string QuiebreDeStock = "QUIEBRE_STOCK";
         public const string PreciosAjustadosMasivo = "PRECIOS_AJUSTADOS_MASIVO";
 

@@ -346,6 +346,32 @@ namespace KIOSCONETA.Controllers
             }
         }
 
+        /// Ingreso de mercadería: suma stock y actualiza costo/distribuidor en una sola operación.
+        /// Alcanza con el permiso de ingreso de mercadería (o el de ajustar stock);
+        /// NO requiere permiso de editar productos.
+        [HttpPost("{id}/ingreso-mercaderia")]
+        [RequierePermiso("productos.ingresar_mercaderia", "productos.ajustar_stock")]
+        public async Task<ActionResult<ProductoResponseDTO>> IngresarMercaderia(int id, [FromBody] IngresoMercaderiaDTO dto)
+        {
+            try
+            {
+                var producto = await _productoService.IngresarMercaderiaAsync(id, KioscoId, dto, EmpleadoId);
+                return Ok(producto);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al ingresar mercadería", error = ex.Message });
+            }
+        }
+
         /// Ajustar el precio de varios productos a la vez (por %, o monto fijo)
         [HttpPatch("ajuste-masivo")]
         [RequierePermiso("productos.editar")]

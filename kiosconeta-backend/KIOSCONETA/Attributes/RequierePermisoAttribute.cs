@@ -12,11 +12,12 @@ namespace KIOSCONETA.Attributes
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class RequierePermisoAttribute : Attribute, IAsyncAuthorizationFilter
     {
-        private readonly string _permiso;
+        private readonly string[] _permisos;
 
-        public RequierePermisoAttribute(string permiso)
+        /// <summary>Alcanza con tener AL MENOS UNO de los permisos indicados.</summary>
+        public RequierePermisoAttribute(params string[] permisos)
         {
-            _permiso = permiso;
+            _permisos = permisos;
         }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
@@ -53,15 +54,23 @@ namespace KIOSCONETA.Attributes
 
             // Verificar si el empleado tiene el permiso
             // Temporal debug
-            Console.WriteLine($"[DEBUG] EmpleadoId del token: {empleadoId}, Permiso: {_permiso}");
-            var tienePermiso = await permisoRepository.EmpleadoTienePermisoAsync(empleadoId, _permiso);
+            Console.WriteLine($"[DEBUG] EmpleadoId del token: {empleadoId}, Permiso: {string.Join(" | ", _permisos)}");
+            var tienePermiso = false;
+            foreach (var permiso in _permisos)
+            {
+                if (await permisoRepository.EmpleadoTienePermisoAsync(empleadoId, permiso))
+                {
+                    tienePermiso = true;
+                    break;
+                }
+            }
             Console.WriteLine($"[DEBUG] TienePermiso: {tienePermiso}");
             if (!tienePermiso)
             {
                 context.Result = new ObjectResult(new
                 {
                     message = "No tiene permisos para realizar esta acción",
-                    permisoRequerido = _permiso
+                    permisoRequerido = string.Join(" o ", _permisos)
                 })
                 {
                     StatusCode = 403 // Forbidden

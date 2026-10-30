@@ -9,7 +9,7 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
         {
             entity.HasData(
                 // ════════════════════════════════════════════════
-                // PRODUCTOS (8 permisos)
+                // PRODUCTOS (9 permisos)
                 // ════════════════════════════════════════════════
                 new Permiso { PermisoID = 1, Nombre = "productos.ver", Descripcion = "Ver listado de productos" },
                 new Permiso { PermisoID = 2, Nombre = "productos.crear", Descripcion = "Crear nuevos productos" },
@@ -19,6 +19,7 @@ namespace Infraestructure.Persistence.DataKiosconeta.Seed
                 new Permiso { PermisoID = 6, Nombre = "productos.ajustar_stock", Descripcion = "Ajustar stock manualmente" },
                 new Permiso { PermisoID = 7, Nombre = "productos.ver_stock_bajo", Descripcion = "Ver productos con stock bajo" },
                 new Permiso { PermisoID = 8, Nombre = "productos.editar_precios", Descripcion = "Editar precios de venta y costo" },
+                new Permiso { PermisoID = 51, Nombre = "productos.ingresar_mercaderia", Descripcion = "Ingresar mercadería sin editar productos" },
 
                 // ════════════════════════════════════════════════
                 // CATEGORÍAS (4 permisos)

@@ -106,7 +106,21 @@ const StatCard: React.FC<{
 // ────────────────────────────────────────────────────────────────────────────
 
 const ProductosPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+
+  // Qué botones ve cada empleado según sus permisos. El backend siempre valida;
+  // esto solo evita mostrar botones que darían "sin permisos". Si el usuario no
+  // trae su lista de permisos, no se oculta nada (el backend decide).
+  const tienePermiso = (...nombres: string[]) => {
+    if (isAdmin?.()) return true;
+    const lista = (user as any)?.permisos;
+    if (!Array.isArray(lista)) return true;
+    const propios = lista.map((p: any) => (typeof p === 'string' ? p : p?.nombre ?? p?.Nombre));
+    return nombres.some(n => propios.includes(n));
+  };
+  const puedeCrear         = tienePermiso('productos.crear');
+  const puedeEditarPrecios = tienePermiso('productos.editar');
+  const puedeIngresar      = tienePermiso('productos.ingresar_mercaderia', 'productos.ajustar_stock');
   const [tabActiva, setTabActiva] = useState<Tab>('productos');
   const [modalImportar, setModalImportar] = useState(false);
   const [exportando, setExportando] = useState(false);
@@ -347,38 +361,46 @@ const ProductosPage: React.FC = () => {
               >
                 Exportar
               </Button>
-              <Button
-                variant="outline"
-                leftIcon={<Upload size={15} />}
-                onClick={() => setModalImportar(true)}
-                className="flex-1 sm:flex-none justify-center"
-              >
-                Importar
-              </Button>
-              <Button
-                variant="outline"
-                leftIcon={<DollarSign size={15} />}
-                onClick={() => setModalAjustePrecios(true)}
-                className="flex-1 sm:flex-none justify-center"
-              >
-                Editar precios
-              </Button>
-              <Button
-                variant="outline"
-                leftIcon={<PackagePlus size={16} />}
-                onClick={() => setModalIngreso(true)}
-                className="flex-1 sm:flex-none justify-center"
-              >
-                Agregar stock
-              </Button>
-              <Button
-                variant="primary"
-                leftIcon={<Plus size={16} />}
-                onClick={abrirModalCrear}
-                className="flex-1 sm:flex-none justify-center"
-              >
-                Nuevo producto
-              </Button>
+              {puedeCrear && (
+                <Button
+                  variant="outline"
+                  leftIcon={<Upload size={15} />}
+                  onClick={() => setModalImportar(true)}
+                  className="flex-1 sm:flex-none justify-center"
+                >
+                  Importar
+                </Button>
+              )}
+              {puedeEditarPrecios && (
+                <Button
+                  variant="outline"
+                  leftIcon={<DollarSign size={15} />}
+                  onClick={() => setModalAjustePrecios(true)}
+                  className="flex-1 sm:flex-none justify-center"
+                >
+                  Editar precios
+                </Button>
+              )}
+              {puedeIngresar && (
+                <Button
+                  variant="outline"
+                  leftIcon={<PackagePlus size={16} />}
+                  onClick={() => setModalIngreso(true)}
+                  className="flex-1 sm:flex-none justify-center"
+                >
+                  Ingresar mercadería
+                </Button>
+              )}
+              {puedeCrear && (
+                <Button
+                  variant="primary"
+                  leftIcon={<Plus size={16} />}
+                  onClick={abrirModalCrear}
+                  className="flex-1 sm:flex-none justify-center"
+                >
+                  Nuevo producto
+                </Button>
+              )}
             </div>
           )}
         </div>
