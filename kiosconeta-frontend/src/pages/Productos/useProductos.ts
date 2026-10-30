@@ -228,54 +228,31 @@ export const useProductos = () => {
   // ────────────────────────────────────────────────────────────────────────
 
   const ingresarMercaderia = async (
-  productoId: number,
-  cantidad: number,
-  distribuidorId: number | undefined,
-  precioCosto: number,
-) => {
-  const producto = productos.find(p => p.productoId === productoId);
-  if (!producto) throw new Error('Producto no encontrado');
+    productoId: number,
+    cantidad: number,
+    distribuidorId: number | undefined,
+    precioCosto: number,
+  ) => {
+    const producto = productos.find(p => p.productoId === productoId);
+    if (!producto) throw new Error('Producto no encontrado');
 
-  await productosApi.ajustarStock(productoId, cantidad, user!.empleadoId,Number(user!.kioscoId), 'agregar');
-
-  const costoCambio       = precioCosto !== producto.precioCosto;
-  const distribuidorCambio = distribuidorId !== producto.distribuidorId;
-
-  if (costoCambio || distribuidorCambio) {
-    await productosApi.update(productoId, {
-      productoId,
-      nombre:        producto.nombre,
-      codigoBarra:   producto.codigoBarra,
-      precioCosto:   costoCambio ? precioCosto : producto.precioCosto,
-      precioVenta:   producto.precioVenta,
-      // Sin esto, el DTO en C# (no nullable) llega en 0/'Unidad' y el backend
-      // resetea silenciosamente un producto por kilo a "Unidad" en cada ingreso
-      // de mercadería que toque costo o distribuidor.
-      unidadMedida:  producto.unidadMedida,
-      stockActual:   producto.stockActual + cantidad,
-      stockMinimo:   producto.stockMinimo,
-      categoriaId:   producto.categoriaId,
-      distribuidorId: distribuidorCambio ? distribuidorId : producto.distribuidorId, // ← cambio
-      fechaVencimiento: producto.fechaVencimiento,
-      activo:        producto.activo,
-      suelto:        producto.suelto ?? false,
+    // Una sola llamada: suma stock + actualiza costo y distribuidor. Solo pide el
+    // permiso de ingreso de mercadería (no el de editar productos).
+    await productosApi.ingresarMercaderia(productoId, {
+      cantidad,
+      precioCosto,
+      distribuidorId: distribuidorId ?? null,
     });
-  }
 
-  setProductos(prev =>
-    prev.map(p =>
-      p.productoId === productoId
-        ? {
-            ...p,
-            stockActual:    p.stockActual + cantidad,
-            precioCosto:    costoCambio ? precioCosto : p.precioCosto,
-            distribuidorId: distribuidorCambio ? distribuidorId : p.distribuidorId,
-          }
-        : p
-    )
-  );
-  setModalIngreso(false);
-};
+    setProductos(prev =>
+      prev.map(p =>
+        p.productoId === productoId
+          ? { ...p, stockActual: p.stockActual + cantidad, precioCosto, distribuidorId }
+          : p
+      )
+    );
+    setModalIngreso(false);
+  };
 
   // ────────────────────────────────────────────────────────────────────────
   // AJUSTE MASIVO DE PRECIOS

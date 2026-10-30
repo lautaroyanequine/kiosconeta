@@ -231,6 +231,22 @@ getPaginado: async (
   },
 
   /**
+   * Ingreso de mercadería — POST /productos/{id}/ingreso-mercaderia
+   * Suma stock y actualiza costo/distribuidor en una sola operación.
+   * (El kiosco y el empleado los toma el backend del token.)
+   */
+  ingresarMercaderia: async (
+    id: number,
+    data: { cantidad: number; precioCosto?: number; distribuidorId?: number | null }
+  ): Promise<void> => {
+    try {
+      await apiClient.post(`${API_ENDPOINTS.PRODUCTOS_BY_ID(id)}/ingreso-mercaderia`, data);
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  /**
    * Ajustar precios de varios productos a la vez (por %, o monto fijo)
    */
   ajustarPreciosMasivo: async (data: AjustePrecioMasivoDTO): Promise<AjustePrecioMasivoResponseDTO> => {
