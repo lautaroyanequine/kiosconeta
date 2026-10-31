@@ -1611,7 +1611,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$PDkF3bj1Jf6K9ty6SozsIeHVzXF1Czh6n6VXB9DmOoiLG/vuDtpei"
+                            Password = "$2a$11$rmLEZVoYeI/7SsC/WIHvaOp2H3KNXGQvhrB6AXKppdMReXdwGlbPS"
                         });
                 });
 
