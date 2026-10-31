@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261030043937_AddPermisoData")]
-    partial class AddPermisoData
+    [Migration("20261031034403_Permisos")]
+    partial class Permisos
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1614,7 +1614,7 @@ namespace Infraestructure.Migrations
                             UsuarioID = 1,
                             Email = "admin@kiosconeta.com",
                             Nombre = "Admin",
-                            Password = "$2a$11$hiENHMnUUO8K22rdXouGiu4C1NWnxCTDNe33RGwq9KIXmMgAS1uV2"
+                            Password = "$2a$11$PDkF3bj1Jf6K9ty6SozsIeHVzXF1Czh6n6VXB9DmOoiLG/vuDtpei"
                         });
                 });
 

@@ -5,7 +5,7 @@
 namespace Infraestructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPermisoData : Migration
+    public partial class Permisos : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace Infraestructure.Migrations
                 keyColumn: "UsuarioID",
                 keyValue: 1,
                 column: "Password",
-                value: "$2a$11$hiENHMnUUO8K22rdXouGiu4C1NWnxCTDNe33RGwq9KIXmMgAS1uV2");
+                value: "$2a$11$PDkF3bj1Jf6K9ty6SozsIeHVzXF1Czh6n6VXB9DmOoiLG/vuDtpei");
         }
 
         /// <inheritdoc />
@@ -26,7 +26,7 @@ namespace Infraestructure.Migrations
                 keyColumn: "UsuarioID",
                 keyValue: 1,
                 column: "Password",
-                value: "$2a$11$RB1s7z5p/tu39OeaSKO9y.dyWFPkuHo3M/AlA0hRT0JBb/GeeFisu");
+                value: "$2a$11$n6b0F5aZt9F99GKDe/1oxulBFHC5AxN9nP9S/d3/McwJ7.lg.AQja");
         }
     }
 }
