@@ -68,6 +68,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
   const [isLoadingProductos, setIsLoadingProductos] = useState(true);
   const [sueltoModal, setSueltoModal] = useState<{ producto: ProductoSimple; cantidad: number } | null>(null);
   const [pesoModal, setPesoModal] = useState<{ producto: ProductoSimple; gramos: number; editandoLineId?: string } | null>(null);
+  // Texto que se está tipeando en el campo de pesos (null = mostrar el valor calculado desde gramos)
+  const [pesosEdit, setPesosEdit] = useState<string | null>(null);
   // Solo relevante en mobile (< lg): ahí el carrito es un overlay a pantalla
   // completa en vez de panel fijo. En lg: siempre se ve, este estado se ignora.
   const [carritoAbierto, setCarritoAbierto] = useState(false);
@@ -1057,7 +1059,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
         {[100, 250, 500, 1000].map(g => (
           <button
             key={g}
-            onClick={() => setPesoModal(prev => prev && ({ ...prev, gramos: g }))}
+            onClick={() => { setPesosEdit(null); setPesoModal(prev => prev && ({ ...prev, gramos: g })); }}
             className={`py-1.5 rounded-lg text-xs font-semibold border-2 transition-all
               ${pesoModal.gramos === g
                 ? 'border-amber-500 bg-amber-50 text-amber-700'
@@ -1078,12 +1080,14 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
             onChange={e => {
               const v = Math.round(Number(e.target.value));
               if (!isNaN(v) && v >= 0) {
+                setPesosEdit(null);
                 setPesoModal(prev => prev && ({ ...prev, gramos: v }));
               }
             }}
             onFocus={e => e.target.select()}
             onKeyDown={e => e.stopPropagation()}
-            className="w-24 text-center text-2xl font-bold text-neutral-900 border-2 border-neutral-200 rounded-xl py-2 focus:outline-none focus:border-amber-500"
+            style={{ width: 112, minWidth: 0, paddingLeft: 4, paddingRight: 4 }}
+            className="text-center text-2xl font-bold text-neutral-900 border-2 border-neutral-200 rounded-xl py-2 focus:outline-none focus:border-amber-500"
           />
           <span className="text-[11px] font-semibold text-neutral-400 mt-1">gramos</span>
         </div>
@@ -1092,27 +1096,48 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
         <div className="flex flex-col items-center">
           <input
-            type="number"
-            min="0"
-            step="1"
-            value={Math.round((pesoModal.gramos / 1000) * pesoModal.producto.precioVenta * 100) / 100}
+            type="text"
+            inputMode="decimal"
+            value={pesosEdit ?? String(Math.round((pesoModal.gramos / 1000) * pesoModal.producto.precioVenta * 100) / 100).replace('.', ',')}
             onChange={e => {
-              const importe = Number(e.target.value);
+              const raw = e.target.value;
+              if (!/^\d*[.,]?\d{0,2}$/.test(raw)) return;
+              setPesosEdit(raw);
+              const importe = Number(raw.replace(',', '.'));
               if (!isNaN(importe) && importe >= 0 && pesoModal.producto.precioVenta > 0) {
                 const g = Math.round((importe / pesoModal.producto.precioVenta) * 1000);
                 setPesoModal(prev => prev && ({ ...prev, gramos: g }));
               }
             }}
+            onBlur={() => setPesosEdit(null)}
             onFocus={e => e.target.select()}
             onKeyDown={e => e.stopPropagation()}
-            className="w-24 text-center text-2xl font-bold text-amber-600 border-2 border-neutral-200 rounded-xl py-2 focus:outline-none focus:border-amber-500"
+            style={{ width: 128, minWidth: 0, paddingLeft: 4, paddingRight: 4 }}
+            className="text-center text-xl font-bold text-amber-600 border-2 border-neutral-200 rounded-xl py-2.5 focus:outline-none focus:border-amber-500"
           />
           <span className="text-[11px] font-semibold text-neutral-400 mt-1">pesos $</span>
         </div>
       </div>
-      <p className="text-center text-xs text-neutral-400 mb-4">
+      <p className="text-center text-xs text-neutral-400 mb-3">
         = {(pesoModal.gramos / 1000).toLocaleString('es-AR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg
       </p>
+
+      {/* Atajos por importe */}
+      <div className="grid grid-cols-4 gap-1.5 mb-4">
+        {[500, 1000, 2000, 5000].map(m => (
+          <button
+            key={m}
+            onClick={() => {
+              if (pesoModal.producto.precioVenta <= 0) return;
+              setPesosEdit(null);
+              const g = Math.round((m / pesoModal.producto.precioVenta) * 1000);
+              setPesoModal(prev => prev && ({ ...prev, gramos: g }));
+            }}
+            className="py-1.5 rounded-lg text-xs font-semibold border-2 border-neutral-200 text-neutral-500 hover:border-amber-300 transition-all">
+            ${m.toLocaleString('es-AR')}
+          </button>
+        ))}
+      </div>
 
       {/* Solo bloqueamos si conocemos el stock real y es insuficiente.
           Si el stock viene undefined (bug de datos), no frenamos la venta —
