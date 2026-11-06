@@ -62,6 +62,7 @@ interface AnalisisResponse {
 // conjunto de productos), así que esos campos quedan null y se muestran "—".
 interface FilaAnalisis {
   key: string
+  productoId?: number   // solo para productos (los combos no tienen)
   nombre: string
   categoria: string
   unidadesVendidas: number
@@ -622,6 +623,7 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
   const filasAnalisis: FilaAnalisis[] = React.useMemo(() => {
     const filasProductos: FilaAnalisis[] = (data?.productos ?? []).map(p => ({
       key: `p-${p.productoId}`,
+      productoId: p.productoId,
       nombre: p.nombre,
       categoria: p.categoria,
       unidadesVendidas: p.unidadesVendidas,
