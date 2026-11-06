@@ -196,12 +196,14 @@ export const ProductoDetalleModal: React.FC<Props> = ({ producto, diasAnalizados
   const { user } = useAuth()
   const [detalle, setDetalle] = useState<Partial<ProductoDetalleData> | null>(null)
   const [loadingDetalle, setLoadingDetalle] = useState(false)
+  const [errorDetalle, setErrorDetalle] = useState<string | null>(null)
 
   // Fetch del detalle con franjas horarias
  useEffect(() => {
   if (!producto || !user?.kioscoId) return
 
   setDetalle(null)
+  setErrorDetalle(null)
   setLoadingDetalle(true)
 
   const hasta = new Date()
@@ -217,7 +219,12 @@ export const ProductoDetalleModal: React.FC<Props> = ({ producto, diasAnalizados
       }
     )
     .then(res => setDetalle(handleResponse(res)))
-    .catch(() => setDetalle({}))
+    .catch((err: any) => {
+      const status = err?.response?.status
+      const msg = err?.response?.data?.error ?? err?.response?.data?.message ?? err?.message ?? 'Error desconocido'
+      setErrorDetalle(`${status ? `(${status}) ` : ''}${msg}`)
+      setDetalle({})
+    })
     .finally(() => setLoadingDetalle(false))
 }, [producto?.productoId, diasAnalizados, user?.kioscoId])
 
@@ -353,12 +360,14 @@ const maxFranja = top3[0]?.cantidadVentas ?? 1
               </div>
             ) : top3.length === 0 ? (
               <div className="bg-neutral-50 rounded-xl p-4 text-center">
-                <p className="text-sm text-neutral-400">
-                  Sin datos de franjas horarias aún
-                </p>
-                <p className="text-xs text-neutral-300 mt-1">
-                  El endpoint de detalle debe devolver <code>franjasHorarias</code>
-                </p>
+                {errorDetalle ? (
+                  <>
+                    <p className="text-sm text-red-500">No se pudo cargar el detalle de horarios</p>
+                    <p className="text-xs text-neutral-400 mt-1 break-words">{errorDetalle}</p>
+                  </>
+                ) : (
+                  <p className="text-sm text-neutral-400">Sin ventas de este producto en el período</p>
+                )}
               </div>
             ) : (
               <div className="space-y-2">
@@ -435,8 +444,8 @@ const maxFranja = top3[0]?.cantidadVentas ?? 1
         </div>
 
         {/* ── Quiebres de stock ────────────────────────────────────── */}
-{!loadingDetalle && (
-  <div className="space-y-3">
+{!loadingDetalle && !errorDetalle && (
+  <div className="space-y-3 px-6 pb-5">
     <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide flex items-center gap-1.5">
       <AlertTriangle size={13} className="text-amber-500" />
       Quiebres de stock en el período

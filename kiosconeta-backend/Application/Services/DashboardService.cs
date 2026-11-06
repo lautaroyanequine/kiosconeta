@@ -386,7 +386,8 @@ namespace Application.Services
             var distribucionHoraria = new int[24];
             foreach (var pv in ventasProducto)
             {
-                var hora = pv.Venta.Fecha.Hour;   // 0–23
+                // Venta.Fecha se guarda en UTC; Argentina es UTC-3 todo el año (sin horario de verano).
+                var hora = pv.Venta.Fecha.AddHours(-3).Hour;   // 0–23
                 distribucionHoraria[hora] += pv.Cantidad;
             }
 
@@ -414,7 +415,7 @@ namespace Application.Services
 
             var porDia = new int[7];
             foreach (var pv in ventasProducto)
-                porDia[(int)pv.Venta.Fecha.DayOfWeek] += pv.Cantidad;
+                porDia[(int)pv.Venta.Fecha.AddHours(-3).DayOfWeek] += pv.Cantidad;
 
             var totalDias = porDia.Sum();
 

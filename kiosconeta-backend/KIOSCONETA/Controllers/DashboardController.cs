@@ -41,21 +41,29 @@ namespace KIOSCONETA.Controllers
         /// Detalle de un producto: franjas horarias, distribución por hora y día de semana.
         /// </summary>
         [HttpPost("kiosco/{kioscoId}/analisis-productos/{productoId}/detalle")]
+        [RequierePermiso("reportes.dashboard_completo")]
         public async Task<IActionResult> GetDetalleProducto(
             int kioscoId,
             int productoId,
             [FromBody] ReporteFiltrosDTO filtros)  // mismo DTO que ya usás para analisis-productos
         {
-            var resultado = await _dashboardService.GetDetalleProductoAsync(
-                kioscoId,
-                productoId,
-                filtros.FechaDesde,
-                filtros.FechaHasta);
+            try
+            {
+                var resultado = await _dashboardService.GetDetalleProductoAsync(
+                    kioscoId,
+                    productoId,
+                    filtros.FechaDesde,
+                    filtros.FechaHasta);
 
-            if (resultado == null)
-                return NotFound($"No se encontró el producto {productoId} en el kiosco {kioscoId}.");
+                if (resultado == null)
+                    return NotFound(new { message = $"No se encontró el producto {productoId} en el kiosco {kioscoId}." });
 
-            return Ok(resultado);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener el detalle del producto", error = ex.Message });
+            }
         }
 
 
