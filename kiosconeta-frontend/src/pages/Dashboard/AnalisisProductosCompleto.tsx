@@ -154,6 +154,7 @@ const PresupuestoReposicion: React.FC<{
   const [soloFaltantes, setSoloFaltantes] = useState(true)
   // Hasta dónde reponer: el mínimo cargado, o lo que se vendió en 1 semana / 30 días
   const [base, setBase] = useState<BaseReposicion>('minimo')
+  const [expandido, setExpandido] = useState<number | null>(null)
   const [busqueda, setBusqueda] = useState('')
   const [modalExportar, setModalExportar] = useState(false)
   const [incluirPrecios, setIncluirPrecios] = useState(true)
@@ -393,53 +394,34 @@ const PresupuestoReposicion: React.FC<{
           </div>
         ) : (
           <>
-          {/* ── Celular: una tarjeta por producto ── */}
+          {/* ── Celular: una línea por producto (tocá el nombre para ver el detalle) ── */}
           <div className="md:hidden">
             {Object.entries(grupos).map(([categoria, items]) => (
               <div key={categoria}>
-                <div className="px-4 py-1.5 bg-blue-50/60 font-bold text-blue-700 uppercase tracking-wide text-[11px] sticky top-0 z-10">
+                <div className="px-3 py-1.5 bg-blue-50 font-bold text-blue-700 uppercase tracking-wide text-[11px] sticky top-0 z-10">
                   {categoria}
                 </div>
                 <div className="divide-y divide-neutral-100">
                   {items.map(p => {
                     const seleccionado = seleccionados[p.productoId] != null
                     const cantidad = seleccionados[p.productoId] ?? p.faltante
-                    const costoTotal = cantidad * p.precioCosto
+                    const abierto = expandido === p.productoId
                     return (
-                      <div key={p.productoId} className={`px-4 py-3 ${seleccionado ? 'bg-primary/5' : ''}`}>
-                        <div className="flex items-start gap-3">
-                          <button onClick={() => toggleSeleccion(p)} className="text-primary mt-0.5 shrink-0">
+                      <div key={p.productoId} className={seleccionado ? 'bg-primary/5' : ''}>
+                        <div className="flex items-center gap-2 px-3 py-2">
+                          <button onClick={() => toggleSeleccion(p)} className="text-primary shrink-0">
                             {seleccionado ? <CheckSquare size={20} /> : <Square size={20} className="text-neutral-300" />}
                           </button>
-                          <p className="text-sm font-semibold text-neutral-800 leading-snug flex-1 min-w-0">{p.nombre}</p>
+                          <button
+                            onClick={() => setExpandido(abierto ? null : p.productoId)}
+                            className="flex-1 min-w-0 text-left">
+                            <span className="block text-[13px] font-medium text-neutral-800 truncate">{p.nombre}</span>
+                          </button>
                           {p.faltante > 0 ? (
-                            <span className="shrink-0 text-xs font-bold text-amber-700 bg-amber-50 rounded-full px-2 py-0.5">falta {p.faltante}u</span>
+                            <span className="shrink-0 text-[11px] font-bold text-amber-700">-{p.faltante}</span>
                           ) : (
-                            <span className="shrink-0 text-xs font-bold text-success-600">OK</span>
+                            <span className="shrink-0 text-[11px] font-bold text-success-600">OK</span>
                           )}
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-2 mt-2.5 text-center">
-                          {[
-                            { l: 'Mínimo', v: p.stockMinimo, alerta: false },
-                            { l: 'Actual', v: p.stockActual, alerta: false },
-                            { l: 'Costo U', v: formatCurrency(p.precioCosto), alerta: false },
-                            { l: '1 semana', v: p.necesario7 ?? '—', alerta: p.necesario7 != null && p.stockActual < p.necesario7 },
-                            { l: '30 días', v: p.necesario30 ?? '—', alerta: p.necesario30 != null && p.stockActual < p.necesario30 },
-                          ].map(x => (
-                            <div key={x.l} className="bg-neutral-50 rounded-lg py-1.5 px-1">
-                              <p className="text-[10px] text-neutral-400 uppercase tracking-wide">{x.l}</p>
-                              <p className={`text-xs font-semibold ${x.alerta ? 'text-amber-700' : 'text-neutral-700'}`}>{x.v}</p>
-                            </div>
-                          ))}
-                          <div className="bg-warning-50 rounded-lg py-1.5 px-1">
-                            <p className="text-[10px] text-warning-700 uppercase tracking-wide">Total</p>
-                            <p className="text-xs font-bold text-warning-700">{formatCurrency(costoTotal)}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between mt-2.5">
-                          <span className="text-xs text-neutral-500">Cant. a comprar</span>
                           <input
                             type="number"
                             inputMode="numeric"
@@ -453,10 +435,31 @@ const PresupuestoReposicion: React.FC<{
                                 actualizarCantidad(p.productoId, val)
                               }
                             }}
-                            style={{ width: 90, minWidth: 0, paddingLeft: 8, paddingRight: 8 }}
-                            className="py-2 text-right border border-neutral-200 rounded-lg focus:outline-none focus:border-primary text-sm font-semibold"
+                            style={{ width: 56, minWidth: 0, paddingLeft: 4, paddingRight: 4 }}
+                            className="shrink-0 py-1.5 text-center border border-neutral-200 rounded-lg focus:outline-none focus:border-primary text-sm font-semibold"
                           />
                         </div>
+
+                        {abierto && (
+                          <div className="px-3 pb-2.5 -mt-0.5">
+                            <p className="text-[13px] text-neutral-700 mb-1.5">{p.nombre}</p>
+                            <div className="grid grid-cols-3 gap-1.5 text-center">
+                              {[
+                                { l: 'Mínimo', v: p.stockMinimo, alerta: false },
+                                { l: 'Actual', v: p.stockActual, alerta: false },
+                                { l: 'Costo U', v: formatCurrency(p.precioCosto), alerta: false },
+                                { l: '1 semana', v: p.necesario7 ?? '—', alerta: p.necesario7 != null && p.stockActual < p.necesario7 },
+                                { l: '30 días', v: p.necesario30 ?? '—', alerta: p.necesario30 != null && p.stockActual < p.necesario30 },
+                                { l: 'Total', v: formatCurrency(cantidad * p.precioCosto), alerta: false },
+                              ].map(x => (
+                                <div key={x.l} className="bg-neutral-50 rounded-lg py-1 px-1">
+                                  <p className="text-[10px] text-neutral-400 uppercase tracking-wide">{x.l}</p>
+                                  <p className={`text-xs font-semibold ${x.alerta ? 'text-amber-700' : 'text-neutral-700'}`}>{x.v}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -469,16 +472,16 @@ const PresupuestoReposicion: React.FC<{
           <table className="hidden md:table w-full text-xs">
             <thead className="sticky top-0 z-10">
               <tr className="bg-neutral-50 border-b border-neutral-200">
-                <th className="px-4 py-3 text-left font-semibold text-neutral-500 w-8"></th>
-                <th className="px-4 py-3 text-left font-semibold text-neutral-500">Producto</th>
-                <th className="px-4 py-3 text-right font-semibold text-neutral-500">Stock mínimo</th>
-                <th className="px-4 py-3 text-right font-semibold text-neutral-500">Stock actual</th>
-                <th className="px-4 py-3 text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 7 días">Necesario 1 semana</th>
-                <th className="px-4 py-3 text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 30 días">Necesario 30 días</th>
-                <th className="px-4 py-3 text-right font-semibold text-amber-700">Faltante</th>
-                <th className="px-4 py-3 text-right font-semibold text-neutral-500">Costo U</th>
-                <th className="px-4 py-3 text-right font-semibold text-primary">Cant. a comprar</th>
-                <th className="px-4 py-3 text-right font-semibold text-warning-700">Costo total</th>
+                <th className="px-3 py-3 whitespace-nowrap text-left font-semibold text-neutral-500 w-8"></th>
+                <th className="px-3 py-3 whitespace-nowrap text-left font-semibold text-neutral-500">Producto</th>
+                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500">Stock mín.</th>
+                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500">Stock actual</th>
+                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 7 días">Nec. 1 sem.</th>
+                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 30 días">Nec. 30 d.</th>
+                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-amber-700">Faltante</th>
+                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500">Costo U</th>
+                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-primary">A comprar</th>
+                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-warning-700">Costo total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -496,29 +499,29 @@ const PresupuestoReposicion: React.FC<{
                     return (
                       <tr key={p.productoId}
                         className={`transition-colors ${seleccionado ? 'bg-primary/5' : 'hover:bg-neutral-50'}`}>
-                        <td className="px-4 py-2.5">
+                        <td className="px-3 py-2.5">
                           <button onClick={() => toggleSeleccion(p)} className="text-primary">
                             {seleccionado ? <CheckSquare size={16} /> : <Square size={16} className="text-neutral-300" />}
                           </button>
                         </td>
-                        <td className="px-4 py-2.5 font-medium text-neutral-800">{p.nombre}</td>
-                        <td className="px-4 py-2.5 text-right text-neutral-500">{p.stockMinimo}</td>
-                        <td className="px-4 py-2.5 text-right text-neutral-600">{p.stockActual}</td>
-                        <td className={`px-4 py-2.5 text-right ${p.necesario7 != null && p.stockActual < p.necesario7 ? 'font-semibold text-amber-700' : 'text-neutral-500'}`}>
+                        <td className="px-3 py-2.5 font-medium text-neutral-800 min-w-[180px]">{p.nombre}</td>
+                        <td className="px-3 py-2.5 text-right text-neutral-500">{p.stockMinimo}</td>
+                        <td className="px-3 py-2.5 text-right text-neutral-600">{p.stockActual}</td>
+                        <td className={`px-3 py-2.5 text-right ${p.necesario7 != null && p.stockActual < p.necesario7 ? 'font-semibold text-amber-700' : 'text-neutral-500'}`}>
                           {p.necesario7 != null ? p.necesario7 : '—'}
                         </td>
-                        <td className={`px-4 py-2.5 text-right ${p.necesario30 != null && p.stockActual < p.necesario30 ? 'font-semibold text-amber-700' : 'text-neutral-500'}`}>
+                        <td className={`px-3 py-2.5 text-right ${p.necesario30 != null && p.stockActual < p.necesario30 ? 'font-semibold text-amber-700' : 'text-neutral-500'}`}>
                           {p.necesario30 != null ? p.necesario30 : '—'}
                         </td>
-                        <td className="px-4 py-2.5 text-right">
+                        <td className="px-3 py-2.5 text-right">
                           {p.faltante > 0 ? (
                             <span className="font-bold text-amber-700">{p.faltante}u</span>
                           ) : (
                             <span className="text-success-600">OK</span>
                           )}
                         </td>
-                        <td className="px-4 py-2.5 text-right text-neutral-500">{formatCurrency(p.precioCosto)}</td>
-                        <td className="px-4 py-2.5 text-right">
+                        <td className="px-3 py-2.5 text-right text-neutral-500">{formatCurrency(p.precioCosto)}</td>
+                        <td className="px-3 py-2.5 text-right">
                           <input
                             type="number"
                             min={0}
@@ -531,11 +534,12 @@ const PresupuestoReposicion: React.FC<{
                                 actualizarCantidad(p.productoId, val)
                               }
                             }}
-                            className="w-16 px-2 py-1 text-right border border-neutral-200 rounded-md
+                            style={{ width: 72, minWidth: 0, paddingLeft: 6, paddingRight: 6 }}
+                            className="py-1 text-right border border-neutral-200 rounded-md
                                        focus:outline-none focus:border-primary text-xs"
                           />
                         </td>
-                        <td className="px-4 py-2.5 text-right font-semibold text-warning-700">
+                        <td className="px-3 py-2.5 text-right font-semibold text-warning-700">
                           {formatCurrency(costoTotal)}
                         </td>
                       </tr>
