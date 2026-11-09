@@ -134,15 +134,26 @@ interface ProductoConFaltante {
   stockActual: number
   stockMinimo: number
   precioCosto: number
+  // Unidades vendidas en los últimos 7 / 30 días (null = todavía no cargaron o falló)
+  necesario7: number | null
+  necesario30: number | null
   faltante: number
 }
 
-const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) => {
+type BaseReposicion = 'minimo' | 'semana' | 'mes'
+
+const PresupuestoReposicion: React.FC<{
+  productos: any[]
+  ventas7: Record<number, number> | null
+  ventas30: Record<number, number> | null
+}> = ({ productos, ventas7, ventas30 }) => {
   // productoId -> cantidad elegida a comprar
   const [seleccionados, setSeleccionados] = useState<Record<number, number>>({})
   const [filtroCategoria, setFiltroCategoria] = useState('todas')
   const [filtroDistribuidor, setFiltroDistribuidor] = useState('todos')
   const [soloFaltantes, setSoloFaltantes] = useState(true)
+  // Hasta dónde reponer: el mínimo cargado, o lo que se vendió en 1 semana / 30 días
+  const [base, setBase] = useState<BaseReposicion>('minimo')
   const [busqueda, setBusqueda] = useState('')
   const [modalExportar, setModalExportar] = useState(false)
   const [incluirPrecios, setIncluirPrecios] = useState(true)
@@ -153,7 +164,16 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
     // acá como "faltante" ni que entre en el presupuesto de reposición.
     return productos
       .filter((p: any) => p.activo !== false)
-      .map((p: any) => ({
+      .map((p: any) => {
+        const stockActual = p.stockActual ?? 0
+        const stockMinimo = p.stockMinimo ?? 0
+        const necesario7  = ventas7  ? (ventas7[p.productoId]  ?? 0) : null
+        const necesario30 = ventas30 ? (ventas30[p.productoId] ?? 0) : null
+        const objetivo =
+          base === 'semana' ? (necesario7  ?? 0)
+          : base === 'mes'  ? (necesario30 ?? 0)
+          : stockMinimo
+        return {
         productoId: p.productoId,
         nombre: p.nombre,
         categoria: p.categoriaNombre || 'Sin categoría',
@@ -161,9 +181,12 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
         stockActual: p.stockActual ?? 0,
         stockMinimo: p.stockMinimo ?? 0,
         precioCosto: p.precioCosto ?? 0,
-        faltante: Math.max(0, (p.stockMinimo ?? 0) - (p.stockActual ?? 0)),
-      }))
-  }, [productos])
+        necesario7,
+        necesario30,
+        faltante: Math.max(0, objetivo - stockActual),
+        }
+      })
+  }, [productos, ventas7, ventas30, base])
 
   const categorias = React.useMemo(() =>
     [...new Set(productosConFaltante.map(p => p.categoria))].sort()
@@ -291,11 +314,23 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
           </h3>
           {totalFaltantes > 0 && (
             <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-              {totalFaltantes} bajo el mínimo
+              {totalFaltantes} con faltante
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-neutral-400">Reponer hasta:</span>
+            <div className="flex rounded-lg border border-neutral-200 overflow-hidden text-xs">
+              {([['minimo', 'Mínimo'], ['semana', '1 semana'], ['mes', '30 días']] as [BaseReposicion, string][]).map(([k, label]) => (
+                <button key={k} onClick={() => setBase(k)}
+                  className={`px-2.5 py-1.5 font-medium transition-all
+                    ${base === k ? 'bg-primary text-white' : 'text-neutral-500 hover:bg-neutral-50'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
           <button onClick={seleccionarTodoFaltante}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-primary/30 text-primary
                        text-xs font-medium hover:bg-primary/5 transition-colors">
@@ -312,13 +347,13 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
       </div>
 
       {/* Filtros */}
-      <div className="px-5 py-3 border-b border-neutral-100 grid grid-cols-[2fr_1fr_1fr_1fr] gap-2">
+      <div className="px-5 py-3 border-b border-neutral-100 grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr] gap-2">
         <input
           type="text"
           placeholder="Buscar producto..."
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}
-          className="min-w-0 w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:border-primary"
+          className="col-span-2 md:col-span-1 min-w-0 w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:border-primary"
         />
         <select
           value={filtroCategoria}
@@ -338,12 +373,12 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
         </select>
         <button
           onClick={() => setSoloFaltantes(v => !v)}
-          className={`min-w-0 w-full px-2 py-2 rounded-lg text-xs font-medium border transition-all leading-tight text-center
+          className={`col-span-2 md:col-span-1 min-w-0 w-full px-2 py-2 rounded-lg text-xs font-medium border transition-all leading-tight text-center
             ${soloFaltantes
               ? 'bg-amber-50 border-amber-300 text-amber-700'
               : 'bg-white border-neutral-200 text-neutral-500 hover:border-neutral-300'}`}
         >
-          Solo debajo del mínimo
+          Solo con faltante
         </button>
       </div>
 
@@ -353,17 +388,93 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
           <div className="flex flex-col items-center justify-center py-16 text-neutral-300">
             <Package size={32} className="mb-2 opacity-30" />
             <p className="text-sm text-neutral-400">
-              {soloFaltantes ? '¡Todo por encima del stock mínimo! ✓' : 'Sin productos para mostrar'}
+              {soloFaltantes ? '¡Nada por reponer con este criterio! ✓' : 'Sin productos para mostrar'}
             </p>
           </div>
         ) : (
-          <table className="w-full text-xs">
+          <>
+          {/* ── Celular: una tarjeta por producto ── */}
+          <div className="md:hidden">
+            {Object.entries(grupos).map(([categoria, items]) => (
+              <div key={categoria}>
+                <div className="px-4 py-1.5 bg-blue-50/60 font-bold text-blue-700 uppercase tracking-wide text-[11px] sticky top-0 z-10">
+                  {categoria}
+                </div>
+                <div className="divide-y divide-neutral-100">
+                  {items.map(p => {
+                    const seleccionado = seleccionados[p.productoId] != null
+                    const cantidad = seleccionados[p.productoId] ?? p.faltante
+                    const costoTotal = cantidad * p.precioCosto
+                    return (
+                      <div key={p.productoId} className={`px-4 py-3 ${seleccionado ? 'bg-primary/5' : ''}`}>
+                        <div className="flex items-start gap-3">
+                          <button onClick={() => toggleSeleccion(p)} className="text-primary mt-0.5 shrink-0">
+                            {seleccionado ? <CheckSquare size={20} /> : <Square size={20} className="text-neutral-300" />}
+                          </button>
+                          <p className="text-sm font-semibold text-neutral-800 leading-snug flex-1 min-w-0">{p.nombre}</p>
+                          {p.faltante > 0 ? (
+                            <span className="shrink-0 text-xs font-bold text-amber-700 bg-amber-50 rounded-full px-2 py-0.5">falta {p.faltante}u</span>
+                          ) : (
+                            <span className="shrink-0 text-xs font-bold text-success-600">OK</span>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2 mt-2.5 text-center">
+                          {[
+                            { l: 'Mínimo', v: p.stockMinimo, alerta: false },
+                            { l: 'Actual', v: p.stockActual, alerta: false },
+                            { l: 'Costo U', v: formatCurrency(p.precioCosto), alerta: false },
+                            { l: '1 semana', v: p.necesario7 ?? '—', alerta: p.necesario7 != null && p.stockActual < p.necesario7 },
+                            { l: '30 días', v: p.necesario30 ?? '—', alerta: p.necesario30 != null && p.stockActual < p.necesario30 },
+                          ].map(x => (
+                            <div key={x.l} className="bg-neutral-50 rounded-lg py-1.5 px-1">
+                              <p className="text-[10px] text-neutral-400 uppercase tracking-wide">{x.l}</p>
+                              <p className={`text-xs font-semibold ${x.alerta ? 'text-amber-700' : 'text-neutral-700'}`}>{x.v}</p>
+                            </div>
+                          ))}
+                          <div className="bg-warning-50 rounded-lg py-1.5 px-1">
+                            <p className="text-[10px] text-warning-700 uppercase tracking-wide">Total</p>
+                            <p className="text-xs font-bold text-warning-700">{formatCurrency(costoTotal)}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between mt-2.5">
+                          <span className="text-xs text-neutral-500">Cant. a comprar</span>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            value={cantidad}
+                            onChange={e => {
+                              const val = Math.max(0, Number(e.target.value) || 0)
+                              if (!seleccionado && val > 0) {
+                                setSeleccionados(prev => ({ ...prev, [p.productoId]: val }))
+                              } else {
+                                actualizarCantidad(p.productoId, val)
+                              }
+                            }}
+                            style={{ width: 90, minWidth: 0, paddingLeft: 8, paddingRight: 8 }}
+                            className="py-2 text-right border border-neutral-200 rounded-lg focus:outline-none focus:border-primary text-sm font-semibold"
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Pantalla grande: tabla ── */}
+          <table className="hidden md:table w-full text-xs">
             <thead className="sticky top-0 z-10">
               <tr className="bg-neutral-50 border-b border-neutral-200">
                 <th className="px-4 py-3 text-left font-semibold text-neutral-500 w-8"></th>
                 <th className="px-4 py-3 text-left font-semibold text-neutral-500">Producto</th>
-                <th className="px-4 py-3 text-right font-semibold text-neutral-500">Stock mín. (sem.)</th>
+                <th className="px-4 py-3 text-right font-semibold text-neutral-500">Stock mínimo</th>
                 <th className="px-4 py-3 text-right font-semibold text-neutral-500">Stock actual</th>
+                <th className="px-4 py-3 text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 7 días">Necesario 1 semana</th>
+                <th className="px-4 py-3 text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 30 días">Necesario 30 días</th>
                 <th className="px-4 py-3 text-right font-semibold text-amber-700">Faltante</th>
                 <th className="px-4 py-3 text-right font-semibold text-neutral-500">Costo U</th>
                 <th className="px-4 py-3 text-right font-semibold text-primary">Cant. a comprar</th>
@@ -374,7 +485,7 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
               {Object.entries(grupos).map(([categoria, items]) => (
                 <React.Fragment key={categoria}>
                   <tr className="bg-blue-50/60">
-                    <td colSpan={8} className="px-4 py-1.5 font-bold text-blue-700 uppercase tracking-wide text-[11px]">
+                    <td colSpan={10} className="px-4 py-1.5 font-bold text-blue-700 uppercase tracking-wide text-[11px]">
                       {categoria}
                     </td>
                   </tr>
@@ -393,6 +504,12 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
                         <td className="px-4 py-2.5 font-medium text-neutral-800">{p.nombre}</td>
                         <td className="px-4 py-2.5 text-right text-neutral-500">{p.stockMinimo}</td>
                         <td className="px-4 py-2.5 text-right text-neutral-600">{p.stockActual}</td>
+                        <td className={`px-4 py-2.5 text-right ${p.necesario7 != null && p.stockActual < p.necesario7 ? 'font-semibold text-amber-700' : 'text-neutral-500'}`}>
+                          {p.necesario7 != null ? p.necesario7 : '—'}
+                        </td>
+                        <td className={`px-4 py-2.5 text-right ${p.necesario30 != null && p.stockActual < p.necesario30 ? 'font-semibold text-amber-700' : 'text-neutral-500'}`}>
+                          {p.necesario30 != null ? p.necesario30 : '—'}
+                        </td>
                         <td className="px-4 py-2.5 text-right">
                           {p.faltante > 0 ? (
                             <span className="font-bold text-amber-700">{p.faltante}u</span>
@@ -428,6 +545,7 @@ const PresupuestoReposicion: React.FC<{ productos: any[] }> = ({ productos }) =>
               ))}
             </tbody>
           </table>
+          </>
         )}
       </div>
 
@@ -537,6 +655,33 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
   const [sortAsc, setSortAsc]   = useState(false)
   const [busqueda, setBusqueda] = useState('')
   const [cargado, setCargado]   = useState(false)
+
+  // Ventas por producto de los últimos 7 y 30 días, para el presupuesto de reposición.
+  // Reusa el endpoint de análisis (agrega en el servidor): 2 llamadas livianas, una sola vez.
+  const [ventas7, setVentas7]   = useState<Record<number, number> | null>(null)
+  const [ventas30, setVentas30] = useState<Record<number, number> | null>(null)
+
+  React.useEffect(() => {
+    if (!user?.kioscoId) return
+    let cancelado = false
+    const traer = async (dias: number) => {
+      const hasta = new Date()
+      const desde = new Date()
+      desde.setDate(desde.getDate() - dias)
+      const res = await apiClient.post(
+        `/Dashboard/kiosco/${user.kioscoId}/analisis-productos`,
+        { fechaDesde: desde.toISOString(), fechaHasta: hasta.toISOString() }
+      )
+      const r = handleResponse(res) as AnalisisResponse
+      const mapa: Record<number, number> = {}
+      r.productos.forEach(x => { mapa[x.productoId] = x.unidadesVendidas })
+      return mapa
+    }
+    Promise.all([traer(7), traer(30)])
+      .then(([m7, m30]) => { if (!cancelado) { setVentas7(m7); setVentas30(m30) } })
+      .catch(err => console.error('No se pudieron cargar las ventas para reposición', err))
+    return () => { cancelado = true }
+  }, [user?.kioscoId])
 
   // Top productos del período actual (desde ventasFiltradas del dashboard).
   // Los productos del combo ya vienen sumando como líneas sueltas (así se graban);
@@ -752,7 +897,7 @@ const [productoSeleccionado, setProductoSeleccionado] = useState<ProductoDetalle
       </div>
 
       {/* ── PRESUPUESTO DE REPOSICIÓN ─────────────────────────────────── */}
-      <PresupuestoReposicion productos={productos} />
+      <PresupuestoReposicion productos={productos} ventas7={ventas7} ventas30={ventas30} />
 
       {/* ── TOP PRODUCTOS (completo) ───────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
