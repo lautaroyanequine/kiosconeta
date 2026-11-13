@@ -142,6 +142,9 @@ interface ProductoConFaltante {
 
 type BaseReposicion = 'minimo' | 'semana' | 'mes'
 
+// null = sin datos todavía; 0 = el producto no tuvo ventas en ese período
+const textoNecesario = (v: number | null) => v == null ? '—' : v === 0 ? 'Sin ventas' : String(v)
+
 const PresupuestoReposicion: React.FC<{
   productos: any[]
   ventas7: Record<number, number> | null
@@ -448,8 +451,8 @@ const PresupuestoReposicion: React.FC<{
                                 { l: 'Mínimo', v: p.stockMinimo, alerta: false },
                                 { l: 'Actual', v: p.stockActual, alerta: false },
                                 { l: 'Costo U', v: formatCurrency(p.precioCosto), alerta: false },
-                                { l: '1 semana', v: p.necesario7 ?? '—', alerta: p.necesario7 != null && p.stockActual < p.necesario7 },
-                                { l: '30 días', v: p.necesario30 ?? '—', alerta: p.necesario30 != null && p.stockActual < p.necesario30 },
+                                { l: '1 semana', v: textoNecesario(p.necesario7), alerta: p.necesario7 != null && p.stockActual < p.necesario7 },
+                                { l: '30 días', v: textoNecesario(p.necesario30), alerta: p.necesario30 != null && p.stockActual < p.necesario30 },
                                 { l: 'Total', v: formatCurrency(cantidad * p.precioCosto), alerta: false },
                               ].map(x => (
                                 <div key={x.l} className="bg-neutral-50 rounded-lg py-1 px-1">
@@ -472,16 +475,16 @@ const PresupuestoReposicion: React.FC<{
           <table className="hidden md:table w-full text-xs">
             <thead className="sticky top-0 z-10">
               <tr className="bg-neutral-50 border-b border-neutral-200">
-                <th className="px-3 py-3 whitespace-nowrap text-left font-semibold text-neutral-500 w-8"></th>
-                <th className="px-3 py-3 whitespace-nowrap text-left font-semibold text-neutral-500">Producto</th>
-                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500">Stock mín.</th>
-                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500">Stock actual</th>
-                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 7 días">Nec. 1 sem.</th>
-                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 30 días">Nec. 30 d.</th>
-                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-amber-700">Faltante</th>
-                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500">Costo U</th>
-                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-primary">A comprar</th>
-                <th className="px-3 py-3 whitespace-nowrap text-right font-semibold text-warning-700">Costo total</th>
+                <th style={{ textAlign: 'left' }} className="px-3 py-3 whitespace-nowrap text-left font-semibold text-neutral-500 w-8"></th>
+                <th style={{ textAlign: 'left' }} className="px-3 py-3 whitespace-nowrap text-left font-semibold text-neutral-500">Producto</th>
+                <th style={{ textAlign: 'right' }} className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500">Stock mín.</th>
+                <th style={{ textAlign: 'right' }} className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500">Stock actual</th>
+                <th style={{ textAlign: 'right' }} className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 7 días">Nec. 1 sem.</th>
+                <th style={{ textAlign: 'right' }} className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500" title="Unidades vendidas en los últimos 30 días">Nec. 30 d.</th>
+                <th style={{ textAlign: 'right' }} className="px-3 py-3 whitespace-nowrap text-right font-semibold text-amber-700">Faltante</th>
+                <th style={{ textAlign: 'right' }} className="px-3 py-3 whitespace-nowrap text-right font-semibold text-neutral-500">Costo U</th>
+                <th style={{ textAlign: 'right' }} className="px-3 py-3 whitespace-nowrap text-right font-semibold text-primary">A comprar</th>
+                <th style={{ textAlign: 'right' }} className="px-3 py-3 whitespace-nowrap text-right font-semibold text-warning-700">Costo total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -505,23 +508,23 @@ const PresupuestoReposicion: React.FC<{
                           </button>
                         </td>
                         <td className="px-3 py-2.5 font-medium text-neutral-800 min-w-[180px]">{p.nombre}</td>
-                        <td className="px-3 py-2.5 text-right text-neutral-500">{p.stockMinimo}</td>
-                        <td className="px-3 py-2.5 text-right text-neutral-600">{p.stockActual}</td>
+                        <td style={{ textAlign: 'right' }} className="px-3 py-2.5 text-right text-neutral-500">{p.stockMinimo}</td>
+                        <td style={{ textAlign: 'right' }} className="px-3 py-2.5 text-right text-neutral-600">{p.stockActual}</td>
                         <td className={`px-3 py-2.5 text-right ${p.necesario7 != null && p.stockActual < p.necesario7 ? 'font-semibold text-amber-700' : 'text-neutral-500'}`}>
-                          {p.necesario7 != null ? p.necesario7 : '—'}
+                          {p.necesario7 === 0 ? <span className="text-[11px] font-normal text-neutral-300">Sin ventas</span> : textoNecesario(p.necesario7)}
                         </td>
                         <td className={`px-3 py-2.5 text-right ${p.necesario30 != null && p.stockActual < p.necesario30 ? 'font-semibold text-amber-700' : 'text-neutral-500'}`}>
-                          {p.necesario30 != null ? p.necesario30 : '—'}
+                          {p.necesario30 === 0 ? <span className="text-[11px] font-normal text-neutral-300">Sin ventas</span> : textoNecesario(p.necesario30)}
                         </td>
-                        <td className="px-3 py-2.5 text-right">
+                        <td style={{ textAlign: 'right' }} className="px-3 py-2.5 text-right">
                           {p.faltante > 0 ? (
                             <span className="font-bold text-amber-700">{p.faltante}u</span>
                           ) : (
                             <span className="text-success-600">OK</span>
                           )}
                         </td>
-                        <td className="px-3 py-2.5 text-right text-neutral-500">{formatCurrency(p.precioCosto)}</td>
-                        <td className="px-3 py-2.5 text-right">
+                        <td style={{ textAlign: 'right' }} className="px-3 py-2.5 text-right text-neutral-500">{formatCurrency(p.precioCosto)}</td>
+                        <td style={{ textAlign: 'right' }} className="px-3 py-2.5 text-right">
                           <input
                             type="number"
                             min={0}
@@ -539,7 +542,7 @@ const PresupuestoReposicion: React.FC<{
                                        focus:outline-none focus:border-primary text-xs"
                           />
                         </td>
-                        <td className="px-3 py-2.5 text-right font-semibold text-warning-700">
+                        <td style={{ textAlign: 'right' }} className="px-3 py-2.5 text-right font-semibold text-warning-700">
                           {formatCurrency(costoTotal)}
                         </td>
                       </tr>
