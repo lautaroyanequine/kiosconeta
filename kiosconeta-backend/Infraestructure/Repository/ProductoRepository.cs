@@ -86,6 +86,7 @@ namespace Infraestructure.Repository
             return await _context.Productos
                 .Include(p => p.Categoria)
                 .Include(p => p.DistribuidorNav)
+                .Include(p => p.ProductoTags).ThenInclude(pt => pt.Tag)   // el POS necesita los tags (combos por tag)
                 .Where(p => p.KioscoId == kioscoId && p.Activo)
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
