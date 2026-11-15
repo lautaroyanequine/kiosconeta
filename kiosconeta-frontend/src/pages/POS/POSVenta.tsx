@@ -832,7 +832,12 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
                 // Línea por tag: opciones posibles + la elegida
                 const opcionesTag = esLineaPorTag
-                  ? productos.filter(p => (p as any).tagIds?.includes(pc.tagId))
+                  ? productos
+                      // El backend manda `tags: [{ tagId, nombre }]` (no `tagIds`); se aceptan ambos.
+                      .filter(p =>
+                        (p as any).tags?.some((t: any) => t.tagId === pc.tagId) ||
+                        (p as any).tagIds?.includes(pc.tagId))
+                      .sort((a, b) => a.nombre.localeCompare(b.nombre))
                   : [];
                 const prodElegido = esLineaPorTag
                   ? productos.find(p => p.productoId === linea?.productoIdElegido)
@@ -860,11 +865,16 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
                             <select
                               value={linea?.productoIdElegido ?? ''}
                               onChange={e => setLinea({ productoIdElegido: e.target.value ? Number(e.target.value) : undefined })}
-                              className="w-full text-sm font-semibold text-neutral-800 bg-white border border-neutral-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-primary"
+                              style={{ width: '100%', minWidth: 0 }}
+                              className="text-sm font-semibold text-neutral-800 bg-white border border-neutral-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-primary"
                             >
-                              <option value="">Seleccioná un producto...</option>
+                              <option value="">
+                                {opcionesTag.length === 0 ? 'No hay productos con este tag' : 'Seleccioná un producto...'}
+                              </option>
                               {opcionesTag.map(p => (
-                                <option key={p.productoId} value={p.productoId}>{p.nombre}</option>
+                                <option key={p.productoId} value={p.productoId}>
+                                  {p.nombre} · stock {p.stock}
+                                </option>
                               ))}
                             </select>
                           </>
