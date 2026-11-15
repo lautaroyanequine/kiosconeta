@@ -817,12 +817,13 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
               </div>
             </div>
             <p className="text-xs text-neutral-400 mb-4 mt-1">
-              Ajustá las cantidades de cada componente antes de agregar al carrito.
+              Las cantidades del combo son fijas. Elegí el producto en los componentes que lo pidan.
             </p>
             <div className="space-y-3 mb-5">
               {comboModal.combo.productosCombo.map((pc, idx) => {
                 const linea = comboModal.lineas[idx];
-                const qty = linea?.cantidad ?? pc.cantidad;
+                // Cantidad FIJA: la define el combo, no se puede cambiar al vender.
+                const qty = pc.cantidad;
                 const esLineaPorTag = pc.productoId == null && pc.tagId != null;
 
                 // Línea fija: ya sabemos qué producto es
@@ -887,18 +888,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
                           </p>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={() => setLinea({ cantidad: Math.max(1, qty - 1) })}
-                          className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-primary hover:text-primary transition-all">
-                          <Minus size={11} />
-                        </button>
-                        <span className="w-7 text-center font-bold text-neutral-800">{qty}</span>
-                        <button
-                          onClick={() => setLinea({ cantidad: qty + 1 })}
-                          className="w-7 h-7 rounded-full border-2 border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-primary hover:text-primary transition-all">
-                          <Plus size={11} />
-                        </button>
+                      <div className="shrink-0 min-w-[44px] text-center rounded-lg bg-white border border-neutral-200 px-2 py-1">
+                        <span className="text-sm font-bold text-neutral-800">×{qty}</span>
                       </div>
                     </div>
                   </div>
@@ -931,7 +922,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
         return {
           productoId,
           nombre:   pc.nombre ?? prod?.nombre ?? '',
-          cantidad: linea?.cantidad ?? pc.cantidad,
+          cantidad: pc.cantidad,   // fija, la define el combo
         };
       })
     : undefined;
