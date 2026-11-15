@@ -74,6 +74,22 @@ public class PromocionRepository : IPromocionRepository
     {
         var promo = await _context.Promociones.FindAsync(id);
         if (promo == null) return false;
+
+        // 1) Los productos/tags del combo se borran de forma explícita: la relación no está
+        //    configurada con cascada y EF se negaba a "cortarla" (error 500 al eliminar).
+        var lineas = await _context.PromocionProductos
+            .Where(pp => pp.PromocionId == id)
+            .ToListAsync();
+        _context.PromocionProductos.RemoveRange(lineas);
+
+        // 2) Las ventas históricas que usaron este combo conservan su registro
+        //    (con PromocionNombre como snapshot); solo se les quita la referencia.
+        var ventasCombo = await _context.VentaCombos
+            .Where(vc => vc.PromocionId == id)
+            .ToListAsync();
+        foreach (var vc in ventasCombo)
+            vc.PromocionId = null;
+
         _context.Promociones.Remove(promo);
         await _context.SaveChangesAsync();
         return true;
