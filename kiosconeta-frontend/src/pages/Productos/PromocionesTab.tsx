@@ -1171,12 +1171,15 @@ const PromoCard: React.FC<{
         >
           <Pencil size={13} /> Editar
         </button>
-        <button
-          onClick={onDelete}
-          className="ml-auto flex items-center gap-1 text-xs text-neutral-300 hover:text-red-500 transition-colors px-2 py-1.5 rounded-lg hover:bg-red-50"
-        >
-          <Trash2 size={13} /> Eliminar
-        </button>
+        {/* Solo se puede eliminar una promoción desactivada (primero se desactiva) */}
+        {!promo.activa && (
+          <button
+            onClick={onDelete}
+            className="ml-auto flex items-center gap-1.5 text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50 transition-colors px-3 py-1.5 rounded-lg"
+          >
+            <Trash2 size={13} /> Eliminar
+          </button>
+        )}
       </div>
     </div>
   );
