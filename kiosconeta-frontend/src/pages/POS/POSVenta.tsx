@@ -55,6 +55,8 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 })[]>([]);
   const [productosFiltrados, setProductosFiltrados] = useState<ProductoSimple[]>([]);
   const [busqueda, setBusqueda]                     = useState('');
+  // Cuántos resultados se dibujan; el resto se carga con "Ver más" (evita dibujar cientos de tarjetas)
+  const [limiteVisible, setLimiteVisible]             = useState(48);
   const [categoriaActiva, setCategoriaActiva]       = useState('todas');
   // Vista del listado de productos: filas (nombre completo) o tarjetas. Se recuerda.
   const [vistaProductos, setVistaProductos] = useState<'lista' | 'tarjetas'>(() => {
@@ -147,7 +149,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
 
       setCombosVirtuales(combos);
       setProductos(data);
-      setProductosFiltrados([...(combos as any[]), ...data].slice(0, 12));
+      setProductosFiltrados([...(combos as any[]), ...data]);
     } catch (err) { console.error(err); }
     finally { setIsLoadingProductos(false); }
   };
@@ -187,8 +189,11 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     let prods = [...productos];
     if (cat !== 'todas') prods = prods.filter(p => p.categoria === cat);
     if (q) prods = prods.filter(p => coincideBusqueda(p.nombre, q));
-    // Combos primero, luego productos
-    setProductosFiltrados([...(combosVisibles as any[]), ...prods].slice(0, 12));
+    // Sin búsqueda: combos primero. Buscando algo: primero los productos, porque si no
+    // los combos que llevan ese nombre (ej. "+ Vaso Hielo") tapan al producto buscado.
+    setProductosFiltrados(q
+      ? [...prods, ...(combosVisibles as any[])]
+      : [...(combosVisibles as any[]), ...prods]);
   }, [productos, combosVirtuales]);
 
   const debouncedFilter = useMemo(
@@ -196,7 +201,7 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
     [filtrarProductos]
   );
 
-  useEffect(() => { debouncedFilter(busqueda, categoriaActiva); }, [busqueda, categoriaActiva]);
+  useEffect(() => { debouncedFilter(busqueda, categoriaActiva); setLimiteVisible(48); }, [busqueda, categoriaActiva]);
 
   // ── Alta al carrito (usada por click en grilla, código de barras y Enter) ──
   // Centraliza la decisión: un producto por kilo SIEMPRE pasa por el modal de
@@ -534,10 +539,11 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
           <p className="text-sm text-neutral-400">Sin resultados</p>
         </div>
       ) : (
+        <>
         <div className={vistaProductos === 'lista'
           ? 'flex flex-col gap-1.5'
           : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2'}>
-          {productosFiltrados.map(p => {
+          {productosFiltrados.slice(0, limiteVisible).map(p => {
             const esCombo = (p as any).esCombo === true;
             const alClick = () => {
               if (esCombo) {
@@ -568,6 +574,14 @@ export const POSVenta: React.FC<POSVentaProps> = ({ turnoActual, onTurnoActualiz
             );
           })}
         </div>
+        {productosFiltrados.length > limiteVisible && (
+          <button
+            onClick={() => setLimiteVisible(l => l + 48)}
+            className="w-full mt-3 py-2.5 text-sm font-medium text-primary border border-primary/30 rounded-xl hover:bg-primary/5 transition-colors">
+            Ver más ({productosFiltrados.length - limiteVisible} restantes)
+          </button>
+        )}
+        </>
       )}
     </div>
   </div>
